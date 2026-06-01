@@ -63,7 +63,7 @@ func OpenQuiz(ctx context.Context, br *browser.Client) error {
 //
 //   - button "Submit" [ref=e2]
 //   - textbox "Email" [ref=e3]
-var snapshotLine = regexp.MustCompile(`(?m)^\s*-\s+(\w+)\s+"([^"]+)"\s+\[ref=(e\d+)\]`)
+var snapshotLine = regexp.MustCompile(`(?m)^\s*-\s+(\w+)\s+"([^"]+)"\s+\[[^\]]*\bref=(e\d+)[^\]]*\]`)
 
 // ExtractRound parses an interactive snapshot and pulls out what looks like
 // the current quiz question plus its answer buttons.
@@ -85,10 +85,12 @@ func ExtractRound(snap string) (QuizRound, error) {
 	var (
 		round       QuizRound
 		seenButtons []match
+		inQuizRadio bool
+		quizRadio   bool
 	)
 
 	for _, m := range matches {
-		role, name, ref := m[1], m[2], m[3]
+		role, name, ref := strings.ToLower(m[1]), strings.TrimSpace(m[2]), m[3]
 		switch role {
 		case "heading", "paragraph", "text", "generic":
 			// Pick the longest text-ish element with a question mark
@@ -98,7 +100,25 @@ func ExtractRound(snap string) (QuizRound, error) {
 			} else if round.Prompt == "" && len(name) > 20 {
 				round.Prompt = name
 			}
-		case "button", "link", "radio":
+		case "radio":
+			if q := strings.Index(name, "?"); q >= 0 {
+				round.Prompt = name[:q+1]
+				seenButtons = nil
+				inQuizRadio = true
+				quizRadio = true
+			}
+		case "labeltext":
+			if !inQuizRadio || isControlLabel(name) {
+				continue
+			}
+			seenButtons = append(seenButtons, match{name: name, ref: ref})
+		case "button", "link":
+			if quizRadio {
+				if inQuizRadio {
+					inQuizRadio = false
+				}
+				continue
+			}
 			if isControlLabel(name) {
 				continue
 			}
@@ -129,6 +149,9 @@ func IsLoginRequired(pageURL, snap string) bool {
 	if strings.Contains(u, "/log-ind") || strings.Contains(u, "source=klublottorestriction") {
 		return true
 	}
+	if looksLoggedIn(pageURL, snap, "") {
+		return false
+	}
 	low := strings.ToLower(snap)
 	return strings.Contains(low, `link "log ind"`) ||
 		strings.Contains(low, `button "log ind"`) ||
@@ -142,7 +165,7 @@ type match struct{ name, ref string }
 func isControlLabel(s string) bool {
 	low := strings.ToLower(strings.TrimSpace(s))
 	for _, bad := range []string{
-		"indsend", "send", "næste", "fortsæt", "spil", "log ud", "log ind",
+		"afgiv svar", "indsend", "send", "næste", "fortsæt", "spil", "log ud", "log ind",
 		"min konto", "menu", "luk", "tilbage", "submit", "next", "play",
 	} {
 		if low == bad {
