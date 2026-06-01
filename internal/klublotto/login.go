@@ -157,6 +157,7 @@ func looksLoggedIn(pageURL, snap, body string) bool {
 func isLoggedOutURL(pageURL string) bool {
 	u := strings.ToLower(pageURL)
 	return strings.Contains(u, "/log-ind") ||
+		strings.Contains(u, "id-dlo.danskespil.dk") ||
 		strings.Contains(u, "mitid.dk") ||
 		strings.Contains(u, "nemlog-in")
 }

@@ -1,0 +1,36 @@
+{{define "job.html"}}
+{{with .Job}}
+<div hx-get="actions/status" hx-trigger="{{if eq .Status "running"}}every 2s{{else}}load delay:5s{{end}}" hx-swap="outerHTML">
+  <p><b>{{.Action}}</b>
+    {{if eq .Status "running"}}<span class="pill run">running</span>
+    {{else if eq .Status "ok"}}<span class="pill ok">ok</span>
+    {{else if eq .Status "error"}}<span class="pill err">error</span>
+    {{else}}<span class="pill">{{.Status}}</span>{{end}}
+    <span class="muted">{{datetime .StartedAt}}{{if not .FinishedAt.IsZero}} → {{datetime .FinishedAt}}{{end}}</span>
+  </p>
+  {{if .Error}}<p style="color:#c00">{{.Error}}</p>{{end}}
+
+  {{if and (eq .Action "login") (eq .Status "running")}}
+  <div style="margin:8px 0; padding:10px; background:#fff7ed; border:1px solid #f59e0b; border-radius:6px;">
+    <strong style="color:#9a3412;">MitID login in progress</strong><br>
+    <span style="font-size:13px;">Complete MitID in the VNC window. If the Rød Konto username/password form appears, leave it visible; this button will submit the configured credentials and verify the final Klub Lotto session.</span><br>
+    <button hx-post="actions/login/force-success" hx-target="#job" hx-swap="outerHTML"
+            hx-on::before-request="this.disabled=true; this.textContent='Verifying…';"
+            style="margin-top:8px; background:#2a6b2a; color:white; border:none; padding:8px 16px; border-radius:4px; cursor:pointer; font-weight:600; font-size:13px;">
+      MitID/Rød Konto ready — verify session
+    </button>
+    <button onclick="if(window.openVncInNewTab){openVncInNewTab()}else if(window.prefixPath){window.open(prefixPath('vnc/vnc.html?autoconnect=1&resize=scale&reconnect=1&path=websockify'),'_blank')}else{location.href='/vnc/vnc.html?autoconnect=1&resize=scale&reconnect=1&path=websockify'}"
+            style="margin-left:6px; background:#d97706; color:white; border:none; padding:8px 16px; border-radius:4px; cursor:pointer; font-weight:600; font-size:13px;">
+      Open VNC viewer (MitID)
+    </button>
+    <button onclick="location.reload()" style="margin-left:6px; background:#666; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; font-size:13px;">Reload page</button>
+  </div>
+  {{end}}
+
+  <div class="job-log">{{range .Log}}{{.}}
+{{end}}</div>
+</div>
+{{else}}
+<p class="muted">No job running. Trigger MitID login or a game to begin.</p>
+{{end}}
+{{end}}

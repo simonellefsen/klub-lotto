@@ -1,0 +1,16 @@
+{{define "auth.html"}}
+{{- $live := .LiveStatus -}}
+{{- $v := .LiveVerified -}}
+{{- $forced := .Forced -}}
+{{- with .LoginEvent -}}
+  {{- if eq $live "valid" -}}
+    <span style="color:#3ddc5f">●</span> <strong>Valid session</strong> <span style="font-size:10px;color:rgba(255,255,255,.82)">(last verified: {{$v}}{{if $forced}}; re-verified on demand{{end}})</span>
+  {{- else if eq $live "invalid" -}}
+    <span style="color:#7a0000">●</span> <strong>No valid session</strong> <span style="font-size:10px;color:rgba(255,255,255,.82)">(last verified: {{$v}})</span>
+  {{- else -}}
+    {{.Status}} · {{datetime .CreatedAt}}
+  {{- end -}}
+{{- else -}}
+  <span style="color:#c00">●</span> no login recorded yet
+{{- end -}}
+{{- end -}}

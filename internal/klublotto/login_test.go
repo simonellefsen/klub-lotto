@@ -22,6 +22,16 @@ func TestLooksLoggedInRejectsKlubLottoRestrictionLoginPage(t *testing.T) {
 	}
 }
 
+func TestLooksLoggedInRejectsRedKontoCredentialPage(t *testing.T) {
+	if looksLoggedIn(
+		"https://id-dlo.danskespil.dk/webflow/login",
+		`- textbox "Brugernavn" [ref=e1]`,
+		"Log på Rød Konto",
+	) {
+		t.Fatal("Rød Konto credential page must not be treated as authenticated")
+	}
+}
+
 func TestLooksLoggedInAcceptsAccountDrawerSignals(t *testing.T) {
 	if !looksLoggedIn(
 		"https://danskespil.dk/klublotto",

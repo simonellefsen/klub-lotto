@@ -6,8 +6,8 @@
 # Build artifacts
 /bin/
 /dist/
-klub-lotto
-klub-lotto-web
+/klub-lotto
+/klub-lotto-web
 *.exe
 *.test
 *.out

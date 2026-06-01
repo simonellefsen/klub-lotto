@@ -1,0 +1,527 @@
+{{define "index.html"}}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>klub-lotto</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://unpkg.com/htmx.org@2.0.4" defer></script>
+<style>
+  :root { color-scheme: light dark; }
+  body { font: 14px/1.4 -apple-system, system-ui, sans-serif; margin: 0; padding: 0; }
+  header { padding: 12px 20px; background: #d40000; color: #fff; display: flex; align-items: center; justify-content: space-between; }
+  header h1 { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: .5px; }
+  .auth-pill { font-size: 12px; background: rgba(255,255,255,.15); padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+  main { padding: 20px; max-width: 1400px; margin: 0 auto; }
+  .row { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 24px; }
+  @media (max-width: 1100px) { .row { grid-template-columns: 1fr; } }
+  section { background: var(--card, #fff); border: 1px solid #ddd; border-radius: 6px; padding: 14px 16px; margin-bottom: 16px; }
+  @media (prefers-color-scheme: dark) { section { --card: #1c1c1c; border-color: #333; } body { background: #111; color: #ddd; } header { background: #8a0000; } }
+  h2 { margin: 0 0 10px; font-size: 14px; text-transform: uppercase; letter-spacing: .8px; color: #777; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 6px 8px; text-align: left; border-bottom: 1px solid #eee; vertical-align: top; }
+  @media (prefers-color-scheme: dark) { th, td { border-color: #333; } }
+  th { font-weight: 600; color: #666; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  button { font: inherit; padding: 6px 12px; border-radius: 4px; border: 1px solid #ccc; background: #f7f7f7; cursor: pointer; }
+  button:hover { background: #eee; }
+  button.primary { background: #d40000; color: #fff; border-color: #d40000; }
+  .actions { display: flex; flex-wrap: wrap; gap: 6px; }
+  .job-log { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; background: #0c0c0c; color: #ddd; padding: 10px; border-radius: 4px; max-height: 240px; overflow: auto; white-space: pre-wrap; }
+  .muted { color: #888; }
+  .pill { display: inline-block; font-size: 11px; padding: 1px 8px; border-radius: 999px; background: #eee; color: #444; }
+  .pill.ok { background: #d6f5d6; color: #2a6b2a; }
+  .pill.err { background: #fde2e2; color: #8a1d1d; }
+  .pill.run { background: #fff3cd; color: #7a5500; }
+
+  /* Modal styles */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.75);
+  }
+  .modal.show { display: block; }
+  .modal-content {
+    background: var(--card, #fff);
+    margin: 3vh auto;
+    width: 95%;
+    max-width: 1400px;
+    height: 92vh;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  .modal-content.maximized { margin: 1vh auto; width: 98vw; max-width: none; height: 97vh; }
+  .modal-header {
+    padding: 12px 20px;
+    background: #d40000;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+  }
+  .modal-body {
+    flex: 1;
+    padding: 0;
+    position: relative;
+    background: #000;
+  }
+  .modal-body iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+  .modal-footer {
+    padding: 10px 20px;
+    background: #f5f5f5;
+    font-size: 13px;
+    color: #555;
+    border-top: 1px solid #ddd;
+  }
+  @media (prefers-color-scheme: dark) {
+    .modal-content { --card: #1c1c1c; }
+    .modal-footer { background: #222; color: #aaa; border-color: #444; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Klub Lotto · ledger</h1>
+  <!-- Wrap pill+refresh to keep them visually adjacent despite header space-between flex (addresses layout regression from added button). -->
+  <div style="display:flex; align-items:center; gap:4px; margin-left:auto;">
+    <div class="auth-pill" hx-get="auth" hx-trigger="every 30s" hx-swap="innerHTML">
+      {{template "auth.html" .}}
+    </div>
+    <button hx-get="auth" hx-target=".auth-pill" hx-swap="innerHTML" title="Refresh auth status from saved login state" style="font-size:11px;padding:1px 5px;border:none;background:rgba(255,255,255,.2);color:#fff;border-radius:3px;cursor:pointer;" aria-label="Refresh auth">↻</button>
+  </div>
+</header>
+<main>
+<div>
+  <section>
+    <h2>Actions</h2>
+    <div class="actions">
+      <button class="primary"
+              hx-post="actions/login"
+              hx-target="#job"
+              hx-swap="innerHTML"
+              hx-on::before-request="showLoginStartingPlaceholder()"
+              onclick="openMitidModal()">
+        Trigger MitID login
+      </button>
+      <button hx-post="actions/debug/test-window" hx-target="#job" hx-swap="innerHTML" title="Independent smoke test: opens a real Chromium window directly on :99 so you can verify the VNC display path works even if the full login flow has issues">Debug: paint test window</button>
+      {{range .Games}}<button hx-post="actions/run/{{.Slug}}" hx-target="#job" hx-swap="innerHTML">Run {{.Name}}</button>{{end}}
+
+      <!-- Rare direct fallback (almost never needed on the dedicated domain) -->
+      <a href="debug/start-login"
+         style="display:inline-block; font-size:11px; padding:3px 8px; border-radius:3px; border:1px solid #ddd; color:#888; text-decoration:none;"
+         title="Direct navigation (rare fallback)">
+        direct
+      </a>
+    </div>
+  </section>
+
+  <section>
+    <h2>Current job</h2>
+    <div id="job">
+      {{template "job.html" (dict "Job" .CurrentJob "VNCURL" .VNCURL)}}
+    </div>
+  </section>
+</div>
+
+<section>
+  <h2>Daily ledger (last 30 days)</h2>
+  <div id="ledger" hx-get="ledger" hx-trigger="every 15s, jobFinished from:body" hx-swap="innerHTML">
+    {{template "ledger.html" .}}
+  </div>
+</section>
+</main>
+
+<!-- MitID Login Modal -->
+<div id="mitid-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span>Live Browser — Complete MitID here</span>
+      <div style="display:flex; align-items:center; gap:6px; margin-left:auto;">
+        <button onclick="openVncInNewTab()"
+                style="background:#fff;color:#d40000;border:1px solid #d40000;padding:2px 10px;border-radius:3px;cursor:pointer;font-weight:600;font-size:12px;white-space:nowrap;"
+                title="Opens a full VNC session in a new tab. This is the most reliable way when the app runs behind a gateway prefix like /klub-lotto">
+          Open full VNC in new tab
+        </button>
+        <button onclick="minimizeMitidModal()"
+                style="background:#fff;color:#d40000;border:none;padding:2px 8px;border-radius:3px;cursor:pointer;font-weight:600;"
+                title="Minimize this modal so you can see the main page (including the Current job panel)">_</button>
+        <button onclick="toggleMaximize()" style="background:#fff;color:#d40000;border:none;padding:2px 8px;border-radius:3px;cursor:pointer;font-weight:600;margin-right:4px;" title="Toggle maximize">⤢</button>
+        <button onclick="reloadVNC()" style="background:#fff;color:#d40000;border:none;padding:2px 6px;border-radius:3px;cursor:pointer;font-weight:600;margin-right:6px;" title="Force reload VNC (e.g. after backend restart)">↻</button>
+        <button onclick="closeMitidModal()" style="background:#fff;color:#d40000;border:none;padding:4px 12px;border-radius:4px;cursor:pointer;font-weight:600;">Close</button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <iframe id="mitid-iframe" title="noVNC for MitID"></iframe>
+    </div>
+    <div class="modal-footer">
+      <b>Steps:</b> 1. Accept cookies in the VNC. 2. Start MitID on your phone. 3. If the Rød Konto form appears, close this viewer and click <b>MitID/Rød Konto ready — verify session</b> in Current job.<br>
+      <button onclick="closeMitidModal()" style="margin-top:8px;background:#2a6b2a;color:#fff;border:none;padding:10px 18px;border-radius:4px;cursor:pointer;font-weight:700;font-size:14px;">
+        Close viewer
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---------------------------------------------------------------------------
+// Subpath / gateway prefix helpers
+// These ensure all HTMX actions and internal links work whether the app
+// is served at "/" (local dev / port-forward) or "/klub-lotto" (ngrok gateway).
+// ---------------------------------------------------------------------------
+
+function getGatewayPrefix() {
+  const path = window.location.pathname.replace(/\/$/, '');
+  const segments = path.split('/').filter(Boolean);
+  return segments.length > 0 ? '/' + segments[0] : '';
+}
+
+function prefixPath(relative) {
+  if (!relative) return relative;
+  if (relative.startsWith('http') || relative.startsWith('//') || relative.startsWith('/')) {
+    return relative;
+  }
+  const prefix = getGatewayPrefix();
+  if (!prefix) return relative;
+  return (prefix + '/' + relative).replace(/\/+/g, '/');
+}
+
+function fixRelativeAppUrls(root = document) {
+  const prefix = getGatewayPrefix();
+  if (!prefix) return; // served at root — relative URLs are already correct
+
+  // Fix HTMX attributes that contain URL paths (only the request ones).
+  // Do NOT touch hx-target (CSS selectors like "#job" or ".auth-pill") or hx-swap.
+  const htmxUrlAttrs = ['hx-get', 'hx-post', 'hx-put', 'hx-delete', 'hx-patch'];
+  htmxUrlAttrs.forEach(attr => {
+    root.querySelectorAll(`[${attr}]`).forEach(el => {
+      const val = el.getAttribute(attr);
+      // Only rewrite values that look like relative app paths.
+      // Skip anything that is already absolute, starts with /, #, or . (selectors).
+      if (val &&
+          !val.startsWith('http') &&
+          !val.startsWith('//') &&
+          !val.startsWith('/') &&
+          !val.startsWith('#') &&
+          !val.startsWith('.')) {
+        el.setAttribute(attr, prefixPath(val));
+      }
+    });
+  });
+
+  // Fix plain internal <a href="ledger/123">, <a href="debug/..."> etc.
+  // Skip anything that is already absolute, protocol-relative, root-relative,
+  // anchor, query, or starts with "." (e.g. "../sources/...")
+  root.querySelectorAll('a[href]').forEach(a => {
+    const href = a.getAttribute('href');
+    if (!href) return;
+    if (href.startsWith('http') || href.startsWith('//') || href.startsWith('/') ||
+        href.startsWith('#') || href.startsWith('?') || href.startsWith('.')) {
+      return;
+    }
+    a.setAttribute('href', prefixPath(href));
+  });
+}
+
+// Robust version that also re-processes the nodes with HTMX after fixing.
+// This is needed for polling (hx-trigger="every 2s") that may have already
+// been wired by HTMX against the old relative attribute value.
+function fixAndReprocess(root = document) {
+  fixRelativeAppUrls(root);
+  if (window.htmx) {
+    root.querySelectorAll('[hx-get],[hx-post],[hx-put],[hx-delete],[hx-patch]').forEach(el => {
+      try { htmx.process(el); } catch (e) {}
+    });
+  }
+}
+
+function openMitidModal() {
+  const modal = document.getElementById('mitid-modal');
+  const iframe = document.getElementById('mitid-iframe');
+
+  const currentPath = window.location.pathname.replace(/\/$/, '');
+  const segments = currentPath.split('/').filter(Boolean);
+  const hasSubpath = segments.length > 0;
+
+  if (hasSubpath) {
+    // Subpath deployment (e.g. old /klub-lotto on shared domain).
+    // Embedded noVNC can be problematic → show clear guidance but still allow trying.
+    const body = modal.querySelector('.modal-body');
+    if (body) {
+      body.innerHTML = `
+        <div style="padding: 40px 20px; text-align: center; color: #ccc; background: #111;">
+          <p style="margin-bottom: 16px; font-size: 15px;">
+            The embedded viewer can have issues behind a gateway subpath.
+          </p>
+          <button onclick="openVncInNewTab()"
+                  style="background:#d40000; color:white; border:none; padding:10px 20px; border-radius:4px; cursor:pointer; font-weight:600; font-size:14px;">
+            Open full VNC in new tab (recommended)
+          </button>
+        </div>
+      `;
+    }
+    modal.style.display = 'flex';
+    modal.classList.add('show');
+    return;
+  }
+
+  // Clean root domain (recommended setup: klub-lotto.ngrok.app) — embedded works well
+  if (!iframe.getAttribute('src')) {
+    const vncBase = new URL('{{.VNCURL}}', window.location.href);
+    // On a true root domain, no extra prefix is needed for websockify
+    vncBase.searchParams.set('path', 'websockify');
+    iframe.src = vncBase.toString();
+  }
+  modal.style.display = 'flex';
+  modal.classList.add('show');
+}
+
+// Helper: returns the full public URL for the VNC viewer with correct subpath.
+// This version robustly detects the gateway prefix (e.g. /klub-lotto) from the
+// current URL's first path segment, so "Open in new tab" always produces a
+// working standalone noVNC URL even if the user is on a deeper path.
+function getFullVncUrl() {
+  const origin = window.location.origin;
+
+  // Detect gateway prefix from current location (first non-empty segment)
+  const path = window.location.pathname.replace(/\/$/, '');
+  const segments = path.split('/').filter(Boolean);
+  const gatewayPrefix = segments.length > 0 ? '/' + segments[0] : '';
+
+  // Build the noVNC page URL under the correct prefix
+  const vncPage = (gatewayPrefix || '') + '/vnc/vnc.html';
+
+  const url = new URL(vncPage, origin);
+
+  // Carry over useful params from the server-provided base
+  const vncBase = new URL('{{.VNCURL}}', origin);
+  url.search = vncBase.search;
+
+  // The WebSocket must also go through the gateway
+  const wsPath = gatewayPrefix
+    ? gatewayPrefix.replace(/^\//, '') + '/websockify'
+    : 'websockify';
+  url.searchParams.set('path', wsPath);
+
+  return url.toString();
+}
+
+function openVncInNewTab() {
+  const url = getFullVncUrl();
+  window.open(url, '_blank', 'noopener');
+}
+
+function closeMitidModal() {
+  const modal = document.getElementById('mitid-modal');
+  if (modal) {
+    modal.classList.remove('show');
+    modal.style.display = 'none';
+  }
+  // Do not blank src: keeps VNC connection alive for quick re-open and long sessions (no reload).
+}
+
+function reloadVNC() {
+  const iframe = document.getElementById('mitid-iframe');
+  if (iframe) {
+    const vncBase = new URL('{{.VNCURL}}', window.location.href);
+
+    const prefix = window.location.pathname.replace(/\/$/, '');
+    const wsPath = prefix ? (prefix.replace(/^\//, '') + '/websockify') : 'websockify';
+    vncBase.searchParams.set('path', wsPath);
+
+    iframe.src = vncBase.toString();
+  }
+}
+
+function toggleMaximize() {
+  const c = document.querySelector('#mitid-modal .modal-content');
+  if (c) c.classList.toggle('maximized');
+}
+
+let mitidModalMinimized = false;
+
+function minimizeMitidModal() {
+  const modal = document.getElementById('mitid-modal');
+  const floating = document.getElementById('mitid-floating');
+  if (modal) modal.style.display = 'none';
+  if (floating) floating.style.display = 'block';
+  mitidModalMinimized = true;
+}
+
+function restoreMitidModal() {
+  const modal = document.getElementById('mitid-modal');
+  const floating = document.getElementById('mitid-floating');
+  if (floating) floating.style.display = 'none';
+  if (modal) {
+    modal.style.display = 'flex';
+    modal.classList.add('show');
+  }
+  mitidModalMinimized = false;
+}
+
+function closeMitidModalCompletely() {
+  const modal = document.getElementById('mitid-modal');
+  const floating = document.getElementById('mitid-floating');
+  const iframe = document.getElementById('mitid-iframe');
+  if (floating) floating.style.display = 'none';
+  if (modal) {
+    modal.classList.remove('show');
+    modal.style.display = 'none';
+  }
+  if (iframe) {
+    // Optional: blank the src on full close to free resources
+    // iframe.src = 'about:blank';
+  }
+  mitidModalMinimized = false;
+}
+
+// Simple drag support for the floating indicator
+(function setupFloatingDrag() {
+  const floating = document.getElementById('mitid-floating');
+  if (!floating) return;
+
+  let isDragging = false;
+  let offsetX = 0;
+  let offsetY = 0;
+
+  floating.addEventListener('mousedown', function(e) {
+    if (e.target.tagName === 'BUTTON') return; // don't drag when clicking buttons
+    isDragging = true;
+    offsetX = e.clientX - floating.getBoundingClientRect().left;
+    offsetY = e.clientY - floating.getBoundingClientRect().top;
+    document.body.style.userSelect = 'none';
+  });
+
+  document.addEventListener('mousemove', function(e) {
+    if (!isDragging) return;
+    const newLeft = e.clientX - offsetX;
+    const newTop = e.clientY - offsetY;
+    floating.style.left = Math.max(0, Math.min(window.innerWidth - floating.offsetWidth, newLeft)) + 'px';
+    floating.style.top = Math.max(0, Math.min(window.innerHeight - floating.offsetHeight, newTop)) + 'px';
+    floating.style.right = 'auto';
+    floating.style.bottom = 'auto';
+  });
+
+  document.addEventListener('mouseup', function() {
+    isDragging = false;
+    document.body.style.userSelect = '';
+  });
+})();
+
+// Auto-close (or restore + close) modal when login job status becomes "ok".
+document.body.addEventListener('htmx:afterSwap', function(e) {
+  const t = e.detail && e.detail.target;
+  if (t && (t.id === 'job' || (t.parentElement && t.parentElement.id === 'job'))) {
+    const hasOkPill = t.querySelector && t.querySelector('.pill.ok');
+    const txt = (t.textContent || t.innerText || '');
+    if (hasOkPill && txt.indexOf('login') !== -1) {
+      const floating = document.getElementById('mitid-floating');
+      const modal = document.getElementById('mitid-modal');
+
+      if (floating && floating.style.display !== 'none') {
+        // If minimized, restore first then close
+        restoreMitidModal();
+        setTimeout(() => closeMitidModal(), 400);
+      } else if (modal && modal.classList.contains('show')) {
+        closeMitidModal();
+      }
+    }
+  }
+});
+// Also listen for the jobFinished event already referenced in ledger polling (defensive; no server emit change needed for minimal fix).
+document.body.addEventListener('jobFinished', function() {
+  const m = document.getElementById('mitid-modal');
+  if (m && m.classList.contains('show')) {
+    // Only close for login context if a recent pill.ok for login is visible (best-effort reuse of DOM check).
+    const jobEl = document.getElementById('job');
+    if (jobEl && jobEl.querySelector('.pill.ok') && (jobEl.textContent || '').indexOf('login') !== -1) closeMitidModal();
+  }
+});
+
+// Optional: allow closing modal with Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    const modal = document.getElementById('mitid-modal');
+    if (modal.classList.contains('show')) {
+      closeMitidModal();
+    }
+  }
+});
+
+// Provides immediate visual feedback in the Current Job panel when the user
+// clicks "Trigger MitID login". This avoids putting raw HTML with quotes
+// inside an hx-on attribute (which Go's html/template rejects).
+function showLoginStartingPlaceholder() {
+  const job = document.getElementById('job');
+  if (job) {
+    job.innerHTML =
+      '<p><b>login</b> <span class="pill run">starting…</span>' +
+      '<span class="muted"> launching headed browser on :99</span></p>' +
+      '<div class="job-log">waiting for first output from klub-lotto login --web...</div>';
+  }
+}
+
+// Fix all relative action/HTMX URLs and internal links for gateway subpath deployments.
+// Must run after the initial DOM is ready and also after every HTMX swap
+// (because job.html fragments contain hx-get="actions/status" etc.).
+// We use fixAndReprocess so that HTMX re-reads the corrected URLs for polling etc.
+fixAndReprocess();
+document.addEventListener('DOMContentLoaded', () => fixAndReprocess());
+document.body.addEventListener('htmx:afterSwap', (evt) => {
+  const target = (evt && evt.detail && evt.detail.target) || document;
+  fixAndReprocess(target);
+});
+// Also catch content before HTMX wires new nodes (helps with polling setup timing)
+document.body.addEventListener('htmx:beforeSwap', (evt) => {
+  const target = (evt && evt.detail && evt.detail.target) || document;
+  fixAndReprocess(target);
+});
+</script>
+
+<!-- Floating minimized MitID VNC indicator (visible when you minimize the modal to watch the main page / job panel) -->
+<div id="mitid-floating" style="display:none; position:fixed; bottom:20px; right:20px; z-index:10000; background:#222; color:#fff; border:2px solid #d40000; border-radius:6px; padding:8px 12px; box-shadow:0 4px 12px rgba(0,0,0,0.4); cursor:move; font-size:13px; user-select:none;">
+  <div style="display:flex; align-items:center; gap:8px;">
+    <span style="font-weight:600;">MitID VNC running</span>
+    <button onclick="restoreMitidModal(); event.stopImmediatePropagation();"
+            style="background:#d40000; color:white; border:none; padding:2px 8px; border-radius:3px; cursor:pointer; font-size:11px;">
+      Show VNC
+    </button>
+    <button onclick="closeMitidModalCompletely(); event.stopImmediatePropagation();"
+            style="background:#555; color:white; border:none; padding:2px 6px; border-radius:3px; cursor:pointer; font-size:11px;">
+      ✕
+    </button>
+  </div>
+</div>
+
+<!-- Persistent MitID Login Session indicator (survives modal minimize so you can always see job status) -->
+<div id="mitid-session" style="display:none; margin-top:12px; padding:12px; background:#fff7ed; border:1px solid #f59e0b; border-radius:6px;">
+  <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+    <div>
+      <strong style="color:#9a3412;">MitID Login Session Active</strong><br>
+      <span id="mitid-session-status" style="font-size:13px; color:#78350f;">Browser should appear in the VNC shortly. Complete MitID on your phone, then return here.</span>
+    </div>
+    <div style="display:flex; gap:6px;">
+      <button onclick="openVncInNewTab()"
+              style="background:#d97706; color:white; border:none; padding:4px 10px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:500;">
+        Open VNC
+      </button>
+      <button onclick="clearMitidSession()"
+              style="background:#78716c; color:white; border:none; padding:4px 10px; border-radius:4px; cursor:pointer; font-size:12px;">
+        Clear
+      </button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
+{{end}}

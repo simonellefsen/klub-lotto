@@ -1,0 +1,37 @@
+{{define "detail.html"}}<!doctype html>
+<html><head><meta charset="utf-8"><title>{{.Entry.GameName}} — {{date .Entry.Date}}</title>
+<style>body{font:14px/1.4 system-ui;margin:24px;max-width:900px}h1{margin-top:0}table{border-collapse:collapse;width:100%}th,td{border-bottom:1px solid #eee;padding:6px;text-align:left;vertical-align:top}.muted{color:#888}</style>
+</head><body>
+<a href="../">← back</a>
+<h1>{{.Entry.GameName}} — {{date .Entry.Date}}</h1>
+<p><b>Prompt:</b> {{.Entry.Prompt}}</p>
+<p><b>Answer:</b> {{.Entry.Answer}}</p>
+<p>Submitted: {{yesno .Entry.Submitted}} · Registered: {{yesno .Entry.Registered}}</p>
+{{if .Entry.Notes}}<p class="muted">{{.Entry.Notes}}</p>{{end}}
+
+{{if .Entry.HasResultImage}}
+<h2>Result screenshot</h2>
+<img src="data:image/jpeg;base64,{{base64 .Entry.ResultImage}}" style="max-width:100%; border:1px solid #ddd; border-radius:4px;" alt="Completed game board / solution" />
+<p class="muted" style="font-size:12px">Cropped result image stored in Postgres ledger (source of truth).</p>
+{{end}}
+
+<h2>Model votes</h2>
+{{if not .Entry.Runs}}<p class="muted">no provider votes recorded</p>{{else}}
+<table>
+  <thead><tr><th>Provider</th><th>Index</th><th>Option</th><th>Confidence</th><th>Latency ms</th><th>Rationale / error</th></tr></thead>
+  <tbody>
+  {{range .Entry.Runs}}
+    <tr>
+      <td>{{.Provider}}</td>
+      <td>{{if .VoteIndex}}{{.VoteIndex}}{{else}}—{{end}}</td>
+      <td>{{.VoteOption}}</td>
+      <td>{{.Confidence}}</td>
+      <td>{{.LatencyMs}}</td>
+      <td>{{if .Error}}<span style="color:#c00">{{.Error}}</span>{{else}}{{.Rationale}}{{end}}</td>
+    </tr>
+  {{end}}
+  </tbody>
+</table>
+{{end}}
+</body></html>
+{{end}}

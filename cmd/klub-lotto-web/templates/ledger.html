@@ -1,0 +1,35 @@
+{{define "ledger.html"}}
+{{if not .Entries}}
+  <p class="muted">No ledger entries yet. Run a game above, or seed from wiki once with <code>klub-lotto wiki import-db --dsn "$DATABASE_URL"</code> (DB is now the source of truth).</p>
+{{else}}
+<table>
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Game</th>
+      <th>Prompt / clue</th>
+      <th>Answer</th>
+      <th class="num">Sub</th>
+      <th class="num">Reg</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+  {{range .Entries}}
+    <tr>
+      <td>{{date .Date}}</td>
+      <td><a href="ledger/{{.ID}}">{{.GameName}}</a></td>
+      <td>{{.Prompt}}</td>
+      <td><b>{{.Answer}}</b></td>
+      <td class="num">{{yesno .Submitted}}</td>
+      <td class="num">{{yesno .Registered}}</td>
+      <td class="muted">{{.Notes}}
+        {{if .SourcePath}}<br><a href="../{{.SourcePath}}" target="_blank" style="font-size:11px">source</a>{{end}}
+        {{if .HasResultImage}}<br><a href="ledger/{{.ID}}" style="font-size:11px">📷 result image</a>{{end}}
+      </td>
+    </tr>
+  {{end}}
+  </tbody>
+</table>
+{{end}}
+{{end}}
