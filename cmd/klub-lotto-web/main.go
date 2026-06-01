@@ -638,12 +638,10 @@ func (a *app) liveAuthStatus(force bool) string {
 	if job := a.jobs.current(); job != nil && job.Status == "running" {
 		a.authCacheMu.Lock()
 		cached := a.authCache
+		cacheFresh := time.Since(a.authCacheTime) < cacheTTL
 		a.authCacheMu.Unlock()
-		if cached != "" {
+		if cached != "" && cacheFresh {
 			return cached
-		}
-		if ev, _ := a.store.LatestLoginEvent(context.Background()); ev != nil && (ev.Status == "completed" || ev.Status == "session-reused") {
-			return "valid"
 		}
 		return "unknown"
 	}
@@ -662,14 +660,11 @@ func (a *app) liveAuthStatus(force bool) string {
 	a.authCacheMu.Unlock()
 
 	if !force {
-		if ev, _ := a.store.LatestLoginEvent(context.Background()); ev != nil && (ev.Status == "completed" || ev.Status == "session-reused") {
-			return "valid"
-		}
-		return "invalid"
+		return "unknown"
 	}
 
-	// Probe + fallback *outside* lock: prevents 15s head-of-line blocking on /auth (30s pill poll + ↻ force).
-	// This is the minimal restructuring to address lock contention without RWMutex or goroutine changes.
+	// Probe outside the lock: prevents 15s head-of-line blocking on /auth
+	// (30s pill poll + manual refresh).
 	probeCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 	cmd := exec.CommandContext(probeCtx, filepath.Join(a.binDir, "klub-lotto"), "login", "--check", "--web", "--headless")
@@ -678,18 +673,14 @@ func (a *app) liveAuthStatus(force bool) string {
 	out, err := cmd.CombinedOutput()
 	outStr := strings.TrimSpace(string(out))
 
-	status := "invalid"
+	status := "unknown"
 	didProbe := true // live CLI attempt (success or fail/timeout); used for accurate "last verified" timestamp
 	if err == nil && strings.Contains(outStr, "VALID") {
 		status = "valid"
 	} else if strings.Contains(outStr, "INVALID") {
 		status = "invalid"
 	} else if err != nil || probeCtx.Err() == context.DeadlineExceeded {
-		didProbe = false // pure DB fallback path; do not claim "just now" fresh verification
-		// Fallback to latest login_event for transient probe failures (e.g. brief CLI hiccup).
-		if ev, _ := a.store.LatestLoginEvent(context.Background()); ev != nil && (ev.Status == "completed" || ev.Status == "session-reused") {
-			status = "valid"
-		}
+		didProbe = false // do not claim "just now" fresh verification on inconclusive probes
 	}
 
 	// Short write lock only for cache update. Timestamp only on actual probe (addresses inaccurate "last verified" after fallback).

@@ -651,14 +651,21 @@ func tryAutomaticRedKontoLogin(ctx context.Context, br *browser.Client, username
 	clickedLogin := false
 	submittedRedKonto := false
 	var submittedRedKontoAt time.Time
+	var lastURL string
 	deadline := time.Now().Add(90 * time.Second)
 	for time.Now().Before(deadline) {
 		if err := ctx.Err(); err != nil {
-			return false, false, err
+			return false, false, fmt.Errorf("%w (last URL: %s; submitted credentials: %t)", err, fallbackURL(lastURL), submittedRedKonto)
 		}
 		cur, _ := br.URL(ctx)
+		if cur != "" {
+			lastURL = cur
+		}
 		if klublotto.IsMitIDHandoffURL(cur) {
 			return false, true, nil
+		}
+		if ok, _ := klublotto.IsLoggedIn(ctx, br); ok {
+			return true, false, nil
 		}
 		if visible, err := klublotto.IsRedKontoLoginPage(ctx, br); err != nil {
 			return false, false, err
@@ -688,6 +695,7 @@ func tryAutomaticRedKontoLogin(ctx context.Context, br *browser.Client, username
 			}
 			if clicked {
 				clickedLogin = true
+				fmt.Println("Clicked login entry; waiting for Rød Konto or MitID flow...")
 				_ = br.WaitForLoad(ctx, "domcontentloaded")
 				time.Sleep(2 * time.Second)
 				continue
@@ -695,7 +703,14 @@ func tryAutomaticRedKontoLogin(ctx context.Context, br *browser.Client, username
 		}
 		time.Sleep(1 * time.Second)
 	}
-	return false, false, fmt.Errorf("timed out waiting for Rød Konto login to complete")
+	return false, false, fmt.Errorf("timed out waiting for Rød Konto login to complete (last URL: %s; submitted credentials: %t)", fallbackURL(lastURL), submittedRedKonto)
+}
+
+func fallbackURL(s string) string {
+	if s == "" {
+		return "unknown"
+	}
+	return s
 }
 
 func restartHeadedSession(ctx context.Context, br *browser.Client) {

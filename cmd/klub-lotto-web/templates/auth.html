@@ -8,7 +8,7 @@
   {{- else if eq $live "invalid" -}}
     <span style="color:#7a0000">●</span> <strong>No valid session</strong> <span style="font-size:10px;color:rgba(255,255,255,.82)">(last verified: {{$v}})</span>
   {{- else -}}
-    {{.Status}} · {{datetime .CreatedAt}}
+    <span style="color:#fbbf24">●</span> <strong>Session unknown</strong> <span style="font-size:10px;color:rgba(255,255,255,.82)">(last verified: {{$v}})</span>
   {{- end -}}
 {{- else -}}
   <span style="color:#c00">●</span> no login recorded yet

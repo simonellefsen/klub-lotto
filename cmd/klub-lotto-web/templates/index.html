@@ -97,7 +97,7 @@
     <div class="auth-pill" hx-get="auth" hx-trigger="every 30s" hx-swap="innerHTML">
       {{template "auth.html" .}}
     </div>
-    <button hx-get="auth" hx-target=".auth-pill" hx-swap="innerHTML" title="Refresh auth status from saved login state" style="font-size:11px;padding:1px 5px;border:none;background:rgba(255,255,255,.2);color:#fff;border-radius:3px;cursor:pointer;" aria-label="Refresh auth">↻</button>
+    <button hx-get="auth?force=1" hx-target=".auth-pill" hx-swap="innerHTML" title="Probe the live browser session now" style="font-size:11px;padding:1px 5px;border:none;background:rgba(255,255,255,.2);color:#fff;border-radius:3px;cursor:pointer;" aria-label="Refresh auth">↻</button>
   </div>
 </header>
 <main>
@@ -114,7 +114,7 @@
         Trigger MitID login
       </button>
       <button hx-post="actions/debug/test-window" hx-target="#job" hx-swap="innerHTML" title="Independent smoke test: opens a real Chromium window directly on :99 so you can verify the VNC display path works even if the full login flow has issues">Debug: paint test window</button>
-      {{range .Games}}<button hx-post="actions/run/{{.Slug}}" hx-target="#job" hx-swap="innerHTML">Run {{.Name}}</button>{{end}}
+      {{range .Games}}<button hx-post="actions/run/{{.Slug}}" hx-target="#job" hx-swap="innerHTML" hx-on::before-request="showGameStartingPlaceholder('{{.Name}}')">Run {{.Name}}</button>{{end}}
 
       <!-- Rare direct fallback (almost never needed on the dedicated domain) -->
       <a href="debug/start-login"
@@ -472,6 +472,17 @@ function showLoginStartingPlaceholder() {
       '<p><b>login</b> <span class="pill run">starting…</span>' +
       '<span class="muted"> launching headed browser on :99</span></p>' +
       '<div class="job-log">waiting for first output from klub-lotto login --web...</div>';
+  }
+}
+
+function showGameStartingPlaceholder(name) {
+  const job = document.getElementById('job');
+  if (job) {
+    const safeName = String(name || 'game').replace(/[<>&]/g, (ch) => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[ch]));
+    job.innerHTML =
+      '<p><b>' + safeName + '</b> <span class="pill run">starting…</span>' +
+      '<span class="muted"> launching automation</span></p>' +
+      '<div class="job-log">waiting for first output from klub-lotto...</div>';
   }
 }
 

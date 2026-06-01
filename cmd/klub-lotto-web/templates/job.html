@@ -1,6 +1,6 @@
 {{define "job.html"}}
 {{with .Job}}
-<div hx-get="actions/status" hx-trigger="{{if eq .Status "running"}}every 2s{{else}}load delay:5s{{end}}" hx-swap="outerHTML">
+<div hx-get="actions/status" hx-trigger="{{if eq .Status "running"}}every 2s{{else}}load delay:5s{{end}}" hx-target="#job" hx-swap="innerHTML">
   <p><b>{{.Action}}</b>
     {{if eq .Status "running"}}<span class="pill run">running</span>
     {{else if eq .Status "ok"}}<span class="pill ok">ok</span>
