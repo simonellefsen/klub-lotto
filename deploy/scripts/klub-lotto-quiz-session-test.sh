@@ -6,9 +6,13 @@ MODE="${1:-quiz-dry}"
 
 export DISPLAY="${DISPLAY:-:99}"
 export KLUBLOTTO_HEADED="${KLUBLOTTO_HEADED:-true}"
+export KLUBLOTTO_DATA_DIR="${KLUBLOTTO_DATA_DIR:-/.klublotto}"
+export AGENT_BROWSER_HEADED="${AGENT_BROWSER_HEADED:-true}"
 export AGENT_BROWSER_SESSION="$SESSION"
 export AGENT_BROWSER_SESSION_NAME="$SESSION"
 export AGENT_BROWSER_PROFILE="${AGENT_BROWSER_PROFILE:-/var/lib/agent-browser/chrome-profile}"
+export AGENT_BROWSER_EXECUTABLE_PATH="${AGENT_BROWSER_EXECUTABLE_PATH:-/usr/bin/chromium}"
+export AGENT_BROWSER_ARGS="${AGENT_BROWSER_ARGS:---start-maximized --disable-session-crashed-bubble}"
 
 ab() {
   agent-browser --json --session "$SESSION" --session-name "$SESSION" "$@"
@@ -17,6 +21,9 @@ ab() {
 echo "session: $SESSION"
 echo "display: ${DISPLAY}"
 echo "profile: ${AGENT_BROWSER_PROFILE}"
+echo "headed: ${AGENT_BROWSER_HEADED}"
+echo "args: ${AGENT_BROWSER_ARGS}"
+echo "data dir: ${KLUBLOTTO_DATA_DIR}"
 echo
 echo "agent-browser session check:"
 ab session
@@ -38,10 +45,32 @@ case "$MODE" in
     ab snapshot -i
     ;;
   quiz-dry)
-    klub-lotto quiz --dry-run
+    if ! klub-lotto quiz --dry-run; then
+      status=$?
+      snap="${KLUBLOTTO_DATA_DIR}/quiz-snapshot.txt"
+      if [[ -f "$snap" ]]; then
+        echo
+        echo "debug snapshot saved at: $snap"
+        echo "--- snapshot excerpt ---"
+        sed -n '1,180p' "$snap"
+        echo "--- end snapshot excerpt ---"
+      fi
+      exit "$status"
+    fi
     ;;
   quiz-submit|submit)
-    klub-lotto quiz --submit
+    if ! klub-lotto quiz --submit; then
+      status=$?
+      snap="${KLUBLOTTO_DATA_DIR}/quiz-snapshot.txt"
+      if [[ -f "$snap" ]]; then
+        echo
+        echo "debug snapshot saved at: $snap"
+        echo "--- snapshot excerpt ---"
+        sed -n '1,180p' "$snap"
+        echo "--- end snapshot excerpt ---"
+      fi
+      exit "$status"
+    fi
     ;;
   *)
     cat >&2 <<EOF

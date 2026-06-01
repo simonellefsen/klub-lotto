@@ -48,6 +48,12 @@ spec:
               value: "true"
             - name: AGENT_BROWSER_PROFILE
               value: "/var/lib/agent-browser/chrome-profile"
+            - name: AGENT_BROWSER_EXECUTABLE_PATH
+              value: "/usr/bin/chromium"
+            - name: AGENT_BROWSER_ARGS
+              value: "--start-maximized --disable-session-crashed-bubble"
+            - name: KLUBLOTTO_DATA_DIR
+              value: "/.klublotto"
             # Danske Spil Rød Konto credentials. MitID still requires a human
             # when its remembered session expires, but this lets automation
             # complete the username/password step by itself.

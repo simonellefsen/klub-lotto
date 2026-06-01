@@ -34,6 +34,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     AGENT_BROWSER_HEADED=true \
     AGENT_BROWSER_PROFILE=/var/lib/agent-browser/chrome-profile \
     AGENT_BROWSER_EXECUTABLE_PATH=/usr/bin/chromium \
+    AGENT_BROWSER_ARGS="--start-maximized --disable-session-crashed-bubble" \
     KLUBLOTTO_HEADED=true
 
 # novnc lives in `contrib`, so enable it. websockify, supervisor,
