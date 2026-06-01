@@ -104,6 +104,8 @@ func Login(ctx context.Context, br *browser.Client, username, password string) e
 // speculative selector attempts because missing fields can block for a long
 // agent-browser timeout.
 func CompleteRedKontoIfVisible(ctx context.Context, br *browser.Client, username, password string) (bool, error) {
+	username = stripMatchingQuotes(strings.TrimSpace(username))
+	password = stripMatchingQuotes(strings.TrimSpace(password))
 	if username == "" || password == "" {
 		return false, errors.New("klublotto: empty username or password")
 	}
@@ -268,6 +270,17 @@ func loggedInState(pageURL, snap, body string) (ok bool, known bool) {
 
 func isLoggedOutURL(pageURL string) bool {
 	return IsLoginFlowURL(pageURL)
+}
+
+func stripMatchingQuotes(s string) string {
+	if len(s) < 2 {
+		return s
+	}
+	first, last := s[0], s[len(s)-1]
+	if (first == '"' && last == '"') || (first == '\'' && last == '\'') {
+		return s[1 : len(s)-1]
+	}
+	return s
 }
 
 // tryClickFirst clicks the first selector that succeeds. All errors are

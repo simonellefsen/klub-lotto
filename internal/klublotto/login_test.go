@@ -61,3 +61,17 @@ func TestLooksLoggedInAcceptsFirstTicketPopup(t *testing.T) {
 		t.Fatal("first-ticket popup should be treated as authenticated")
 	}
 }
+
+func TestStripMatchingQuotes(t *testing.T) {
+	tests := map[string]string{
+		`"lindau"`: `lindau`,
+		`'lindau'`: `lindau`,
+		`lindau`:   `lindau`,
+		`"lindau'`: `"lindau'`,
+	}
+	for in, want := range tests {
+		if got := stripMatchingQuotes(in); got != want {
+			t.Fatalf("stripMatchingQuotes(%q) = %q, want %q", in, got, want)
+		}
+	}
+}

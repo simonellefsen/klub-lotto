@@ -49,9 +49,9 @@ func Load(repoRoot string) (*Config, error) {
 
 	get := func(key string) string {
 		if v, ok := kv[key]; ok && v != "" {
-			return v
+			return cleanEnvValue(v)
 		}
-		return os.Getenv(key)
+		return cleanEnvValue(os.Getenv(key))
 	}
 
 	dataDir := get("KLUBLOTTO_DATA_DIR")
@@ -135,14 +135,19 @@ func parseDotEnv(path string) (map[string]string, error) {
 		}
 		key := strings.TrimSpace(line[:eq])
 		val := strings.TrimSpace(line[eq+1:])
-		// Strip matching surrounding quotes.
-		if len(val) >= 2 {
-			first, last := val[0], val[len(val)-1]
-			if (first == '"' && last == '"') || (first == '\'' && last == '\'') {
-				val = val[1 : len(val)-1]
-			}
-		}
-		out[key] = val
+		out[key] = cleanEnvValue(val)
 	}
 	return out, sc.Err()
+}
+
+func cleanEnvValue(s string) string {
+	s = strings.TrimSpace(s)
+	if len(s) < 2 {
+		return s
+	}
+	first, last := s[0], s[len(s)-1]
+	if (first == '"' && last == '"') || (first == '\'' && last == '\'') {
+		return s[1 : len(s)-1]
+	}
+	return s
 }
