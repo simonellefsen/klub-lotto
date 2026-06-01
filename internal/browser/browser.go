@@ -72,7 +72,9 @@ type rawResponse struct {
 }
 
 // run executes one agent-browser command and returns the parsed envelope.
-// stderr is captured and folded into the error message on non-zero exit.
+// stdout and stderr are captured and folded into the error message on non-zero
+// exit; agent-browser often prints useful JSON to stdout even when the process
+// returns a failure status.
 func (c *Client) run(ctx context.Context, args ...string) (*rawResponse, error) {
 	if c.DefaultTimeout > 0 {
 		var cancel context.CancelFunc
@@ -91,8 +93,8 @@ func (c *Client) run(ctx context.Context, args ...string) (*rawResponse, error) 
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 	if err := cmd.Run(); err != nil {
-		return nil, fmt.Errorf("agent-browser %s: %w (stderr=%s)",
-			strings.Join(full, " "), err, strings.TrimSpace(stderr.String()))
+		return nil, fmt.Errorf("agent-browser %s: %w (stdout=%s stderr=%s)",
+			strings.Join(full, " "), err, truncate(strings.TrimSpace(stdout.String()), 1000), truncate(strings.TrimSpace(stderr.String()), 1000))
 	}
 
 	out := stdout.Bytes()

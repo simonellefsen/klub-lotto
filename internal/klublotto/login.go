@@ -96,9 +96,9 @@ func Login(ctx context.Context, br *browser.Client, username, password string) e
 	return errors.New("klublotto: login did not complete within 30s")
 }
 
-// IsLoggedIn looks for a "Log ud" / account icon to confirm authenticated
-// state. Returns (true, nil) on positive match. A negative match returns
-// (false, nil) — the only errors are I/O failures.
+// IsLoggedIn looks for account-drawer signals that only appear after a real
+// authentication. Generic "konto" icons are intentionally ignored because the
+// logged-out Klub Lotto page also renders account/login chrome.
 func IsLoggedIn(ctx context.Context, br *browser.Client) (bool, error) {
 	snap, err := br.SnapshotInteractive(ctx)
 	if err != nil {
@@ -115,8 +115,6 @@ func IsLoggedIn(ctx context.Context, br *browser.Client) (bool, error) {
 		"mine abonnementer", // account drawer menu item
 		"kontohistorik",     // account drawer menu item
 		"profiloplysninger", // account drawer menu item
-		"\"konto\"",         // account button label
-		"aria-label=\"konto\"",
 	} {
 		if strings.Contains(s, signal) {
 			return true, nil
