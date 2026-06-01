@@ -297,6 +297,9 @@ func (a *app) handleStartLogin(w http.ResponseWriter, r *http.Request) {
 	job, err := a.jobs.start(a.binDir, "login", []string{"--web"}, a.store, "login")
 	if err != nil {
 		log.Printf("handleStartLogin: job conflict: %v", err)
+		if current := a.jobs.current(); current != nil {
+			current.append("Login is already running. Use the green verify button when the browser is ready, or wait for this job to finish.")
+		}
 		a.render(w, "job.html", map[string]any{"Job": a.jobs.current(), "VNCURL": a.vncURL()})
 		return
 	}
@@ -318,6 +321,9 @@ func (a *app) handleRunGame(w http.ResponseWriter, r *http.Request) {
 	}
 	job, err := a.jobs.start(a.binDir, subcommand, []string{"--submit"}, a.store, game)
 	if err != nil {
+		if current := a.jobs.current(); current != nil {
+			current.append(fmt.Sprintf("Cannot start %s while %s is still running. Verify/finish the current job first.", game, current.Action))
+		}
 		a.render(w, "job.html", map[string]any{"Job": a.jobs.current(), "VNCURL": a.vncURL()})
 		return
 	}

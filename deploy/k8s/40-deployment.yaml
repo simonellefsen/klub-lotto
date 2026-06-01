@@ -42,6 +42,11 @@ spec:
               value: "klublotto"
             - name: AGENT_BROWSER_PROFILE
               value: "/var/lib/agent-browser/chrome-profile"
+            # Danske Spil Rød Konto credentials. MitID still requires a human
+            # when its remembered session expires, but this lets automation
+            # complete the username/password step by itself.
+            - { name: DANSKESPIL_USERNAME, valueFrom: { secretKeyRef: { name: klub-lotto-env, key: DANSKESPIL_USERNAME, optional: true } } }
+            - { name: DANSKESPIL_PASSWORD, valueFrom: { secretKeyRef: { name: klub-lotto-env, key: DANSKESPIL_PASSWORD, optional: true } } }
             # LLM provider keys
             - { name: ANTHROPIC_API_KEY, valueFrom: { secretKeyRef: { name: klub-lotto-env, key: ANTHROPIC_API_KEY, optional: true } } }
             - { name: OPENAI_API_KEY,    valueFrom: { secretKeyRef: { name: klub-lotto-env, key: OPENAI_API_KEY,    optional: true } } }

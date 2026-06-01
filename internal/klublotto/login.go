@@ -4,11 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 
 	"github.com/simonellefsen/klub-lotto/internal/browser"
 )
+
+var accountBalanceRE = regexp.MustCompile(`\b\d+,\d{2}\s*kr\.`)
 
 // Login opens danskespil.dk's login page, fills credentials, submits, and
 // waits for a logged-in indicator to appear. It is idempotent: if the
@@ -231,6 +234,13 @@ func loggedInState(pageURL, snap, body string) (ok bool, known bool) {
 		if strings.Contains(s, signal) {
 			return true, true
 		}
+	}
+	if accountBalanceRE.MatchString(s) &&
+		(strings.Contains(s, "dine præmier") || strings.Contains(s, "spil & quiz")) {
+		return true, true
+	}
+	if strings.Contains(s, "dagens første lod er i hus") {
+		return true, true
 	}
 	if strings.Contains(s, "saldo") &&
 		(strings.Contains(s, "indbetaling") || strings.Contains(s, "udbetaling")) {
