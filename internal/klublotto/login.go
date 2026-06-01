@@ -96,6 +96,81 @@ func Login(ctx context.Context, br *browser.Client, username, password string) e
 	return errors.New("klublotto: login did not complete within 30s")
 }
 
+// CompleteRedKontoIfVisible submits the Danske Spil Rød Konto username/password
+// form only when the current page clearly is that form. It deliberately avoids
+// speculative selector attempts because missing fields can block for a long
+// agent-browser timeout.
+func CompleteRedKontoIfVisible(ctx context.Context, br *browser.Client, username, password string) (bool, error) {
+	if username == "" || password == "" {
+		return false, errors.New("klublotto: empty username or password")
+	}
+	if visible, err := IsRedKontoLoginPage(ctx, br); err != nil || !visible {
+		return visible, err
+	}
+	if err := fillByAnyOf(ctx, br, username,
+		"input[name=username]",
+		"input[name=login]",
+		"input[autocomplete=username]",
+		"input[placeholder*='Brugernavn']",
+		"input[type=text]",
+	); err != nil {
+		return true, fmt.Errorf("fill Rød Konto username: %w", err)
+	}
+	if err := fillByAnyOf(ctx, br, password,
+		"input[name=password]",
+		"input[autocomplete=current-password]",
+		"input[placeholder*='Adgangskode']",
+		"input[type=password]",
+	); err != nil {
+		return true, fmt.Errorf("fill Rød Konto password: %w", err)
+	}
+	if err := br.Press(ctx, "Enter"); err != nil {
+		if clickErr := tryClickFirst(ctx, br,
+			"button:has-text('LOG IND')",
+			"button:has-text('Log ind')",
+			"button[type=submit]",
+		); clickErr != nil {
+			return true, fmt.Errorf("submit Rød Konto login: enter failed: %v; click failed: %w", err, clickErr)
+		}
+	}
+	_ = br.WaitForLoad(ctx, "domcontentloaded")
+	return true, nil
+}
+
+func IsRedKontoLoginPage(ctx context.Context, br *browser.Client) (bool, error) {
+	cur, _ := br.URL(ctx)
+	if IsRedKontoLoginURL(cur) {
+		return true, nil
+	}
+	body, err := br.Eval(ctx, `document.body ? document.body.innerText : ""`)
+	if err != nil {
+		return false, err
+	}
+	low := strings.ToLower(body)
+	return strings.Contains(low, "log på rød konto") &&
+		strings.Contains(low, "brugernavn") &&
+		strings.Contains(low, "adgangskode"), nil
+}
+
+func IsRedKontoLoginURL(pageURL string) bool {
+	u := strings.ToLower(pageURL)
+	return strings.Contains(u, "id-dlo.danskespil.dk") &&
+		strings.Contains(u, "/webflow/login")
+}
+
+func IsMitIDHandoffURL(pageURL string) bool {
+	u := strings.ToLower(pageURL)
+	return strings.Contains(u, "mitid.dk") ||
+		strings.Contains(u, "nemlog-in")
+}
+
+func IsLoginFlowURL(pageURL string) bool {
+	u := strings.ToLower(pageURL)
+	return strings.Contains(u, "/log-ind") ||
+		IsRedKontoLoginURL(pageURL) ||
+		IsMitIDHandoffURL(pageURL)
+}
+
 // IsLoggedIn looks for account-drawer signals that only appear after a real
 // authentication. Generic "konto" icons are intentionally ignored because the
 // logged-out Klub Lotto page also renders account/login chrome.
@@ -165,11 +240,7 @@ func loggedInState(pageURL, snap, body string) (ok bool, known bool) {
 }
 
 func isLoggedOutURL(pageURL string) bool {
-	u := strings.ToLower(pageURL)
-	return strings.Contains(u, "/log-ind") ||
-		strings.Contains(u, "id-dlo.danskespil.dk") ||
-		strings.Contains(u, "mitid.dk") ||
-		strings.Contains(u, "nemlog-in")
+	return IsLoginFlowURL(pageURL)
 }
 
 // tryClickFirst clicks the first selector that succeeds. All errors are

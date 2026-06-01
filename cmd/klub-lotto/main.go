@@ -147,6 +147,27 @@ func runQuiz(ctx context.Context, args []string) error {
 	}
 	curURL, _ := br.URL(openCtx)
 	fmt.Println("       at:", curURL)
+	if klublotto.IsLoginFlowURL(curURL) {
+		if cfg.DanskespilUsername == "" || cfg.DanskespilPassword == "" {
+			return fmt.Errorf("login required before quiz can run (landed at %s; no configured Rød Konto username/password)", curURL)
+		}
+		fmt.Println("       login redirect detected; trying automatic Rød Konto login...")
+		ok, needsMitID, err := tryAutomaticRedKontoLogin(openCtx, br, cfg.DanskespilUsername, cfg.DanskespilPassword)
+		if err != nil {
+			return fmt.Errorf("automatic Rød Konto login before quiz: %w", err)
+		}
+		if needsMitID {
+			return fmt.Errorf("MitID interaction required before quiz can run (landed at %s)", curURL)
+		}
+		if !ok {
+			return fmt.Errorf("automatic Rød Konto login before quiz did not complete")
+		}
+		if err := klublotto.OpenQuiz(openCtx, br); err != nil {
+			return fmt.Errorf("reopen quiz after login: %w", err)
+		}
+		curURL, _ = br.URL(openCtx)
+		fmt.Println("       after login:", curURL)
+	}
 
 	fmt.Println("[2/6] snapshotting page...")
 	snap, err := br.SnapshotInteractive(openCtx)
@@ -559,6 +580,26 @@ func runLogin(ctx context.Context, args []string) error {
 		return nil
 	}
 
+	if cfg.DanskespilUsername != "" && cfg.DanskespilPassword != "" {
+		fmt.Println("Trying automatic Rød Konto login with configured credentials...")
+		autoCtx, cancel := context.WithTimeout(ctx, 2*time.Minute)
+		defer cancel()
+		ok, needsMitID, err := tryAutomaticRedKontoLogin(autoCtx, br, cfg.DanskespilUsername, cfg.DanskespilPassword)
+		if ok {
+			fmt.Println("VALID")
+			fmt.Println("authenticated")
+			return nil
+		}
+		if err != nil {
+			fmt.Println("Automatic Rød Konto login did not complete:", err)
+		}
+		if needsMitID {
+			fmt.Println("Automatic Rød Konto login reached MitID/NemLog-in; user interaction is required.")
+		}
+	} else {
+		fmt.Println("No configured Rød Konto username/password; automatic login is unavailable.")
+	}
+
 	if !*web {
 		// Interactive / legacy password-assisted path (rarely used now that MitID is primary).
 		// If creds are present we could call the old klublotto.Login, but for the k8s
@@ -571,13 +612,14 @@ func runLogin(ctx context.Context, args []string) error {
 		return fmt.Errorf("not logged in; use --web via UI for MitID")
 	}
 
-	// --web mode: the browser is now visible on the pod's Xvfb :99 (and thus in noVNC).
-	// The human completes MitID on phone/YubiKey while watching the VNC tab.
-	// We just poll here so the job stays alive, emits progress in the "Current job" panel,
-	// and exits 0 as soon as IsLoggedIn becomes true (cookies updated on PVC).
+	// --web mode: if the automatic Rød Konto path reached MitID/NemLog-in,
+	// the browser is now visible on the pod's Xvfb :99 (and thus in noVNC).
+	// The human completes only that MitID handoff. Once MitID returns to the
+	// Rød Konto username/password form, the green UI button can submit the
+	// saved credentials and verify the final Klub Lotto session.
 	fmt.Println("MitID login mode active (--web).")
 	fmt.Println("Headed browser is now visible in the VNC.")
-	fmt.Println("When done, click the big green 'MitID completed' button in the UI.")
+	fmt.Println("If MitID is shown, complete it. If the Rød Konto form or account drawer is shown, click the green verify button in the UI.")
 
 	// Manual-only mode. We trust the button. Keep the desktop alive.
 	deadline := time.Now().Add(30 * time.Minute)
@@ -593,6 +635,36 @@ func runLogin(ctx context.Context, args []string) error {
 
 	fmt.Println("MitID login timed out waiting for manual confirmation.")
 	return fmt.Errorf("MitID login timed out (30 min)")
+}
+
+func tryAutomaticRedKontoLogin(ctx context.Context, br *browser.Client, username, password string) (ok bool, needsMitID bool, err error) {
+	if err := br.Open(ctx, klublotto.LoginURL); err != nil {
+		return false, false, fmt.Errorf("open login: %w", err)
+	}
+	_ = br.WaitForLoad(ctx, "domcontentloaded")
+
+	deadline := time.Now().Add(90 * time.Second)
+	for time.Now().Before(deadline) {
+		if err := ctx.Err(); err != nil {
+			return false, false, err
+		}
+		cur, _ := br.URL(ctx)
+		if klublotto.IsMitIDHandoffURL(cur) {
+			return false, true, nil
+		}
+		if visible, err := klublotto.CompleteRedKontoIfVisible(ctx, br, username, password); err != nil {
+			return false, false, err
+		} else if visible {
+			fmt.Println("Submitted Rød Konto username/password; waiting for Klub Lotto session...")
+			time.Sleep(2 * time.Second)
+			continue
+		}
+		if ok, _ := klublotto.IsLoggedIn(ctx, br); ok {
+			return true, false, nil
+		}
+		time.Sleep(1 * time.Second)
+	}
+	return false, false, fmt.Errorf("timed out waiting for Rød Konto login to complete")
 }
 
 func restartHeadedSession(ctx context.Context, br *browser.Client) {

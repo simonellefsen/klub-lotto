@@ -498,8 +498,8 @@ func verifyLiveLoginSession(ctx context.Context) (string, error) {
 		}
 		if cur, err := br.URL(ctx); err == nil && cur != "" {
 			lastURL = cur
-			if isRedKontoLoginURL(cur) {
-				if err := submitRedKontoCredentials(ctx, br); err != nil {
+			if klublotto.IsRedKontoLoginURL(cur) {
+				if _, err := klublotto.CompleteRedKontoIfVisible(ctx, br, os.Getenv("DANSKESPIL_USERNAME"), os.Getenv("DANSKESPIL_PASSWORD")); err != nil {
 					return "", err
 				}
 				time.Sleep(2 * time.Second)
@@ -541,79 +541,6 @@ func verifyLiveLoginSession(ctx context.Context) (string, error) {
 		lastURL = "unknown URL"
 	}
 	return "", fmt.Errorf("no logged-in signal at %s", lastURL)
-}
-
-func isRedKontoLoginURL(pageURL string) bool {
-	u := strings.ToLower(pageURL)
-	return strings.Contains(u, "id-dlo.danskespil.dk") &&
-		strings.Contains(u, "/webflow/login")
-}
-
-func submitRedKontoCredentials(ctx context.Context, br *browser.Client) error {
-	username := os.Getenv("DANSKESPIL_USERNAME")
-	password := os.Getenv("DANSKESPIL_PASSWORD")
-	if username == "" || password == "" {
-		return errors.New("Rød Konto login page is visible, but DANSKESPIL_USERNAME/DANSKESPIL_PASSWORD are not available in the web pod")
-	}
-
-	if err := fillByAnyOf(ctx, br, username,
-		"input[name=username]",
-		"input[name=login]",
-		"input[autocomplete=username]",
-		"input[placeholder*='Brugernavn']",
-		"input[type=text]",
-	); err != nil {
-		return fmt.Errorf("fill Rød Konto username: %w", err)
-	}
-	if err := fillByAnyOf(ctx, br, password,
-		"input[name=password]",
-		"input[autocomplete=current-password]",
-		"input[placeholder*='Adgangskode']",
-		"input[type=password]",
-	); err != nil {
-		return fmt.Errorf("fill Rød Konto password: %w", err)
-	}
-	if err := br.Press(ctx, "Enter"); err != nil {
-		if clickErr := clickFirst(ctx, br,
-			"button:has-text('LOG IND')",
-			"button:has-text('Log ind')",
-			"button[type=submit]",
-		); clickErr != nil {
-			return fmt.Errorf("submit Rød Konto login: enter failed: %v; click failed: %w", err, clickErr)
-		}
-	}
-	_ = br.WaitForLoad(ctx, "domcontentloaded")
-	return nil
-}
-
-func fillByAnyOf(ctx context.Context, br *browser.Client, value string, selectors ...string) error {
-	var lastErr error
-	for _, sel := range selectors {
-		if err := br.Fill(ctx, sel, value); err == nil {
-			return nil
-		} else {
-			lastErr = err
-		}
-	}
-	if lastErr == nil {
-		lastErr = errors.New("no fill target matched")
-	}
-	return lastErr
-}
-
-func clickFirst(ctx context.Context, br *browser.Client, selectors ...string) error {
-	var lastErr error
-	for _, sel := range selectors {
-		if err := br.Click(ctx, sel); err == nil {
-			return nil
-		} else {
-			lastErr = err
-		}
-	}
-	if lastErr == nil {
-		lastErr = errors.New("no click target matched")
-	}
-	return lastErr
 }
 
 // novncProxy reverse-proxies /vnc/* to the local noVNC (websockify) server
