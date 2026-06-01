@@ -1,0 +1,81 @@
+# 70-ngrok-internal.yaml
+#
+# Exposes the klub-lotto web UI on the *shared* ngrok gateway under the path /klub-lotto
+# on the main domain (unground-uncraftily-vivienne.ngrok-free.dev/klub-lotto).
+#
+# For the new dedicated clean domain (klub-lotto.ngrok.app) that serves ONLY klub-lotto
+# at root with no OAuth and no shared policy, see 75-ngrok-public.yaml.
+#
+# This AgentEndpoint (internal binding) is referenced by the shared gateway
+# in the saxo-rust namespace (see ../shared-ngrok-gateway).
+#
+# After applying this, the public URL will be something like:
+#   https://unground-uncraftily-vivienne.ngrok-free.dev/klub-lotto
+#
+# IMPORTANT: The actual routing + rewrite happens in the sibling gateway repo.
+# The policy there **must** catch the entire /klub-lotto tree and forward it here.
+# Partial rules (only root + /vnc) are the #1 cause of "404 not found",
+# HTMX actions failing, and /debug/start-login leaking to the default app.
+
+# --------------------------------------------------------------------
+# Required TrafficPolicy snippet (put this in the sibling gateway repo)
+# --------------------------------------------------------------------
+# This must appear early (before any default/catch-all rules that serve
+# the Danske Spil site). It must match the full prefix.
+#
+# Recommended robust version:
+#
+# apiVersion: ngrok.k8s.ngrok.com/v1alpha1
+# kind: NgrokTrafficPolicy
+# metadata:
+#   name: klub-lotto-route
+#   namespace: <your-gateway-ns>
+# spec:
+#   policy:
+#     - match:
+#         path: /klub-lotto*
+#       actions:
+#         - type: url-rewrite
+#           config:
+#             match: ^/klub-lotto(/.*)?$
+#             replace: '${1:/}'
+#         - type: forward-internal
+#           config:
+#             url: http://klub-lotto.internal:80
+#
+# If you also have OAuth/identity rules, either put a bypass for /klub-lotto*
+# before the identity step, or ensure the rewrite happens first.
+#
+# Critical paths that must reach the pod (not leak to default app):
+#   /klub-lotto
+#   /klub-lotto/ledger
+#   /klub-lotto/ledger/{id}
+#   /klub-lotto/auth
+#   /klub-lotto/actions/login
+#   /klub-lotto/actions/run/*
+#   /klub-lotto/actions/status
+#   /klub-lotto/debug/start-login
+#   /klub-lotto/debug/start-test-window
+#   /klub-lotto/debug/test-window
+#   /klub-lotto/debug/x11
+#   /klub-lotto/vnc/*
+#   /klub-lotto/websockify
+#   + all noVNC assets (/core/, /app/, /vendor/, etc.)
+
+apiVersion: ngrok.k8s.ngrok.com/v1alpha1
+kind: AgentEndpoint
+metadata:
+  name: klub-lotto-internal
+  namespace: klub-lotto
+  labels:
+    app.kubernetes.io/name: klub-lotto
+    app.kubernetes.io/component: ngrok-internal
+spec:
+  # This is the "virtual" internal URL that the shared gateway will forward to.
+  url: http://klub-lotto.internal:80
+  bindings:
+    - internal
+  upstream:
+    protocol: http1
+    # Points at the existing Service created in 50-service.yaml
+    url: http://klub-lotto.klub-lotto:80

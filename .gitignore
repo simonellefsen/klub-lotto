@@ -1,0 +1,37 @@
+# Secrets
+.env
+.env.local
+.env.*.local
+
+# Build artifacts
+/bin/
+/dist/
+klub-lotto
+klub-lotto-web
+*.exe
+*.test
+*.out
+
+# Local agent-browser state (in case AGENT_BROWSER_HOME points here)
+.agent-browser/
+.klublotto/
+*.har
+screenshots/
+
+# Editors
+.vscode/
+.idea/
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Coverage
+coverage.txt
+
+# Real secrets — never commit. Example is committed.
+deploy/k8s/20-secret-env.yaml
+
+# Cluster diagnostics
+.klublotto/diag-*.txt

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: klub-lotto
+  namespace: klub-lotto
+spec:
+  type: ClusterIP
+  selector: { app: klub-lotto }
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

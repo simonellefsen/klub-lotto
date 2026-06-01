@@ -1,0 +1,15 @@
+# Persisted between Pod restarts:
+#   - /var/lib/agent-browser    agent-browser session cookies (MitID auth)
+#   - /var/lib/klub-lotto/wiki  exported wiki/ markdown
+#
+# Single PVC mounted at two subpaths in the Deployment.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: klub-lotto-state
+  namespace: klub-lotto
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 1Gi

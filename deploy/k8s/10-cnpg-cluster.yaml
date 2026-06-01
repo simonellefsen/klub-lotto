@@ -1,0 +1,45 @@
+# Cloud Native Postgres cluster. Two instances = 1 primary + 1 hot standby.
+# Requires the cnpg operator to be installed cluster-wide:
+#
+#   kubectl apply --server-side -f \
+#     https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/release-1.24/releases/cnpg-1.24.1.yaml
+#
+# The operator manages credentials in a Secret named "<cluster>-app" and a
+# read-write Service named "<cluster>-rw" — we wire those into the app
+# Deployment below.
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: klublotto-db
+  namespace: klub-lotto
+spec:
+  instances: 2
+  imageName: ghcr.io/cloudnative-pg/postgresql:16
+  primaryUpdateStrategy: unsupervised
+
+  bootstrap:
+    initdb:
+      database: klublotto
+      owner: klublotto
+      encoding: UTF8
+      localeCollate: C
+      localeCType: C
+
+  storage:
+    size: 2Gi
+    # Use the default StorageClass on docker-desktop (hostpath / k8s.io).
+
+  # Reasonable footprint for a single-developer cluster. The exporter and
+  # importer are both tiny, so we don't need much.
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+
+  monitoring:
+    enablePodMonitor: false
+
+  # Auto-failover. cnpg handles this for us; keeping defaults explicit.
+  failoverDelay: 0

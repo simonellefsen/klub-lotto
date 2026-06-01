@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: klub-lotto
+  namespace: klub-lotto
+  labels: { app: klub-lotto }
+spec:
+  # Single replica only. Chrome + agent-browser are stateful with respect
+  # to the saved session cookie and aren't designed for active-active.
+  replicas: 1
+  strategy:
+    # Recreate so the PVC isn't briefly held by two pods during rollout.
+    type: Recreate
+  selector:
+    matchLabels: { app: klub-lotto }
+  template:
+    metadata:
+      labels: { app: klub-lotto }
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: app
+          image: klub-lotto:dev
+          imagePullPolicy: IfNotPresent
+          ports:
+            - { name: http,  containerPort: 8080 }
+            - { name: novnc, containerPort: 6080 }
+          env:
+            - name: DATABASE_URL
+              # cnpg creates this Secret; .uri is a fully-formed postgres:// URI.
+              valueFrom:
+                secretKeyRef:
+                  name: klublotto-db-app
+                  key: uri
+            - name: KLUBLOTTO_WEB_ADDR
+              value: ":8080"
+            - name: KLUBLOTTO_NOVNC_TARGET
+              value: "http://127.0.0.1:6080"
+            - name: KLUBLOTTO_WIKI_DIR
+              value: "/var/lib/klub-lotto/wiki"
+            - name: AGENT_BROWSER_SESSION_NAME
+              value: "klublotto"
+            - name: AGENT_BROWSER_PROFILE
+              value: "/var/lib/agent-browser/chrome-profile"
+            # LLM provider keys
+            - { name: ANTHROPIC_API_KEY, valueFrom: { secretKeyRef: { name: klub-lotto-env, key: ANTHROPIC_API_KEY, optional: true } } }
+            - { name: OPENAI_API_KEY,    valueFrom: { secretKeyRef: { name: klub-lotto-env, key: OPENAI_API_KEY,    optional: true } } }
+            - { name: XAI_API_KEY,       valueFrom: { secretKeyRef: { name: klub-lotto-env, key: XAI_API_KEY,       optional: true } } }
+            - { name: GEMINI_API_KEY,    valueFrom: { secretKeyRef: { name: klub-lotto-env, key: GEMINI_API_KEY,    optional: true } } }
+          volumeMounts:
+            - name: state
+              mountPath: /var/lib/agent-browser
+              subPath: agent-browser
+            - name: state
+              mountPath: /var/lib/klub-lotto/wiki
+              subPath: wiki
+            - name: state
+              mountPath: /root/.agent-browser
+              subPath: agent-browser-home
+            - name: dshm
+              mountPath: /dev/shm
+          readinessProbe:
+            httpGet: { path: /healthz, port: http }
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: { path: /healthz, port: http }
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 200m
+              memory: 512Mi
+            limits:
+              memory: 2Gi
+      volumes:
+        - name: state
+          persistentVolumeClaim:
+            claimName: klub-lotto-state
+        - name: dshm
+          # Chrome needs more shared memory than the default 64Mi.
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Gi

@@ -1,0 +1,30 @@
+# Optional ingress for docker-desktop. docker-desktop ships with the
+# nginx-ingress controller pre-installed and binds it to localhost.
+# After `kubectl apply` you reach the UI at http://klub-lotto.localhost.
+#
+# If you'd rather port-forward (no ingress), skip applying this file and
+# run:  kubectl -n klub-lotto port-forward svc/klub-lotto 8080:80
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: klub-lotto
+  namespace: klub-lotto
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    # noVNC uses WebSockets; nginx-ingress handles Upgrade headers
+    # automatically but raise the read timeout so the connection
+    # doesn't drop while the MitID page is idle.
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: klub-lotto.localhost
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: klub-lotto
+                port:
+                  number: 80

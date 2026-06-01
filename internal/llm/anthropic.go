@@ -1,0 +1,150 @@
+package llm
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"time"
+)
+
+// Anthropic implements Provider against Claude's Messages API.
+//
+// Wire format differs from OpenAI: separate top-level `system` field,
+// `content` is an array of typed parts, no `response_format` flag (we ask
+// for JSON in the prompt and parse defensively). Default model is
+// claude-sonnet-4-6 — strong on Danish trivia, the right tier for
+// per-question latency. Override the model via NewAnthropic's second arg.
+type Anthropic struct {
+	APIKey  string
+	Model   string
+	Version string // anthropic-version header
+	HTTP    *http.Client
+	URL     string
+}
+
+// NewAnthropic returns a Provider. If model is empty, "claude-sonnet-4-6"
+// is used. Versions older than 2023-06-01 are not supported.
+func NewAnthropic(apiKey, model string) *Anthropic {
+	if model == "" {
+		model = "claude-sonnet-4-6"
+	}
+	return &Anthropic{
+		APIKey:  apiKey,
+		Model:   model,
+		Version: "2023-06-01",
+		HTTP:    &http.Client{Timeout: 60 * time.Second},
+		URL:     "https://api.anthropic.com/v1/messages",
+	}
+}
+
+func (a *Anthropic) Name() string { return "anthropic:" + a.Model }
+
+func (a *Anthropic) GenerateJSON(ctx context.Context, prompt string, temperature float64) (string, error) {
+	body := anthropicRequest{
+		Model:       a.Model,
+		MaxTokens:   512,
+		System:      "Reply with JSON only. No markdown, no extra text.",
+		Temperature: temperature,
+		Messages: []anthropicMessage{
+			{Role: "user", Content: prompt},
+		},
+	}
+	text, err := a.post(ctx, body)
+	if err != nil {
+		return "", err
+	}
+	return text, nil
+}
+
+type anthropicRequest struct {
+	Model     string             `json:"model"`
+	MaxTokens int                `json:"max_tokens"`
+	System    string             `json:"system,omitempty"`
+	Messages  []anthropicMessage `json:"messages"`
+	// Temperature is omitted (default 1.0). For deterministic answers we
+	// set this to 0.
+	Temperature float64 `json:"temperature"`
+}
+
+type anthropicMessage struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
+}
+
+type anthropicResponse struct {
+	Content []struct {
+		Type string `json:"type"`
+		Text string `json:"text"`
+	} `json:"content"`
+	Error *struct {
+		Type    string `json:"type"`
+		Message string `json:"message"`
+	} `json:"error,omitempty"`
+}
+
+func (a *Anthropic) ChooseOne(ctx context.Context, q Question) (Answer, error) {
+	body := anthropicRequest{
+		Model:       a.Model,
+		MaxTokens:   512,
+		System:      "You answer Danish multiple-choice quiz questions. Reply with JSON only.",
+		Temperature: 0,
+		Messages: []anthropicMessage{
+			{Role: "user", Content: formatPrompt(q)},
+		},
+	}
+	text, err := a.post(ctx, body)
+	if err != nil {
+		return Answer{}, err
+	}
+	return parseChoiceJSON(text, len(q.Options))
+}
+
+func (a *Anthropic) post(ctx context.Context, body anthropicRequest) (string, error) {
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return "", err
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, a.URL, bytes.NewReader(buf))
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("x-api-key", a.APIKey)
+	req.Header.Set("anthropic-version", a.Version)
+
+	resp, err := a.HTTP.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	raw, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	if resp.StatusCode >= 400 {
+		return "", fmt.Errorf("anthropic: http %d: %s", resp.StatusCode, truncate(string(raw), 400))
+	}
+
+	var parsed anthropicResponse
+	if err := json.Unmarshal(raw, &parsed); err != nil {
+		return "", fmt.Errorf("anthropic: parse response: %w", err)
+	}
+	if parsed.Error != nil {
+		return "", fmt.Errorf("anthropic: api error %s: %s", parsed.Error.Type, parsed.Error.Message)
+	}
+	// Concatenate text blocks (current API returns one for plain prompts,
+	// but the schema is a slice).
+	var text string
+	for _, c := range parsed.Content {
+		if c.Type == "text" {
+			text += c.Text
+		}
+	}
+	if text == "" {
+		return "", fmt.Errorf("anthropic: empty content")
+	}
+	return text, nil
+}

@@ -1,0 +1,44 @@
+# 75-ngrok-public.yaml
+#
+# Dedicated public ngrok endpoint for klub-lotto.
+#
+# This creates a clean, independent domain (klub-lotto.ngrok.app) that serves
+# ONLY the klub-lotto application at the root path (no /klub-lotto prefix).
+#
+# This endpoint deliberately does NOT use the shared daytrader-oauth TrafficPolicy,
+# so it avoids the global OAuth layer that was causing redirects and path leakage.
+#
+# Usage:
+#   - Apply this in the klub-lotto namespace (alongside the other 7x files).
+#   - The domain klub-lotto.ngrok.app must already be reserved/created in your
+#     ngrok account (you said you created it).
+#   - After applying, the app will be available at:
+#       https://klub-lotto.ngrok.app
+#
+# Notes:
+#   - All paths go directly to the app (/, /actions/login, /debug/x11, /vnc/*, etc.).
+#   - The existing /klub-lotto path on the main domain (via klub-lotto-internal)
+#     can remain for backward compatibility if you still need it.
+#   - No prefix rewrite is needed because the domain is dedicated to this app.
+
+apiVersion: ngrok.k8s.ngrok.com/v1alpha1
+kind: AgentEndpoint
+metadata:
+  name: klub-lotto-public
+  namespace: klub-lotto
+  labels:
+    app.kubernetes.io/name: klub-lotto
+    app.kubernetes.io/component: ngrok-public
+spec:
+  # The dedicated public domain you created.
+  url: https://klub-lotto.ngrok.app
+  bindings:
+    - public
+  upstream:
+    protocol: http1
+    # Point directly at the Service created by 50-service.yaml.
+    # This makes the domain serve the app at root (no /klub-lotto prefix stripping needed).
+    url: http://klub-lotto.klub-lotto:80
+  # Intentionally no trafficPolicy here.
+  # This keeps the endpoint completely independent from the shared OAuth policy
+  # used by the main daytrader-frontend endpoint.
