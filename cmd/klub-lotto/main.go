@@ -140,19 +140,22 @@ func runQuiz(ctx context.Context, args []string) error {
 	restartHeadedSession(ctx, br)
 
 	fmt.Println("[1/6] opening Dagens Quiz...")
-	openCtx, cancel := context.WithTimeout(ctx, 90*time.Second)
-	defer cancel()
+	openCtx, cancel := context.WithTimeout(ctx, 45*time.Second)
 	if err := klublotto.OpenQuiz(openCtx, br); err != nil {
+		cancel()
 		return fmt.Errorf("open quiz: %w", err)
 	}
 	curURL, _ := br.URL(openCtx)
+	cancel()
 	fmt.Println("       at:", curURL)
 	if klublotto.IsLoginFlowURL(curURL) {
 		if cfg.DanskespilUsername == "" || cfg.DanskespilPassword == "" {
 			return fmt.Errorf("login required before quiz can run (landed at %s; no configured Rød Konto username/password)", curURL)
 		}
 		fmt.Println("       login redirect detected; trying automatic Rød Konto login...")
-		ok, needsMitID, err := tryAutomaticRedKontoLogin(openCtx, br, cfg.DanskespilUsername, cfg.DanskespilPassword)
+		loginCtx, cancel := context.WithTimeout(ctx, 2*time.Minute)
+		ok, needsMitID, err := tryAutomaticRedKontoLogin(loginCtx, br, cfg.DanskespilUsername, cfg.DanskespilPassword)
+		cancel()
 		if err != nil {
 			return fmt.Errorf("automatic Rød Konto login before quiz: %w", err)
 		}
@@ -162,15 +165,20 @@ func runQuiz(ctx context.Context, args []string) error {
 		if !ok {
 			return fmt.Errorf("automatic Rød Konto login before quiz did not complete")
 		}
-		if err := klublotto.OpenQuiz(openCtx, br); err != nil {
+		reopenCtx, cancel := context.WithTimeout(ctx, 45*time.Second)
+		if err := klublotto.OpenQuiz(reopenCtx, br); err != nil {
+			cancel()
 			return fmt.Errorf("reopen quiz after login: %w", err)
 		}
-		curURL, _ = br.URL(openCtx)
+		curURL, _ = br.URL(reopenCtx)
+		cancel()
 		fmt.Println("       after login:", curURL)
 	}
 
 	fmt.Println("[2/6] snapshotting page...")
-	snap, err := br.SnapshotInteractive(openCtx)
+	snapshotCtx, cancel := context.WithTimeout(ctx, 45*time.Second)
+	defer cancel()
+	snap, err := br.SnapshotInteractive(snapshotCtx)
 	if err != nil {
 		return fmt.Errorf("snapshot quiz: %w", err)
 	}
