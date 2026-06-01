@@ -100,31 +100,65 @@ func Login(ctx context.Context, br *browser.Client, username, password string) e
 // authentication. Generic "konto" icons are intentionally ignored because the
 // logged-out Klub Lotto page also renders account/login chrome.
 func IsLoggedIn(ctx context.Context, br *browser.Client) (bool, error) {
+	var cur string
+	if cur, err := br.URL(ctx); err == nil {
+		if isLoggedOutURL(cur) {
+			return false, nil
+		}
+	}
+
 	snap, err := br.SnapshotInteractive(ctx)
 	if err != nil {
 		return false, err
 	}
+	if body, err := br.Eval(ctx, `document.body ? document.body.innerText : ""`); err == nil && body != "" {
+		return looksLoggedIn(cur, snap, body), nil
+	}
+	return looksLoggedIn(cur, snap, ""), nil
+}
+
+func looksLoggedIn(pageURL, snap, body string) bool {
+	if isLoggedOutURL(pageURL) {
+		return false
+	}
+
 	s := strings.ToLower(snap)
+	if body != "" {
+		s += "\n" + strings.ToLower(body)
+	}
+
+	// Hard logged-out signals win. The MitID and restriction pages can contain
+	// phrases like "Danske Spil Rød Konto", so positive signals must be account
+	// drawer/menu terms, not generic account naming.
+	if strings.Contains(s, "log ind") ||
+		strings.Contains(s, "opret konto") ||
+		strings.Contains(s, "tilmeld") {
+		return false
+	}
+
 	for _, signal := range []string{
 		"log ud",            // Danish "Log out"
-		"min konto",         // "My account"
-		"rød konto",         // account drawer for logged-in users
-		"saldo",             // balance panel in the account drawer
-		"indbetaling",       // deposit button in the account drawer
-		"udbetaling",        // withdrawal button in the account drawer
+		"min konto",         // account drawer heading
 		"mine abonnementer", // account drawer menu item
 		"kontohistorik",     // account drawer menu item
 		"profiloplysninger", // account drawer menu item
 	} {
 		if strings.Contains(s, signal) {
-			return true, nil
+			return true
 		}
 	}
-	// Negative signal — if a prominent "Log ind" CTA exists, we are not logged in.
-	if strings.Contains(s, "log ind") {
-		return false, nil
+	if strings.Contains(s, "saldo") &&
+		(strings.Contains(s, "indbetaling") || strings.Contains(s, "udbetaling")) {
+		return true
 	}
-	return false, nil
+	return false
+}
+
+func isLoggedOutURL(pageURL string) bool {
+	u := strings.ToLower(pageURL)
+	return strings.Contains(u, "/log-ind") ||
+		strings.Contains(u, "mitid.dk") ||
+		strings.Contains(u, "nemlog-in")
 }
 
 // tryClickFirst clicks the first selector that succeeds. All errors are
