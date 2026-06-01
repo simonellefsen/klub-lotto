@@ -537,14 +537,11 @@ func runLogin(ctx context.Context, args []string) error {
 	br := browser.New(cfg.BrowserSessionName, !headless)
 
 	if *check {
-		defer func() {
-			closeCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-			defer cancel()
-			_ = br.Close(closeCtx)
-		}()
 		// Fast probe used by web UI auth badge and startup bootstrap.
 		// We still do a lightweight navigation + snapshot so we get an accurate
-		// live answer even if cookies are stale.
+		// live answer even if cookies are stale. Do not close the agent-browser
+		// session here: the k8s UI may have a visible VNC login browser open in
+		// the same session.
 		openCtx, cancel := context.WithTimeout(ctx, 25*time.Second)
 		defer cancel()
 		if err := br.Open(openCtx, klublotto.KlubLottoURL); err != nil {
@@ -638,11 +635,12 @@ func runLogin(ctx context.Context, args []string) error {
 }
 
 func tryAutomaticRedKontoLogin(ctx context.Context, br *browser.Client, username, password string) (ok bool, needsMitID bool, err error) {
-	if err := br.Open(ctx, klublotto.LoginURL); err != nil {
-		return false, false, fmt.Errorf("open login: %w", err)
+	if err := br.Open(ctx, klublotto.KlubLottoURL); err != nil {
+		return false, false, fmt.Errorf("open klublotto: %w", err)
 	}
 	_ = br.WaitForLoad(ctx, "domcontentloaded")
 
+	clickedLogin := false
 	deadline := time.Now().Add(90 * time.Second)
 	for time.Now().Before(deadline) {
 		if err := ctx.Err(); err != nil {
@@ -661,6 +659,18 @@ func tryAutomaticRedKontoLogin(ctx context.Context, br *browser.Client, username
 		}
 		if ok, _ := klublotto.IsLoggedIn(ctx, br); ok {
 			return true, false, nil
+		}
+		if !clickedLogin {
+			clicked, err := klublotto.ClickLoginEntryIfVisible(ctx, br)
+			if err != nil {
+				return false, false, fmt.Errorf("click login entry: %w", err)
+			}
+			if clicked {
+				clickedLogin = true
+				_ = br.WaitForLoad(ctx, "domcontentloaded")
+				time.Sleep(2 * time.Second)
+				continue
+			}
 		}
 		time.Sleep(1 * time.Second)
 	}

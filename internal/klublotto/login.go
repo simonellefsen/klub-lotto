@@ -174,6 +174,23 @@ func IsLoginFlowURL(pageURL string) bool {
 		IsMitIDHandoffURL(pageURL)
 }
 
+func ClickLoginEntryIfVisible(ctx context.Context, br *browser.Client) (bool, error) {
+	snap, err := br.SnapshotInteractive(ctx)
+	if err != nil {
+		return false, err
+	}
+	for _, m := range snapshotLine.FindAllStringSubmatch(snap, -1) {
+		role, name, ref := strings.ToLower(m[1]), strings.ToLower(strings.TrimSpace(m[2])), m[3]
+		if (role == "button" || role == "link") && name == "log ind" {
+			if err := br.Click(ctx, ref); err != nil {
+				return true, err
+			}
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
 // IsLoggedIn looks for account-drawer signals that only appear after a real
 // authentication. Generic "konto" icons are intentionally ignored because the
 // logged-out Klub Lotto page also renders account/login chrome.
@@ -215,15 +232,6 @@ func loggedInState(pageURL, snap, body string) (ok bool, known bool) {
 		s += "\n" + strings.ToLower(body)
 	}
 
-	// Hard logged-out signals win. The MitID and restriction pages can contain
-	// phrases like "Danske Spil Rød Konto", so positive signals must be account
-	// drawer/menu terms, not generic account naming.
-	if strings.Contains(s, "log ind") ||
-		strings.Contains(s, "opret konto") ||
-		strings.Contains(s, "tilmeld") {
-		return false, true
-	}
-
 	for _, signal := range []string{
 		"log ud",            // Danish "Log out"
 		"min konto",         // account drawer heading
@@ -245,6 +253,15 @@ func loggedInState(pageURL, snap, body string) (ok bool, known bool) {
 	if strings.Contains(s, "saldo") &&
 		(strings.Contains(s, "indbetaling") || strings.Contains(s, "udbetaling")) {
 		return true, true
+	}
+
+	// Hard logged-out signals win. The MitID and restriction pages can contain
+	// phrases like "Danske Spil Rød Konto", so positive signals must be account
+	// drawer/menu terms, not generic account naming.
+	if strings.Contains(s, "log ind") ||
+		strings.Contains(s, "opret konto") ||
+		strings.Contains(s, "tilmeld") {
+		return false, true
 	}
 	return false, false
 }

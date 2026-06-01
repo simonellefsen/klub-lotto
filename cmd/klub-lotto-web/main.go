@@ -474,12 +474,11 @@ func (a *app) handleForceLoginSuccess(w http.ResponseWriter, r *http.Request) {
 	job.mu.Unlock()
 	job.append("MitID login verified in live browser: " + verifiedAt)
 
-	closeAgentBrowserSession(context.Background())
 	terminateJobProcess(cmd, "manual MitID success")
 
 	_ = a.store.RecordLogin(r.Context(), store.LoginEvent{
 		Status: "completed",
-		Detail: "manual MitID completion verified in the live browser; agent-browser session closed to flush cookies",
+		Detail: "manual MitID completion verified in the live browser",
 	})
 	a.authCacheMu.Lock()
 	a.authCache = "valid"
@@ -667,7 +666,6 @@ func (a *app) liveAuthStatus(force bool) string {
 
 	out, err := cmd.CombinedOutput()
 	outStr := strings.TrimSpace(string(out))
-	closeAgentBrowserSession(context.Background())
 
 	status := "invalid"
 	didProbe := true // live CLI attempt (success or fail/timeout); used for accurate "last verified" timestamp

@@ -41,3 +41,23 @@ func TestLooksLoggedInAcceptsAccountDrawerSignals(t *testing.T) {
 		t.Fatal("account drawer signals should be treated as authenticated")
 	}
 }
+
+func TestLooksLoggedInAcceptsKlubLottoHeaderBalance(t *testing.T) {
+	if !looksLoggedIn(
+		"https://danskespil.dk/klublotto",
+		"",
+		"Klub LOTTO Spil & Quiz Månedskonkurrencen Millionærnyt Dine præmier 1,00 kr.",
+	) {
+		t.Fatal("logged-in Klub Lotto header with balance should be treated as authenticated")
+	}
+}
+
+func TestLooksLoggedInAcceptsFirstTicketPopup(t *testing.T) {
+	if !looksLoggedIn(
+		"https://danskespil.dk/klublotto/spil-og-quiz",
+		"",
+		"Tillykke Dagens første lod er i hus.",
+	) {
+		t.Fatal("first-ticket popup should be treated as authenticated")
+	}
+}
