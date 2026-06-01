@@ -7,7 +7,7 @@ Logs in, navigates to today's games, and solves them. The Quiz game scrapes the 
 ## Stack
 
 - **Go** CLI (single static binary).
-- [agent-browser](https://github.com/vercel-labs/agent-browser) (Vercel Labs) for the actual browser automation — wrapped as a subprocess. Session state persists across runs via `--session-name klublotto`.
+- [agent-browser](https://github.com/vercel-labs/agent-browser) (Vercel Labs) for the actual browser automation — wrapped as a subprocess. K8s sets both `AGENT_BROWSER_SESSION=klublotto` and `AGENT_BROWSER_SESSION_NAME=klublotto` so the live browser session and persisted state stay aligned.
 - Three pluggable LLM providers behind a single `Provider` interface. The PoC ships with a `compare` subcommand that asks all three and shows their answers side-by-side before submitting.
 
 ## Status

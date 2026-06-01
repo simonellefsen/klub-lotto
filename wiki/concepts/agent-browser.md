@@ -13,15 +13,18 @@ native Rust CLI, daemon-backed, accessibility-tree snapshots with stable
 ## Why this and not Playwright/Selenium
 
 - Snapshot+ref workflow is purpose-built for LLM-driven flows.
-- Sessions persist cleanly across runs (`--session-name klublotto`).
+- Sessions persist cleanly across runs (`--session klublotto --session-name klublotto`).
 - One CLI binary, no Node toolchain.
 
 ## Session model
 
-We always pass `--session-name klublotto`. State (cookies, localStorage)
-is auto-saved to `~/.agent-browser/sessions/klublotto/`. Encryption at
-rest if you set `AGENT_BROWSER_ENCRYPTION_KEY` to a 64-char hex string —
-recommended in production:
+We set both `AGENT_BROWSER_SESSION=klublotto` and
+`AGENT_BROWSER_SESSION_NAME=klublotto` in k8s. `AGENT_BROWSER_SESSION`
+selects the isolated live browser session; `AGENT_BROWSER_SESSION_NAME`
+selects the auto-save/load persistence name. Keeping them equal means the
+VNC browser and automation commands operate on the same session and persisted
+state. Encryption at rest if you set `AGENT_BROWSER_ENCRYPTION_KEY` to a
+64-char hex string — recommended in production:
 
 ```bash
 export AGENT_BROWSER_ENCRYPTION_KEY=$(openssl rand -hex 32)
@@ -35,11 +38,11 @@ PoC default is **headed** so the operator can watch and intervene. Pass
 ## Core workflow we use
 
 ```
-agent-browser --session-name klublotto --headed open https://danskespil.dk/log-ind
-agent-browser --session-name klublotto snapshot -i        # get @e refs
-agent-browser --session-name klublotto fill <sel> <val>
-agent-browser --session-name klublotto click @e2
-agent-browser --session-name klublotto wait --load networkidle
+agent-browser --session klublotto --session-name klublotto --headed open https://danskespil.dk/klublotto
+agent-browser --session klublotto --session-name klublotto snapshot -i        # get @e refs
+agent-browser --session klublotto --session-name klublotto fill <sel> <val>
+agent-browser --session klublotto --session-name klublotto click @e2
+agent-browser --session klublotto --session-name klublotto wait --load networkidle
 ```
 
 The Go wrapper just shells these out, parses `--json`, and exposes

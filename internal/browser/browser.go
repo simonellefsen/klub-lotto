@@ -26,9 +26,9 @@ type Client struct {
 	// "agent-browser" is resolved from PATH.
 	Binary string
 
-	// Session is passed as --session-name. Cookies + localStorage persist
-	// under ~/.agent-browser/sessions/<name>/ across runs, so a successful
-	// login carries over to the next invocation.
+	// Session is passed as both --session and --session-name. --session selects
+	// the isolated live browser session; --session-name keeps persisted state
+	// aligned on agent-browser versions that treat those as separate concepts.
 	Session string
 
 	// Headed shows the browser window. Useful while developing; in

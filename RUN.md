@@ -104,7 +104,7 @@ Watch the browser. If anything fails:
 - The wiki source page is still written with the votes, so you can
   inspect the prompt and options regardless.
 - A debug snapshot lands in `.klublotto/quiz-snapshot.txt`.
-- Take a screenshot manually (`agent-browser --session-name klublotto screenshot debug.png`).
+- Take a screenshot manually (`agent-browser --session klublotto --session-name klublotto screenshot debug.png`).
 
 When you're happy with the dry run:
 

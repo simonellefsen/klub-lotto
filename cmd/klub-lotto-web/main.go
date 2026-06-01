@@ -491,7 +491,7 @@ func (a *app) handleForceLoginSuccess(w http.ResponseWriter, r *http.Request) {
 }
 
 func verifyLiveLoginSession(ctx context.Context) (string, error) {
-	br := browser.New(envOr("AGENT_BROWSER_SESSION_NAME", "klublotto"), true)
+	br := browser.New(envOr("AGENT_BROWSER_SESSION", envOr("AGENT_BROWSER_SESSION_NAME", "klublotto")), true)
 	br.DefaultTimeout = 10 * time.Second
 
 	var lastURL string
