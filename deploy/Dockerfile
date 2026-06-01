@@ -29,6 +29,7 @@ RUN go mod tidy && \
 FROM debian:bookworm-slim
 ENV DEBIAN_FRONTEND=noninteractive \
     DISPLAY=:99 \
+    AGENT_BROWSER_SESSION=klublotto \
     AGENT_BROWSER_SESSION_NAME=klublotto \
     AGENT_BROWSER_PROFILE=/var/lib/agent-browser/chrome-profile \
     AGENT_BROWSER_EXECUTABLE_PATH=/usr/bin/chromium
@@ -67,7 +68,8 @@ COPY --from=build /out/klub-lotto-web  /usr/local/bin/klub-lotto-web
 COPY deploy/supervisord.conf           /etc/supervisor/conf.d/klub-lotto.conf
 COPY deploy/entrypoint.sh              /usr/local/bin/entrypoint.sh
 COPY deploy/desktop-cleanup.sh         /usr/local/bin/desktop-cleanup.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/desktop-cleanup.sh
+COPY deploy/scripts/klub-lotto-quiz-session-test.sh /usr/local/bin/klub-lotto-quiz-session-test
+RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/desktop-cleanup.sh /usr/local/bin/klub-lotto-quiz-session-test
 
 # Persisted at runtime via PVC mounts in k8s:
 #   /var/lib/agent-browser   agent-browser state + persistent Chrome profile

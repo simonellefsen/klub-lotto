@@ -50,11 +50,14 @@ func New(session string, headed bool) *Client {
 }
 
 // baseArgs are the flags that go on every invocation: --json for parseable
-// output, --session-name for state persistence, and optionally --headed.
+// output, --session for state persistence, and optionally --headed.
 func (c *Client) baseArgs() []string {
 	args := []string{"--json"}
 	if c.Session != "" {
-		args = append(args, "--session-name", c.Session)
+		// agent-browser's current public flag is --session. We also pass the
+		// older --session-name alias because some local notes/scripts still use
+		// it, and current releases harmlessly accept it after --session.
+		args = append(args, "--session", c.Session, "--session-name", c.Session)
 	}
 	if c.Headed {
 		args = append(args, "--headed")

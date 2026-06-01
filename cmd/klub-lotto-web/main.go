@@ -845,6 +845,8 @@ func (r *jobRegistry) start(binDir, sub string, args []string, st *store.Store, 
 		"KLUBLOTTO_HEADED=true",     // our CLI should request headed mode
 		"AGENT_BROWSER_HEADED=true", // agent-browser should launch a visible Chromium window
 		"AGENT_BROWSER_ARGS=--start-maximized --disable-session-crashed-bubble",
+		"AGENT_BROWSER_SESSION="+envOr("AGENT_BROWSER_SESSION", envOr("AGENT_BROWSER_SESSION_NAME", "klublotto")),
+		"AGENT_BROWSER_SESSION_NAME="+envOr("AGENT_BROWSER_SESSION_NAME", envOr("AGENT_BROWSER_SESSION", "klublotto")),
 		"AGENT_BROWSER_PROFILE="+envOr("AGENT_BROWSER_PROFILE", "/var/lib/agent-browser/chrome-profile"),
 	)
 
@@ -868,7 +870,7 @@ func (r *jobRegistry) start(binDir, sub string, args []string, st *store.Store, 
 		d, _ := os.Getwd()
 		return d
 	}())
-	log.Printf("job %s env KLUBLOTTO_HEADED=%s AGENT_BROWSER_HEADED=%s AGENT_BROWSER_ARGS=%q AGENT_BROWSER_PROFILE=%s DISPLAY=%s HOME=%s AGENT_BROWSER_SESSION_NAME=%s",
+	log.Printf("job %s env KLUBLOTTO_HEADED=%s AGENT_BROWSER_HEADED=%s AGENT_BROWSER_ARGS=%q AGENT_BROWSER_PROFILE=%s DISPLAY=%s HOME=%s AGENT_BROWSER_SESSION=%s AGENT_BROWSER_SESSION_NAME=%s",
 		j.ID,
 		envValue(cmd.Env, "KLUBLOTTO_HEADED"),
 		envValue(cmd.Env, "AGENT_BROWSER_HEADED"),
@@ -876,6 +878,7 @@ func (r *jobRegistry) start(binDir, sub string, args []string, st *store.Store, 
 		envValue(cmd.Env, "AGENT_BROWSER_PROFILE"),
 		envValue(cmd.Env, "DISPLAY"),
 		envValue(cmd.Env, "HOME"),
+		envValue(cmd.Env, "AGENT_BROWSER_SESSION"),
 		envValue(cmd.Env, "AGENT_BROWSER_SESSION_NAME"))
 
 	stdout, _ := cmd.StdoutPipe()
@@ -1062,10 +1065,10 @@ func envValue(env []string, key string) string {
 }
 
 func closeAgentBrowserSession(parent context.Context) {
-	session := envOr("AGENT_BROWSER_SESSION_NAME", "klublotto")
+	session := envOr("AGENT_BROWSER_SESSION", envOr("AGENT_BROWSER_SESSION_NAME", "klublotto"))
 	ctx, cancel := context.WithTimeout(parent, 8*time.Second)
 	defer cancel()
-	cmd := exec.CommandContext(ctx, "agent-browser", "--json", "--session-name", session, "close")
+	cmd := exec.CommandContext(ctx, "agent-browser", "--json", "--session", session, "--session-name", session, "close")
 	if out, err := cmd.CombinedOutput(); err != nil {
 		log.Printf("agent-browser close session %q: %v (%s)", session, err, strings.TrimSpace(string(out)))
 	}

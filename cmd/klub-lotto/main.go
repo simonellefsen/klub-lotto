@@ -717,6 +717,9 @@ func restartHeadedSession(ctx context.Context, br *browser.Client) {
 	if !br.Headed {
 		return
 	}
+	if !strings.EqualFold(os.Getenv("KLUBLOTTO_RESTART_HEADED_SESSION"), "true") {
+		return
+	}
 	closeCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 	_ = br.Close(closeCtx)

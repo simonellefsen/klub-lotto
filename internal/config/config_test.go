@@ -28,3 +28,16 @@ func TestCleanEnvValueKeepsMismatchedQuotes(t *testing.T) {
 		t.Fatalf("cleanEnvValue kept mismatched quotes as %q", got)
 	}
 }
+
+func TestLoadPrefersAgentBrowserSession(t *testing.T) {
+	t.Setenv("AGENT_BROWSER_SESSION", "new-session")
+	t.Setenv("AGENT_BROWSER_SESSION_NAME", "old-session")
+
+	cfg, err := Load(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.BrowserSessionName != "new-session" {
+		t.Fatalf("BrowserSessionName = %q", cfg.BrowserSessionName)
+	}
+}

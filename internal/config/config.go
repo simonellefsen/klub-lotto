@@ -30,7 +30,7 @@ type Config struct {
 	OrdknudeProvider string
 
 	// Browser preferences — exposed so commands can override per-run.
-	BrowserSessionName string // --session-name passed to agent-browser
+	BrowserSessionName string // --session passed to agent-browser
 	Headed             bool   // show the window (debugging)
 
 	// Where to write logs, screenshots, transcripts.
@@ -62,7 +62,10 @@ func Load(repoRoot string) (*Config, error) {
 		return nil, fmt.Errorf("mkdir %s: %w", dataDir, err)
 	}
 
-	session := get("AGENT_BROWSER_SESSION_NAME")
+	session := get("AGENT_BROWSER_SESSION")
+	if session == "" {
+		session = get("AGENT_BROWSER_SESSION_NAME")
+	}
 	if session == "" {
 		session = "klublotto"
 	}

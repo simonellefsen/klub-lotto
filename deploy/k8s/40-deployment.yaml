@@ -40,6 +40,8 @@ spec:
               value: "/var/lib/klub-lotto/wiki"
             - name: AGENT_BROWSER_SESSION_NAME
               value: "klublotto"
+            - name: AGENT_BROWSER_SESSION
+              value: "klublotto"
             - name: AGENT_BROWSER_PROFILE
               value: "/var/lib/agent-browser/chrome-profile"
             # Danske Spil Rød Konto credentials. MitID still requires a human
