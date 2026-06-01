@@ -641,6 +641,8 @@ func tryAutomaticRedKontoLogin(ctx context.Context, br *browser.Client, username
 	_ = br.WaitForLoad(ctx, "domcontentloaded")
 
 	clickedLogin := false
+	submittedRedKonto := false
+	var submittedRedKontoAt time.Time
 	deadline := time.Now().Add(90 * time.Second)
 	for time.Now().Before(deadline) {
 		if err := ctx.Err(); err != nil {
@@ -650,9 +652,20 @@ func tryAutomaticRedKontoLogin(ctx context.Context, br *browser.Client, username
 		if klublotto.IsMitIDHandoffURL(cur) {
 			return false, true, nil
 		}
+		if visible, err := klublotto.IsRedKontoLoginPage(ctx, br); err != nil {
+			return false, false, err
+		} else if visible && submittedRedKonto {
+			if time.Since(submittedRedKontoAt) > 20*time.Second {
+				return false, false, fmt.Errorf("Rød Konto login form is still visible after one automatic submission; refusing to retry")
+			}
+			time.Sleep(1 * time.Second)
+			continue
+		}
 		if visible, err := klublotto.CompleteRedKontoIfVisible(ctx, br, username, password); err != nil {
 			return false, false, err
 		} else if visible {
+			submittedRedKonto = true
+			submittedRedKontoAt = time.Now()
 			fmt.Println("Submitted Rød Konto username/password; waiting for Klub Lotto session...")
 			time.Sleep(2 * time.Second)
 			continue

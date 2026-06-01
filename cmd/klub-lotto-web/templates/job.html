@@ -13,7 +13,7 @@
   {{if and (eq .Action "login") (eq .Status "running")}}
   <div style="margin:8px 0; padding:10px; background:#fff7ed; border:1px solid #f59e0b; border-radius:6px;">
     <strong style="color:#9a3412;">MitID login in progress</strong><br>
-    <span style="font-size:13px;">Complete MitID in the VNC window. If the Rød Konto username/password form appears, leave it visible; this button will submit the configured credentials and verify the final Klub Lotto session.</span><br>
+    <span style="font-size:13px;">Complete MitID in the VNC window. If the Rød Konto username/password form appears, leave it visible; this button will submit the configured credentials once and verify the final Klub Lotto session.</span><br>
     <button hx-post="actions/login/force-success" hx-target="#job" hx-swap="outerHTML"
             hx-on::before-request="this.disabled=true; this.textContent='Verifying…';"
             style="margin-top:8px; background:#2a6b2a; color:white; border:none; padding:8px 16px; border-radius:4px; cursor:pointer; font-weight:600; font-size:13px;">

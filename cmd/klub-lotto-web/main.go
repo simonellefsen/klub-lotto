@@ -496,6 +496,8 @@ func verifyLiveLoginSession(ctx context.Context) (string, error) {
 
 	var lastURL string
 	var lastErr error
+	submittedRedKonto := false
+	var submittedRedKontoAt time.Time
 	deadline := time.Now().Add(45 * time.Second)
 	for time.Now().Before(deadline) {
 		if err := ctx.Err(); err != nil {
@@ -504,9 +506,18 @@ func verifyLiveLoginSession(ctx context.Context) (string, error) {
 		if cur, err := br.URL(ctx); err == nil && cur != "" {
 			lastURL = cur
 			if klublotto.IsRedKontoLoginURL(cur) {
+				if submittedRedKonto {
+					if time.Since(submittedRedKontoAt) > 20*time.Second {
+						return "", fmt.Errorf("Rød Konto login form is still visible after one automatic submission; refusing to retry")
+					}
+					time.Sleep(1 * time.Second)
+					continue
+				}
 				if _, err := klublotto.CompleteRedKontoIfVisible(ctx, br, os.Getenv("DANSKESPIL_USERNAME"), os.Getenv("DANSKESPIL_PASSWORD")); err != nil {
 					return "", err
 				}
+				submittedRedKonto = true
+				submittedRedKontoAt = time.Now()
 				time.Sleep(2 * time.Second)
 				continue
 			}

@@ -164,7 +164,7 @@
       <iframe id="mitid-iframe" title="noVNC for MitID"></iframe>
     </div>
     <div class="modal-footer">
-      <b>Steps:</b> 1. Accept cookies in the VNC. 2. Start MitID on your phone. 3. When the account drawer or Rød Konto form is visible, click verify here.<br>
+      <b>Steps:</b> 1. Accept cookies in the VNC. 2. Start MitID on your phone. 3. When the account drawer or Rød Konto form is visible, click verify here. Rød Konto credentials are submitted at most once per verification.<br>
       <button hx-post="actions/login/force-success" hx-target="#job" hx-swap="outerHTML"
               hx-on::before-request="this.disabled=true; this.textContent='Verifying…';"
               style="margin-top:8px;background:#2a6b2a;color:#fff;border:none;padding:10px 18px;border-radius:4px;cursor:pointer;font-weight:700;font-size:14px;">
