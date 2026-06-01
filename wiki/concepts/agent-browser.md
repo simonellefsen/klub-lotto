@@ -32,8 +32,11 @@ export AGENT_BROWSER_ENCRYPTION_KEY=$(openssl rand -hex 32)
 
 ## Headed vs headless
 
-PoC default is **headed** so the operator can watch and intervene. Pass
-`--headless` once the flow is reliable enough to schedule.
+K8s default is **headed** so the operator can watch and intervene through VNC.
+Do not mix headed and headless calls against the same session; this has caused
+flaky browser/session behavior. The pod sets both `KLUBLOTTO_HEADED=true` and
+`AGENT_BROWSER_HEADED=true`, and every web job plus auth probe should use the
+visible VNC-backed `klublotto` session.
 
 ## Core workflow we use
 

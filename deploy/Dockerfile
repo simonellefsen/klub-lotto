@@ -31,8 +31,10 @@ ENV DEBIAN_FRONTEND=noninteractive \
     DISPLAY=:99 \
     AGENT_BROWSER_SESSION=klublotto \
     AGENT_BROWSER_SESSION_NAME=klublotto \
+    AGENT_BROWSER_HEADED=true \
     AGENT_BROWSER_PROFILE=/var/lib/agent-browser/chrome-profile \
-    AGENT_BROWSER_EXECUTABLE_PATH=/usr/bin/chromium
+    AGENT_BROWSER_EXECUTABLE_PATH=/usr/bin/chromium \
+    KLUBLOTTO_HEADED=true
 
 # novnc lives in `contrib`, so enable it. websockify, supervisor,
 # chromium etc. are in `main`. We install python3-websockify (the

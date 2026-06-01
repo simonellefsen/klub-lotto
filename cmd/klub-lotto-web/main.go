@@ -667,8 +667,14 @@ func (a *app) liveAuthStatus(force bool) string {
 	// (30s pill poll + manual refresh).
 	probeCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	cmd := exec.CommandContext(probeCtx, filepath.Join(a.binDir, "klub-lotto"), "login", "--check", "--web", "--headless")
-	cmd.Env = append(os.Environ(), "KLUBLOTTO_HEADED=false")
+	cmd := exec.CommandContext(probeCtx, filepath.Join(a.binDir, "klub-lotto"), "login", "--check", "--web")
+	cmd.Env = append(os.Environ(),
+		"KLUBLOTTO_HEADED=true",
+		"AGENT_BROWSER_HEADED=true",
+		"AGENT_BROWSER_SESSION="+envOr("AGENT_BROWSER_SESSION", envOr("AGENT_BROWSER_SESSION_NAME", "klublotto")),
+		"AGENT_BROWSER_SESSION_NAME="+envOr("AGENT_BROWSER_SESSION_NAME", envOr("AGENT_BROWSER_SESSION", "klublotto")),
+		"AGENT_BROWSER_PROFILE="+envOr("AGENT_BROWSER_PROFILE", "/var/lib/agent-browser/chrome-profile"),
+	)
 
 	out, err := cmd.CombinedOutput()
 	outStr := strings.TrimSpace(string(out))
