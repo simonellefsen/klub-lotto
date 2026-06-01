@@ -157,16 +157,21 @@
                 title="Minimize this modal so you can see the main page (including the Current job panel)">_</button>
         <button onclick="toggleMaximize()" style="background:#fff;color:#d40000;border:none;padding:2px 8px;border-radius:3px;cursor:pointer;font-weight:600;margin-right:4px;" title="Toggle maximize">⤢</button>
         <button onclick="reloadVNC()" style="background:#fff;color:#d40000;border:none;padding:2px 6px;border-radius:3px;cursor:pointer;font-weight:600;margin-right:6px;" title="Force reload VNC (e.g. after backend restart)">↻</button>
-        <button onclick="closeMitidModal()" style="background:#fff;color:#d40000;border:none;padding:4px 12px;border-radius:4px;cursor:pointer;font-weight:600;">Close</button>
+        <button onclick="closeMitidModal()" style="background:#fff;color:#d40000;border:none;padding:4px 12px;border-radius:4px;cursor:pointer;font-weight:600;">Hide</button>
       </div>
     </div>
     <div class="modal-body">
       <iframe id="mitid-iframe" title="noVNC for MitID"></iframe>
     </div>
     <div class="modal-footer">
-      <b>Steps:</b> 1. Accept cookies in the VNC. 2. Start MitID on your phone. 3. If the Rød Konto form appears, close this viewer and click <b>MitID/Rød Konto ready — verify session</b> in Current job.<br>
-      <button onclick="closeMitidModal()" style="margin-top:8px;background:#2a6b2a;color:#fff;border:none;padding:10px 18px;border-radius:4px;cursor:pointer;font-weight:700;font-size:14px;">
-        Close viewer
+      <b>Steps:</b> 1. Accept cookies in the VNC. 2. Start MitID on your phone. 3. When the account drawer or Rød Konto form is visible, click verify here.<br>
+      <button hx-post="actions/login/force-success" hx-target="#job" hx-swap="outerHTML"
+              hx-on::before-request="this.disabled=true; this.textContent='Verifying…';"
+              style="margin-top:8px;background:#2a6b2a;color:#fff;border:none;padding:10px 18px;border-radius:4px;cursor:pointer;font-weight:700;font-size:14px;">
+        MitID/Rød Konto ready — verify session
+      </button>
+      <button onclick="closeMitidModal()" style="margin-top:8px;margin-left:8px;background:#666;color:#fff;border:none;padding:10px 18px;border-radius:4px;cursor:pointer;font-weight:700;font-size:14px;">
+        Hide viewer
       </button>
     </div>
   </div>

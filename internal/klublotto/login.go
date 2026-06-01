@@ -107,19 +107,29 @@ func IsLoggedIn(ctx context.Context, br *browser.Client) (bool, error) {
 		}
 	}
 
+	body := ""
+	if text, err := br.Eval(ctx, `document.body ? document.body.innerText : ""`); err == nil && text != "" {
+		body = text
+		if ok, known := loggedInState(cur, "", body); known {
+			return ok, nil
+		}
+	}
+
 	snap, err := br.SnapshotInteractive(ctx)
 	if err != nil {
 		return false, err
 	}
-	if body, err := br.Eval(ctx, `document.body ? document.body.innerText : ""`); err == nil && body != "" {
-		return looksLoggedIn(cur, snap, body), nil
-	}
-	return looksLoggedIn(cur, snap, ""), nil
+	return looksLoggedIn(cur, snap, body), nil
 }
 
 func looksLoggedIn(pageURL, snap, body string) bool {
+	ok, _ := loggedInState(pageURL, snap, body)
+	return ok
+}
+
+func loggedInState(pageURL, snap, body string) (ok bool, known bool) {
 	if isLoggedOutURL(pageURL) {
-		return false
+		return false, true
 	}
 
 	s := strings.ToLower(snap)
@@ -133,7 +143,7 @@ func looksLoggedIn(pageURL, snap, body string) bool {
 	if strings.Contains(s, "log ind") ||
 		strings.Contains(s, "opret konto") ||
 		strings.Contains(s, "tilmeld") {
-		return false
+		return false, true
 	}
 
 	for _, signal := range []string{
@@ -144,14 +154,14 @@ func looksLoggedIn(pageURL, snap, body string) bool {
 		"profiloplysninger", // account drawer menu item
 	} {
 		if strings.Contains(s, signal) {
-			return true
+			return true, true
 		}
 	}
 	if strings.Contains(s, "saldo") &&
 		(strings.Contains(s, "indbetaling") || strings.Contains(s, "udbetaling")) {
-		return true
+		return true, true
 	}
-	return false
+	return false, false
 }
 
 func isLoggedOutURL(pageURL string) bool {
