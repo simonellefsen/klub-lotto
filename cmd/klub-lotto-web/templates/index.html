@@ -114,7 +114,13 @@
         Trigger MitID login
       </button>
       <button hx-post="actions/debug/test-window" hx-target="#job" hx-swap="innerHTML" title="Independent smoke test: opens a real Chromium window directly on :99 so you can verify the VNC display path works even if the full login flow has issues">Debug: paint test window</button>
-      {{range .Games}}<button hx-post="actions/run/{{.Slug}}" hx-target="#job" hx-swap="innerHTML" hx-on::before-request="showGameStartingPlaceholder('{{.Name}}')">Run {{.Name}}</button>{{end}}
+      {{range .Games}}
+        {{if .Runnable}}
+          <button hx-post="actions/run/{{.Slug}}" hx-target="#job" hx-swap="innerHTML" hx-on::before-request="showGameStartingPlaceholder('{{.Name}}')">Run {{.Name}}</button>
+        {{else}}
+          <button disabled title="{{.DisabledReason}}">Run {{.Name}}</button>
+        {{end}}
+      {{end}}
 
       <!-- Rare direct fallback (almost never needed on the dedicated domain) -->
       <a href="debug/start-login"

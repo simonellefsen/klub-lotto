@@ -220,6 +220,14 @@ type app struct {
 	authCacheTime time.Time
 }
 
+type webGame struct {
+	Slug           string
+	Name           string
+	Description    string
+	Runnable       bool
+	DisabledReason string
+}
+
 func (a *app) handleIndex(w http.ResponseWriter, r *http.Request) {
 	entries, err := a.store.ListLedger(r.Context(), time.Time{}, time.Time{})
 	if err != nil {
@@ -234,13 +242,31 @@ func (a *app) handleIndex(w http.ResponseWriter, r *http.Request) {
 	a.render(w, "index.html", map[string]any{
 		"Entries":      entries,
 		"LoginEvent":   login,
-		"Games":        games,
+		"Games":        webGames(games),
 		"VNCURL":       a.vncURL(),
 		"CurrentJob":   a.jobs.current(),
 		"LiveStatus":   live,
 		"LiveVerified": verified,
 		"Forced":       false,
 	})
+}
+
+func webGames(games []store.Game) []webGame {
+	out := make([]webGame, 0, len(games))
+	for _, g := range games {
+		wg := webGame{
+			Slug:        g.Slug,
+			Name:        g.Name,
+			Description: g.Description,
+		}
+		if _, ok := supportedGameSubcommands()[g.Slug]; ok {
+			wg.Runnable = true
+		} else {
+			wg.DisabledReason = "Automation is not implemented in this build yet."
+		}
+		out = append(out, wg)
+	}
+	return out
 }
 
 func (a *app) handleLedgerFragment(w http.ResponseWriter, r *http.Request) {
@@ -311,12 +337,24 @@ func (a *app) handleStartLogin(w http.ResponseWriter, r *http.Request) {
 func (a *app) handleRunGame(w http.ResponseWriter, r *http.Request) {
 	game := r.PathValue("game")
 	// Allowlist — never construct subcommands from user input directly.
-	subcommand, ok := map[string]string{
-		"quiz":     "quiz",
-		"ordknude": "ordknude",
-	}[game]
+	subcommand, ok := supportedGameSubcommands()[game]
 	if !ok {
-		http.Error(w, "unknown game", http.StatusBadRequest)
+		now := time.Now()
+		a.render(w, "job.html", map[string]any{
+			"Job": &job{
+				ID:         fmt.Sprintf("%d", now.UnixNano()),
+				Action:     game,
+				StartedAt:  now,
+				FinishedAt: now,
+				Status:     "error",
+				Error:      "No automation is implemented for this game in the deployed CLI yet.",
+				Log: []string{
+					fmt.Sprintf("Cannot run %q: no matching klub-lotto CLI subcommand is available.", game),
+					"Implemented web actions in this build: quiz, ordknude.",
+				},
+			},
+			"VNCURL": a.vncURL(),
+		})
 		return
 	}
 	job, err := a.jobs.start(a.binDir, subcommand, []string{"--submit"}, a.store, game)
@@ -328,6 +366,13 @@ func (a *app) handleRunGame(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	a.render(w, "job.html", map[string]any{"Job": job, "VNCURL": a.vncURL()})
+}
+
+func supportedGameSubcommands() map[string]string {
+	return map[string]string{
+		"quiz":     "quiz",
+		"ordknude": "ordknude",
+	}
 }
 
 func (a *app) handleJobStatus(w http.ResponseWriter, r *http.Request) {
