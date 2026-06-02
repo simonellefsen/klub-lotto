@@ -6,7 +6,6 @@
 //	klub-lotto login [--check]              open browser, log in, save session state. With --check: just report VALID/INVALID
 
 //	klub-lotto quiz [--dry-run] [--headless] solve today's Quiz
-//	klub-lotto ordknude [--headless]        solve today's Ordknuden
 //	klub-lotto wiki ingest --file <path>    ingest an arbitrary markdown source
 //	klub-lotto wiki import-db --dsn ...     import wiki/daily/*.md into Postgres (DB becomes source of truth)
 //	klub-lotto wiki query "<question>"      ask the wiki (shells out to qmd if present)
@@ -56,9 +55,7 @@ func main() {
 	case "quiz":
 		err = runQuiz(ctx, args)
 	case "ordknude":
-		// Temporarily disabled — see internal/klublotto/ordknude.go (build ignore tag)
-		fmt.Fprintln(os.Stderr, "ordknude command is temporarily disabled (API drift in solver; see ordknude.go)")
-		err = nil
+		err = runOrdknude(ctx, args)
 	case "wiki":
 		err = runWiki(ctx, args)
 	case "ledger":
@@ -84,7 +81,6 @@ Usage:
   klub-lotto doctor
   klub-lotto login     [--headless] [--web] [--check]
   klub-lotto quiz      [--headless] [--dry-run] [--submit]
-  klub-lotto ordknude  [--headless] [--max-guesses 6] [--provider gemini]
   klub-lotto wiki ingest --file <path>
   klub-lotto wiki import-db --dsn <postgres-url> [--wiki <dir>]
   klub-lotto wiki query "<question>"
@@ -106,7 +102,7 @@ you're confident the flow works and want to schedule it.
 func runOrdknude(ctx context.Context, args []string) error {
 	fmt.Fprintln(os.Stderr, "ordknude command is temporarily disabled due to API drift in the solver (internal/klublotto/ordknude.go has //go:build ignore).")
 	fmt.Fprintln(os.Stderr, "Use the old binary in ./bin if you need it, or restore the file after fixing the llm/browser calls.")
-	return nil
+	return fmt.Errorf("ordknude automation is not implemented in this build")
 }
 
 // (remaining ordknude body from previous edit removed — ordknude command is now a no-op stub)
