@@ -101,3 +101,43 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-05-31 09:18 UTC] ingest | quiz | Hvilket animationsstudie står bag filmen 'Chihiro og heksen… | outcome=skipped
 ## [2026-05-31 10:31 UTC] ingest | quiz | Hvilket animationsstudie står bag filmen 'Chihiro og heksen… | outcome=submitted
+## [2026-06-04 04:58 UTC] ingest | quiz | Hvilket land har et flag med en rød cirkel på hvid baggrun… | outcome=submitted
+
+## [2026-06-04 06:35 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-04 06:36 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-04 06:37 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-04 06:42 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-04 17:48 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-04 17:51 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-04 18:07 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-04 18:07 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-04 19:16 UTC] ingest | ordkløver | Category: `Not visible`; hint: `Not visible`; answer pattern… | outcome=submitted
+
+## [2026-06-04 19:37 UTC] ingest | ordkløver | Category: `Begivenhed`; hint: `Brug lederåd`; answer patter… | outcome=submitted
+
+## [2026-06-04 19:42 UTC] ingest | ordkløver | Category: `Begivenhed`; hint: `Kan du gætte dagens gåde?`;… | outcome=submitted
+
+## [2026-06-04 19:45 UTC] ingest | ordkløver | Category: `Begivenhed`; hint: `(none)`; answer pattern `12 /… | outcome=submitted
+
+## [2026-06-04 20:04 UTC] ingest | ordkløver | Category: `Begivenhed`; hint: `(none)`; answer pattern `12 /… | outcome=submitted
+
+## [2026-06-05 04:15 UTC] ingest | ordkløver | Category: `Udtryk`; hint: `none`; answer pattern `3+3+3` | outcome=submitted
+
+## [2026-06-05 04:34 UTC] ingest | ordkløver | Category: `Udtryk`; hint: `none`; answer pattern `3+3+3` | outcome=submitted
+
+## [2026-06-05 04:49 UTC] ingest | ordkløver | Category: `Udtryk`; hint: `none`; answer pattern `3+7 / 5 / … | outcome=submitted
+
+## [2026-06-05 04:54 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-05 06:50 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-05 07:05 UTC] ingest | quiz | Hvilken dansk by er kendt for Domkirken og Vikingeskibsmusee… | outcome=submitted
+
