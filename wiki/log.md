@@ -141,3 +141,11 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-05 07:05 UTC] ingest | quiz | Hvilken dansk by er kendt for Domkirken og Vikingeskibsmusee… | outcome=submitted
 
+## [2026-06-05 07:36 UTC] ingest | ordkløver | Category: `Udtryk`; hint: `none`; answer pattern `3+7 / 5 / … | outcome=submitted
+
+## [2026-06-05 07:46 UTC] ingest | ordkløver | Category: `Udtryk`; hint: `none`; answer pattern `3+7 / 5 / … | outcome=submitted
+
+## [2026-06-05 14:46 UTC] ingest | ordkløver |  | outcome=submitted
+
+## [2026-06-06 07:23 UTC] ingest | quiz | I hvilken sportsgren vandt Caroline Wozniacki Australian Ope… | outcome=submitted
+
