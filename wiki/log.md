@@ -149,3 +149,21 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-06 07:23 UTC] ingest | quiz | I hvilken sportsgren vandt Caroline Wozniacki Australian Ope… | outcome=submitted
 
+## [2026-06-06 07:25 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-06 07:38 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-06 07:53 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-06 09:25 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-06 09:29 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-06 10:21 UTC] ingest | ordkløver |  | outcome=submitted
+
+## [2026-06-06 16:07 UTC] ingest | ordkløver |  | outcome=submitted
+
+## [2026-06-06 16:37 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
+## [2026-06-07 07:13 UTC] ingest | quiz | Hvem lagde stemme til figuren Shrek i den originale engelske… | outcome=submitted
+
