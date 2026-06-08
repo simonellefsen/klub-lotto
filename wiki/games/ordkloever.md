@@ -30,6 +30,15 @@ Ordkløver is a daily Danish phrase puzzle embedded from Immer Spiele on
   in the iframe/API may not register with Danske Spil. For ticket credit,
   submit through the embedded iframe on the Danske Spil parent page.
 
+## 2026-06-07
+
+- Category: `Person`
+- Answer: `SMAGSDOMMER` (11 letters)
+- Board at submission: `S _ A _ S D O _ _ E R` — letters E, R, S, O confirmed green; N, I, T, A, D dark
+- Guessed letters: `ADEORSINT` (10 attempts used)
+- Game showed: `Flot præstation` — correctly accepted
+- Win detection missed the success screen (final-fallback path submitted the answer but did not recognise the result banner)
+
 ## 2026-05-31 Observation
 
 - Category: `Tilstand`

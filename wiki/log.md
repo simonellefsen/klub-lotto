@@ -167,3 +167,13 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-07 07:13 UTC] ingest | quiz | Hvem lagde stemme til figuren Shrek i den originale engelske… | outcome=submitted
 
+## [2026-06-07 07:15 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-07 07:27 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-07 07:41 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-07 11:30 UTC] ingest | ordkløver |  | outcome=submitted
+
+## [2026-06-08 04:23 UTC] ingest | quiz | Hvad hedder Batmans hjemby i tegneserierne? | outcome=submitted
+
