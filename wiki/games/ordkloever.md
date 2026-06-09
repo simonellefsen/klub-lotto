@@ -30,6 +30,11 @@ Ordkløver is a daily Danish phrase puzzle embedded from Immer Spiele on
   in the iframe/API may not register with Danske Spil. For ticket credit,
   submit through the embedded iframe on the Danske Spil parent page.
 
+## 2026-06-08
+
+- Answer: `POLYFILLA` (9 letters)
+- Solved by `openai/gpt-5.5` (final-crunch LLM on last attempt)
+
 ## 2026-06-07
 
 - Category: `Person`

@@ -177,3 +177,9 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-08 04:23 UTC] ingest | quiz | Hvad hedder Batmans hjemby i tegneserierne? | outcome=submitted
 
+## [2026-06-08 04:40 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-08 15:25 UTC] ingest | ordkløver |  | outcome=submitted
+
+## [2026-06-09 04:35 UTC] ingest | quiz | Hvilket dansk firma er kendt for termostater og pumper? | outcome=submitted
+
