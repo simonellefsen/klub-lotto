@@ -183,3 +183,7 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-09 04:35 UTC] ingest | quiz | Hvilket dansk firma er kendt for termostater og pumper? | outcome=submitted
 
+## [2026-06-09 04:41 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-10 04:33 UTC] ingest | quiz | Hvilket grundstof har det kemiske symbol 'Fe'? | outcome=submitted
+
