@@ -435,23 +435,30 @@ func loadConfig() (*config.Config, error) {
 	return config.Load(repoRoot())
 }
 
-// providers returns every LLM provider the user has a key for. Order
-// matters: the first provider wins ties in majority voting. We put Claude
-// first because in our (limited so far) experience it's the strongest on
-// Danish trivia; reorder once we have benchmark data in wiki/concepts/.
+// quizOpenRouterModels is the quiz voting panel routed through OpenRouter.
+// Slugs may be floating aliases ("~author/model-latest") — the leading "~" is
+// meaningful (resolves to the current concrete model) and must be preserved.
+// Edit this list to change the panel.
+var quizOpenRouterModels = []string{
+	"openai/gpt-5.4-mini",
+	"~anthropic/claude-sonnet-latest",
+	"~google/gemini-flash-latest",
+	"mistralai/mistral-small-2603",
+}
+
+// providers returns the LLM voting panel for the quiz. Four models via
+// OpenRouter (quizOpenRouterModels) plus xAI's grok-4-fast direct. Order
+// matters: the first provider wins ties in majority voting — reorder the list
+// above (or the grok append) to change tie-break priority.
 func providers(cfg *config.Config) []llm.Provider {
 	var out []llm.Provider
-	if cfg.AnthropicKey != "" {
-		out = append(out, llm.NewAnthropic(cfg.AnthropicKey, ""))
-	}
-	if cfg.OpenAIKey != "" {
-		out = append(out, llm.NewOpenAI(cfg.OpenAIKey, cfg.OpenAIModel))
-	}
-	if cfg.GeminiKey != "" {
-		out = append(out, llm.NewGemini(cfg.GeminiKey, ""))
+	if cfg.OpenRouterKey != "" {
+		for _, model := range quizOpenRouterModels {
+			out = append(out, llm.NewOpenRouter(cfg.OpenRouterKey, model))
+		}
 	}
 	if cfg.XAIKey != "" {
-		out = append(out, llm.NewXAI(cfg.XAIKey, ""))
+		out = append(out, llm.NewXAI(cfg.XAIKey, "grok-4-fast"))
 	}
 	return out
 }

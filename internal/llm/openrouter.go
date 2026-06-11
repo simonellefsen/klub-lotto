@@ -65,7 +65,7 @@ func ValidateOpenRouterModel(ctx context.Context, apiKey, model string) error {
 		Model:       model,
 		Messages:    []openAIMessage{{Role: "user", Content: "ping"}},
 		Temperature: 0,
-		MaxTokens:   1,
+		MaxTokens:   16, // some providers reject <16 (e.g. Azure-hosted GPT)
 	}
 	client := &http.Client{Timeout: 25 * time.Second}
 	raw, err := postJSON(probeCtx, client, "https://openrouter.ai/api/v1/chat/completions", apiKey, body)
@@ -105,6 +105,17 @@ func isUnknownModelErr(s string) bool {
 }
 
 func (o *OpenRouter) Name() string { return "openrouter:" + o.Model }
+
+// ChooseOne lets an OpenRouter model participate in quiz majority voting. It
+// reuses the shared multiple-choice prompt + JSON parser (same path as OpenAI),
+// since OpenRouter is OpenAI-compatible.
+func (o *OpenRouter) ChooseOne(ctx context.Context, q Question) (Answer, error) {
+	raw, err := o.GenerateJSON(ctx, formatPrompt(q), 0)
+	if err != nil {
+		return Answer{}, err
+	}
+	return parseChoiceJSON(raw, len(q.Options))
+}
 
 func (o *OpenRouter) GenerateJSON(ctx context.Context, prompt string, temperature float64) (string, error) {
 	body := openAIRequest{
