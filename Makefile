@@ -27,7 +27,8 @@ GAME_FINAL_PROVIDER_FLAG := $(if $(GAME_FINAL_PROVIDER),--final-provider "$(GAME
 GAME_AUTO_ANSWER_FLAG := $(if $(filter true 1 yes,$(AUTO_ANSWER)),--auto-answer)
 
 .PHONY: help build doctor login quiz quiz-dry sudoku sudoku-dry ordkloever ordkloever-dry ordkloever-extract ordkloever-probe ordknude ordknude-dry ordknude-extract krydsord krydsord-dry wiki-query wiki-lint sync clean reset \
-        image deploy k8s-up k8s-down k8s-logs port-forward db-shell ui-url tidy
+        image deploy k8s-up k8s-down k8s-logs port-forward db-shell ui-url tidy \
+        db-up db-down db-import db-port-forward
 
 help:
 	@echo "make build       — build the CLI into ./bin/klub-lotto"
@@ -59,6 +60,9 @@ help:
 	@echo "make port-forward— kubectl port-forward to http://localhost:8080"
 	@echo "make ui-url      — print the ingress URL (http://klub-lotto.localhost)"
 	@echo "make db-shell    — psql into the cnpg primary"
+	@echo "make db-up       — bring up a local backup-less cnpg klublotto DB"
+	@echo "make db-import   — sync wiki/daily/*.md into Postgres (DB = source of truth)"
+	@echo "make db-down     — delete the local cnpg cluster"
 
 $(BIN): $(shell find . -name '*.go' -not -path './bin/*')
 	@mkdir -p bin
@@ -202,4 +206,36 @@ ui-url:
 	@echo "Port-forward:   http://localhost:8080  (run: make port-forward)"
 
 db-shell:
-	kubectl -n klub-lotto exec -it klublotto-db-1 -- psql -U klublotto klublotto
+	# Inside the cnpg pod the local socket uses peer auth, which maps the OS
+	# user (postgres) — connect as the superuser and target the klublotto db.
+	kubectl -n klub-lotto exec -it klublotto-db-1 -- psql -U postgres -d klublotto
+
+# ── Local-dev database (CloudNativePG) ───────────────────────────────────────
+# Brings up a single-instance, backup-less klublotto Postgres for syncing and
+# inspecting the ledger locally. Requires the cnpg operator to be installed
+# cluster-wide (see deploy/k8s/10-cnpg-cluster.yaml header for the one-liner).
+db-up:
+	kubectl apply -f deploy/k8s/00-namespace.yaml
+	kubectl apply -f deploy/k8s/dev-db.yaml
+	@echo "Waiting for klublotto-db to become ready (up to 180s)..."
+	kubectl -n klub-lotto wait --for=condition=Ready cluster/klublotto-db --timeout=180s
+	@echo "DB ready. Sync the wiki ledger with: make db-import"
+
+db-down:
+	kubectl -n klub-lotto delete cluster/klublotto-db --ignore-not-found
+
+# Port-forward the read-write Postgres service to localhost:5432 (foreground).
+db-port-forward:
+	kubectl -n klub-lotto port-forward svc/klublotto-db-rw 5432:5432
+
+# Import wiki/daily/*.md into Postgres (DB becomes the source of truth).
+# Port-forwards the cnpg rw service, reads the cnpg-managed app password, runs
+# the importer, then tears the port-forward down.
+db-import: $(BIN)
+	@kubectl -n klub-lotto port-forward svc/klublotto-db-rw 5432:5432 >/tmp/klublotto-db-pf.log 2>&1 & \
+	  PF_PID=$$!; \
+	  trap 'kill $$PF_PID 2>/dev/null' EXIT; \
+	  sleep 4; \
+	  PW=$$(kubectl -n klub-lotto get secret klublotto-db-app -o jsonpath='{.data.password}' | base64 -d); \
+	  if [ -z "$$PW" ]; then echo "could not read klublotto-db-app password (is the DB up? run: make db-up)"; exit 1; fi; \
+	  DATABASE_URL="postgres://klublotto:$$PW@localhost:5432/klublotto?sslmode=disable" $(BIN) wiki import-db

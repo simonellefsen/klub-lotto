@@ -1,0 +1,39 @@
+# Local-dev CloudNativePG cluster — a single-instance klublotto database with
+# NO object-store backup, so it comes up cleanly on docker-desktop without a
+# MinIO/S3 endpoint. The production cluster (10-cnpg-cluster.yaml) keeps the
+# barman backup config; this file is what `make db-up` applies for a throwaway
+# local DB used to sync/inspect the ledger.
+#
+# Same cluster name ("klublotto-db"), database, owner and Secret/Service names
+# as production, so db-shell / db-import / the app Deployment all work unchanged
+# (cnpg creates Secret "klublotto-db-app" and Service "klublotto-db-rw").
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: klublotto-db
+  namespace: klub-lotto
+spec:
+  instances: 1
+  imageName: ghcr.io/cloudnative-pg/postgresql:16
+  primaryUpdateStrategy: unsupervised
+
+  bootstrap:
+    initdb:
+      database: klublotto
+      owner: klublotto
+      encoding: UTF8
+      localeCollate: C
+      localeCType: C
+
+  storage:
+    size: 2Gi
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+
+  monitoring:
+    enablePodMonitor: false
