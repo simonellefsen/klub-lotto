@@ -46,6 +46,21 @@ type Provider interface {
 	ChooseOne(ctx context.Context, q Question) (Answer, error)
 }
 
+// JSONGenerator is the narrower interface used by word games where the model
+// returns ranked candidates rather than choosing among visible answer buttons.
+type JSONGenerator interface {
+	Name() string
+	GenerateJSON(ctx context.Context, prompt string, temperature float64) (string, error)
+}
+
+// VisionProvider is implemented by any backend that can analyse an image
+// alongside a text prompt and return a plain-text response.
+// Used for reading game board colours (Ordknude tile colours, Ordkløver
+// shape grid, etc.) where the accessibility tree carries no colour data.
+type VisionProvider interface {
+	ExtractFromImage(ctx context.Context, imageBytes []byte, mediaType, prompt string) (string, error)
+}
+
 // Vote is one provider's answer plus timing — what compare command emits.
 type Vote struct {
 	Provider string

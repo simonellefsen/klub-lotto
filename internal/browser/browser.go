@@ -15,7 +15,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -40,9 +42,14 @@ type Client struct {
 }
 
 // New builds a Client with sensible defaults.
+// The binary is resolved from AGENT_BROWSER_BIN env var if set, else "agent-browser" on PATH.
 func New(session string, headed bool) *Client {
+	bin := os.Getenv("AGENT_BROWSER_BIN")
+	if bin == "" {
+		bin = "agent-browser"
+	}
 	return &Client{
-		Binary:         "agent-browser",
+		Binary:         bin,
 		Session:        session,
 		Headed:         headed,
 		DefaultTimeout: 60 * time.Second,
@@ -163,9 +170,44 @@ func (c *Client) Type(ctx context.Context, sel, value string) error {
 	return err
 }
 
+// KeyboardType types the given text using real keystrokes at the host/automation level
+// (the "keyboard type" command, no selector required). Useful after a MouseClick focus
+// inside a cross-origin game iframe (e.g. ordknude virtual kb) to send letters including
+// ÆØÅ directly to the embedded game's input row.
+func (c *Client) KeyboardType(ctx context.Context, text string) error {
+	if text == "" {
+		return nil
+	}
+	_, err := c.run(ctx, "keyboard", "type", text)
+	return err
+}
+
+// Frame switches the agent-browser session to operate inside the iframe matched
+// by the CSS selector. After calling Frame, subsequent commands (snapshot, click,
+// eval, press…) run in the context of that iframe. Call Frame("") or Frame("main")
+// to return to the top-level page frame.
+func (c *Client) Frame(ctx context.Context, selector string) error {
+	_, err := c.run(ctx, "frame", selector)
+	return err
+}
+
 // Press fires a single key press (Enter, Escape, etc).
 func (c *Client) Press(ctx context.Context, key string) error {
 	_, err := c.run(ctx, "press", key)
+	return err
+}
+
+// MouseClick clicks absolute page coordinates using real mouse events.
+// This is useful for canvas/custom widgets where CSS selectors are unstable.
+func (c *Client) MouseClick(ctx context.Context, x, y int) error {
+	if _, err := c.run(ctx, "mouse", "move", strconv.Itoa(x), strconv.Itoa(y)); err != nil {
+		return err
+	}
+	if _, err := c.run(ctx, "mouse", "down"); err != nil {
+		return err
+	}
+	time.Sleep(35 * time.Millisecond)
+	_, err := c.run(ctx, "mouse", "up")
 	return err
 }
 
@@ -207,6 +249,87 @@ func (c *Client) SnapshotInteractive(ctx context.Context) (string, error) {
 	}
 	if err := json.Unmarshal(r.Data, &payload); err != nil {
 		// Some versions return the snapshot as a raw string.
+		return decodeString(r.Data)
+	}
+	return payload.Snapshot, nil
+}
+
+// SnapshotInteractiveCursor is like SnapshotInteractive but also includes
+// cursor-interactive elements (those with [cursor:pointer], [onclick],
+// tabindex etc. that are not in the normal interactive tree).
+//
+// These are often the true click targets for custom components (e.g. quiz
+// answer cards that are divs with cursor:pointer + click handlers).
+//
+// Use this (or a fresh snapshot with -C inside the relevant frame) before
+// clicking quiz answers or other heavily customized UI.
+func (c *Client) SnapshotInteractiveCursor(ctx context.Context) (string, error) {
+	r, err := c.run(ctx, "snapshot", "-i", "-C")
+	if err != nil {
+		return "", err
+	}
+	var payload struct {
+		Snapshot string `json:"snapshot"`
+	}
+	if err := json.Unmarshal(r.Data, &payload); err != nil {
+		return decodeString(r.Data)
+	}
+	return payload.Snapshot, nil
+}
+
+// SnapshotInteractiveWithFrames is like SnapshotInteractive but passes -F
+// so that content inside embedded iframes (e.g. the immerspiele game launcher
+// "SPIL ORDKLØVER" button) appears in the snapshot tree under
+// "# [iframe: kl-game__iframe]" sections. This lets FindRefByName locate
+// launcher buttons from the parent page snapshot without an explicit Frame()
+// switch (the keyboard buttons inside the running game still require Frame()
+// for reliable refs and clicks).
+func (c *Client) SnapshotInteractiveWithFrames(ctx context.Context) (string, error) {
+	r, err := c.run(ctx, "snapshot", "-i", "-F")
+	if err != nil {
+		return "", err
+	}
+	var payload struct {
+		Snapshot string `json:"snapshot"`
+	}
+	if err := json.Unmarshal(r.Data, &payload); err != nil {
+		return decodeString(r.Data)
+	}
+	return payload.Snapshot, nil
+}
+
+// SnapshotWithFrames returns the full (non-interactive) accessibility snapshot
+// including cross-frame content. Unlike SnapshotInteractiveWithFrames it does
+// not filter to interactive-only nodes, so the iframe's text nodes (e.g. the
+// "- text: s p a l t ø r k e n …" board text in Ordknude) are included.
+// This lets us read the board letters from the parent page without switching
+// frame context via Frame() — which fails for cross-origin iframes.
+func (c *Client) SnapshotWithFrames(ctx context.Context) (string, error) {
+	r, err := c.run(ctx, "snapshot", "-F")
+	if err != nil {
+		return "", err
+	}
+	var payload struct {
+		Snapshot string `json:"snapshot"`
+	}
+	if err := json.Unmarshal(r.Data, &payload); err != nil {
+		return decodeString(r.Data)
+	}
+	return payload.Snapshot, nil
+}
+
+// Snapshot returns the full accessibility snapshot when agent-browser
+// supports it. It is useful for success pages where static text matters more
+// than clickable refs.
+func (c *Client) Snapshot(ctx context.Context) (string, error) {
+	r, err := c.run(ctx, "snapshot")
+	if err != nil {
+		return "", err
+	}
+	var payload struct {
+		Snapshot string `json:"snapshot"`
+	}
+	if err := json.Unmarshal(r.Data, &payload); err != nil {
 		return decodeString(r.Data)
 	}
 	return payload.Snapshot, nil
@@ -268,10 +391,11 @@ func decodeString(raw json.RawMessage) (string, error) {
 	if err := json.Unmarshal(raw, &s); err == nil {
 		return s, nil
 	}
-	// Try {"value":"..."} or {"text":"..."}.
+	// Try common wrapped string fields. Current agent-browser eval responses
+	// use {"origin":"...","result":"..."}.
 	var obj map[string]any
 	if err := json.Unmarshal(raw, &obj); err == nil {
-		for _, k := range []string{"value", "text", "url", "title"} {
+		for _, k := range []string{"result", "value", "text", "url", "title"} {
 			if v, ok := obj[k].(string); ok {
 				return v, nil
 			}

@@ -1,0 +1,243 @@
+# MinIO credentials — fill in ACCESS_KEY_ID / ACCESS_SECRET_KEY before first deploy.
+# Create the bucket in MinIO first: mc mb minio/klublotto-cnpg
+apiVersion: v1
+kind: Secret
+metadata:
+  name: klublotto-minio-backup
+  namespace: klub-lotto
+type: Opaque
+stringData:
+  ACCESS_KEY_ID: "CHANGE_ME"
+  ACCESS_SECRET_KEY: "CHANGE_ME"
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: klublotto-backup-retention
+  namespace: klub-lotto
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: klublotto-backup-retention
+  namespace: klub-lotto
+rules:
+  - apiGroups: [postgresql.cnpg.io]
+    resources: [backups]
+    verbs: [get, list, delete]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: klublotto-backup-retention
+  namespace: klub-lotto
+subjects:
+  - kind: ServiceAccount
+    name: klublotto-backup-retention
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: klublotto-backup-retention
+---
+# Take a base backup every 30 minutes via the CNPG operator.
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: klublotto-postgres-backup
+  namespace: klub-lotto
+spec:
+  schedule: "0 0,30 * * * *"
+  cluster:
+    name: klublotto-db
+  method: barmanObjectStore
+  target: prefer-standby
+  backupOwnerReference: none
+---
+# Retention script — checkpoint policy:
+#   keep 2 most-recent + one backup per age bracket (1h, 8h, 24h, 72h, 1 week).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: klublotto-backup-retention-script
+  namespace: klub-lotto
+data:
+  prune_backups.py: |
+    from __future__ import annotations
+    import argparse, datetime as dt, os
+    from dataclasses import dataclass
+    from pathlib import Path
+    from typing import Any
+    import boto3, requests
+    from botocore.config import Config
+
+    @dataclass(frozen=True)
+    class BackupRecord:
+        name: str; backup_id: str; started_at: dt.datetime; phase: str; server_name: str
+
+    _CHECKPOINT_AGES = [
+        dt.timedelta(hours=1), dt.timedelta(hours=8), dt.timedelta(hours=24),
+        dt.timedelta(hours=72), dt.timedelta(weeks=1),
+    ]
+
+    def _utc_now(): return dt.datetime.now(dt.UTC)
+    def _parse_time(v): return dt.datetime.fromisoformat(v.replace("Z", "+00:00")).astimezone(dt.UTC)
+    def _parse_bid(v): return dt.datetime.strptime(v, "%Y%m%dT%H%M%S").replace(tzinfo=dt.UTC)
+    def _ns():
+        p = Path("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
+        return p.read_text().strip() if p.exists() else "klub-lotto"
+    def _headers():
+        t = Path("/var/run/secrets/kubernetes.io/serviceaccount/token").read_text().strip()
+        return {"Authorization": f"Bearer {t}", "Accept": "application/json"}
+    def _verify():
+        ca = Path("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")
+        return str(ca) if ca.exists() else True
+    def _base():
+        return f"https://{os.environ['KUBERNETES_SERVICE_HOST']}:{os.environ.get('KUBERNETES_SERVICE_PORT','443')}"
+
+    def _list_backups(ns, cluster):
+        r = requests.get(f"{_base()}/apis/postgresql.cnpg.io/v1/namespaces/{ns}/backups",
+            headers=_headers(), params={"labelSelector": f"cnpg.io/cluster={cluster}"}, timeout=30, verify=_verify())
+        r.raise_for_status()
+        out = []
+        for item in r.json().get("items", []):
+            s = item.get("status") or {}
+            bid = s.get("backupId"); started = s.get("startedAt") or item["metadata"].get("creationTimestamp")
+            if not bid or not started: continue
+            out.append(BackupRecord(item["metadata"]["name"], bid, _parse_time(started),
+                s.get("phase","unknown"), s.get("serverName") or cluster))
+        return out
+
+    def _delete_backup(ns, name):
+        r = requests.delete(f"{_base()}/apis/postgresql.cnpg.io/v1/namespaces/{ns}/backups/{name}",
+            headers=_headers(), timeout=30, verify=_verify())
+        if r.status_code not in {200,202,404}: r.raise_for_status()
+
+    def _s3(endpoint):
+        return boto3.client("s3", endpoint_url=endpoint,
+            aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
+            aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
+            region_name=os.environ.get("AWS_DEFAULT_REGION","us-east-1"),
+            config=Config(s3={"addressing_style":"path"}))
+
+    def _list_prefixes(s3, bucket, server):
+        root = f"{server}/base/"; out = set()
+        for page in s3.get_paginator("list_objects_v2").paginate(Bucket=bucket, Prefix=root, Delimiter="/"):
+            for item in page.get("CommonPrefixes", []):
+                bid = item["Prefix"].removeprefix(root).strip("/")
+                try: _parse_bid(bid); out.add(bid)
+                except ValueError: pass
+        return out
+
+    def _delete_prefix(s3, bucket, prefix):
+        deleted = 0
+        for page in s3.get_paginator("list_objects_v2").paginate(Bucket=bucket, Prefix=prefix):
+            objs = [{"Key": o["Key"]} for o in page.get("Contents", [])]
+            if objs: s3.delete_objects(Bucket=bucket, Delete={"Objects":objs,"Quiet":True}); deleted += len(objs)
+        return deleted
+
+    def _age_label(age):
+        h = int(age.total_seconds() // 3600)
+        return "1w" if h >= 168 else f"{h}h"
+
+    def _checkpoint_selection(completed):
+        now = _utc_now(); kept = {}
+        by_time = sorted(completed, key=lambda r: r.started_at, reverse=True)
+        for r in by_time[:2]: kept[r.backup_id] = "recent"
+        for age in _CHECKPOINT_AGES:
+            cutoff = now - age; label = f"checkpoint-{_age_label(age)}"
+            for r in by_time:
+                if r.started_at <= cutoff:
+                    if r.backup_id not in kept: kept[r.backup_id] = label
+                    break
+        return kept
+
+    def main():
+        p = argparse.ArgumentParser()
+        p.add_argument("--namespace", default=os.getenv("NAMESPACE") or _ns())
+        p.add_argument("--cluster", default=os.getenv("CLUSTER_NAME"))
+        p.add_argument("--bucket", default=os.getenv("BACKUP_BUCKET"))
+        p.add_argument("--endpoint-url", default=os.getenv("S3_ENDPOINT_URL","http://host.docker.internal:9000"))
+        p.add_argument("--dry-run", action="store_true")
+        args = p.parse_args()
+
+        records = _list_backups(args.namespace, args.cluster)
+        completed = [r for r in records if r.phase == "completed"]
+        s3 = _s3(args.endpoint_url)
+        server_names = {r.server_name for r in completed} or {args.cluster}
+        prefixes = {sn: _list_prefixes(s3, args.bucket, sn) for sn in server_names}
+
+        missing = [r for r in completed if r.backup_id not in prefixes.get(r.server_name, set())]
+        valid   = [r for r in completed if r.backup_id in prefixes.get(r.server_name, set())]
+        kept    = _checkpoint_selection(valid); kept_ids = set(kept)
+        pruned  = [r for r in valid if r.backup_id not in kept_ids]
+
+        deleted_resources = []
+        if not args.dry_run:
+            for r in [*missing, *pruned]:
+                _delete_backup(args.namespace, r.name); deleted_resources.append(r.name)
+
+        valid_ids_by_server = {}
+        for r in valid: valid_ids_by_server.setdefault(r.server_name, set()).add(r.backup_id)
+
+        deleted_prefixes = {}
+        for sn in server_names:
+            all_pf = prefixes.get(sn, set()); valid_ids = valid_ids_by_server.get(sn, set())
+            for bid in sorted((all_pf - valid_ids) | ((all_pf & valid_ids) - kept_ids)):
+                pf = f"{sn}/base/{bid}/"
+                deleted_prefixes[pf] = 0 if args.dry_run else _delete_prefix(s3, args.bucket, pf)
+
+        print({"status":"ok","dry_run":args.dry_run,"cluster":args.cluster,
+               "completed":len(completed),"valid":len(valid),"kept":kept,
+               "pruned":[r.name for r in pruned],"deleted_resources":deleted_resources,
+               "deleted_prefixes":deleted_prefixes})
+
+    if __name__ == "__main__": main()
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: klublotto-postgres-backup-retention
+  namespace: klub-lotto
+spec:
+  schedule: "5,35 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          serviceAccountName: klublotto-backup-retention
+          restartPolicy: Never
+          volumes:
+            - name: script
+              configMap:
+                name: klublotto-backup-retention-script
+          containers:
+            - name: retention
+              image: python:3.12-slim
+              command:
+                - /bin/sh
+                - -c
+                - pip install --quiet boto3 requests && python /scripts/prune_backups.py
+              volumeMounts:
+                - name: script
+                  mountPath: /scripts
+              env:
+                - name: CLUSTER_NAME
+                  value: klublotto-db
+                - name: BACKUP_BUCKET
+                  value: klublotto-cnpg
+                - name: S3_ENDPOINT_URL
+                  value: http://host.docker.internal:9000
+                - name: AWS_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: klublotto-minio-backup
+                      key: ACCESS_KEY_ID
+                - name: AWS_SECRET_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: klublotto-minio-backup
+                      key: ACCESS_SECRET_KEY

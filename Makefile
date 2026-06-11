@@ -5,7 +5,28 @@
 
 BIN := bin/klub-lotto
 
-.PHONY: help build doctor login quiz quiz-dry ordknude wiki-query wiki-lint sync clean reset \
+AGENT_BROWSER_SESSION ?= klublotto
+AGENT_BROWSER_SESSION_NAME ?= klublotto
+AGENT_BROWSER_HEADED ?= true
+# Point at the local Rust build of agent-browser that can see embedded iframe elements.
+# Override with: make sudoku AGENT_BROWSER_BIN=agent-browser (to use PATH version instead)
+AGENT_BROWSER_BIN ?= /Users/lindau/codex/agent-browser/cli/target/release/agent-browser
+LOCAL_BROWSER_ENV := AGENT_BROWSER_SESSION=$(AGENT_BROWSER_SESSION) AGENT_BROWSER_SESSION_NAME=$(AGENT_BROWSER_SESSION_NAME) AGENT_BROWSER_HEADED=$(AGENT_BROWSER_HEADED) AGENT_BROWSER_BIN=$(AGENT_BROWSER_BIN)
+# Optional second vision model for cross-checking Ordkløver board extraction.
+# Set OPENROUTER_VISION_MODEL to any vision-capable OpenRouter model.
+# Free choices: meta-llama/llama-3.2-11b-vision-instruct:free
+#               nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free  (omni/multimodal, may support vision)
+#               google/gemini-flash-1.5  (paid but cheap)
+# Note: nvidia/nemotron-3.5-content-safety is a text-only safety classifier — cannot do vision.
+OPENROUTER_VISION_MODEL ?= google/gemini-3.5-flash
+GAME_ANSWER := $(or $(ANSWER),$(answer),$(SOLUTION),$(solution))
+GAME_PROVIDER := $(or $(PROVIDER),$(provider))
+GAME_PROVIDER_FLAG := $(if $(GAME_PROVIDER),--provider "$(GAME_PROVIDER)")
+GAME_FINAL_PROVIDER := $(or $(FINAL_PROVIDER),$(final_provider))
+GAME_FINAL_PROVIDER_FLAG := $(if $(GAME_FINAL_PROVIDER),--final-provider "$(GAME_FINAL_PROVIDER)")
+GAME_AUTO_ANSWER_FLAG := $(if $(filter true 1 yes,$(AUTO_ANSWER)),--auto-answer)
+
+.PHONY: help build doctor login quiz quiz-dry sudoku sudoku-dry ordkloever ordkloever-dry ordkloever-extract ordkloever-probe ordknude ordknude-dry ordknude-extract krydsord krydsord-dry wiki-query wiki-lint sync clean reset \
         image deploy k8s-up k8s-down k8s-logs port-forward db-shell ui-url tidy
 
 help:
@@ -14,7 +35,17 @@ help:
 	@echo "make login       — interactive login (headed; saves session)"
 	@echo "make quiz        — solve today's Quiz (headed), commit wiki, push"
 	@echo "make quiz-dry    — same but doesn't click or sync; just shows what we would do"
-	@echo "make ordknude    — solve today's Ordknuden with Gemini (headed)"
+	@echo "make sudoku-dry  — extract and solve today's Sudoku locally; no submit"
+	@echo "make sudoku      — submit today's Sudoku through the parent page"
+	@echo "make ordkloever-dry — extract state and print Danish candidates; no guessing"
+	@echo "make ordkloever-extract — extract Ordkløver state only; no provider, no guessing"
+	@echo "make ordkloever  — auto-play (probe letters + real submit full phrase via parent+frame kb until solved): bare or make ordkloever ANSWER=... (permanent, no do-overs)"
+	@echo "make ordkloever-probe — submit letter probes, no final answer unless AUTO_ANSWER=true"
+	@echo "make ordknude-dry — extract state and print Danish candidates; no guessing"
+	@echo "make ordknude-extract — extract Ordknuden state only; no provider, no guessing"
+	@echo "make ordknude    — auto-play (LLM proposes + real submits guesses until solved): make ordknude ANSWER=SALÆR (or bare for full auto from blank; permanent, no do-overs)"
+	@echo "make krydsord-dry — extract today's Krydsord board image, mask, and slots; no submit"
+	@echo "make krydsord      — real solve (vision clues + candidates + grid) + submit via API + Tjek løsning on parent (reuses klublotto session)"
 	@echo "make wiki-query Q='...'  — search the wiki via qmd (or grep)"
 	@echo "make sync        — commit wiki/doc changes and push to origin"
 	@echo "make reset       — close any agent-browser daemons (run if you can't see the window)"
@@ -39,19 +70,59 @@ doctor: $(BIN)
 	$(BIN) doctor
 
 login: $(BIN)
-	$(BIN) login
+	$(LOCAL_BROWSER_ENV) $(BIN) login
 
 # Default PoC target: solve the quiz with a visible browser, then commit
 # the new wiki state and push.
 quiz: $(BIN)
-	$(BIN) quiz
+	$(LOCAL_BROWSER_ENV) $(BIN) quiz
 	@bash scripts/sync.sh
 
 quiz-dry: $(BIN)
-	$(BIN) quiz --dry-run
+	$(LOCAL_BROWSER_ENV) $(BIN) quiz --dry-run
+
+sudoku-dry: $(BIN)
+	$(LOCAL_BROWSER_ENV) $(BIN) sudoku --dry-run
+
+sudoku: $(BIN)
+	$(LOCAL_BROWSER_ENV) $(BIN) sudoku --submit
+
+ordkloever-dry: $(BIN)
+	$(LOCAL_BROWSER_ENV) $(BIN) ordkloever --dry-run $(GAME_PROVIDER_FLAG)
+
+ordkloever-extract: $(BIN)
+	$(LOCAL_BROWSER_ENV) $(BIN) ordkloever --dry-run --extract-only
+
+ordkloever: $(BIN)
+	@if [ -z "$(GAME_ANSWER)" ]; then \
+		echo "No pre-supplied ANSWER; auto-playing Ordkløver (probe letters via frame kb to reveal board + submit real phrase when confident; permanent, no do-overs)."; \
+		OPENROUTER_VISION_MODEL=$(OPENROUTER_VISION_MODEL) $(LOCAL_BROWSER_ENV) $(BIN) ordkloever --submit --probe-letters --auto-answer $(GAME_PROVIDER_FLAG) $(GAME_FINAL_PROVIDER_FLAG); \
+	else \
+		OPENROUTER_VISION_MODEL=$(OPENROUTER_VISION_MODEL) $(LOCAL_BROWSER_ENV) $(BIN) ordkloever --submit --answer "$(GAME_ANSWER)" $(GAME_PROVIDER_FLAG); \
+	fi
+
+ordkloever-probe: $(BIN)
+	$(LOCAL_BROWSER_ENV) $(BIN) ordkloever --submit --probe-letters --letter-rounds "$(or $(ROUNDS),3)" $(GAME_AUTO_ANSWER_FLAG) $(GAME_PROVIDER_FLAG)
+
+ordknude-dry: $(BIN)
+	$(LOCAL_BROWSER_ENV) $(BIN) ordknude --dry-run $(GAME_PROVIDER_FLAG)
+
+ordknude-extract: $(BIN)
+	$(LOCAL_BROWSER_ENV) $(BIN) ordknude --dry-run --extract-only
 
 ordknude: $(BIN)
-	$(BIN) ordknude
+	@if [ -z "$(GAME_ANSWER)" ]; then \
+		echo "No pre-supplied ANSWER; auto-playing Ordknuden (propose via LLM + submit real guesses one-by-one from blank sheet until solved; permanent, no do-overs)."; \
+		$(LOCAL_BROWSER_ENV) $(BIN) ordknude $(GAME_PROVIDER_FLAG); \
+	else \
+		$(LOCAL_BROWSER_ENV) $(BIN) ordknude --submit --answer "$(GAME_ANSWER)" $(GAME_PROVIDER_FLAG); \
+	fi
+
+krydsord-dry: $(BIN)
+	$(LOCAL_BROWSER_ENV) $(BIN) krydsord --dry-run
+
+krydsord: $(BIN)
+	$(LOCAL_BROWSER_ENV) $(BIN) krydsord --submit
 
 wiki-query: $(BIN)
 	@$(BIN) wiki query "$(Q)"

@@ -191,3 +191,7 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-11 03:07 UTC] ingest | quiz | Hvilken dansk by er kendt for Jellingstenene? | outcome=submitted
 
+## [2026-06-11 03:34 UTC] ingest | ordkløver |  | outcome=submitted
+
+## [2026-06-11 03:40 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+

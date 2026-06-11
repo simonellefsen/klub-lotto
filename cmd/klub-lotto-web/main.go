@@ -350,7 +350,7 @@ func (a *app) handleRunGame(w http.ResponseWriter, r *http.Request) {
 				Error:      "No automation is implemented for this game in the deployed CLI yet.",
 				Log: []string{
 					fmt.Sprintf("Cannot run %q: no matching klub-lotto CLI subcommand is available.", game),
-					"Implemented web actions in this build: quiz.",
+					"Implemented web actions in this build: quiz, krydsord.", // keep in sync with supportedGameSubcommands() if more games added later
 				},
 			},
 			"VNCURL": a.vncURL(),
@@ -370,7 +370,8 @@ func (a *app) handleRunGame(w http.ResponseWriter, r *http.Request) {
 
 func supportedGameSubcommands() map[string]string {
 	return map[string]string{
-		"quiz": "quiz",
+		"quiz":     "quiz",
+		"krydsord": "krydsord",
 	}
 }
 

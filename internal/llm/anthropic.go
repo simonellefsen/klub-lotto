@@ -3,6 +3,7 @@ package llm
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -145,6 +146,97 @@ func (a *Anthropic) post(ctx context.Context, body anthropicRequest) (string, er
 	}
 	if text == "" {
 		return "", fmt.Errorf("anthropic: empty content")
+	}
+	return text, nil
+}
+
+// ExtractFromImage sends an image plus a text prompt to Claude and returns
+// the plain-text response. The image is passed as a base64-encoded content
+// block. mediaType should be "image/png" or "image/jpeg".
+func (a *Anthropic) ExtractFromImage(ctx context.Context, imageBytes []byte, mediaType, prompt string) (string, error) {
+	type imageSrc struct {
+		Type      string `json:"type"`
+		MediaType string `json:"media_type"`
+		Data      string `json:"data"`
+	}
+	type contentBlock struct {
+		Type   string    `json:"type"`
+		Source *imageSrc `json:"source,omitempty"`
+		Text   string    `json:"text,omitempty"`
+	}
+	type visionMsg struct {
+		Role    string         `json:"role"`
+		Content []contentBlock `json:"content"`
+	}
+	type visionReq struct {
+		Model       string      `json:"model"`
+		MaxTokens   int         `json:"max_tokens"`
+		System      string      `json:"system,omitempty"`
+		Temperature float64     `json:"temperature"`
+		Messages    []visionMsg `json:"messages"`
+	}
+
+	body := visionReq{
+		Model:       a.Model,
+		MaxTokens:   512,
+		System:      "Reply with JSON only. No markdown, no extra text.",
+		Temperature: 0,
+		Messages: []visionMsg{{
+			Role: "user",
+			Content: []contentBlock{
+				{
+					Type: "image",
+					Source: &imageSrc{
+						Type:      "base64",
+						MediaType: mediaType,
+						Data:      base64.StdEncoding.EncodeToString(imageBytes),
+					},
+				},
+				{Type: "text", Text: prompt},
+			},
+		}},
+	}
+
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return "", err
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, a.URL, bytes.NewReader(buf))
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("x-api-key", a.APIKey)
+	req.Header.Set("anthropic-version", a.Version)
+
+	resp, err := a.HTTP.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	raw, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	if resp.StatusCode >= 400 {
+		return "", fmt.Errorf("anthropic vision: http %d: %s", resp.StatusCode, truncate(string(raw), 400))
+	}
+
+	var parsed anthropicResponse
+	if err := json.Unmarshal(raw, &parsed); err != nil {
+		return "", fmt.Errorf("anthropic vision: parse: %w", err)
+	}
+	if parsed.Error != nil {
+		return "", fmt.Errorf("anthropic vision: %s: %s", parsed.Error.Type, parsed.Error.Message)
+	}
+	var text string
+	for _, c := range parsed.Content {
+		if c.Type == "text" {
+			text += c.Text
+		}
+	}
+	if text == "" {
+		return "", fmt.Errorf("anthropic vision: empty content")
 	}
 	return text, nil
 }

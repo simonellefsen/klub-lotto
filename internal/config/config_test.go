@@ -41,3 +41,31 @@ func TestLoadPrefersAgentBrowserSession(t *testing.T) {
 		t.Fatalf("BrowserSessionName = %q", cfg.BrowserSessionName)
 	}
 }
+
+func TestLoadWordProviderPrecedence(t *testing.T) {
+	t.Setenv("WORD_PROVIDER", "openrouter")
+	t.Setenv("ORDKNUDE_PROVIDER", "gemini")
+
+	cfg, err := Load(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.WordProvider != "openrouter" {
+		t.Fatalf("WordProvider = %q", cfg.WordProvider)
+	}
+	if cfg.OrdknudeProvider != "gemini" {
+		t.Fatalf("OrdknudeProvider = %q", cfg.OrdknudeProvider)
+	}
+}
+
+func TestLoadWordProviderFallsBackToOrdknudeProvider(t *testing.T) {
+	t.Setenv("ORDKNUDE_PROVIDER", "xai")
+
+	cfg, err := Load(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.WordProvider != "xai" {
+		t.Fatalf("WordProvider = %q", cfg.WordProvider)
+	}
+}

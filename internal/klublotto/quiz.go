@@ -2,10 +2,14 @@ package klublotto
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/simonellefsen/klub-lotto/internal/browser"
 	"github.com/simonellefsen/klub-lotto/internal/llm"
@@ -112,7 +116,7 @@ func ExtractRound(snap string) (QuizRound, error) {
 				continue
 			}
 			seenButtons = append(seenButtons, match{name: name, ref: ref})
-		case "button", "link":
+		case "button", "link", "clickable":
 			if quizRadio {
 				if inQuizRadio {
 					inQuizRadio = false
@@ -127,9 +131,11 @@ func ExtractRound(snap string) (QuizRound, error) {
 	}
 
 	// If we found at least 2 candidate buttons treat them as answers.
+	// Strip any "A) " / "0. " etc. so stored Options are bare names (e.g. "Japan"),
+	// matching what cursor lines expose and what we want in logs/provider prompts.
 	if len(seenButtons) >= 2 && len(seenButtons) <= 8 {
 		for _, b := range seenButtons {
-			round.Options = append(round.Options, b.name)
+			round.Options = append(round.Options, stripOptionPrefix(b.name))
 			round.OptionRefs = append(round.OptionRefs, "@"+b.ref)
 		}
 	}
@@ -158,6 +164,78 @@ func IsLoginRequired(pageURL, snap string) bool {
 		strings.Contains(low, `link "opret konto"`)
 }
 
+// ExtractRoundFromScreenshot takes a screenshot of the current quiz page and
+// uses Claude vision to read the question and answer options. This is more
+// robust than DOM/iframe parsing because it works regardless of rendering
+// technique (iframes, shadow DOM, canvas, etc.).
+//
+// The screenshot is saved to dataDir/quiz-ocr.png for debugging.
+// OptionRefs are returned as "iframe >> text=<option>" selectors since the
+// quiz widget is known to be embedded inside an iframe on the parent page.
+func ExtractRoundFromScreenshot(ctx context.Context, br *browser.Client, dataDir string, ac *llm.Anthropic) (QuizRound, error) {
+	shotPath := filepath.Join(dataDir, "quiz-ocr-"+time.Now().UTC().Format("20060102-150405")+".png")
+	if err := br.Screenshot(ctx, shotPath); err != nil {
+		return QuizRound{}, fmt.Errorf("screenshot for vision: %w", err)
+	}
+	imgBytes, err := os.ReadFile(shotPath)
+	if err != nil {
+		return QuizRound{}, fmt.Errorf("read screenshot %s: %w", shotPath, err)
+	}
+
+	const prompt = `This is a screenshot of a Danish quiz page called "Dagens Quiz" (Klub Lotto).
+Find the quiz question — it is prominently displayed in large text and ends with a question mark.
+Find the answer options labeled A, B, and C (or 1/2/3 etc).
+Return ONLY valid JSON in this exact format, with no other text:
+{"question": "the full question text including the ?", "options": ["bare answer one text", "bare answer two text", "bare answer three text"]}
+The options array must contain ONLY the bare answer text for each choice. NEVER include the letter prefix (A, B, C), number, "A) ", "0. " or similar in the option strings — just the answer content itself.`
+
+	raw, err := ac.ExtractFromImage(ctx, imgBytes, "image/png", prompt)
+	if err != nil {
+		return QuizRound{}, fmt.Errorf("vision extract: %w", err)
+	}
+
+	// Strip markdown code fences the model may add despite instructions.
+	text := strings.TrimSpace(raw)
+	text = strings.TrimPrefix(text, "```json")
+	text = strings.TrimPrefix(text, "```")
+	text = strings.TrimSuffix(text, "```")
+	text = strings.TrimSpace(text)
+
+	var data struct {
+		Question string   `json:"question"`
+		Options  []string `json:"options"`
+	}
+	if err := json.Unmarshal([]byte(text), &data); err != nil {
+		return QuizRound{}, fmt.Errorf("parse vision JSON: %w (raw=%s)", err, text)
+	}
+	if data.Question == "" {
+		return QuizRound{}, errors.New("vision: could not identify quiz prompt in screenshot")
+	}
+	if len(data.Options) < 2 {
+		return QuizRound{}, fmt.Errorf("vision: found question but only %d option(s)", len(data.Options))
+	}
+
+	// Strip prefixes from vision-returned options so we always store bare names
+	// (defensive against the prompt example and model variations). This makes
+	// printed options, chosenText for ledger, and provider prompts clean.
+	for i := range data.Options {
+		data.Options[i] = stripOptionPrefix(data.Options[i])
+	}
+
+	// The quiz widget is inside an iframe; use Playwright iframe selectors for
+	// clicking. Falls back gracefully if the quiz moves to the main page.
+	optionRefs := make([]string, len(data.Options))
+	for i, opt := range data.Options {
+		optionRefs[i] = "iframe >> text=" + opt
+	}
+	return QuizRound{
+		Prompt:     data.Question,
+		Options:    data.Options,
+		OptionRefs: optionRefs,
+		Raw:        text,
+	}, nil
+}
+
 type match struct{ name, ref string }
 
 // isControlLabel filters out buttons we know aren't answers (Submit,
@@ -184,4 +262,203 @@ func isControlLabel(s string) bool {
 // if the snapshot still shows one.
 func Submit(ctx context.Context, br *browser.Client, optionRef string) error {
 	return br.Click(ctx, optionRef)
+}
+
+// SubmitQuizOption selects the chosen answer using the cursor-interactive
+// elements exposed by `agent-browser snapshot -i -C` (the "clickable "Japan"
+// [ref=e90] [cursor:pointer]" targets), then clicks "Afgiv svar".
+//
+// We stay on the current page (parent with embedded quiz). The -i -C snapshot
+// already surfaces the direct clickable refs for the options and the submit
+// button, exactly as demonstrated by manual `snapshot -i -C` + `click @e90` +
+// click button. This matches the reliable click pattern used for other games.
+//
+// A small JS fallback is kept for robustness.
+
+func stripOptionPrefix(s string) string {
+	s = strings.TrimSpace(s)
+	if len(s) == 0 {
+		return s
+	}
+	// Work with runes to safely handle unicode dashes (– —) and multi-byte chars (ÆØÅ etc).
+	// Skips common quiz prefixes from labels or model output: "A) ", "A. ", "A ", "0. ",
+	// "3) ", "B: ", "10. " etc. Stops before name text even if name starts with A-D (e.g. "Atlanterhavet").
+	runes := []rune(s)
+	if len(runes) < 2 {
+		return s
+	}
+	first := runes[0]
+	labelIsDigit := first >= '0' && first <= '9'
+	if !(labelIsDigit || (first >= 'A' && first <= 'D') || (first >= 'a' && first <= 'd')) {
+		return s
+	}
+	// Skip the initial label + following seps. Also eat extra digits right after initial digit (for "10. " etc).
+	// Never eat letters in the skip phase (names can start with A-D like "Amazon", "Atlanterhavet").
+	i := 1
+	for i < len(runes) {
+		c := runes[i]
+		if c == ' ' || c == ')' || c == '.' || c == ':' || c == '-' || c == '–' || c == '—' {
+			i++
+			continue
+		}
+		if labelIsDigit && c >= '0' && c <= '9' {
+			i++
+			continue
+		}
+		break
+	}
+	// skip any remaining leading spaces
+	for i < len(runes) && runes[i] == ' ' {
+		i++
+	}
+	if i > 1 && i < len(runes) {
+		return strings.TrimSpace(string(runes[i:]))
+	}
+	return s
+}
+func SubmitQuizOption(ctx context.Context, br *browser.Client, optionText string) error {
+	// Do not navigate to the raw iframe src. The parent page snapshot (with -i -C)
+	// already exposes the direct cursor-interactive click targets for the options
+	// (the "clickable "Japan" [ref=e90] [cursor:pointer]" elements).
+	// Clicking those refs from the parent context works (as the user demonstrated
+	// manually), selects the answer, and makes "AFGIV SVAR" clickable.
+	//
+	// We stay on the current page (the one with the embedded quiz), do a cursor
+	// snapshot, find the exact ref for the option text, click it, then click the
+	// submit button via the same mechanism.
+
+	// Select the option using cursor snapshot + ref (the reliable way).
+	// Normalizes both the snap name and the optionText so "Japan" matches
+	// "A Japan", "A) Japan", etc. (the cursor:clickable lines from -i -C).
+	snap, _ := br.SnapshotInteractiveCursor(ctx)
+	if ref := findQuizOptionRef(snap, optionText); ref != "" {
+		if err := br.Click(ctx, ref); err != nil {
+			// fall through to fallback
+		} else {
+			time.Sleep(500 * time.Millisecond)
+		}
+	} else {
+		// Fallback: try normal snapshot with flexible ref find.
+		snap2, _ := br.SnapshotInteractive(ctx)
+		if ref2 := findQuizOptionRef(snap2, optionText); ref2 != "" {
+			if err := br.Click(ctx, ref2); err == nil {
+				time.Sleep(500 * time.Millisecond)
+			} else {
+				// ignore, fall to JS
+			}
+		} else {
+			// Last resort JS targeting label/card (from the DOM insight).
+			optJSON, _ := json.Marshal(optionText)
+			clickJS := `((opt) => {
+  function norm(s) {
+    s = (s || '').trim();
+    s = s.replace(/^[0-9A-Da-d][\s).:–—-]*\s*/, '');
+    return s.toLowerCase();
+  }
+  var want = norm(opt);
+
+  var labels = document.querySelectorAll('label');
+  for (var i = 0; i < labels.length; i++) {
+    var lab = labels[i];
+    var t = (lab.textContent || lab.innerText || '').trim();
+    if (norm(t) === want) {
+      lab.click();
+      return JSON.stringify({ok: true, via: 'label'});
+    }
+  }
+
+  var cards = document.querySelectorAll('.kl-quiz__option, [class*="quiz__option"], [class*="quiz-option"], [data-letter]');
+  for (var i = 0; i < cards.length; i++) {
+    var card = cards[i];
+    var t = (card.textContent || card.innerText || '').trim();
+    if (norm(t).indexOf(want) >= 0 || want.indexOf(norm(t)) >= 0) {
+      card.click();
+      return JSON.stringify({ok: true, via: 'card'});
+    }
+  }
+
+  var all = Array.from(document.querySelectorAll('*'));
+  var best = null;
+  var bestArea = 0;
+  for (var i = 0; i < all.length; i++) {
+    var el = all[i];
+    var t = (el.innerText || el.textContent || '').trim();
+    var r = el.getBoundingClientRect();
+    if (r.width > 0 && r.height > 0) {
+      if (norm(t) === want || norm(t).indexOf(want) >= 0 || want.indexOf(norm(t)) >= 0) {
+        var area = r.width * r.height;
+        if (area > bestArea) {
+          bestArea = area;
+          best = el;
+        }
+      }
+    }
+  }
+  if (best) {
+    best.click();
+    return JSON.stringify({ok: true, via: 'largest'});
+  }
+  return JSON.stringify({ok: false});
+})(` + string(optJSON) + `)`
+
+			raw, err := br.Eval(ctx, clickJS)
+			if err != nil {
+				return fmt.Errorf("JS click option %q: %w", optionText, err)
+			}
+			var result struct{ OK bool `json:"ok"` }
+			json.Unmarshal([]byte(raw), &result)
+			if !result.OK {
+				return fmt.Errorf("option %q not found via any method", optionText)
+			}
+			time.Sleep(500 * time.Millisecond)
+		}
+	}
+
+	// Now click "Afgiv svar". Use cursor snapshot + ref for reliability.
+	if err := clickAfgivSvar(ctx, br); err != nil {
+		return fmt.Errorf("click Afgiv svar: %w", err)
+	}
+
+	return nil
+}
+
+// findQuizOptionRef normalizes names from both the optionText and the snapshot
+// line so that bare "Japan" matches "A Japan", "A) Japan", "A. Japan" etc.
+// from the cursor-interactive "clickable" lines.
+func findQuizOptionRef(snap, optionText string) string {
+	if optionText == "" {
+		return ""
+	}
+	want := stripOptionPrefix(optionText)
+	for _, m := range snapshotLine.FindAllStringSubmatch(snap, -1) {
+		name := stripOptionPrefix(strings.TrimSpace(m[2]))
+		ref := m[3]
+		if strings.EqualFold(name, want) || strings.EqualFold(name, optionText) {
+			return "@" + ref
+		}
+	}
+	return ""
+}
+
+// clickAfgivSvar tries to click the submit button using the reliable snapshot/ref
+// method (same as other games). Retries a few times because the button may appear
+// or change state after option selection.
+func clickAfgivSvar(ctx context.Context, br *browser.Client) error {
+	for attempt := 0; attempt < 4; attempt++ {
+		snap, err := br.SnapshotInteractiveCursor(ctx)
+		if err == nil {
+			if ref := FindRefByName(snap, []string{"Afgiv svar", "AFGIV SVAR", "Afgiv svar"}); ref != "" {
+				if cerr := br.Click(ctx, ref); cerr == nil {
+					return nil
+				}
+			}
+		}
+		time.Sleep(400 * time.Millisecond)
+	}
+	// Last resort: the old CSS/text selectors.
+	return tryClickFirst(ctx, br,
+		`button:has-text("Afgiv svar")`,
+		`button:has-text("AFGIV SVAR")`,
+		`text=Afgiv svar`,
+	)
 }

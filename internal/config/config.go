@@ -27,7 +27,10 @@ type Config struct {
 	OpenRouterKey    string
 	OpenAIModel      string
 	OpenRouterModel  string
-	OrdknudeProvider string
+	OpenRouterVisionModel string // optional second vision model for cross-check (e.g. google/gemini-flash-1.5 via OpenRouter)
+	WordProvider              string
+	OrdknudeProvider          string
+	OrdKloeverFinalProvider   string // LLM used only for the very last attempt (11/12); typically a smarter model
 
 	// Browser preferences — exposed so commands can override per-run.
 	BrowserSessionName string // --session passed to agent-browser
@@ -70,6 +73,11 @@ func Load(repoRoot string) (*Config, error) {
 		session = "klublotto"
 	}
 
+	wordProvider := get("WORD_PROVIDER")
+	if wordProvider == "" {
+		wordProvider = get("ORDKNUDE_PROVIDER")
+	}
+
 	return &Config{
 		DanskespilUsername: get("DANSKESPIL_USERNAME"),
 		DanskespilPassword: get("DANSKESPIL_PASSWORD"),
@@ -80,7 +88,10 @@ func Load(repoRoot string) (*Config, error) {
 		OpenRouterKey:      get("OPENROUTER_API_KEY"),
 		OpenAIModel:        get("OPENAI_MODEL"),
 		OpenRouterModel:    get("OPENROUTER_MODEL"),
-		OrdknudeProvider:   get("ORDKNUDE_PROVIDER"),
+		OpenRouterVisionModel: get("OPENROUTER_VISION_MODEL"),
+		WordProvider:            wordProvider,
+		OrdknudeProvider:        get("ORDKNUDE_PROVIDER"),
+		OrdKloeverFinalProvider: get("ORDKLOEVER_FINAL_PROVIDER"),
 		BrowserSessionName: session,
 		Headed:             strings.EqualFold(get("KLUBLOTTO_HEADED"), "true"),
 		DataDir:            dataDir,

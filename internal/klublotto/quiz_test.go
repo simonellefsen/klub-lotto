@@ -58,9 +58,9 @@ func TestExtractRoundLoggedInRadioLabelSnapshot(t *testing.T) {
 - link "UDBETALING" [ref=e46]
 - link "LOG UD" [ref=e47]
 - radio "Hvilket er verdens største ocean?StillehavetDet Indiske OceanAtlanterhavetAfgiv svar" [checked=false, ref=e1] clickable [onclick]
-  - LabelText "Stillehavet" [ref=e57] clickable [cursor:pointer]
+  - LabelText "A) Stillehavet" [ref=e57] clickable [cursor:pointer]
   - LabelText "Det Indiske Ocean" [ref=e58] clickable [cursor:pointer]
-  - LabelText "Atlanterhavet" [ref=e59] clickable [cursor:pointer]
+  - LabelText "0. Atlanterhavet" [ref=e59] clickable [cursor:pointer]
   - button "AFGIV SVAR" [ref=e52]`
 
 	round, err := ExtractRound(snap)

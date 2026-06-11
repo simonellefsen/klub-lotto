@@ -33,29 +33,37 @@ func NewXAI(apiKey, model string) *XAI {
 func (x *XAI) Name() string { return "xai:" + x.Model }
 
 func (x *XAI) ChooseOne(ctx context.Context, q Question) (Answer, error) {
+	raw, err := x.GenerateJSON(ctx, formatPrompt(q), 0)
+	if err != nil {
+		return Answer{}, err
+	}
+	return parseChoiceJSON(raw, len(q.Options))
+}
+
+func (x *XAI) GenerateJSON(ctx context.Context, prompt string, temperature float64) (string, error) {
 	// xAI accepts response_format but it's not on every model; we instruct
 	// in the prompt and parse defensively.
 	body := openAIRequest{
 		Model: x.Model,
 		Messages: []openAIMessage{
-			{Role: "system", Content: "You answer Danish multiple-choice quiz questions. Reply with JSON only."},
-			{Role: "user", Content: formatPrompt(q)},
+			{Role: "system", Content: "Reply with JSON only. No markdown, no extra text."},
+			{Role: "user", Content: prompt},
 		},
-		Temperature: 0,
+		Temperature: temperature,
 	}
 	raw, err := postJSON(ctx, x.HTTP, x.URL, x.APIKey, body)
 	if err != nil {
-		return Answer{}, err
+		return "", err
 	}
 	var resp openAIResponse
 	if err := json.Unmarshal(raw, &resp); err != nil {
-		return Answer{}, fmt.Errorf("xai: parse response: %w", err)
+		return "", fmt.Errorf("xai: parse response: %w", err)
 	}
 	if resp.Error != nil {
-		return Answer{}, fmt.Errorf("xai: api error: %s", resp.Error.Message)
+		return "", fmt.Errorf("xai: api error: %s", resp.Error.Message)
 	}
 	if len(resp.Choices) == 0 {
-		return Answer{}, fmt.Errorf("xai: empty choices")
+		return "", fmt.Errorf("xai: empty choices")
 	}
-	return parseChoiceJSON(resp.Choices[0].Message.Content, len(q.Options))
+	return resp.Choices[0].Message.Content, nil
 }

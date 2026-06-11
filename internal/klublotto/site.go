@@ -23,4 +23,16 @@ const (
 	// The site reshuffles paths occasionally so the solver also tries a
 	// fallback discovery via the "Vælg spil" menu.
 	QuizURL = "https://danskespil.dk/klublotto/dagens-quiz"
+
+	// SudokuURL is the parent Danske Spil page for the daily Sudoku.
+	SudokuURL = "https://danskespil.dk/klublotto/dagens-sudoku"
+
+	// OrdKloeverURL is the parent Danske Spil page for Ordkløver.
+	OrdKloeverURL = "https://danskespil.dk/klublotto/dagens-ordkloever"
+
+	// OrdknudeURL is the parent Danske Spil page for Ordknuden.
+	OrdknudeURL = "https://danskespil.dk/klublotto/dagens-ordknuden"
+
+	// KrydsordURL is the parent Danske Spil page for the daily crossword.
+	KrydsordURL = "https://danskespil.dk/klublotto/dagens-krydsord"
 )

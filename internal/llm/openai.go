@@ -12,7 +12,7 @@ import (
 
 // OpenAI implements Provider against the OpenAI Chat Completions API.
 // Uses response_format=json_object to keep parsing trivial. Defaults to
-// gpt-4.1 (good Danish, predictable JSON). Override via NewOpenAI's model
+// gpt-5.4 (good Danish, predictable JSON). Override via NewOpenAI's model
 // arg.
 type OpenAI struct {
 	APIKey string
@@ -21,10 +21,10 @@ type OpenAI struct {
 	URL    string // override for tests / Azure
 }
 
-// NewOpenAI returns a Provider. If model is empty, "gpt-4.1" is used.
+// NewOpenAI returns a Provider. If model is empty, "gpt-5.4" is used.
 func NewOpenAI(apiKey, model string) *OpenAI {
 	if model == "" {
-		model = "gpt-4.1"
+		model = "gpt-5.4"
 	}
 	return &OpenAI{
 		APIKey: apiKey,
@@ -41,6 +41,7 @@ type openAIRequest struct {
 	Messages       []openAIMessage   `json:"messages"`
 	ResponseFormat *openAIRespFormat `json:"response_format,omitempty"`
 	Temperature    float64           `json:"temperature"`
+	MaxTokens      int               `json:"max_tokens,omitempty"`
 }
 
 type openAIMessage struct {
@@ -64,30 +65,38 @@ type openAIResponse struct {
 }
 
 func (o *OpenAI) ChooseOne(ctx context.Context, q Question) (Answer, error) {
-	body := openAIRequest{
-		Model: o.Model,
-		Messages: []openAIMessage{
-			{Role: "system", Content: "You answer Danish multiple-choice quiz questions. Reply with JSON only."},
-			{Role: "user", Content: formatPrompt(q)},
-		},
-		ResponseFormat: &openAIRespFormat{Type: "json_object"},
-		Temperature:    0,
-	}
-	raw, err := postJSON(ctx, o.HTTP, o.URL, o.APIKey, body)
+	raw, err := o.GenerateJSON(ctx, formatPrompt(q), 0)
 	if err != nil {
 		return Answer{}, err
 	}
+	return parseChoiceJSON(raw, len(q.Options))
+}
+
+func (o *OpenAI) GenerateJSON(ctx context.Context, prompt string, temperature float64) (string, error) {
+	body := openAIRequest{
+		Model: o.Model,
+		Messages: []openAIMessage{
+			{Role: "system", Content: "Reply with JSON only. No markdown, no extra text."},
+			{Role: "user", Content: prompt},
+		},
+		ResponseFormat: &openAIRespFormat{Type: "json_object"},
+		Temperature:    temperature,
+	}
+	raw, err := postJSON(ctx, o.HTTP, o.URL, o.APIKey, body)
+	if err != nil {
+		return "", err
+	}
 	var resp openAIResponse
 	if err := json.Unmarshal(raw, &resp); err != nil {
-		return Answer{}, fmt.Errorf("openai: parse response: %w", err)
+		return "", fmt.Errorf("openai: parse response: %w", err)
 	}
 	if resp.Error != nil {
-		return Answer{}, fmt.Errorf("openai: api error: %s", resp.Error.Message)
+		return "", fmt.Errorf("openai: api error: %s", resp.Error.Message)
 	}
 	if len(resp.Choices) == 0 {
-		return Answer{}, fmt.Errorf("openai: empty choices")
+		return "", fmt.Errorf("openai: empty choices")
 	}
-	return parseChoiceJSON(resp.Choices[0].Message.Content, len(q.Options))
+	return resp.Choices[0].Message.Content, nil
 }
 
 // postJSON is the shared HTTP helper. Bearer-token auth, JSON in/out, ctx

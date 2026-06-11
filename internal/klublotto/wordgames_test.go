@@ -1,0 +1,142 @@
+package klublotto
+
+import (
+	"os"
+	"path/filepath"
+	"reflect"
+	"testing"
+)
+
+func TestNormalizeDanishPhraseKeepsDanishLetters(t *testing.T) {
+	got := NormalizeDanishPhrase("  salær / blå-øl \n æøå  ")
+	want := "SALÆR BLÅ ØL ÆØÅ"
+	if got != want {
+		t.Fatalf("NormalizeDanishPhrase() = %q, want %q", got, want)
+	}
+}
+
+func TestIsDanishFiveLetterWord(t *testing.T) {
+	for _, word := range []string{"SALÆR", "BLÅÅL", "ABCDE"} {
+		if !IsDanishFiveLetterWord(word) {
+			t.Fatalf("IsDanishFiveLetterWord(%q) = false", word)
+		}
+	}
+	for _, word := range []string{"SALÆRS", "SA LÆ"} {
+		if IsDanishFiveLetterWord(word) {
+			t.Fatalf("IsDanishFiveLetterWord(%q) = true", word)
+		}
+	}
+}
+
+func TestParseCandidateJSONNormalizesAnswers(t *testing.T) {
+	cands, err := ParseCandidateJSON(`{"candidates":[{"answer":"roterende-fis/i kasketten","confidence":"high","rationale":"kendt udtryk"}]}`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(cands) != 1 || cands[0].Answer != "ROTERENDE FIS I KASKETTEN" {
+		t.Fatalf("candidates = %#v", cands)
+	}
+}
+
+func TestPhraseMatchesLengthPattern(t *testing.T) {
+	if !PhraseMatchesLengthPattern("DET ER EN SANGBOG", "3 / 2 / 2 / 7") {
+		t.Fatal("expected phrase to match Danish word-length pattern")
+	}
+	if PhraseMatchesLengthPattern("TONE OG EN AKKORD", "4 / 2 / 2 / 7") {
+		t.Fatal("expected six-letter AKKORD to be rejected for final seven-letter slot")
+	}
+}
+
+func TestFilterCandidatesByLengthPattern(t *testing.T) {
+	cands := []WordCandidate{
+		{Answer: "TONE OG EN AKKORD"},
+		{Answer: "TONE OG EN SANGBOG"},
+	}
+	got, dropped := FilterCandidatesByLengthPattern(cands, "4 / 2 / 2 / 7")
+	if dropped != 1 {
+		t.Fatalf("dropped = %d, want 1", dropped)
+	}
+	if len(got) != 1 || got[0].Answer != "TONE OG EN SANGBOG" {
+		t.Fatalf("filtered candidates = %#v", got)
+	}
+}
+
+func TestPhraseMatchesMask(t *testing.T) {
+	if !PhraseMatchesMask("TONE OM EN KONCERT", "T___ / __ / __ / K______") {
+		t.Fatal("expected phrase to match revealed Ordkløver mask")
+	}
+	if PhraseMatchesMask("TONE OM EN SANGBOG", "T___ / __ / __ / K______") {
+		t.Fatal("expected final word to be rejected by revealed K")
+	}
+}
+
+func TestFilterCandidatesByMask(t *testing.T) {
+	cands := []WordCandidate{
+		{Answer: "TONE OM EN KONCERT"},
+		{Answer: "TONE OM EN SANGBOG"},
+	}
+	got, dropped := FilterCandidatesByMask(cands, "T___ / __ / __ / K______")
+	if dropped != 1 {
+		t.Fatalf("dropped = %d, want 1", dropped)
+	}
+	if len(got) != 1 || got[0].Answer != "TONE OM EN KONCERT" {
+		t.Fatalf("filtered candidates = %#v", got)
+	}
+}
+
+func TestSuggestOrdKloeverLetters(t *testing.T) {
+	cands := []WordCandidate{
+		{Answer: "TONE OM EN KONCERT", Confidence: "high"},
+		{Answer: "TONE OM EN KAPELLE", Confidence: "medium"},
+	}
+	got := SuggestOrdKloeverLetters(cands, "TONE", 3)
+	if len(got) != 3 {
+		t.Fatalf("got %d letters, want 3: %#v", len(got), got)
+	}
+	for _, letter := range got {
+		if letter == "T" || letter == "O" || letter == "N" || letter == "E" {
+			t.Fatalf("suggested already-known letter %s in %#v", letter, got)
+		}
+	}
+}
+
+func TestRejectedWordsAreDeduplicated(t *testing.T) {
+	dir := t.TempDir()
+	if err := RecordRejectedWord(dir, "salær"); err != nil {
+		t.Fatal(err)
+	}
+	if err := RecordRejectedWord(dir, "SALÆR"); err != nil {
+		t.Fatal(err)
+	}
+	got := LoadRejectedWords(dir)
+	want := []string{"SALÆR"}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("LoadRejectedWords() = %#v, want %#v", got, want)
+	}
+	raw, err := os.ReadFile(filepath.Join(dir, "ordknude-rejected.txt"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(raw) != "SALÆR\n" {
+		t.Fatalf("rejected file = %q", raw)
+	}
+}
+
+func TestClassifyOrdknudeTile(t *testing.T) {
+	tests := []struct {
+		name string
+		tile OrdknudeTile
+		want string
+	}{
+		{name: "green class", tile: OrdknudeTile{ClassName: "tile correct"}, want: "correct"},
+		{name: "yellow class", tile: OrdknudeTile{ClassName: "tile present"}, want: "present"},
+		{name: "red rgb", tile: OrdknudeTile{Background: "rgb(130, 20, 10)"}, want: "absent"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := classifyOrdknudeTile(tt.tile); got != tt.want {
+				t.Fatalf("classifyOrdknudeTile() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}

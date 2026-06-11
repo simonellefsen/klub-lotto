@@ -6,6 +6,10 @@
 //	klub-lotto login [--check]              open browser, log in, save session state. With --check: just report VALID/INVALID
 
 //	klub-lotto quiz [--dry-run] [--headless] solve today's Quiz
+//	klub-lotto sudoku [--dry-run] [--submit] solve today's Sudoku locally
+//	klub-lotto ordkloever [--dry-run] [--submit] [--answer "..."] solve today's Ordkløver safely
+//	klub-lotto ordknude [--dry-run] [--submit] [--answer WORD] solve today's Ordknuden for real (guesses are permanent, no do-overs)
+//	klub-lotto krydsord [--dry-run] [--submit] [--provider ...] [--grid <file>] solve + submit today's Dagens Krydsord (real by default; bare != dry-run unlike sudoku siblings; reuses klublotto session)
 //	klub-lotto wiki ingest --file <path>    ingest an arbitrary markdown source
 //	klub-lotto wiki import-db --dsn ...     import wiki/daily/*.md into Postgres (DB becomes source of truth)
 //	klub-lotto wiki query "<question>"      ask the wiki (shells out to qmd if present)
@@ -17,6 +21,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -54,8 +59,14 @@ func main() {
 		err = runLogin(ctx, args)
 	case "quiz":
 		err = runQuiz(ctx, args)
+	case "sudoku":
+		err = runSudoku(ctx, args)
+	case "ordkloever":
+		err = runOrdKloever(ctx, args)
 	case "ordknude":
 		err = runOrdknude(ctx, args)
+	case "krydsord":
+		err = runKrydsord(ctx, args)
 	case "wiki":
 		err = runWiki(ctx, args)
 	case "ledger":
@@ -81,6 +92,11 @@ Usage:
   klub-lotto doctor
   klub-lotto login     [--headless] [--web] [--check]
   klub-lotto quiz      [--headless] [--dry-run] [--submit]
+  klub-lotto sudoku    [--headless] [--dry-run] [--submit]
+  klub-lotto ordkloever [--headless] [--dry-run] [--submit] [--answer "..."] [--provider gemini|openai|xai|anthropic|openrouter]
+  klub-lotto ordknude  [--headless] [--dry-run] [--submit] [--answer WORD] [--provider gemini|openai|xai|anthropic|openrouter]  (real play: guesses permanent, no do-overs)
+  klub-lotto krydsord  [--headless] [--dry-run] [--submit] [--provider ...] [--grid <file>]
+                   (note: bare krydsord does real solve+submit by design per spec; --dry-run guards submit; differs from sudoku siblings)
   klub-lotto wiki ingest --file <path>
   klub-lotto wiki import-db --dsn <postgres-url> [--wiki <dir>]
   klub-lotto wiki query "<question>"
@@ -94,21 +110,6 @@ Default is HEADED mode so you can watch the browser. Pass --headless when
 you're confident the flow works and want to schedule it.
 `)
 }
-
-// ---------------------------------------------------------------------------
-// ordknude (temporarily stubbed — see ordknude.go build tag)
-// ---------------------------------------------------------------------------
-
-func runOrdknude(ctx context.Context, args []string) error {
-	fmt.Fprintln(os.Stderr, "ordknude command is temporarily disabled due to API drift in the solver (internal/klublotto/ordknude.go has //go:build ignore).")
-	fmt.Fprintln(os.Stderr, "Use the old binary in ./bin if you need it, or restore the file after fixing the llm/browser calls.")
-	return fmt.Errorf("ordknude automation is not implemented in this build")
-}
-
-// (remaining ordknude body from previous edit removed — ordknude command is now a no-op stub)
-
-// (ordknude helper functions removed — they referenced the old llm/browser
-// APIs that no longer exist. The command is stubbed above.)
 
 // ---------------------------------------------------------------------------
 // quiz
@@ -174,7 +175,10 @@ func runQuiz(ctx context.Context, args []string) error {
 	fmt.Println("[2/6] snapshotting page...")
 	snapshotCtx, cancel := context.WithTimeout(ctx, 45*time.Second)
 	defer cancel()
-	snap, err := br.SnapshotInteractive(snapshotCtx)
+	// Use cursor snapshot so we also capture the direct [cursor:pointer] /
+	// [onclick] targets for quiz answers (the "clickable "Japan" [ref=e90]..."
+	// lines). This gives clean OptionRefs for the individual options.
+	snap, err := br.SnapshotInteractiveCursor(snapshotCtx)
 	if err != nil {
 		return fmt.Errorf("snapshot quiz: %w", err)
 	}
@@ -185,6 +189,12 @@ func runQuiz(ctx context.Context, args []string) error {
 
 	fmt.Println("[3/6] extracting question and options...")
 	round, err := klublotto.ExtractRound(snap)
+	if err != nil && !errors.Is(err, klublotto.ErrLoginRequired) {
+		fmt.Printf("       snapshot extraction failed (%v); falling back to screenshot OCR...\n", err)
+		visionCtx, visionCancel := context.WithTimeout(ctx, 60*time.Second)
+		round, err = klublotto.ExtractRoundFromScreenshot(visionCtx, br, cfg.DataDir, llm.NewAnthropic(cfg.AnthropicKey, "claude-haiku-4-5-20251001"))
+		visionCancel()
+	}
 	if err != nil {
 		return fmt.Errorf("extract round: %w", err)
 	}
@@ -237,7 +247,7 @@ func runQuiz(ctx context.Context, args []string) error {
 	}
 	if submit {
 		fmt.Println("[6/6] submitting answer...")
-		if err := klublotto.Submit(ctx, br, round.OptionRefs[chosen]); err != nil {
+		if err := klublotto.SubmitQuizOption(ctx, br, chosenText); err != nil {
 			_, _ = writeQuizSource(cfg, round, votes, chosen, false, "error: submit failed", curURL)
 			return fmt.Errorf("submit choice: %w", err)
 		}
@@ -355,7 +365,18 @@ func upsertDailyQuiz(cfg *config.Config, prompt, answer string, submitted, regis
 		body = regexpReplace(body, `(?m)^updated:\s*.*$`, "updated: "+now.UTC().Format(time.RFC3339))
 	}
 	_ = cfg
-	return os.WriteFile(path, []byte(body), 0o644)
+	if err := os.WriteFile(path, []byte(body), 0o644); err != nil {
+		return err
+	}
+	// Best-effort: append to log.md so `make quiz` (via scripts/sync.sh) gets a
+	// commit subject mentioning today's actual question instead of a stale
+	// previous day's entry.
+	logOutcome := "submitted"
+	if !submitted {
+		logOutcome = "dry-run"
+	}
+	_ = wiki.AppendIngestLog(wikiDir, now.UTC(), "quiz", prompt, logOutcome)
+	return nil
 }
 
 func wikiRoot() string {
@@ -504,8 +525,13 @@ func maskedReport(cfg *config.Config) {
 	} else {
 		fmt.Println("- OPENROUTER_MODEL:", cfg.OpenRouterModel)
 	}
+	if cfg.WordProvider == "" {
+		fmt.Println("- WORD_PROVIDER: (default gemini)")
+	} else {
+		fmt.Println("- WORD_PROVIDER:", cfg.WordProvider)
+	}
 	if cfg.OrdknudeProvider == "" {
-		fmt.Println("- ORDKNUDE_PROVIDER: (default gemini)")
+		fmt.Println("- ORDKNUDE_PROVIDER: (empty; legacy fallback only)")
 	} else {
 		fmt.Println("- ORDKNUDE_PROVIDER:", cfg.OrdknudeProvider)
 	}
@@ -639,14 +665,26 @@ func runLogin(ctx context.Context, args []string) error {
 }
 
 func tryAutomaticRedKontoLogin(ctx context.Context, br *browser.Client, username, password string) (ok bool, needsMitID bool, err error) {
+	submittedRedKonto := false
+	var submittedRedKontoAt time.Time
+
+	// If the browser is already sitting on the Rød Konto form, use that
+	// current state before navigating anywhere. This is common after a MitID
+	// handoff and avoids losing the form by reopening the Klub Lotto front page.
+	if visible, err := klublotto.CompleteRedKontoIfVisible(ctx, br, username, password); err != nil {
+		return false, false, err
+	} else if visible {
+		submittedRedKonto = true
+		submittedRedKontoAt = time.Now()
+		fmt.Println("Submitted Rød Konto username/password; waiting for Klub Lotto session...")
+	}
+
 	if err := br.Open(ctx, klublotto.KlubLottoURL); err != nil {
 		return false, false, fmt.Errorf("open klublotto: %w", err)
 	}
 	_ = br.WaitForLoad(ctx, "domcontentloaded")
 
 	clickedLogin := false
-	submittedRedKonto := false
-	var submittedRedKontoAt time.Time
 	var lastURL string
 	deadline := time.Now().Add(90 * time.Second)
 	for time.Now().Before(deadline) {

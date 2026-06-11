@@ -95,6 +95,23 @@ func (w *Wiki) IngestQuiz(q QuizIngest) (string, error) {
 	return src, nil
 }
 
+// AppendIngestLog appends a log entry in the exact format expected by
+// scripts/sync.sh (and shown by `grep '^## \[' wiki/log.md`):
+//
+//	## [2026-06-04 04:58 UTC] ingest | quiz | Hvilket land har et flag... | outcome=submitted
+//
+// It is called by the direct game runners in cmd/klub-lotto (quiz, krydsord,
+// sudoku, ...) after they write a sources/ file + update the daily ledger.
+// This ensures `make quiz` (etc.) produce a fresh, relevant commit subject
+// instead of picking up a stale entry from a previous day.
+func AppendIngestLog(root string, when time.Time, gameKind, subject, outcome string) error {
+	if when.IsZero() {
+		when = time.Now()
+	}
+	body := fmt.Sprintf("%s | %s | outcome=%s", gameKind, trimOne(subject, 60), outcome)
+	return appendLog(root, when, "ingest", body)
+}
+
 // LogQuery records a query against the wiki. The "operations" section of
 // the LLM Wiki spec explicitly suggests filing queries back into the log
 // so explorations compound.
