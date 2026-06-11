@@ -187,3 +187,7 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-10 04:33 UTC] ingest | quiz | Hvilket grundstof har det kemiske symbol 'Fe'? | outcome=submitted
 
+## [2026-06-10 04:38 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-11 03:07 UTC] ingest | quiz | Hvilken dansk by er kendt for Jellingstenene? | outcome=submitted
+
