@@ -286,12 +286,15 @@ func writeQuizSource(cfg *config.Config, round klublotto.QuizRound, votes []llm.
 	fmt.Fprintf(&b, "# Quiz round — %s\n\n", now.Format("2006-01-02 15:04 UTC"))
 	fmt.Fprintf(&b, "## Question\n\n> %s\n\n", mdCell(round.Prompt))
 	fmt.Fprintf(&b, "## Options\n\n")
+	// Render as a bullet list with the index in a code span so GitHub doesn't
+	// re-number it as an ordered list, and mark the chosen option inline. (The
+	// old "-> N. opt" form rendered as a single mangled line on GitHub.)
 	for i, opt := range round.Options {
-		prefix := "  "
+		marker := ""
 		if i == chosen {
-			prefix = "->"
+			marker = " ← **valgt**"
 		}
-		fmt.Fprintf(&b, "%s %d. %s\n", prefix, i, opt)
+		fmt.Fprintf(&b, "- `%d` %s%s\n", i, mdCell(opt), marker)
 	}
 	fmt.Fprintf(&b, "\n## Model votes\n\n")
 	fmt.Fprintf(&b, "| provider | index | option | confidence | latency | rationale |\n|---|---|---|---|---|---|\n")

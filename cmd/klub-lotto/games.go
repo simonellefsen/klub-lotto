@@ -588,7 +588,11 @@ func runOrdknude(ctx context.Context, args []string) error {
 				finalShot := filepath.Join(cfg.DataDir, "ordknude-result-"+time.Now().UTC().Format("20060102-150405")+".png")
 				_ = br.Screenshot(ctx, finalShot)
 				fmt.Printf("\n🎉 SOLVED! Ordknuden answer: %s (attempt %d/6)\n\n", currentAnswer, currentAttempt)
-				return upsertDailyGame(ctx, cfg, "Ordknuden", "5-letter Danish word puzzle", currentAnswer, true, true, "Auto-solved by repeated real LLM-guided guesses on parent page. Screenshot: `"+finalShot+"`.")
+				notes := ordknudeGuessNotes(triedThisRun, st.History)
+				if notes == "" {
+					notes = "Auto-solved by repeated real LLM-guided guesses on parent page."
+				}
+				return upsertDailyGame(ctx, cfg, "Ordknuden", "5-letter Danish word puzzle", currentAnswer, true, true, notes)
 			}
 			// loop: next iteration will ask LLM again with the updated history+marks in the prompt
 		}
@@ -1521,6 +1525,16 @@ func runOrdKloeverProbe(ctx context.Context, cfg *config.Config, br *browser.Cli
 		return nil
 	}
 
+	var probedThisRun []string // letters probed in this session (client-side tracking)
+	// Seed from the initial vision-reported GUESSED so that letters probed in a
+	// previous session (or earlier in this game) are never forgotten even when a
+	// later vision re-extraction underreports them (e.g. drops dimmed letters like T).
+	for _, r := range []rune(klublotto.NormalizeDanishLetters(st.GuessedLetters)) {
+		if r != ' ' && r != '_' {
+			probedThisRun = append(probedThisRun, string(r))
+		}
+	}
+
 	// triedPhrases tracks every full-phrase guess we've already submitted this
 	// run (normalized) so the decision loop never wastes an attempt re-submitting
 	// an identical wrong guess.
@@ -1533,8 +1547,13 @@ func runOrdKloeverProbe(ctx context.Context, cfg *config.Config, br *browser.Cli
 		// new letters and the game reverts the tiles back to only the probed
 		// letters. If we re-extract too quickly, the animation is still running and
 		// we read the typed (wrong) phrase letters as if they were board letters.
+		// Also snapshot category/shape/hint: the post-win re-extract often returns a
+		// blank screen, which would otherwise wipe these from the ledger row.
 		prePhraseBoard := st.Board
 		preAttempts := st.Attempts
+		preCategory := st.Category
+		preShape := st.Shape
+		preHint := st.Hint
 
 		// Record this phrase so the loop never re-submits an identical wrong guess.
 		triedPhrases[klublotto.NormalizeDanishPhrase(phrase)] = true
@@ -1594,26 +1613,38 @@ func runOrdKloeverProbe(ctx context.Context, cfg *config.Config, br *browser.Cli
 			fmt.Printf("   [safeguard] re-extract reported attempts=%d (< %d before guess); restoring to %d\n",
 				next.Attempts, preAttempts, st.Attempts)
 		}
+		// The post-win re-extract usually returns a blank screen — restore the
+		// puzzle metadata so the ledger row keeps its category/shape/hint.
+		if st.Category == "" {
+			st.Category = preCategory
+		}
+		if st.Shape == "" {
+			st.Shape = preShape
+		}
+		if st.Hint == "" {
+			st.Hint = preHint
+		}
 		fmt.Printf("   After guess: Board=%s | Attempts=%d/12 | Solved=%v | Screenshot: %s\n",
 			st.Board, st.Attempts, st.Solved, shot)
 		if st.Solved || st.Attempts >= 12 || !strings.Contains(st.Board, "_") {
 			// Board empty + attempts exhausted = win animation replaced the board; treat as solved.
 			solved := st.Solved || (st.Board == "" && st.Attempts >= 12)
-			_ = upsertDailyGame(ctx, cfg, "Ordkløver", ordKloeverPrompt(st), phrase, true, solved, label+". Screenshot: `"+shot+"`.")
+			// Notes: colour-coded letter-probe sequence + shape + how it finished.
+			// Colour hits against the answer when solved, else against the board.
+			revealSrc := prePhraseBoard
+			if solved {
+				revealSrc = phrase
+			}
+			shape := st.Shape
+			if shape == "" {
+				shape = preShape
+			}
+			notes := ordKloeverNotes(shape, revealSrc, probedThisRun, label)
+			_ = upsertDailyGame(ctx, cfg, "Ordkløver", ordKloeverPrompt(st), phrase, true, solved, notes)
 			return true, nil
 		}
 		fmt.Println("   Guess was wrong; continuing...")
 		return false, nil
-	}
-
-	var probedThisRun []string // letters probed in this session (client-side tracking)
-	// Seed from the initial vision-reported GUESSED so that letters probed in a
-	// previous session (or earlier in this game) are never forgotten even when a
-	// later vision re-extraction underreports them (e.g. drops dimmed letters like T).
-	for _, r := range []rune(klublotto.NormalizeDanishLetters(st.GuessedLetters)) {
-		if r != ' ' && r != '_' {
-			probedThisRun = append(probedThisRun, string(r))
-		}
 	}
 
 	// allUsed returns all letters ever tried (site-tracked + client-side this run)
@@ -3290,6 +3321,92 @@ func extractOrdknudeAnswerFromSnap(snap string) string {
 
 func gridOneLine(g klublotto.SudokuGrid) string {
 	return strings.ReplaceAll(klublotto.FormatSudokuGrid(g), "\n", " / ")
+}
+
+// ordKloeverNotes builds the daily-ledger "Notes" cell for a finished Ordkløver
+// round: the colour-coded letter-probe sequence (🟩 = letter is in the answer,
+// 🟥 = miss), the answer shape, and how the round was finished. revealSrc is the
+// string we colour letters against — the solved answer when solved, otherwise the
+// revealed board.
+func ordKloeverNotes(shape, revealSrc string, probed []string, label string) string {
+	var parts []string
+	if seq := colourCodeOrdKloeverLetters(probed, revealSrc); seq != "" {
+		parts = append(parts, "Bogstavgæt: "+seq)
+	}
+	if shape != "" {
+		parts = append(parts, "Mønster: "+shape)
+	}
+	if label != "" {
+		parts = append(parts, label)
+	}
+	return strings.Join(parts, " · ")
+}
+
+// colourCodeOrdKloeverLetters returns the probed letters in order, de-duplicated,
+// each tagged 🟩 if it appears in revealSrc (a hit) or 🟥 if not (a miss).
+func colourCodeOrdKloeverLetters(probed []string, revealSrc string) string {
+	hit := map[rune]bool{}
+	for _, r := range []rune(klublotto.NormalizeDanishLetters(revealSrc)) {
+		hit[r] = true
+	}
+	seen := map[rune]bool{}
+	var out []string
+	for _, l := range probed {
+		l = klublotto.NormalizeDanishLetters(l)
+		if l == "" {
+			continue
+		}
+		r := []rune(l)[0]
+		if seen[r] {
+			continue
+		}
+		seen[r] = true
+		mark := "🟥"
+		if hit[r] {
+			mark = "🟩"
+		}
+		out = append(out, string(r)+mark)
+	}
+	return strings.Join(out, " ")
+}
+
+// ordknudeGuessNotes builds the daily-ledger "Notes" cell for a finished
+// Ordknuden round: the ordered guess sequence with each tile colour-coded
+// (🟩 correct, 🟨 present, 🟥 absent). Marks come from the extracted history;
+// the final winning guess defaults to all-green if history didn't capture it.
+func ordknudeGuessNotes(tried []string, history []klublotto.OrdknudeGuess) string {
+	marksByWord := map[string][]string{}
+	for _, h := range history {
+		marksByWord[klublotto.NormalizeDanishLetters(h.Word)] = h.Marks
+	}
+	var parts []string
+	for i, w := range tried {
+		w = klublotto.NormalizeDanishLetters(w)
+		sq := ordknudeMarkSquares(marksByWord[w])
+		if sq == "" && i == len(tried)-1 {
+			sq = "🟩🟩🟩🟩🟩" // winning guess — re-extract may not have caught it
+		}
+		parts = append(parts, fmt.Sprintf("%d. %s %s", i+1, w, sq))
+	}
+	if len(parts) == 0 {
+		return ""
+	}
+	return "Gæt: " + strings.Join(parts, " · ")
+}
+
+func ordknudeMarkSquares(marks []string) string {
+	var b strings.Builder
+	for _, m := range marks {
+		switch m {
+		case "correct":
+			b.WriteString("🟩")
+		case "present":
+			b.WriteString("🟨")
+		case "absent":
+			b.WriteString("🟥")
+		}
+	}
+	return b.String()
 }
 
 func ordKloeverPrompt(st klublotto.OrdKloeverState) string {
