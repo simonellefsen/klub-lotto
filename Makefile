@@ -29,6 +29,10 @@ GAME_AUTO_ANSWER_FLAG := $(if $(filter true 1 yes,$(AUTO_ANSWER)),--auto-answer)
 ORDKLOEVER_FAST   := $(or $(PROVIDER),$(provider),$(WORD_PROVIDER),openai/gpt-5.4-mini)
 ORDKLOEVER_REASON := $(or $(FINAL_PROVIDER),$(final_provider),$(ORDKLOEVER_FINAL_PROVIDER),~google/gemini-pro-latest)
 
+# Ordknuden default word model. Override with PROVIDER=/WORD_PROVIDER=/ORDKNUDE_PROVIDER=.
+ORDKNUDE_MODEL := $(or $(PROVIDER),$(provider),$(WORD_PROVIDER),$(ORDKNUDE_PROVIDER),openai/gpt-5.5)
+ORDKNUDE_PROVIDER_FLAG := --provider "$(ORDKNUDE_MODEL)"
+
 .PHONY: help build doctor login quiz quiz-dry sudoku sudoku-dry ordkloever ordkloever-dry ordkloever-extract ordkloever-probe ordknude ordknude-dry ordknude-extract krydsord krydsord-dry wiki-query wiki-lint sync clean reset \
         image deploy k8s-up k8s-down k8s-logs port-forward db-shell ui-url tidy \
         db-up db-down db-import db-port-forward
@@ -112,17 +116,17 @@ ordkloever-probe: $(BIN)
 	$(LOCAL_BROWSER_ENV) $(BIN) ordkloever --submit --probe-letters --letter-rounds "$(or $(ROUNDS),3)" $(GAME_AUTO_ANSWER_FLAG) $(GAME_PROVIDER_FLAG)
 
 ordknude-dry: $(BIN)
-	$(LOCAL_BROWSER_ENV) $(BIN) ordknude --dry-run $(GAME_PROVIDER_FLAG)
+	$(LOCAL_BROWSER_ENV) $(BIN) ordknude --dry-run $(ORDKNUDE_PROVIDER_FLAG)
 
 ordknude-extract: $(BIN)
 	$(LOCAL_BROWSER_ENV) $(BIN) ordknude --dry-run --extract-only
 
 ordknude: $(BIN)
 	@if [ -z "$(GAME_ANSWER)" ]; then \
-		echo "No pre-supplied ANSWER; auto-playing Ordknuden (propose via LLM + submit real guesses one-by-one from blank sheet until solved; permanent, no do-overs)."; \
-		$(LOCAL_BROWSER_ENV) $(BIN) ordknude $(GAME_PROVIDER_FLAG); \
+		echo "No pre-supplied ANSWER; auto-playing Ordknuden (model: $(ORDKNUDE_MODEL); propose via LLM + submit real guesses one-by-one from blank sheet until solved; permanent, no do-overs)."; \
+		$(LOCAL_BROWSER_ENV) $(BIN) ordknude $(ORDKNUDE_PROVIDER_FLAG); \
 	else \
-		$(LOCAL_BROWSER_ENV) $(BIN) ordknude --submit --answer "$(GAME_ANSWER)" $(GAME_PROVIDER_FLAG); \
+		$(LOCAL_BROWSER_ENV) $(BIN) ordknude --submit --answer "$(GAME_ANSWER)" $(ORDKNUDE_PROVIDER_FLAG); \
 	fi
 
 krydsord-dry: $(BIN)
