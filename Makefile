@@ -12,19 +12,22 @@ AGENT_BROWSER_HEADED ?= true
 # Override with: make sudoku AGENT_BROWSER_BIN=agent-browser (to use PATH version instead)
 AGENT_BROWSER_BIN ?= /Users/lindau/codex/agent-browser/cli/target/release/agent-browser
 LOCAL_BROWSER_ENV := AGENT_BROWSER_SESSION=$(AGENT_BROWSER_SESSION) AGENT_BROWSER_SESSION_NAME=$(AGENT_BROWSER_SESSION_NAME) AGENT_BROWSER_HEADED=$(AGENT_BROWSER_HEADED) AGENT_BROWSER_BIN=$(AGENT_BROWSER_BIN)
-# Optional second vision model for cross-checking Ordkløver board extraction.
-# Set OPENROUTER_VISION_MODEL to any vision-capable OpenRouter model.
-# Free choices: meta-llama/llama-3.2-11b-vision-instruct:free
-#               nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free  (omni/multimodal, may support vision)
-#               google/gemini-flash-1.5  (paid but cheap)
-# Note: nvidia/nemotron-3.5-content-safety is a text-only safety classifier — cannot do vision.
-OPENROUTER_VISION_MODEL ?= google/gemini-3.5-flash
+# Vision model for reading the Ordkløver board. A "~"-prefixed slug is a valid
+# OpenRouter floating alias (resolves to the current concrete model).
+OPENROUTER_VISION_MODEL ?= ~google/gemini-pro-latest
 GAME_ANSWER := $(or $(ANSWER),$(answer),$(SOLUTION),$(solution))
 GAME_PROVIDER := $(or $(PROVIDER),$(provider))
 GAME_PROVIDER_FLAG := $(if $(GAME_PROVIDER),--provider "$(GAME_PROVIDER)")
 GAME_FINAL_PROVIDER := $(or $(FINAL_PROVIDER),$(final_provider))
 GAME_FINAL_PROVIDER_FLAG := $(if $(GAME_FINAL_PROVIDER),--final-provider "$(GAME_FINAL_PROVIDER)")
 GAME_AUTO_ANSWER_FLAG := $(if $(filter true 1 yes,$(AUTO_ANSWER)),--auto-answer)
+
+# Ordkløver attempt-tiered models. The loop uses the FAST model while attempts
+# < 7/12, then switches in-code to the REASON model at >= 7/12 (and for the
+# final guess). Override with PROVIDER=/WORD_PROVIDER= (fast) or FINAL_PROVIDER=
+# (reason). "~author/model-latest" slugs are OpenRouter floating aliases.
+ORDKLOEVER_FAST   := $(or $(PROVIDER),$(provider),$(WORD_PROVIDER),openai/gpt-5.4-mini)
+ORDKLOEVER_REASON := $(or $(FINAL_PROVIDER),$(final_provider),$(ORDKLOEVER_FINAL_PROVIDER),~google/gemini-pro-latest)
 
 .PHONY: help build doctor login quiz quiz-dry sudoku sudoku-dry ordkloever ordkloever-dry ordkloever-extract ordkloever-probe ordknude ordknude-dry ordknude-extract krydsord krydsord-dry wiki-query wiki-lint sync clean reset \
         image deploy k8s-up k8s-down k8s-logs port-forward db-shell ui-url tidy \
@@ -99,10 +102,10 @@ ordkloever-extract: $(BIN)
 
 ordkloever: $(BIN)
 	@if [ -z "$(GAME_ANSWER)" ]; then \
-		echo "No pre-supplied ANSWER; auto-playing Ordkløver (probe letters via frame kb to reveal board + submit real phrase when confident; permanent, no do-overs)."; \
-		OPENROUTER_VISION_MODEL=$(OPENROUTER_VISION_MODEL) $(LOCAL_BROWSER_ENV) $(BIN) ordkloever --submit --probe-letters --auto-answer $(GAME_PROVIDER_FLAG) $(GAME_FINAL_PROVIDER_FLAG); \
+		echo "No pre-supplied ANSWER; auto-playing Ordkløver (fast model <7/12: $(ORDKLOEVER_FAST); reasoning model >=7/12: $(ORDKLOEVER_REASON); vision: $(OPENROUTER_VISION_MODEL))."; \
+		OPENROUTER_VISION_MODEL=$(OPENROUTER_VISION_MODEL) $(LOCAL_BROWSER_ENV) $(BIN) ordkloever --submit --probe-letters --auto-answer --provider "$(ORDKLOEVER_FAST)" --final-provider "$(ORDKLOEVER_REASON)"; \
 	else \
-		OPENROUTER_VISION_MODEL=$(OPENROUTER_VISION_MODEL) $(LOCAL_BROWSER_ENV) $(BIN) ordkloever --submit --answer "$(GAME_ANSWER)" $(GAME_PROVIDER_FLAG); \
+		OPENROUTER_VISION_MODEL=$(OPENROUTER_VISION_MODEL) $(LOCAL_BROWSER_ENV) $(BIN) ordkloever --submit --answer "$(GAME_ANSWER)" --provider "$(ORDKLOEVER_FAST)"; \
 	fi
 
 ordkloever-probe: $(BIN)

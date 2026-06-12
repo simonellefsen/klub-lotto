@@ -1443,7 +1443,32 @@ Regler for dit svar:
 	return OrdKloeverDecision{}, fmt.Errorf("all decision attempts failed: %w", lastErr)
 }
 
+// ordKloeverReasoningAttempts is the attempts-used threshold (out of 12) at
+// which the Ordkløver loop switches from the fast word model to the heavier
+// reasoning model. Below it we favour speed; at/after it we favour accuracy
+// because every remaining guess is precious.
+const ordKloeverReasoningAttempts = 7
+
 func runOrdKloeverProbe(ctx context.Context, cfg *config.Config, br *browser.Client, st klublotto.OrdKloeverState, ac llm.VisionProvider, provider, finalProvider string, cands []klublotto.WordCandidate, dry bool, _ int, _ bool) error {
+	// Attempt-tiered word/decision model: the fast `provider` while we still have
+	// plenty of attempts, switching to the heavier reasoning `finalProvider` once
+	// we've used ordKloeverReasoningAttempts (7/12) or more. activeProvider reads
+	// st.Attempts at call time, so it tracks the live attempt count each round.
+	lastTier := ""
+	activeProvider := func() string {
+		p := provider
+		tier := "fast"
+		if finalProvider != "" && st.Attempts >= ordKloeverReasoningAttempts {
+			p = finalProvider
+			tier = "reasoning"
+		}
+		if tier != lastTier {
+			fmt.Printf("   [model] %s tier @ %d/12 → %s\n", tier, st.Attempts, p)
+			lastTier = tier
+		}
+		return p
+	}
+
 	// Ensure we're on the Ordkløver parent page.
 	curURL, _ := br.URL(ctx)
 	if !strings.Contains(curURL, "danskespil.dk") || !strings.Contains(curURL, "ordkloever") {
@@ -1678,7 +1703,7 @@ func runOrdKloeverProbe(ctx context.Context, cfg *config.Config, br *browser.Cli
 		letters := klublotto.SuggestOrdKloeverLetters(cands, effGuessed, firstCount)
 		if len(letters) == 0 {
 			// Candidates empty — ask LLM directly.
-			if ll, err := askOrdKloeverProbeLetters(ctx, cfg, provider, st, firstCount, effGuessed); err == nil && len(ll) > 0 {
+			if ll, err := askOrdKloeverProbeLetters(ctx, cfg, activeProvider(), st, firstCount, effGuessed); err == nil && len(ll) > 0 {
 				letters = ll
 			}
 		}
@@ -1702,7 +1727,7 @@ func runOrdKloeverProbe(ctx context.Context, cfg *config.Config, br *browser.Cli
 			for missRound := 1; missRound <= maxMissRounds && !klublotto.BoardHasHit(st.Board, probedThisRun) && st.Attempts < 12; missRound++ {
 				fmt.Printf("[phase-1 miss %d/%d] no letters revealed yet; asking LLM for 2 more probe letters...\n", missRound, maxMissRounds)
 				used := allUsed()
-				more, err := askOrdKloeverProbeLetters(ctx, cfg, provider, st, 2, used)
+				more, err := askOrdKloeverProbeLetters(ctx, cfg, activeProvider(), st, 2, used)
 				if err != nil || len(more) == 0 {
 					fmt.Printf("   letter suggestion failed: %v; moving to phase 2\n", err)
 					break
@@ -1747,7 +1772,7 @@ func runOrdKloeverProbe(ctx context.Context, cfg *config.Config, br *browser.Cli
 		}
 
 		used := allUsed()
-		decision, err := askOrdKloeverDecision(ctx, cfg, provider, st, used, cands)
+		decision, err := askOrdKloeverDecision(ctx, cfg, activeProvider(), st, used, cands)
 		if err != nil {
 			fmt.Printf("   decision LLM failed (%v); falling back to top candidate\n", err)
 			break
@@ -1830,7 +1855,7 @@ func runOrdKloeverProbe(ctx context.Context, cfg *config.Config, br *browser.Cli
 		letters := decision.Letters
 		if len(letters) == 0 {
 			fmt.Printf("   probe action but no letters returned; asking again (max %d)...\n", maxProbe)
-			if ll, err2 := askOrdKloeverProbeLetters(ctx, cfg, provider, st, maxProbe, used); err2 == nil {
+			if ll, err2 := askOrdKloeverProbeLetters(ctx, cfg, activeProvider(), st, maxProbe, used); err2 == nil {
 				letters = ll
 			}
 		}
@@ -3379,10 +3404,21 @@ func ordknudeGuessNotes(tried []string, history []klublotto.OrdknudeGuess) strin
 	for _, h := range history {
 		marksByWord[klublotto.NormalizeDanishLetters(h.Word)] = h.Marks
 	}
+	// The last guess is the solved answer; we can reconstruct marks for any guess
+	// whose tile state didn't survive in the extracted history by scoring it
+	// against that answer (standard Wordle rules with duplicate handling).
+	answer := ""
+	if len(tried) > 0 {
+		answer = klublotto.NormalizeDanishLetters(tried[len(tried)-1])
+	}
 	var parts []string
 	for i, w := range tried {
 		w = klublotto.NormalizeDanishLetters(w)
-		sq := ordknudeMarkSquares(marksByWord[w])
+		marks := marksByWord[w]
+		if len(marks) != 5 {
+			marks = scoreOrdknudeGuess(w, answer)
+		}
+		sq := ordknudeMarkSquares(marks)
 		if sq == "" && i == len(tried)-1 {
 			sq = "🟩🟩🟩🟩🟩" // winning guess — re-extract may not have caught it
 		}
@@ -3392,6 +3428,39 @@ func ordknudeGuessNotes(tried []string, history []klublotto.OrdknudeGuess) strin
 		return ""
 	}
 	return "Gæt: " + strings.Join(parts, " · ")
+}
+
+// scoreOrdknudeGuess marks a 5-letter guess against the known answer using
+// Wordle rules: exact matches are "correct", remaining letters that exist
+// elsewhere (each answer letter consumed once) are "present", the rest "absent".
+func scoreOrdknudeGuess(guess, answer string) []string {
+	g := []rune(klublotto.NormalizeDanishLetters(guess))
+	a := []rune(klublotto.NormalizeDanishLetters(answer))
+	if len(g) != 5 || len(a) != 5 {
+		return nil
+	}
+	marks := make([]string, 5)
+	used := make([]bool, 5)
+	for i := 0; i < 5; i++ {
+		if g[i] == a[i] {
+			marks[i] = "correct"
+			used[i] = true
+		}
+	}
+	for i := 0; i < 5; i++ {
+		if marks[i] != "" {
+			continue
+		}
+		marks[i] = "absent"
+		for j := 0; j < 5; j++ {
+			if !used[j] && g[i] == a[j] {
+				marks[i] = "present"
+				used[j] = true
+				break
+			}
+		}
+	}
+	return marks
 }
 
 func ordknudeMarkSquares(marks []string) string {
