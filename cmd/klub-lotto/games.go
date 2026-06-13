@@ -784,6 +784,14 @@ func runKrydsord(ctx context.Context, args []string) error {
 	if err != nil {
 		return err
 	}
+
+	// ── Stage 2: solve from a validated graph — no browser/vision needed ──────────
+	// Uses --graph-file or the latest `make krydsord-graph` output, builds the CSP
+	// deterministically, and solves. Done before opening any browser.
+	if *solveOnly {
+		return solveKrydsord(ctx, cfg, *graphFile, *providerFlag, *learnFlag)
+	}
+
 	br := gameBrowser(cfg, *headlessFlag)
 	restartHeadedSession(ctx, br)
 
@@ -803,9 +811,6 @@ func runKrydsord(ctx context.Context, args []string) error {
 	// mask/solve), so stage 1 never leaves danskespil.dk.
 	if *graphOnly {
 		return deconstructKrydsord(ctx, cfg, br)
-	}
-	if *solveOnly {
-		return solveKrydsord(ctx, cfg, br, *graphFile, *providerFlag, *learnFlag)
 	}
 
 	fmt.Println("[2/4] extracting iframe API data...")
@@ -1202,27 +1207,48 @@ func (csp krydsordCSP) crossingCount() int {
 	return n
 }
 
-// solveKrydsord runs stage 2: obtain the clue graph (from --graph-file or a fresh
-// vision deconstruction), compute the crossings, and ask the reasoning word model
-// to solve every clue in Danish using those crossings. Prints the answers; does
-// not submit.
-func solveKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, graphFile, provider string, learn bool) error {
-	var graphJSON string
-	if strings.TrimSpace(graphFile) != "" {
-		b, err := os.ReadFile(graphFile)
+// latestKrydsordGraph returns the most recently saved stage-1 clue graph in dir
+// (krydsord-graph-*.json, written by `make krydsord-graph`), or an error telling
+// the user to produce one first.
+func latestKrydsordGraph(dir string) (string, error) {
+	matches, _ := filepath.Glob(filepath.Join(dir, "krydsord-graph-*.json"))
+	var newest string
+	var newestT time.Time
+	for _, m := range matches {
+		fi, err := os.Stat(m)
 		if err != nil {
-			return fmt.Errorf("read --graph-file %s: %w", graphFile, err)
+			continue
 		}
-		graphJSON = klublotto.ExtractJSONObject(string(b))
-		fmt.Printf("[solve] using graph from %s\n", graphFile)
-	} else {
-		fmt.Println("[solve] stage 1: deconstructing crossword into a clue graph...")
-		g, err := krydsordGraphJSON(ctx, cfg, br)
-		if err != nil {
-			return fmt.Errorf("krydsord --solve: stage 1: %w", err)
+		if fi.ModTime().After(newestT) {
+			newestT, newest = fi.ModTime(), m
 		}
-		graphJSON = g
 	}
+	if newest == "" {
+		return "", fmt.Errorf("no saved clue graph in %s — run `make krydsord-graph` first, verify the printed graph is correct, then run `make krydsord-solve` (or pass GRAPH_FILE=path to a known-good graph)", dir)
+	}
+	return newest, nil
+}
+
+// solveKrydsord runs stage 2 from a PREVIOUSLY-VALIDATED clue graph. Vision
+// deconstruction (stage 1) is non-deterministic, so we never re-roll it here:
+// solve loads the graph from --graph-file, or the most recent one saved by
+// `make krydsord-graph`, builds the CSP deterministically (no AI), and asks the
+// reasoning model to fill it in. Prints the answers + a CSP validation report;
+// does not submit.
+func solveKrydsord(ctx context.Context, cfg *config.Config, graphFile, provider string, learn bool) error {
+	if strings.TrimSpace(graphFile) == "" {
+		latest, err := latestKrydsordGraph(cfg.DataDir)
+		if err != nil {
+			return fmt.Errorf("krydsord --solve: %w", err)
+		}
+		graphFile = latest
+	}
+	b, err := os.ReadFile(graphFile)
+	if err != nil {
+		return fmt.Errorf("read graph %s: %w", graphFile, err)
+	}
+	graphJSON := klublotto.ExtractJSONObject(string(b))
+	fmt.Printf("[solve] using validated graph: %s\n", graphFile)
 
 	var g krydsordGraph
 	if err := json.Unmarshal([]byte(graphJSON), &g); err != nil {
