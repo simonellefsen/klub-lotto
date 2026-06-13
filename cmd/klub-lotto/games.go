@@ -1143,43 +1143,63 @@ type krydsordGraph struct {
 	Down   []krydsordGraphClue `json:"Down"`
 }
 
-// computeKrydsordCrossings derives every shared-cell constraint between an Across
-// and a Down answer: at the crossing, the across answer's k-th letter must equal
-// the down answer's m-th letter. Returns human-readable lines using A1.. / D1..
-// ids that match the labelled clue lists in the solve prompt.
-func computeKrydsordCrossings(g krydsordGraph) []string {
-	cell := func(c krydsordGraphClue) (r, col int, ok bool) {
-		if len(c.Start) != 2 {
-			return 0, 0, false
+// krydsordCSP is the flattened constraint-satisfaction view of the crossword:
+// every entry's exact cells plus, per cell, which (entry:position) pairs share
+// it. Shared cells (>1 member) ARE the crossings — letters there must match.
+// Handing this to the solver removes all geometry inference; it can focus on
+// language + crossings, where LLMs are strongest.
+type krydsordCSP struct {
+	Language string                      `json:"language"`
+	Entries  map[string]krydsordCSPEntry `json:"entries"`
+	Cells    map[string][]string         `json:"cells"`
+}
+
+type krydsordCSPEntry struct {
+	Clue   string   `json:"clue"`
+	Length int      `json:"length"`
+	Cells  []string `json:"cells"`
+}
+
+// buildKrydsordCSP flattens the clue graph into the CSP structure. Cell ids are
+// "r<row>c<col>" (1-indexed); membership entries are "<EntryID>:<position>" with
+// position 1-indexed (letter 1 = first cell of the answer).
+func buildKrydsordCSP(g krydsordGraph) krydsordCSP {
+	csp := krydsordCSP{Language: "da", Entries: map[string]krydsordCSPEntry{}, Cells: map[string][]string{}}
+	add := func(id, clue string, length, r, c int, down bool) {
+		e := krydsordCSPEntry{Clue: clue, Length: length}
+		for k := 0; k < length; k++ {
+			rr, cc := r, c+k
+			if down {
+				rr, cc = r+k, c
+			}
+			cid := fmt.Sprintf("r%dc%d", rr, cc)
+			e.Cells = append(e.Cells, cid)
+			csp.Cells[cid] = append(csp.Cells[cid], fmt.Sprintf("%s:%d", id, k+1))
 		}
-		return c.Start[0], c.Start[1], true
+		csp.Entries[id] = e
 	}
-	var lines []string
-	for ai, a := range g.Across {
-		ar, ac, ok := cell(a)
-		if !ok {
-			continue
-		}
-		for di, d := range g.Down {
-			dr, dc, ok := cell(d)
-			if !ok {
-				continue
-			}
-			// Across spans row ar, cols [ac, ac+aLen-1]; Down spans col dc,
-			// rows [dr, dr+dLen-1]. They cross at (ar, dc) if it lies in both.
-			if dc < ac || dc > ac+a.Length-1 {
-				continue
-			}
-			if ar < dr || ar > dr+d.Length-1 {
-				continue
-			}
-			acrossPos := dc - ac
-			downPos := ar - dr
-			lines = append(lines, fmt.Sprintf("A%d \"%s\" bogstav %d = D%d \"%s\" bogstav %d",
-				ai+1, a.Clue, acrossPos+1, di+1, d.Clue, downPos+1))
+	for i, a := range g.Across {
+		if len(a.Start) == 2 && a.Length > 0 {
+			add(fmt.Sprintf("A%d", i+1), a.Clue, a.Length, a.Start[0], a.Start[1], false)
 		}
 	}
-	return lines
+	for i, d := range g.Down {
+		if len(d.Start) == 2 && d.Length > 0 {
+			add(fmt.Sprintf("D%d", i+1), d.Clue, d.Length, d.Start[0], d.Start[1], true)
+		}
+	}
+	return csp
+}
+
+// crossingCount returns the number of cells shared by two or more entries.
+func (csp krydsordCSP) crossingCount() int {
+	n := 0
+	for _, members := range csp.Cells {
+		if len(members) >= 2 {
+			n++
+		}
+	}
+	return n
 }
 
 // solveKrydsord runs stage 2: obtain the clue graph (from --graph-file or a fresh
@@ -1211,8 +1231,10 @@ func solveKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, 
 	if len(g.Across)+len(g.Down) == 0 {
 		return fmt.Errorf("krydsord --solve: graph has no clues")
 	}
-	crossings := computeKrydsordCrossings(g)
-	fmt.Printf("[solve] %d across, %d down, %d crossings\n", len(g.Across), len(g.Down), len(crossings))
+	csp := buildKrydsordCSP(g)
+	cspJSON, _ := json.MarshalIndent(csp, "", "  ")
+	_ = os.WriteFile(filepath.Join(cfg.DataDir, "krydsord-csp.json"), append(cspJSON, '\n'), 0o644)
+	fmt.Printf("[solve] %d across, %d down, %d crossings (CSP)\n", len(g.Across), len(g.Down), csp.crossingCount())
 
 	// Our own learned clue dictionary: feed any entries whose clue is in today's
 	// puzzle into the prompt as preferred answers.
@@ -1241,7 +1263,7 @@ func solveKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, 
 		or.MaxTokens = 20000
 	}
 	fmt.Printf("   [solve] model: %s\n", p.Name())
-	prompt := buildKrydsordSolvePrompt(g, crossings, dictLines)
+	prompt := buildKrydsordSolvePrompt(string(cspJSON), dictLines)
 	_ = os.WriteFile(filepath.Join(cfg.DataDir, "krydsord-solve-prompt.txt"), []byte(prompt), 0o644)
 
 	// Try a few times: the empty-content failure mode above is intermittent, so a
@@ -1326,11 +1348,11 @@ const krydsordClueHints = `TYPISKE KRYDSORD-TRICKS (skandinavisk krydsord — br
 - Udråb: AH, OH, AV, HØ, FY, NÅ, ØV.
 - Engelske ledetråde kan forekomme (fx SMALL, LARGE); oversæt til det danske svar (SMALL→LILLE/S, LARGE→STOR/L) medmindre svaret tydeligvis er en forkortelse.`
 
-// buildKrydsordSolvePrompt assembles the stage-2 solving prompt: the labelled
-// clue lists, common clue-convention hints, the deterministic crossing
-// constraints, and the solve instructions — all framed as a Danish crossword
-// that must use Den Danske Ordbog.
-func buildKrydsordSolvePrompt(g krydsordGraph, crossings, dictLines []string) string {
+// buildKrydsordSolvePrompt assembles the stage-2 solving prompt: convention
+// hints, learned-dictionary answers, and the flattened CSP structure (entries +
+// shared cells). The CSP gives the model exact geometry and crossings so it can
+// focus purely on language — framed as a Danish crossword using Den Danske Ordbog.
+func buildKrydsordSolvePrompt(cspJSON string, dictLines []string) string {
 	var b strings.Builder
 	b.WriteString("Du løser et DANSK skandinavisk krydsord (clue-square crossword).\n")
 	b.WriteString("Alle svar er danske ord/udtryk og SKAL findes i Den Danske Ordbog (ordnet.dk/ddo). Ingen svenske/norske/engelske former.\n\n")
@@ -1343,30 +1365,24 @@ func buildKrydsordSolvePrompt(g krydsordGraph, crossings, dictLines []string) st
 		b.WriteString("\n")
 	}
 
-	b.WriteString("VANDRETTE (Across):\n")
-	for i, a := range g.Across {
-		fmt.Fprintf(&b, "A%d: \"%s\" — %d bogstaver\n", i+1, a.Clue, a.Length)
-	}
-	b.WriteString("\nLODRETTE (Down):\n")
-	for i, d := range g.Down {
-		fmt.Fprintf(&b, "D%d: \"%s\" — %d bogstaver\n", i+1, d.Clue, d.Length)
-	}
+	b.WriteString(`Krydsordet er fladet ud som en CSP-struktur (JSON nedenfor):
+- "entries": hver post (A* = vandret, D* = lodret) har "clue", "length" og "cells" — de celler posten fylder i rækkefølge. Celle nr. k i listen svarer til bogstav nr. k i svaret.
+- "cells": for hver celle, listen af "POST:position" der deler cellen. Når en celle deles af flere poster, SKAL bogstavet være IDENTISK på de positioner (det er en krydsning).
 
-	if len(crossings) > 0 {
-		b.WriteString("\nKRYDSNINGER (delte celler — bogstaverne SKAL stemme nøjagtigt):\n")
-		for _, c := range crossings {
-			b.WriteString("- " + c + "\n")
-		}
-	}
-
+CSP:
+`)
+	b.WriteString(cspJSON)
 	b.WriteString(`
-Løs krydsordet. Brug ALLE krydsninger ovenfor til at bekræfte hvert bogstav.
-Hvis flere svar passer en ledetråd, behold alternativer indtil krydsningerne udelukker dem.
-Tjek til sidst at hvert krydsende bogstavpar stemmer.
+
+Opgave:
+- Find det danske svar til hver post med præcis den angivne længde.
+- Alle krydsninger SKAL passe: en delt celle har samme bogstav i begge poster.
+- Hvis flere svar passer en ledetråd, behold alternativer indtil krydsningerne udelukker dem.
+- Til sidst: gennemgå hver delt celle og bekræft at bogstaverne stemmer.
 
 Returner KUN JSON i dette format (ingen anden tekst):
 {"answers":[{"id":"A1","clue":"...","answer":"SVAR","confidence":"high|medium|low"}]}
-- "answer" skal være med STORE bogstaver, kun danske bogstaver (A-Z, Æ, Ø, Å), og have præcis det angivne antal bogstaver.
+- "answer" skal være med STORE bogstaver, kun danske bogstaver (A-Z, Æ, Ø, Å), og have præcis "length" bogstaver.
 `)
 	return b.String()
 }
