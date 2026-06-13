@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"sort"
@@ -424,6 +425,23 @@ func runOrdknude(ctx context.Context, args []string) error {
 		attemptsThisRun := 0
 		lastSubmittedAnswer := "" // tracks the most recent word submitted (for end-of-game recording)
 		triedThisRun := []string{} // words submitted in this run (guards against re-suggest when re-extract fails)
+		// pool holds DDO-valid candidates from the most recent LLM call that we
+		// haven't tried yet. We reuse it across wrong guesses — picking another at
+		// random and re-querying the LLM only when the pool is empty — so a tightly
+		// constrained board (e.g. only one letter unknown) doesn't pay for a fresh
+		// LLM round on every attempt.
+		var pool []klublotto.WordCandidate
+		// prunePool drops tried/rejected/invalid words and any no longer consistent
+		// with the observed marks (a wrong guess tightens the constraints).
+		prunePool := func(in []klublotto.WordCandidate) []klublotto.WordCandidate {
+			var out []klublotto.WordCandidate
+			for _, c := range filterOrdknudeCandidates(in, st, rejected) {
+				if klublotto.ConsistentWithOrdknudeHistory(c.Answer, st.History) {
+					out = append(out, c)
+				}
+			}
+			return out
+		}
 		maxForDay := st.Remaining
 		if maxForDay <= 0 || maxForDay > 6 {
 			maxForDay = 6
@@ -443,47 +461,69 @@ func runOrdknude(ctx context.Context, args []string) error {
 			if histLen := len(st.History) + 1; histLen > currentAttempt {
 				currentAttempt = histLen // trust history when it's longer
 			}
-			fmt.Printf("[3/4] asking provider for best next guess (attempt %d/6)...\n", currentAttempt)
-			cands, err := wordCandidates(ctx, cfg, *providerFlag, klublotto.BuildOrdknudePrompt(st, rejected))
+			// Prune any leftover pool against the now-current constraints before
+			// deciding whether we still need to ask the LLM.
+			pool = prunePool(pool)
 			currentAnswer := ""
-			if err != nil {
-				if fb := klublotto.FallbackOrdknudeGuess(st.History, rejected); fb != "" {
-					fmt.Printf("   provider failed (%v), falling back to local guess: %s\n", err, fb)
-					currentAnswer = fb
-					fmt.Printf("   -> trying fallback %s\n", currentAnswer)
-				} else {
-					return fmt.Errorf("get next guess (attempt %d): %w", currentAttempt, err)
-				}
+			if len(pool) > 0 {
+				// Reuse the existing pool — no new LLM call needed. Pick at random.
+				idx := rand.Intn(len(pool))
+				pick := pool[idx]
+				pool = append(pool[:idx], pool[idx+1:]...)
+				currentAnswer = klublotto.NormalizeDanishLetters(pick.Answer)
+				fmt.Printf("   -> trying %s (from pool; %d candidate(s) left, no LLM call)\n", currentAnswer, len(pool))
 			} else {
-				// Filter: remove non-5-letter, already-tried, rejected, and duplicates within the batch.
-				beforeDDO := filterOrdknudeCandidates(cands, st, rejected)
-				cands = beforeDDO
-				// Validate remaining candidates against ordnet.dk/ddo (drop non-Danish words).
-				if len(cands) > 0 {
-					ddoCtx, ddoCancel := context.WithTimeout(ctx, 30*time.Second)
-					cands = klublotto.FilterDDOWords(ddoCtx, cands)
-					ddoCancel()
-				}
-				if len(cands) == 0 {
-					// Add DDO-dropped words to rejected so the LLM doesn't re-suggest them.
-					for _, c := range beforeDDO {
-						w := klublotto.NormalizeDanishLetters(c.Answer)
-						if !containsWord(rejected, w) {
-							rejected = append(rejected, w)
-						}
-					}
+				fmt.Printf("[3/4] asking provider for candidates (attempt %d/6)...\n", currentAttempt)
+				cands, err := wordCandidates(ctx, cfg, *providerFlag, klublotto.BuildOrdknudePrompt(st, rejected))
+				if err != nil {
 					if fb := klublotto.FallbackOrdknudeGuess(st.History, rejected); fb != "" {
-						fmt.Printf("   provider gave no valid candidates, falling back to local guess: %s\n", fb)
+						fmt.Printf("   provider failed (%v), falling back to local guess: %s\n", err, fb)
 						currentAnswer = fb
 						fmt.Printf("   -> trying fallback %s\n", currentAnswer)
 					} else {
-						fmt.Printf("   all candidates dropped by DDO — retrying LLM for new suggestions...\n")
-						continue
+						return fmt.Errorf("get next guess (attempt %d): %w", currentAttempt, err)
 					}
 				} else {
-					printCandidates(cands)
-					currentAnswer = klublotto.NormalizeDanishLetters(cands[0].Answer)
-					fmt.Printf("   -> trying %s (%s) — %s\n", currentAnswer, cands[0].Confidence, cands[0].Rationale)
+					// Filter: remove non-5-letter, already-tried, rejected, and duplicates within the batch.
+					beforeDDO := filterOrdknudeCandidates(cands, st, rejected)
+					// Validate remaining candidates against ordnet.dk/ddo (drop non-Danish words).
+					validated := beforeDDO
+					if len(validated) > 0 {
+						ddoCtx, ddoCancel := context.WithTimeout(ctx, 30*time.Second)
+						validated = klublotto.FilterDDOWords(ddoCtx, validated)
+						ddoCancel()
+					}
+					if len(validated) == 0 {
+						// Add DDO-dropped words to rejected so the LLM doesn't re-suggest them.
+						for _, c := range beforeDDO {
+							w := klublotto.NormalizeDanishLetters(c.Answer)
+							if !containsWord(rejected, w) {
+								rejected = append(rejected, w)
+							}
+						}
+						if fb := klublotto.FallbackOrdknudeGuess(st.History, rejected); fb != "" {
+							fmt.Printf("   provider gave no valid candidates, falling back to local guess: %s\n", fb)
+							currentAnswer = fb
+							fmt.Printf("   -> trying fallback %s\n", currentAnswer)
+						} else {
+							fmt.Printf("   all candidates dropped by DDO — retrying LLM for new suggestions...\n")
+							continue
+						}
+					} else {
+						// Keep only constraint-consistent words as the reusable pool.
+						// If that over-prunes (e.g. a mark was mis-read), fall back to
+						// the full DDO-valid set rather than discarding everything.
+						pool = prunePool(validated)
+						if len(pool) == 0 {
+							pool = validated
+						}
+						printCandidates(pool)
+						idx := rand.Intn(len(pool))
+						pick := pool[idx]
+						pool = append(pool[:idx], pool[idx+1:]...)
+						currentAnswer = klublotto.NormalizeDanishLetters(pick.Answer)
+						fmt.Printf("   -> trying %s (%s) — %s\n", currentAnswer, pick.Confidence, pick.Rationale)
+					}
 				}
 			}
 

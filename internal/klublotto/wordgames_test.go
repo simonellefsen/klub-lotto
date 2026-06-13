@@ -57,6 +57,25 @@ func TestParseCandidateJSONStringArray(t *testing.T) {
 	}
 }
 
+func TestConsistentWithOrdknudeHistory(t *testing.T) {
+	// Board after TRANE (..present,correct) and VINDE (absent,correct×4): _INDE
+	// with I,N,D,E locked and A,R,T,V gray.
+	history := []OrdknudeGuess{
+		{Word: "TRANE", Marks: []string{"absent", "absent", "absent", "present", "correct"}},
+		{Word: "VINDE", Marks: []string{"absent", "correct", "correct", "correct", "correct"}},
+	}
+	for _, w := range []string{"BINDE", "FINDE", "HINDE", "KINDE", "MINDE", "PINDE", "LINDE"} {
+		if !ConsistentWithOrdknudeHistory(w, history) {
+			t.Errorf("%s should be consistent with _INDE constraints", w)
+		}
+	}
+	for _, w := range []string{"TINDE", "RINDE", "VINDE"} { // contain a gray letter (or V proven absent)
+		if ConsistentWithOrdknudeHistory(w, history) {
+			t.Errorf("%s should be rejected by the constraints", w)
+		}
+	}
+}
+
 func TestPhraseMatchesLengthPattern(t *testing.T) {
 	if !PhraseMatchesLengthPattern("DET ER EN SANGBOG", "3 / 2 / 2 / 7") {
 		t.Fatal("expected phrase to match Danish word-length pattern")

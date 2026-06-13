@@ -2719,6 +2719,25 @@ func validOrdknudeGuess(word string, history []OrdknudeGuess, rejected []string)
 	return true
 }
 
+// ConsistentWithOrdknudeHistory reports whether word could still be the secret
+// given every prior guess and its observed marks (the standard Wordle filter:
+// the candidate, scored as if it were the answer, must reproduce each guess's
+// colours). Used to prune a reusable candidate pool after a wrong guess without
+// re-querying the LLM. It does NOT check tried/rejected — pair it with
+// filterOrdknudeCandidates for that.
+func ConsistentWithOrdknudeHistory(word string, history []OrdknudeGuess) bool {
+	word = NormalizeDanishLetters(word)
+	if !IsDanishFiveLetterWord(word) {
+		return false
+	}
+	for _, h := range history {
+		if !sameMarks(scoreOrdknudeGuess(word, NormalizeDanishLetters(h.Word)), h.Marks) {
+			return false
+		}
+	}
+	return true
+}
+
 func usedOrdknudeWord(word string, history []OrdknudeGuess, rejected []string) bool {
 	for _, h := range history {
 		if h.Word == word {
