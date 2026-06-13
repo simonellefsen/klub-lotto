@@ -2181,18 +2181,66 @@ func parseSudokuSnapshotRefs(snap string) (cellRefs [81]string, numRefs map[stri
 	}
 	copy(cellRefs[:], allRefs[:81])
 
-	// Isolate the control-panel section: everything after the 81st cell ref in
-	// the snapshot text. This ensures FindRefByChildText only matches real
-	// number buttons, not cells with the same digit as their value.
-	lastCellRef := strings.TrimPrefix(allRefs[80], "@") // e.g. "e178"
-	controlSection := snap
-	if idx := strings.Index(snap, "[ref="+lastCellRef+"]"); idx >= 0 {
-		controlSection = snap[idx:]
+	// Number buttons (1–9): the current agent-browser output exposes their digit
+	// as an INLINE name (`- generic "5" [ref=eXX] clickable`), exactly like a
+	// filled cell — so a child-StaticText match (FindRefByChildText) finds none.
+	// Identify them by a single-digit inline name on a ref that is NOT one of the
+	// 81 grid cells (cells carry the same inline digit but are excluded by ref).
+	cellSet := map[string]bool{}
+	for _, r := range allRefs[:81] {
+		cellSet[r] = true
 	}
-	for n := 1; n <= 9; n++ {
-		ns := strconv.Itoa(n)
-		if ref := klublotto.FindRefByChildText(controlSection, ns); ref != "" {
-			numRefs[ns] = ref
+	iframeSection := snap
+	if idx := strings.Index(snap, "Iframe [ref="); idx >= 0 {
+		iframeSection = snap[idx:]
+	}
+	for _, line := range strings.Split(iframeSection, "\n") {
+		trimmed := strings.TrimPrefix(strings.TrimSpace(line), "- ")
+		if !strings.HasPrefix(trimmed, "generic ") || !strings.Contains(trimmed, "[ref=e") {
+			continue
+		}
+		q1 := strings.IndexByte(trimmed, '"')
+		if q1 < 0 {
+			continue
+		}
+		q2 := strings.IndexByte(trimmed[q1+1:], '"')
+		if q2 < 0 {
+			continue
+		}
+		name := trimmed[q1+1 : q1+1+q2]
+		if len(name) != 1 || name[0] < '1' || name[0] > '9' {
+			continue
+		}
+		refStart := strings.Index(trimmed, "[ref=")
+		refEnd := strings.Index(trimmed[refStart:], "]")
+		if refEnd < 0 {
+			continue
+		}
+		ref := "@" + trimmed[refStart+len("[ref="):refStart+refEnd]
+		if cellSet[ref] {
+			continue
+		}
+		if _, ok := numRefs[name]; !ok {
+			numRefs[name] = ref
+		}
+	}
+
+	// Fallback for agent-browser builds that render buttons with a child
+	// StaticText instead of an inline name.
+	if len(numRefs) < 9 {
+		lastCellRef := strings.TrimPrefix(allRefs[80], "@")
+		controlSection := snap
+		if idx := strings.Index(snap, "[ref="+lastCellRef+"]"); idx >= 0 {
+			controlSection = snap[idx:]
+		}
+		for n := 1; n <= 9; n++ {
+			ns := strconv.Itoa(n)
+			if _, ok := numRefs[ns]; ok {
+				continue
+			}
+			if ref := klublotto.FindRefByChildText(controlSection, ns); ref != "" {
+				numRefs[ns] = ref
+			}
 		}
 	}
 
