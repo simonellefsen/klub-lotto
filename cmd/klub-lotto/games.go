@@ -773,6 +773,7 @@ func runKrydsord(ctx context.Context, args []string) error {
 	graphOnly := fs.Bool("graph", false, "stage 1 only: ask the vision LLM to deconstruct the crossword into a clue graph (JSON) and exit — does not solve or submit")
 	solveOnly := fs.Bool("solve", false, "stage 2: deconstruct (or load --graph-file) then solve every clue via the reasoning model using computed crossings; prints answers, does not submit")
 	graphFile := fs.String("graph-file", "", "path to a stage-1 clue-graph JSON to solve (with --solve); if empty, --solve deconstructs fresh via vision")
+	learnFlag := fs.Bool("learn", false, "with --solve: merge this run's clue→answer pairs into the learned dictionary (wiki/concepts/krydsord-clues.json)")
 	providerFlag := fs.String("provider", "", "word provider for clue candidates: gemini|openai|xai|anthropic|openrouter")
 	headlessFlag := fs.Bool("headless", false, "force headless browser")
 	if err := fs.Parse(args); err != nil {
@@ -804,7 +805,7 @@ func runKrydsord(ctx context.Context, args []string) error {
 		return deconstructKrydsord(ctx, cfg, br)
 	}
 	if *solveOnly {
-		return solveKrydsord(ctx, cfg, br, *graphFile, *providerFlag)
+		return solveKrydsord(ctx, cfg, br, *graphFile, *providerFlag, *learnFlag)
 	}
 
 	fmt.Println("[2/4] extracting iframe API data...")
@@ -1185,7 +1186,7 @@ func computeKrydsordCrossings(g krydsordGraph) []string {
 // vision deconstruction), compute the crossings, and ask the reasoning word model
 // to solve every clue in Danish using those crossings. Prints the answers; does
 // not submit.
-func solveKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, graphFile, provider string) error {
+func solveKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, graphFile, provider string, learn bool) error {
 	var graphJSON string
 	if strings.TrimSpace(graphFile) != "" {
 		b, err := os.ReadFile(graphFile)
@@ -1213,12 +1214,28 @@ func solveKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, 
 	crossings := computeKrydsordCrossings(g)
 	fmt.Printf("[solve] %d across, %d down, %d crossings\n", len(g.Across), len(g.Down), len(crossings))
 
+	// Our own learned clue dictionary: feed any entries whose clue is in today's
+	// puzzle into the prompt as preferred answers.
+	dictPath := filepath.Join(wikiRoot(), "concepts", "krydsord-clues.json")
+	dict := klublotto.LoadKrydsordDict(dictPath)
+	var clueTexts []string
+	for _, c := range g.Across {
+		clueTexts = append(clueTexts, c.Clue)
+	}
+	for _, c := range g.Down {
+		clueTexts = append(clueTexts, c.Clue)
+	}
+	dictLines := dict.MatchingLines(clueTexts)
+	if len(dictLines) > 0 {
+		fmt.Printf("[solve] %d clue(s) matched the learned dictionary\n", len(dictLines))
+	}
+
 	p, err := wordProvider(cfg, provider)
 	if err != nil {
 		return err
 	}
 	fmt.Printf("   [solve] model: %s\n", p.Name())
-	prompt := buildKrydsordSolvePrompt(g, crossings)
+	prompt := buildKrydsordSolvePrompt(g, crossings, dictLines)
 	_ = os.WriteFile(filepath.Join(cfg.DataDir, "krydsord-solve-prompt.txt"), []byte(prompt), 0o644)
 
 	solveCtx, cancel := context.WithTimeout(ctx, 540*time.Second)
@@ -1226,6 +1243,10 @@ func solveKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, 
 	cancel()
 	if err != nil {
 		return fmt.Errorf("krydsord --solve: provider failed: %w", err)
+	}
+	_ = os.WriteFile(filepath.Join(cfg.DataDir, "krydsord-solve-raw.txt"), []byte(raw), 0o644)
+	if strings.TrimSpace(raw) == "" {
+		return fmt.Errorf("krydsord --solve: model returned an empty response (saved krydsord-solve-raw.txt) — likely a thinking model that spent its output budget on reasoning; try --provider openai/gpt-5.5 or another non-reasoning model")
 	}
 
 	clean := klublotto.ExtractJSONObject(strings.TrimSpace(raw))
@@ -1240,6 +1261,33 @@ func solveKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, 
 	fmt.Println("\n== Solution (stage 2) ==")
 	fmt.Println(out)
 	fmt.Printf("\nSaved: %s\n", solPath)
+
+	// --learn: merge this run's clue→answer pairs into the learned dictionary.
+	// Opt-in (the answers are not yet board-verified), so the user only commits a
+	// solve they trust. Verified auto-learning will come with stage 3 (submit).
+	if learn {
+		var sol struct {
+			Answers []struct {
+				Clue   string `json:"clue"`
+				Answer string `json:"answer"`
+			} `json:"answers"`
+		}
+		if json.Unmarshal([]byte(clean), &sol) == nil {
+			added := 0
+			for _, a := range sol.Answers {
+				if dict.Add(a.Clue, a.Answer) {
+					added++
+				}
+			}
+			if err := dict.Save(dictPath); err != nil {
+				fmt.Printf("   [learn] failed to save dictionary: %v\n", err)
+			} else {
+				fmt.Printf("   [learn] added %d new clue→answer entries to %s\n", added, dictPath)
+			}
+		} else {
+			fmt.Println("   [learn] could not parse solution JSON; nothing learned")
+		}
+	}
 	return nil
 }
 
@@ -1266,11 +1314,18 @@ const krydsordClueHints = `TYPISKE KRYDSORD-TRICKS (skandinavisk krydsord — br
 // clue lists, common clue-convention hints, the deterministic crossing
 // constraints, and the solve instructions — all framed as a Danish crossword
 // that must use Den Danske Ordbog.
-func buildKrydsordSolvePrompt(g krydsordGraph, crossings []string) string {
+func buildKrydsordSolvePrompt(g krydsordGraph, crossings, dictLines []string) string {
 	var b strings.Builder
 	b.WriteString("Du løser et DANSK skandinavisk krydsord (clue-square crossword).\n")
 	b.WriteString("Alle svar er danske ord/udtryk og SKAL findes i Den Danske Ordbog (ordnet.dk/ddo). Ingen svenske/norske/engelske former.\n\n")
 	b.WriteString(krydsordClueHints + "\n\n")
+	if len(dictLines) > 0 {
+		b.WriteString("KENDTE SVAR FRA EGEN ORDBOG (set i tidligere krydsord — foretræk disse hvis længde + krydsninger passer):\n")
+		for _, l := range dictLines {
+			b.WriteString("- " + l + "\n")
+		}
+		b.WriteString("\n")
+	}
 
 	b.WriteString("VANDRETTE (Across):\n")
 	for i, a := range g.Across {
