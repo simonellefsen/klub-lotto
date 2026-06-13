@@ -54,7 +54,7 @@ help:
 	@echo "make ordknude    — auto-play (LLM proposes + real submits guesses until solved): make ordknude ANSWER=SALÆR (or bare for full auto from blank; permanent, no do-overs)"
 	@echo "make krydsord-dry — extract today's Krydsord board image, mask, and slots; no submit"
 	@echo "make krydsord      — real solve (vision clues + candidates + grid) + submit via API + Tjek løsning on parent (reuses klublotto session)"
-	@echo "make krydsord-graph— stage 1: deconstruct the crossword into a clue graph (JSON); no solve/submit"
+	@echo "make krydsord-graph— stage 1: deconstruct + verify the clue graph (JSON); GRAPH_MODEL= to try a vision LLM, VERIFY=false to skip the check; no solve/submit"
 	@echo "make krydsord-solve— stage 2: solve from the latest validated graph (run krydsord-graph first); GRAPH_FILE= optional; no submit"
 	@echo "make wiki-query Q='...'  — search the wiki via qmd (or grep)"
 	@echo "make sync        — commit wiki/doc changes and push to origin"
@@ -135,9 +135,14 @@ krydsord-dry: $(BIN)
 	$(LOCAL_BROWSER_ENV) $(BIN) krydsord --dry-run
 
 # Stage 1 of the crossword solver: deconstruct the board into a clue graph
-# (JSON) via the vision model, then exit. Uses OPENROUTER_VISION_MODEL.
+# (JSON) via the vision model, verify it (2nd pass on length/direction), exit.
+# Try a different vision LLM with GRAPH_MODEL=, e.g.:
+#   make krydsord-graph GRAPH_MODEL=openai/gpt-5.4
+# Disable the verify pass with VERIFY=false.
+KRYDSORD_GRAPH_MODEL := $(or $(GRAPH_MODEL),$(OPENROUTER_VISION_MODEL))
+KRYDSORD_VERIFY_FLAG := $(if $(filter false 0 no,$(VERIFY)),--verify=false)
 krydsord-graph: $(BIN)
-	OPENROUTER_VISION_MODEL=$(OPENROUTER_VISION_MODEL) $(LOCAL_BROWSER_ENV) $(BIN) krydsord --graph
+	OPENROUTER_VISION_MODEL=$(KRYDSORD_GRAPH_MODEL) $(LOCAL_BROWSER_ENV) $(BIN) krydsord --graph $(KRYDSORD_VERIFY_FLAG)
 
 # Stage 2: solve from a VALIDATED graph (run `make krydsord-graph` first and
 # check it). Builds the CSP deterministically and solves with the reasoning

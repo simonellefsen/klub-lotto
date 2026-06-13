@@ -771,6 +771,7 @@ func runKrydsord(ctx context.Context, args []string) error {
 	gridPath := fs.String("grid", "", "validate a proposed Krydsord grid from JSON or text")
 	partialGrid := fs.Bool("partial", false, "allow _/space unknowns when validating --grid")
 	graphOnly := fs.Bool("graph", false, "stage 1 only: ask the vision LLM to deconstruct the crossword into a clue graph (JSON) and exit — does not solve or submit")
+	verifyGraph := fs.Bool("verify", true, "with --graph: run a second vision pass that re-checks each clue's length and direction against the image and corrects them")
 	solveOnly := fs.Bool("solve", false, "stage 2: deconstruct (or load --graph-file) then solve every clue via the reasoning model using computed crossings; prints answers, does not submit")
 	graphFile := fs.String("graph-file", "", "path to a stage-1 clue-graph JSON to solve (with --solve); if empty, --solve deconstructs fresh via vision")
 	learnFlag := fs.Bool("learn", false, "with --solve: merge this run's clue→answer pairs into the learned dictionary (wiki/concepts/krydsord-clues.json)")
@@ -810,7 +811,7 @@ func runKrydsord(ctx context.Context, args []string) error {
 	// NOT call the krydsord.dk iframe API (that's only needed for the structural
 	// mask/solve), so stage 1 never leaves danskespil.dk.
 	if *graphOnly {
-		return deconstructKrydsord(ctx, cfg, br)
+		return deconstructKrydsord(ctx, cfg, br, *verifyGraph)
 	}
 
 	fmt.Println("[2/4] extracting iframe API data...")
@@ -1070,27 +1071,32 @@ Return ONLY a JSON object, no prose, in exactly this shape:
   "Down":   [ {"clue": "FARTØJ",  "direction": "Down",   "start": [1,2], "length": 9} ]
 }`
 
-// krydsordGraphJSON runs the stage-1 vision deconstruction: screenshot the
-// crossword on the danskespil.dk parent page and return the clue-graph JSON
-// (cleaned to the {…} object). Stays on the parent page — no iframe API call.
-func krydsordGraphJSON(ctx context.Context, cfg *config.Config, br *browser.Client) (string, error) {
-	// Vision provider priority mirrors ordkløver: OpenRouter vision model first
-	// (the user's ~google/gemini-pro-latest reads these boards best), then Gemini.
-	var ac llm.VisionProvider
+// krydsordVisionProvider picks the vision model for the graph step. Override
+// with OPENROUTER_VISION_MODEL (e.g. openai/gpt-5.4) to try a different LLM.
+func krydsordVisionProvider(cfg *config.Config) (llm.VisionProvider, error) {
 	switch {
 	case cfg.OpenRouterKey != "" && cfg.OpenRouterVisionModel != "":
-		ac = llm.NewOpenRouterVision(cfg.OpenRouterKey, cfg.OpenRouterVisionModel)
 		fmt.Printf("   [graph] vision: openrouter:%s\n", cfg.OpenRouterVisionModel)
+		return llm.NewOpenRouterVision(cfg.OpenRouterKey, cfg.OpenRouterVisionModel), nil
 	case cfg.GeminiKey != "":
-		ac = llm.NewGemini(cfg.GeminiKey, "gemini-2.5-pro")
 		fmt.Println("   [graph] vision: gemini:gemini-2.5-pro")
+		return llm.NewGemini(cfg.GeminiKey, "gemini-2.5-pro"), nil
 	case cfg.AnthropicKey != "":
-		ac = llm.NewAnthropic(cfg.AnthropicKey, "claude-haiku-4-5-20251001")
 		fmt.Println("   [graph] vision: anthropic:claude-haiku-4-5-20251001")
-	default:
-		return "", fmt.Errorf("need OPENROUTER_API_KEY+OPENROUTER_VISION_MODEL, GEMINI_API_KEY, or ANTHROPIC_API_KEY")
+		return llm.NewAnthropic(cfg.AnthropicKey, "claude-haiku-4-5-20251001"), nil
 	}
+	return nil, fmt.Errorf("need OPENROUTER_API_KEY+OPENROUTER_VISION_MODEL, GEMINI_API_KEY, or ANTHROPIC_API_KEY")
+}
 
+// krydsordGraphJSON runs the stage-1 vision deconstruction: screenshot the
+// crossword on the danskespil.dk parent page and return the clue-graph JSON
+// (cleaned to the {…} object) plus the board image bytes (for a verify pass).
+// Stays on the parent page — no iframe API call.
+func krydsordGraphJSON(ctx context.Context, cfg *config.Config, br *browser.Client) (string, []byte, error) {
+	ac, err := krydsordVisionProvider(cfg)
+	if err != nil {
+		return "", nil, err
+	}
 	// Give the embedded board a moment to finish rendering, then screenshot the
 	// parent page (the crossword the player sees) — no iframe navigation.
 	_ = br.WaitForLoad(ctx, "networkidle")
@@ -1098,29 +1104,76 @@ func krydsordGraphJSON(ctx context.Context, cfg *config.Config, br *browser.Clie
 	stamp := time.Now().UTC().Format("20060102-150405")
 	inputPath := filepath.Join(cfg.DataDir, "krydsord-graph-input-"+stamp+".png")
 	if err := br.Screenshot(ctx, inputPath); err != nil {
-		return "", fmt.Errorf("screenshot parent board: %w", err)
+		return "", nil, fmt.Errorf("screenshot parent board: %w", err)
 	}
 	imgBytes, _ := os.ReadFile(inputPath)
 	if len(imgBytes) == 0 {
-		return "", fmt.Errorf("parent screenshot was empty (%s)", inputPath)
+		return "", nil, fmt.Errorf("parent screenshot was empty (%s)", inputPath)
 	}
 	fmt.Printf("   [graph] input image: %s\n", inputPath)
 	visionCtx, cancel := context.WithTimeout(ctx, 300*time.Second)
 	raw, err := ac.ExtractFromImage(visionCtx, imgBytes, "image/png", krydsordDeconstructPrompt)
 	cancel()
 	if err != nil {
-		return "", fmt.Errorf("vision call failed: %w", err)
+		return "", nil, fmt.Errorf("vision call failed: %w", err)
 	}
 	_ = os.WriteFile(filepath.Join(cfg.DataDir, "krydsord-graph-raw.txt"), []byte(raw), 0o644)
-	return klublotto.ExtractJSONObject(strings.TrimSpace(raw)), nil
+	return klublotto.ExtractJSONObject(strings.TrimSpace(raw)), imgBytes, nil
 }
 
-// deconstructKrydsord runs stage 1 only: produce + print + save the clue graph.
-func deconstructKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client) error {
+// krydsordVerifyPrompt asks the model to re-check a graph against the image,
+// focusing on the two things vision gets wrong most: answer length and direction.
+const krydsordVerifyPrompt = `Du har tidligere lavet nedenstående clue-graph for det vedhæftede skandinaviske clue-square krydsord. VERIFICÉR den mod billedet og RET fejl.
+
+Fokusér især på (det er her fejlene plejer at være):
+1. LÆNGDE: tæl de TOMME svar-felter hver ledetråd fylder — IKKE antal bogstaver i ledetråds-teksten. Et kort billede/ord kan have et kort svar (fx 2 felter).
+2. RETNING: Across = vandret (svaret fylder felter til HØJRE), Down = lodret (svaret fylder felter NEDAD). Ledetråd i topkanten = Down. Ledetråd i venstrekant = Across. I et delt ledetråds-felt: øverste = Across, nederste = Down.
+
+Bevar ledetråds-teksterne og startkoordinaterne. Ret kun length/direction (og flyt en post mellem Across/Down hvis retningen var forkert).
+
+Returner KUN det rettede JSON i NØJAGTIG samme format (Across/Down lister med clue, direction, start, length). Ingen anden tekst.
+
+Graph der skal verificeres:
+`
+
+// verifyKrydsordGraph sends the board image + a produced graph back to the vision
+// model and asks it to correct lengths/directions. Returns the corrected graph
+// JSON, or an error (callers fall back to the unverified graph).
+func verifyKrydsordGraph(ctx context.Context, cfg *config.Config, imgBytes []byte, graphJSON string) (string, error) {
+	ac, err := krydsordVisionProvider(cfg)
+	if err != nil {
+		return "", err
+	}
+	visionCtx, cancel := context.WithTimeout(ctx, 300*time.Second)
+	raw, err := ac.ExtractFromImage(visionCtx, imgBytes, "image/png", krydsordVerifyPrompt+graphJSON)
+	cancel()
+	if err != nil {
+		return "", err
+	}
+	_ = os.WriteFile(filepath.Join(cfg.DataDir, "krydsord-graph-verify-raw.txt"), []byte(raw), 0o644)
+	out := klublotto.ExtractJSONObject(strings.TrimSpace(raw))
+	if !strings.Contains(out, "Across") && !strings.Contains(out, "Down") {
+		return "", fmt.Errorf("verify response had no usable graph")
+	}
+	return out, nil
+}
+
+// deconstructKrydsord runs stage 1 only: produce + (optionally) verify + print +
+// save the clue graph.
+func deconstructKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, verify bool) error {
 	fmt.Printf("[graph] deconstructing crossword into a clue graph (no solving)...\n")
-	graph, err := krydsordGraphJSON(ctx, cfg, br)
+	graph, imgBytes, err := krydsordGraphJSON(ctx, cfg, br)
 	if err != nil {
 		return fmt.Errorf("krydsord --graph: %w", err)
+	}
+	if verify {
+		fmt.Println("[graph] verifying graph against the image (length + direction)...")
+		if corrected, verr := verifyKrydsordGraph(ctx, cfg, imgBytes, graph); verr != nil {
+			fmt.Printf("   [graph] verify pass failed (%v) — keeping the initial graph\n", verr)
+		} else {
+			graph = corrected
+			fmt.Println("   [graph] applied verified/corrected graph")
+		}
 	}
 	out := graph
 	var pretty bytes.Buffer
