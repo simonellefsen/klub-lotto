@@ -431,6 +431,10 @@ func runOrdknude(ctx context.Context, args []string) error {
 		// constrained board (e.g. only one letter unknown) doesn't pay for a fresh
 		// LLM round on every attempt.
 		var pool []klublotto.WordCandidate
+		// lastGoodHistory keeps the most recent non-empty board history: the win/
+		// loss overlay re-extract returns "0 guesses", wiping st.History, so we
+		// snapshot it here to reconstruct the guess sequence for the ledger.
+		var lastGoodHistory []klublotto.OrdknudeGuess
 		// prunePool drops tried/rejected/invalid words and any no longer consistent
 		// with the observed marks (a wrong guess tightens the constraints).
 		prunePool := func(in []klublotto.WordCandidate) []klublotto.WordCandidate {
@@ -447,6 +451,9 @@ func runOrdknude(ctx context.Context, args []string) error {
 			maxForDay = 6
 		}
 		for {
+			if len(st.History) > 0 {
+				lastGoodHistory = st.History // snapshot before a win/loss overlay wipes it
+			}
 			if st.Solved || st.Remaining <= 0 || attemptsThisRun >= maxForDay || attemptsThisRun >= 6 {
 				break
 			}
@@ -628,7 +635,7 @@ func runOrdknude(ctx context.Context, args []string) error {
 				finalShot := filepath.Join(cfg.DataDir, "ordknude-result-"+time.Now().UTC().Format("20060102-150405")+".png")
 				_ = br.Screenshot(ctx, finalShot)
 				fmt.Printf("\n🎉 SOLVED! Ordknuden answer: %s (attempt %d/6)\n\n", currentAnswer, currentAttempt)
-				notes := ordknudeGuessNotes(triedThisRun, st.History)
+				notes := ordknudeGuessNotes(mergeGuessWords(lastGoodHistory, triedThisRun), lastGoodHistory, currentAnswer)
 				if notes == "" {
 					notes = "Auto-solved by repeated real LLM-guided guesses on parent page."
 				}
@@ -692,7 +699,19 @@ func runOrdknude(ctx context.Context, args []string) error {
 		if recordedAnswer == "" {
 			recordedAnswer = lastSubmittedAnswer // last guess attempted
 		}
-		return upsertDailyGame(ctx, cfg, "Ordknuden", "5-letter Danish word puzzle", recordedAnswer, true, st.Solved, msg+". Screenshot: `"+shot+"`.")
+		// Notes: the colour-coded guess sequence (scored against the real answer),
+		// plus a loss tag when we didn't solve it. Falls back to the plain message.
+		notes := msg + ". Screenshot: `" + shot + "`."
+		if seq := ordknudeGuessNotes(mergeGuessWords(lastGoodHistory, triedThisRun), lastGoodHistory, recordedAnswer); seq != "" {
+			if st.Solved {
+				notes = seq
+			} else if correctAnswer != "" {
+				notes = seq + " · Ikke løst — korrekt svar: " + correctAnswer
+			} else {
+				notes = seq + " · Ikke løst"
+			}
+		}
+		return upsertDailyGame(ctx, cfg, "Ordknuden", "5-letter Danish word puzzle", recordedAnswer, true, st.Solved, notes)
 	}
 
 	// Explicit --answer path (or --dry-run / --extract-only with no answer):
@@ -3344,42 +3363,46 @@ func filterOrdknudeCandidates(cands []klublotto.WordCandidate, st klublotto.Ordk
 func extractOrdknudeAnswerFromSnap(snap string) string {
 	lines := strings.Split(snap, "\n")
 	for i, line := range lines {
-		line = strings.TrimSpace(line)
-		// Loss screen marker.
-		if strings.Contains(strings.ToLower(line), "det rigtige svar var") {
-			// The answer is in the very next non-empty paragraph/text line.
-			for j := i + 1; j < len(lines) && j < i+5; j++ {
-				next := strings.TrimSpace(lines[j])
-				if next == "" {
-					continue
-				}
-				// Strip snapshot decoration ("- paragraph:", "- text:", quotes).
-				next = strings.TrimPrefix(next, "- paragraph:")
-				next = strings.TrimPrefix(next, "- text:")
-				next = strings.Trim(next, ` "`)
-				next = strings.TrimSpace(next)
-				word := klublotto.NormalizeDanishLetters(next)
-				if len([]rune(word)) >= 3 { // answer may be any length (gummi = 5)
-					return word
-				}
-			}
+		if !strings.Contains(strings.ToLower(line), "det rigtige svar var") {
+			continue
 		}
-		// Win screen: "Tillykke" — answer is the last correctly guessed word.
-		// The history is already captured; caller uses st.Answer.
-	}
-	// Fallback: look for a standalone Danish word after the marker in plain text.
-	lower := strings.ToLower(snap)
-	if idx := strings.Index(lower, "det rigtige svar var"); idx >= 0 {
-		rest := snap[idx+len("det rigtige svar var"):]
-		// Skip punctuation/colon/whitespace.
-		rest = strings.TrimLeft(rest, " :,\n\r\t\"")
-		fields := strings.Fields(rest)
-		if len(fields) > 0 {
-			word := klublotto.NormalizeDanishLetters(fields[0])
-			if len([]rune(word)) >= 3 {
+		// The answer is the next TEXT node after the marker. In the accessibility
+		// snapshot the role label and its text are on separate lines:
+		//     - paragraph
+		//       - StaticText "binde"
+		// so we must skip role-only lines ("- paragraph", "- generic") and read
+		// the next StaticText/text content — grabbing a role line is exactly how we
+		// previously reported "PARAGRAPH" instead of "binde".
+		for j := i + 1; j < len(lines) && j < i+10; j++ {
+			if word := ordknudeWordFromSnapLine(lines[j]); word != "" {
 				return word
 			}
 		}
+	}
+	return ""
+}
+
+// ordknudeWordFromSnapLine returns the normalized word carried by a snapshot
+// text node line (e.g. `- StaticText "binde"` → "BINDE"), or "" if the line is a
+// role-only node ("- paragraph", "- generic", …) or has no usable word.
+func ordknudeWordFromSnapLine(line string) string {
+	line = strings.TrimSpace(line)
+	var val string
+	switch {
+	case strings.Contains(line, "StaticText"):
+		if q1 := strings.Index(line, `"`); q1 >= 0 {
+			if q2 := strings.LastIndex(line, `"`); q2 > q1 {
+				val = line[q1+1 : q2]
+			}
+		}
+	case strings.HasPrefix(line, "- text:"):
+		val = strings.Trim(strings.TrimPrefix(line, "- text:"), ` "`)
+	default:
+		return "" // role-only line — not the answer text
+	}
+	word := klublotto.NormalizeDanishLetters(val)
+	if len([]rune(word)) >= 3 {
+		return word
 	}
 	return ""
 }
@@ -3437,20 +3460,15 @@ func colourCodeOrdKloeverLetters(probed []string, revealSrc string) string {
 
 // ordknudeGuessNotes builds the daily-ledger "Notes" cell for a finished
 // Ordknuden round: the ordered guess sequence with each tile colour-coded
-// (🟩 correct, 🟨 present, 🟥 absent). Marks come from the extracted history;
-// the final winning guess defaults to all-green if history didn't capture it.
-func ordknudeGuessNotes(tried []string, history []klublotto.OrdknudeGuess) string {
+// (🟩 correct, 🟨 present, 🟥 absent). answer is the actual solution (the winning
+// word on a win, the revealed correct word on a loss); marks not present in the
+// extracted history are reconstructed by scoring each guess against it.
+func ordknudeGuessNotes(tried []string, history []klublotto.OrdknudeGuess, answer string) string {
 	marksByWord := map[string][]string{}
 	for _, h := range history {
 		marksByWord[klublotto.NormalizeDanishLetters(h.Word)] = h.Marks
 	}
-	// The last guess is the solved answer; we can reconstruct marks for any guess
-	// whose tile state didn't survive in the extracted history by scoring it
-	// against that answer (standard Wordle rules with duplicate handling).
-	answer := ""
-	if len(tried) > 0 {
-		answer = klublotto.NormalizeDanishLetters(tried[len(tried)-1])
-	}
+	answer = klublotto.NormalizeDanishLetters(answer)
 	var parts []string
 	for i, w := range tried {
 		w = klublotto.NormalizeDanishLetters(w)
@@ -3459,7 +3477,7 @@ func ordknudeGuessNotes(tried []string, history []klublotto.OrdknudeGuess) strin
 			marks = scoreOrdknudeGuess(w, answer)
 		}
 		sq := ordknudeMarkSquares(marks)
-		if sq == "" && i == len(tried)-1 {
+		if sq == "" && answer != "" && w == answer {
 			sq = "🟩🟩🟩🟩🟩" // winning guess — re-extract may not have caught it
 		}
 		parts = append(parts, fmt.Sprintf("%d. %s %s", i+1, w, sq))
@@ -3501,6 +3519,29 @@ func scoreOrdknudeGuess(guess, answer string) []string {
 		}
 	}
 	return marks
+}
+
+// mergeGuessWords returns the ordered, de-duplicated guess list: the board
+// history first (oldest→newest), then any words submitted this run that the
+// win/loss overlay wiped from the extracted history (e.g. the final guess).
+func mergeGuessWords(history []klublotto.OrdknudeGuess, tried []string) []string {
+	var out []string
+	seen := map[string]bool{}
+	add := func(w string) {
+		w = klublotto.NormalizeDanishLetters(w)
+		if w == "" || seen[w] {
+			return
+		}
+		seen[w] = true
+		out = append(out, w)
+	}
+	for _, h := range history {
+		add(h.Word)
+	}
+	for _, w := range tried {
+		add(w)
+	}
+	return out
 }
 
 func ordknudeMarkSquares(marks []string) string {

@@ -201,3 +201,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-13 04:35 UTC] ingest | quiz | Hvilken flod løber gennem Wien? | outcome=submitted
 
+## [2026-06-13 04:56 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
