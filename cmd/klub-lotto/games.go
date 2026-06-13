@@ -1061,7 +1061,13 @@ For every clue report:
 - clue text (or a short image description, prefixed "IMG: ")
 - direction (Across = horizontal, Down = vertical)
 - starting coordinate [row, col] of the FIRST answer cell (1-indexed, row 1 = top, col 1 = left)
-- answer length (number of cells the answer fills)
+- answer length = the number of consecutive EMPTY WHITE cells the answer fills,
+  counted starting at the cell IMMEDIATELY to the RIGHT of the clue cell (Across)
+  or IMMEDIATELY BELOW the clue cell (Down). DO NOT count the clue cell itself.
+  Stop counting at the next clue cell, image cell, or the edge of the grid.
+  Count CELLS on the board — NOT the number of letters in the clue word.
+  (Example: if there are 3 empty white cells to the right of "SKIBSDEL", the
+  length is 3 — not 8 from the clue text, and not 4 by including the clue cell.)
 
 Do not attempt solving.
 
@@ -1126,8 +1132,13 @@ func krydsordGraphJSON(ctx context.Context, cfg *config.Config, br *browser.Clie
 const krydsordVerifyPrompt = `Du har tidligere lavet nedenstående clue-graph for det vedhæftede skandinaviske clue-square krydsord. VERIFICÉR den mod billedet og RET fejl.
 
 Fokusér især på (det er her fejlene plejer at være):
-1. LÆNGDE: tæl de TOMME svar-felter hver ledetråd fylder — IKKE antal bogstaver i ledetråds-teksten. Et kort billede/ord kan have et kort svar (fx 2 felter).
-2. RETNING: Across = vandret (svaret fylder felter til HØJRE), Down = lodret (svaret fylder felter NEDAD). Ledetråd i topkanten = Down. Ledetråd i venstrekant = Across. I et delt ledetråds-felt: øverste = Across, nederste = Down.
+1. LÆNGDE = antal sammenhængende TOMME HVIDE felter svaret fylder, talt FRA feltet lige til HØJRE for ledetråds-feltet (Across) eller lige UNDER ledetråds-feltet (Down).
+   - Medregn ALDRIG selve ledetråds-feltet (det med teksten/billedet).
+   - Stop ved næste ledetråds-felt, billed-felt eller brættets kant.
+   - Tæl FELTER på billedet — IKKE bogstaver i ledetråds-ordet.
+   - Gå hver post igennem og TÆL felterne på billedet igen.
+   - Eksempel: er der 3 tomme hvide felter til højre for "SKIBSDEL", så er length = 3 (ikke 8 fra teksten, ikke 4 ved at tælle ledetråds-feltet med). "SMALL" med 1 tomt felt til højre = length 1.
+2. RETNING: Across = vandret (svaret fylder felter til HØJRE for ledetråden), Down = lodret (svaret fylder felter NEDAD under ledetråden). Ledetråd i topkanten = Down. Ledetråd i venstrekant = Across. I et delt ledetråds-felt: øverste tekst = Across, nederste tekst = Down.
 
 Bevar ledetråds-teksterne og startkoordinaterne. Ret kun length/direction (og flyt en post mellem Across/Down hvis retningen var forkert).
 
