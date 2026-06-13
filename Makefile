@@ -55,7 +55,7 @@ help:
 	@echo "make krydsord-dry — extract today's Krydsord board image, mask, and slots; no submit"
 	@echo "make krydsord      — real solve (vision clues + candidates + grid) + submit via API + Tjek løsning on parent (reuses klublotto session)"
 	@echo "make krydsord-graph— stage 1: deconstruct + verify the clue graph (JSON); GRAPH_MODEL= to try a vision LLM, VERIFY=false to skip the check; no solve/submit"
-	@echo "make krydsord-solve— stage 2: solve from the latest validated graph (GRAPH_FILE=, SOLVE_MODEL= optional); no submit"
+	@echo "make krydsord-solve— stage 2/3: solve from a validated graph (GRAPH_FILE=, SOLVE_MODEL=); SUBMIT=true fills + submits the board"
 	@echo "make krydsord-solve-dry — build the board + CSP prompt only (no LLM call), for inspecting/iterating"
 	@echo "make wiki-query Q='...'  — search the wiki via qmd (or grep)"
 	@echo "make sync        — commit wiki/doc changes and push to origin"
@@ -154,8 +154,12 @@ krydsord-graph: $(BIN)
 # krydsord-solve-dry builds + saves the board + prompt WITHOUT calling the LLM.
 KRYDSORD_SOLVE_PROVIDER := $(or $(SOLVE_MODEL),$(PROVIDER),$(provider),$(WORD_PROVIDER),~google/gemini-pro-latest)
 KRYDSORD_GRAPH_FILE_FLAG := $(if $(GRAPH_FILE),--graph-file "$(GRAPH_FILE)")
+# SUBMIT=true fills the solved grid onto danskespil.dk and submits (permanent;
+# only if the solution validates cleanly against the live mask). On a confirmed
+# correct submission the verified clue→answers are recorded in the dictionary.
+KRYDSORD_SUBMIT_FLAG := $(if $(filter true 1 yes,$(SUBMIT)),--submit)
 krydsord-solve: $(BIN)
-	$(BIN) krydsord --solve --provider "$(KRYDSORD_SOLVE_PROVIDER)" $(KRYDSORD_GRAPH_FILE_FLAG)
+	$(LOCAL_BROWSER_ENV) $(BIN) krydsord --solve --provider "$(KRYDSORD_SOLVE_PROVIDER)" $(KRYDSORD_GRAPH_FILE_FLAG) $(KRYDSORD_SUBMIT_FLAG)
 
 krydsord-solve-dry: $(BIN)
 	$(BIN) krydsord --solve --dry-run $(KRYDSORD_GRAPH_FILE_FLAG)

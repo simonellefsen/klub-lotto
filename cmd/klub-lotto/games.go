@@ -786,11 +786,16 @@ func runKrydsord(ctx context.Context, args []string) error {
 		return err
 	}
 
-	// ── Stage 2: solve from a validated graph — no browser/vision needed ──────────
-	// Uses --graph-file or the latest `make krydsord-graph` output, builds the CSP
-	// deterministically, and solves. Done before opening any browser.
+	// ── Stage 2/3: solve from a validated graph; optionally submit ────────────────
+	// Solve is offline (no browser). --submit fills the solved grid onto
+	// danskespil.dk, so we open a browser only in that case.
 	if *solveOnly {
-		return solveKrydsord(ctx, cfg, *graphFile, *providerFlag, *learnFlag, *dryRun)
+		var sbr *browser.Client
+		if *submitFlag {
+			sbr = gameBrowser(cfg, *headlessFlag)
+			restartHeadedSession(ctx, sbr)
+		}
+		return solveKrydsord(ctx, cfg, sbr, *graphFile, *providerFlag, *learnFlag, *dryRun, *submitFlag)
 	}
 
 	br := gameBrowser(cfg, *headlessFlag)
@@ -1335,6 +1340,41 @@ func renderKrydsordBoard(csp krydsordCSP) string {
 	return b.String()
 }
 
+// buildKrydsordGridFromAnswers places each solved answer's letters into its CSP
+// cells, producing a w×h grid of rows (answer cells = uppercase letter, every
+// other cell = "."). The cell ids ("r<row>c<col>", 1-indexed) line up with the
+// live API mask, so the result feeds straight into ValidateKrydsordAnswerGrid /
+// BuildKrydsordUserSolution.
+func buildKrydsordGridFromAnswers(csp krydsordCSP, answersByID map[string]string, w, h int) []string {
+	grid := make([][]rune, h)
+	for r := range grid {
+		grid[r] = make([]rune, w)
+		for c := range grid[r] {
+			grid[r][c] = '.'
+		}
+	}
+	for id, e := range csp.Entries {
+		a := []rune(answersByID[id])
+		if len(a) != e.Length {
+			continue
+		}
+		for k, cid := range e.Cells {
+			var r, c int
+			if _, err := fmt.Sscanf(cid, "r%dc%d", &r, &c); err != nil {
+				continue
+			}
+			if r >= 1 && r <= h && c >= 1 && c <= w {
+				grid[r-1][c-1] = a[k]
+			}
+		}
+	}
+	out := make([]string, h)
+	for r := range grid {
+		out[r] = string(grid[r])
+	}
+	return out
+}
+
 // crossingCount returns the number of cells shared by two or more entries.
 func (csp krydsordCSP) crossingCount() int {
 	n := 0
@@ -1374,7 +1414,7 @@ func latestKrydsordGraph(dir string) (string, error) {
 // `make krydsord-graph`, builds the CSP deterministically (no AI), and asks the
 // reasoning model to fill it in. Prints the answers + a CSP validation report;
 // does not submit.
-func solveKrydsord(ctx context.Context, cfg *config.Config, graphFile, provider string, learn, dry bool) error {
+func solveKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, graphFile, provider string, learn, dry, submit bool) error {
 	if strings.TrimSpace(graphFile) == "" {
 		latest, err := latestKrydsordGraph(cfg.DataDir)
 		if err != nil {
@@ -1524,6 +1564,60 @@ func solveKrydsord(ctx context.Context, cfg *config.Config, graphFile, provider 
 		} else {
 			fmt.Printf("   [learn] added %d new clue→answer entries to %s\n", added, dictPath)
 		}
+	}
+
+	// Stage 3: fill the board on danskespil.dk and submit. Only when the solution
+	// is fully consistent against the CSP — we never submit a grid with wrong
+	// lengths, missing entries, or crossing conflicts.
+	if submit {
+		if len(issues) > 0 {
+			return fmt.Errorf("krydsord --solve --submit: solution not consistent (%d issue(s)) — not submitting; re-solve until validation is clean", len(issues))
+		}
+		fmt.Println("\n[submit] solution is consistent — opening danskespil.dk and filling the board...")
+		openCtx, cancel := context.WithTimeout(ctx, 60*time.Second)
+		err := openGameWithLogin(openCtx, br, cfg, klublotto.OpenKrydsord)
+		cancel()
+		if err != nil {
+			return fmt.Errorf("submit: open krydsord: %w", err)
+		}
+		extractCtx, cancel := context.WithTimeout(ctx, 60*time.Second)
+		data, derr := klublotto.ExtractKrydsordData(extractCtx, br)
+		cancel()
+		if derr != nil {
+			return fmt.Errorf("submit: extract krydsord API data: %w", derr)
+		}
+		grid := buildKrydsordGridFromAnswers(csp, answersByID, data.CellCountX, data.CellCountY)
+		// Safety net: the built grid must match the live mask exactly. If the graph
+		// coordinates didn't line up with the API grid, this fails and we DON'T submit.
+		if chk := klublotto.ValidateKrydsordAnswerGrid(data, grid); !chk.OK {
+			for _, e := range chk.Errors {
+				fmt.Println("   [submit] grid mismatch:", e)
+			}
+			return fmt.Errorf("submit: built grid does not match the live mask (%d errors) — not submitting", len(chk.Errors))
+		} else {
+			fmt.Printf("   [submit] grid validates against the live mask (%d answer cells) — submitting...\n", chk.AnswerN)
+		}
+		submitCtx, cancel := context.WithTimeout(ctx, 3*time.Minute)
+		serr := submitKrydsord(submitCtx, br, data, grid)
+		cancel()
+		shot := filepath.Join(cfg.DataDir, "krydsord-result-"+time.Now().UTC().Format("20060102-150405")+".png")
+		_ = br.Screenshot(ctx, shot)
+		if serr != nil {
+			return fmt.Errorf("submit: %w", serr)
+		}
+		fmt.Println("\n🎉 Krydsord submitted and confirmed correct!")
+		// Verified learning: the solution is confirmed, so record every clue→answer.
+		added := 0
+		for _, a := range answers {
+			if dict.Add(a.Clue, a.Answer) {
+				added++
+			}
+		}
+		if err := dict.Save(dictPath); err == nil && added > 0 {
+			fmt.Printf("   [learn] recorded %d verified clue→answer entries to %s\n", added, dictPath)
+		}
+		return upsertDailyGame(ctx, cfg, "Krydsord", "Danish clues-in-squares crossword", gridOneLineKrydsord(grid), true, true,
+			fmt.Sprintf("Solved via two-stage graph→CSP→LLM (%s). Screenshot: `%s`.", p.Name(), shot))
 	}
 	return nil
 }
