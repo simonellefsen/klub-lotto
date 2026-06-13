@@ -1060,7 +1060,7 @@ First create a complete list of all clues.
 For every clue report:
 - clue text (or a short image description, prefixed "IMG: ")
 - direction (Across = horizontal, Down = vertical)
-- starting coordinate [row, col] of the FIRST answer cell (1-indexed, row 1 = top, col 1 = left)
+- starting coordinate of the FIRST answer cell as {"row": R, "column": C} (1-indexed, row 1 = top, column 1 = left)
 - answer length = the number of consecutive EMPTY WHITE cells the answer fills,
   counted starting at the cell IMMEDIATELY to the RIGHT of the clue cell (Across)
   or IMMEDIATELY BELOW the clue cell (Down). DO NOT count the clue cell itself.
@@ -1073,8 +1073,8 @@ Do not attempt solving.
 
 Return ONLY a JSON object, no prose, in exactly this shape:
 {
-  "Across": [ {"clue": "REDSKAB", "direction": "Across", "start": [2,1], "length": 9} ],
-  "Down":   [ {"clue": "FARTØJ",  "direction": "Down",   "start": [1,2], "length": 9} ]
+  "Across": [ {"clue": "REDSKAB", "direction": "Across", "start": {"row": 2, "column": 2}, "length": 9} ],
+  "Down":   [ {"clue": "FARTØJ",  "direction": "Down",   "start": {"row": 2, "column": 2}, "length": 10} ]
 }`
 
 // krydsordVisionProvider picks the vision model for the graph step. Override
@@ -1142,7 +1142,7 @@ Fokusér især på (det er her fejlene plejer at være):
 
 Bevar ledetråds-teksterne og startkoordinaterne. Ret kun length/direction (og flyt en post mellem Across/Down hvis retningen var forkert).
 
-Returner KUN det rettede JSON i NØJAGTIG samme format (Across/Down lister med clue, direction, start, length). Ingen anden tekst.
+Returner KUN det rettede JSON i NØJAGTIG samme format: Across/Down lister med "clue", "direction", "start" som {"row": R, "column": C}, og "length". Ingen anden tekst.
 
 Graph der skal verificeres:
 `
@@ -1199,12 +1199,43 @@ func deconstructKrydsord(ctx context.Context, cfg *config.Config, br *browser.Cl
 	return nil
 }
 
+// krydsordStart is the 1-indexed start cell of an answer. It unmarshals from the
+// explicit object form {"row":2,"column":2} AND the legacy array form [2,2], so
+// previously-saved graphs still load.
+type krydsordStart struct {
+	Row int `json:"row"`
+	Col int `json:"column"`
+}
+
+func (s *krydsordStart) UnmarshalJSON(b []byte) error {
+	t := bytes.TrimSpace(b)
+	if len(t) > 0 && t[0] == '[' { // legacy [row, col]
+		var arr []int
+		if err := json.Unmarshal(b, &arr); err != nil {
+			return err
+		}
+		if len(arr) == 2 {
+			s.Row, s.Col = arr[0], arr[1]
+		}
+		return nil
+	}
+	type alias krydsordStart // object {"row","column"}
+	var a alias
+	if err := json.Unmarshal(b, &a); err != nil {
+		return err
+	}
+	*s = krydsordStart(a)
+	return nil
+}
+
+func (s krydsordStart) valid() bool { return s.Row >= 1 && s.Col >= 1 }
+
 // krydsordGraphClue / krydsordGraph mirror the stage-1 graph JSON.
 type krydsordGraphClue struct {
-	Clue      string `json:"clue"`
-	Direction string `json:"direction"`
-	Start     []int  `json:"start"` // [row, col], 1-indexed
-	Length    int    `json:"length"`
+	Clue      string        `json:"clue"`
+	Direction string        `json:"direction"`
+	Start     krydsordStart `json:"start"` // {"row":R,"column":C}, 1-indexed
+	Length    int           `json:"length"`
 }
 
 type krydsordGraph struct {
@@ -1248,13 +1279,13 @@ func buildKrydsordCSP(g krydsordGraph) krydsordCSP {
 		csp.Entries[id] = e
 	}
 	for i, a := range g.Across {
-		if len(a.Start) == 2 && a.Length > 0 {
-			add(fmt.Sprintf("A%d", i+1), a.Clue, a.Length, a.Start[0], a.Start[1], false)
+		if a.Start.valid() && a.Length > 0 {
+			add(fmt.Sprintf("A%d", i+1), a.Clue, a.Length, a.Start.Row, a.Start.Col, false)
 		}
 	}
 	for i, d := range g.Down {
-		if len(d.Start) == 2 && d.Length > 0 {
-			add(fmt.Sprintf("D%d", i+1), d.Clue, d.Length, d.Start[0], d.Start[1], true)
+		if d.Start.valid() && d.Length > 0 {
+			add(fmt.Sprintf("D%d", i+1), d.Clue, d.Length, d.Start.Row, d.Start.Col, true)
 		}
 	}
 	return csp
