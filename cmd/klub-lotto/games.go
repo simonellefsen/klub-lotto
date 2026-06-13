@@ -774,6 +774,7 @@ func runKrydsord(ctx context.Context, args []string) error {
 	verifyGraph := fs.Bool("verify", true, "with --graph: run a second vision pass that re-checks each clue's length and direction against the image and corrects them")
 	solveOnly := fs.Bool("solve", false, "stage 2: deconstruct (or load --graph-file) then solve every clue via the reasoning model using computed crossings; prints answers, does not submit")
 	graphFile := fs.String("graph-file", "", "path to a stage-1 clue-graph JSON to solve (with --solve); if empty, --solve deconstructs fresh via vision")
+	solutionFile := fs.String("solution-file", "", "with --solve: load answers from this saved solution JSON instead of calling the LLM (e.g. to re-submit a trusted solve)")
 	learnFlag := fs.Bool("learn", false, "with --solve: merge this run's clue→answer pairs into the learned dictionary (wiki/concepts/krydsord-clues.json)")
 	providerFlag := fs.String("provider", "", "word provider for clue candidates: gemini|openai|xai|anthropic|openrouter")
 	headlessFlag := fs.Bool("headless", false, "force headless browser")
@@ -795,7 +796,7 @@ func runKrydsord(ctx context.Context, args []string) error {
 			sbr = gameBrowser(cfg, *headlessFlag)
 			restartHeadedSession(ctx, sbr)
 		}
-		return solveKrydsord(ctx, cfg, sbr, *graphFile, *providerFlag, *learnFlag, *dryRun, *submitFlag)
+		return solveKrydsord(ctx, cfg, sbr, *graphFile, *solutionFile, *providerFlag, *learnFlag, *dryRun, *submitFlag)
 	}
 
 	br := gameBrowser(cfg, *headlessFlag)
@@ -1414,7 +1415,7 @@ func latestKrydsordGraph(dir string) (string, error) {
 // `make krydsord-graph`, builds the CSP deterministically (no AI), and asks the
 // reasoning model to fill it in. Prints the answers + a CSP validation report;
 // does not submit.
-func solveKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, graphFile, provider string, learn, dry, submit bool) error {
+func solveKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, graphFile, solutionFile, provider string, learn, dry, submit bool) error {
 	if strings.TrimSpace(graphFile) == "" {
 		latest, err := latestKrydsordGraph(cfg.DataDir)
 		if err != nil {
@@ -1461,53 +1462,60 @@ func solveKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, 
 		fmt.Printf("[solve] %d clue(s) matched the learned dictionary\n", len(dictLines))
 	}
 
-	// The board + CSP + prompt are all built deterministically (no AI) — do that
-	// first so --dry-run can inspect them without needing an LLM key/call.
-	prompt := buildKrydsordSolvePrompt(string(cspJSON), board, dictLines)
-	promptPath := filepath.Join(cfg.DataDir, "krydsord-solve-prompt.txt")
-	_ = os.WriteFile(promptPath, []byte(prompt), 0o644)
-	cspPath := filepath.Join(cfg.DataDir, "krydsord-csp.json")
-	fmt.Printf("   [solve] board (CSP): %s\n   [solve] prompt:      %s\n", cspPath, promptPath)
-	if dry {
-		fmt.Printf("\n[solve] --dry-run: generated board + CSP prompt, not calling the LLM.\nPrompt saved: %s\n", promptPath)
-		return nil
-	}
-
-	p, err := wordProvider(cfg, provider)
-	if err != nil {
-		return err
-	}
-	// Reasoning models (e.g. ~google/gemini-pro-latest) spend a lot of their output
-	// budget on internal reasoning; give a large cap so the full answer JSON (one
-	// entry per clue) isn't truncated after the reasoning. Too small and the tail
-	// of the answer list is silently cut off.
-	if or, ok := p.(*llm.OpenRouter); ok {
-		or.MaxTokens = 40000
-	}
-	fmt.Printf("   [solve] model: %s\n", p.Name())
-
-	// Try a few times: the empty-content failure mode above is intermittent, so a
-	// retry usually lands a full answer.
-	var raw string
-	for attempt := 1; attempt <= 3; attempt++ {
-		solveCtx, cancel := context.WithTimeout(ctx, 540*time.Second)
-		r, callErr := p.GenerateJSON(solveCtx, prompt, 0.2)
-		cancel()
-		if callErr != nil {
-			return fmt.Errorf("krydsord --solve: provider failed: %w", callErr)
+	// Obtain the solution JSON: either from a saved --solution-file (skip the LLM,
+	// e.g. to re-submit a solve you already trust) or by prompting the model.
+	var clean, solveSource string
+	if strings.TrimSpace(solutionFile) != "" {
+		b, rerr := os.ReadFile(solutionFile)
+		if rerr != nil {
+			return fmt.Errorf("krydsord --solve: read --solution-file %s: %w", solutionFile, rerr)
 		}
-		raw = r
-		if strings.Contains(r, "{") && strings.Contains(r, "}") {
-			break
+		clean = klublotto.ExtractJSONObject(strings.TrimSpace(string(b)))
+		solveSource = "saved solution " + filepath.Base(solutionFile)
+		fmt.Printf("[solve] using saved solution: %s (skipping the LLM)\n", solutionFile)
+	} else {
+		// The board + CSP + prompt are built deterministically (no AI) — do that
+		// first so --dry-run can inspect them without an LLM key/call.
+		prompt := buildKrydsordSolvePrompt(string(cspJSON), board, dictLines)
+		promptPath := filepath.Join(cfg.DataDir, "krydsord-solve-prompt.txt")
+		_ = os.WriteFile(promptPath, []byte(prompt), 0o644)
+		fmt.Printf("   [solve] board (CSP): %s\n   [solve] prompt:      %s\n", filepath.Join(cfg.DataDir, "krydsord-csp.json"), promptPath)
+		if dry {
+			fmt.Printf("\n[solve] --dry-run: generated board + CSP prompt, not calling the LLM.\nPrompt saved: %s\n", promptPath)
+			return nil
 		}
-		fmt.Printf("   [solve] attempt %d returned no JSON (reasoning model emptied its output) — retrying...\n", attempt)
+		p, perr := wordProvider(cfg, provider)
+		if perr != nil {
+			return perr
+		}
+		// Reasoning models spend much of their output budget on reasoning; a large
+		// cap keeps the full answer JSON from being truncated after the reasoning.
+		if or, ok := p.(*llm.OpenRouter); ok {
+			or.MaxTokens = 40000
+		}
+		solveSource = p.Name()
+		fmt.Printf("   [solve] model: %s\n", p.Name())
+		// Retry: the empty-content failure mode is intermittent.
+		var raw string
+		for attempt := 1; attempt <= 3; attempt++ {
+			solveCtx, cancel := context.WithTimeout(ctx, 540*time.Second)
+			r, callErr := p.GenerateJSON(solveCtx, prompt, 0.2)
+			cancel()
+			if callErr != nil {
+				return fmt.Errorf("krydsord --solve: provider failed: %w", callErr)
+			}
+			raw = r
+			if strings.Contains(r, "{") && strings.Contains(r, "}") {
+				break
+			}
+			fmt.Printf("   [solve] attempt %d returned no JSON (reasoning model emptied its output) — retrying...\n", attempt)
+		}
+		_ = os.WriteFile(filepath.Join(cfg.DataDir, "krydsord-solve-raw.txt"), []byte(raw), 0o644)
+		if !strings.Contains(raw, "{") {
+			return fmt.Errorf("krydsord --solve: model returned no JSON after 3 attempts (saved krydsord-solve-raw.txt) — try --provider openai/gpt-5.5 or another non-reasoning model")
+		}
+		clean = klublotto.ExtractJSONObject(strings.TrimSpace(raw))
 	}
-	_ = os.WriteFile(filepath.Join(cfg.DataDir, "krydsord-solve-raw.txt"), []byte(raw), 0o644)
-	if !strings.Contains(raw, "{") {
-		return fmt.Errorf("krydsord --solve: model returned no JSON after 3 attempts (saved krydsord-solve-raw.txt) — try --provider openai/gpt-5.5 or another non-reasoning model")
-	}
-
-	clean := klublotto.ExtractJSONObject(strings.TrimSpace(raw))
 	out := clean
 	var pretty bytes.Buffer
 	if json.Indent(&pretty, []byte(clean), "", "  ") == nil {
@@ -1617,7 +1625,7 @@ func solveKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, 
 			fmt.Printf("   [learn] recorded %d verified clue→answer entries to %s\n", added, dictPath)
 		}
 		return upsertDailyGame(ctx, cfg, "Krydsord", "Danish clues-in-squares crossword", gridOneLineKrydsord(grid), true, true,
-			fmt.Sprintf("Solved via two-stage graph→CSP→LLM (%s). Screenshot: `%s`.", p.Name(), shot))
+			fmt.Sprintf("Solved via two-stage graph→CSP→LLM (%s). Screenshot: `%s`.", solveSource, shot))
 	}
 	return nil
 }

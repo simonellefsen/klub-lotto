@@ -158,8 +158,10 @@ KRYDSORD_GRAPH_FILE_FLAG := $(if $(GRAPH_FILE),--graph-file "$(GRAPH_FILE)")
 # only if the solution validates cleanly against the live mask). On a confirmed
 # correct submission the verified clue→answers are recorded in the dictionary.
 KRYDSORD_SUBMIT_FLAG := $(if $(filter true 1 yes,$(SUBMIT)),--submit)
+# SOLUTION_FILE= re-submits a saved solution JSON without re-running the LLM.
+KRYDSORD_SOLUTION_FILE_FLAG := $(if $(SOLUTION_FILE),--solution-file "$(SOLUTION_FILE)")
 krydsord-solve: $(BIN)
-	$(LOCAL_BROWSER_ENV) $(BIN) krydsord --solve --provider "$(KRYDSORD_SOLVE_PROVIDER)" $(KRYDSORD_GRAPH_FILE_FLAG) $(KRYDSORD_SUBMIT_FLAG)
+	$(LOCAL_BROWSER_ENV) $(BIN) krydsord --solve --provider "$(KRYDSORD_SOLVE_PROVIDER)" $(KRYDSORD_GRAPH_FILE_FLAG) $(KRYDSORD_SOLUTION_FILE_FLAG) $(KRYDSORD_SUBMIT_FLAG)
 
 krydsord-solve-dry: $(BIN)
 	$(BIN) krydsord --solve --dry-run $(KRYDSORD_GRAPH_FILE_FLAG)
