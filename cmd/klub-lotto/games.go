@@ -1243,13 +1243,32 @@ func solveKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, 
 	return nil
 }
 
+// krydsordClueHints lists common Scandinavian-crossword conventions the solver
+// should consider. These are recurring "tricks" (Roman numerals for numbers,
+// record formats, solfège notes, short function words, chemical symbols, …) that
+// a general model often misses on Danish boards. Extend this list as we learn
+// more board-specific conventions.
+const krydsordClueHints = `TYPISKE KRYDSORD-TRICKS (skandinavisk krydsord — brug hvor det passer med længde og krydsninger):
+- Tal skrives ofte som ROMERTAL: I=1, V=5, X=10, L=50, C=100, D=500, M=1000. Fx "1500"=MD, "1100"=MC, "2000"=MM, "51"=LI, "9"=IX, "4"=IV.
+- "PLADE"/grammofonplade-format: LP, EP (evt. CD, SINGLE).
+- Musiktone/node: DO, RE, MI, FA, SOL, LA, TI; danske node-bogstaver C, D, E, F, G, A, H.
+- Verdenshjørne/retning: N, S, Ø, V (nord/syd/øst/vest), samt NØ, NV, SØ, SV.
+- Personligt stedord: JEG, DU, HAN, HUN, DEN, DET, VI, I, DE, MIG, DIG, SIG, OS, JER, DEM.
+- Forholdsord: PÅ, I, AF, TIL, VED, OM, FOR, MED, UD, OP, AD.
+- Bindeord: OG, MEN, ELLER, FOR, SÅ, AT.
+- Kemisk tegn: ILT=O, BRINT=H, KULSTOF=C, JERN=FE, GULD=AU, SØLV=AG, KOBBER=CU, NATRIUM=NA.
+- Udråb: AH, OH, AV, HØ, FY, NÅ, ØV.
+- Engelske ledetråde kan forekomme (fx SMALL, LARGE); oversæt til det danske svar (SMALL→LILLE/S, LARGE→STOR/L) medmindre svaret tydeligvis er en forkortelse.`
+
 // buildKrydsordSolvePrompt assembles the stage-2 solving prompt: the labelled
-// clue lists, the deterministic crossing constraints, and the user's solve
-// instructions — all framed as a Danish crossword that must use Den Danske Ordbog.
+// clue lists, common clue-convention hints, the deterministic crossing
+// constraints, and the solve instructions — all framed as a Danish crossword
+// that must use Den Danske Ordbog.
 func buildKrydsordSolvePrompt(g krydsordGraph, crossings []string) string {
 	var b strings.Builder
 	b.WriteString("Du løser et DANSK skandinavisk krydsord (clue-square crossword).\n")
 	b.WriteString("Alle svar er danske ord/udtryk og SKAL findes i Den Danske Ordbog (ordnet.dk/ddo). Ingen svenske/norske/engelske former.\n\n")
+	b.WriteString(krydsordClueHints + "\n\n")
 
 	b.WriteString("VANDRETTE (Across):\n")
 	for i, a := range g.Across {
