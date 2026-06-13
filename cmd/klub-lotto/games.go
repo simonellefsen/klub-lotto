@@ -1234,19 +1234,35 @@ func solveKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, 
 	if err != nil {
 		return err
 	}
+	// Reasoning models (e.g. ~google/gemini-pro-latest) sometimes spend their whole
+	// output budget on internal reasoning and return EMPTY content. Give OpenRouter
+	// models a generous cap so there's room for both reasoning and the answer JSON.
+	if or, ok := p.(*llm.OpenRouter); ok {
+		or.MaxTokens = 20000
+	}
 	fmt.Printf("   [solve] model: %s\n", p.Name())
 	prompt := buildKrydsordSolvePrompt(g, crossings, dictLines)
 	_ = os.WriteFile(filepath.Join(cfg.DataDir, "krydsord-solve-prompt.txt"), []byte(prompt), 0o644)
 
-	solveCtx, cancel := context.WithTimeout(ctx, 540*time.Second)
-	raw, err := p.GenerateJSON(solveCtx, prompt, 0.2)
-	cancel()
-	if err != nil {
-		return fmt.Errorf("krydsord --solve: provider failed: %w", err)
+	// Try a few times: the empty-content failure mode above is intermittent, so a
+	// retry usually lands a full answer.
+	var raw string
+	for attempt := 1; attempt <= 3; attempt++ {
+		solveCtx, cancel := context.WithTimeout(ctx, 540*time.Second)
+		r, callErr := p.GenerateJSON(solveCtx, prompt, 0.2)
+		cancel()
+		if callErr != nil {
+			return fmt.Errorf("krydsord --solve: provider failed: %w", callErr)
+		}
+		raw = r
+		if strings.Contains(r, "{") && strings.Contains(r, "}") {
+			break
+		}
+		fmt.Printf("   [solve] attempt %d returned no JSON (reasoning model emptied its output) — retrying...\n", attempt)
 	}
 	_ = os.WriteFile(filepath.Join(cfg.DataDir, "krydsord-solve-raw.txt"), []byte(raw), 0o644)
-	if strings.TrimSpace(raw) == "" {
-		return fmt.Errorf("krydsord --solve: model returned an empty response (saved krydsord-solve-raw.txt) — likely a thinking model that spent its output budget on reasoning; try --provider openai/gpt-5.5 or another non-reasoning model")
+	if !strings.Contains(raw, "{") {
+		return fmt.Errorf("krydsord --solve: model returned no JSON after 3 attempts (saved krydsord-solve-raw.txt) — try --provider openai/gpt-5.5 or another non-reasoning model")
 	}
 
 	clean := klublotto.ExtractJSONObject(strings.TrimSpace(raw))

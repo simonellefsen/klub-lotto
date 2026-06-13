@@ -16,6 +16,10 @@ type OpenRouter struct {
 	Model  string
 	HTTP   *http.Client
 	URL    string
+	// MaxTokens caps the completion length. 0 = provider default. Set it high for
+	// reasoning models on long tasks so internal reasoning doesn't consume the
+	// whole budget and leave the actual answer (content) empty.
+	MaxTokens int
 }
 
 func NewOpenRouter(apiKey, model string) *OpenRouter {
@@ -125,6 +129,7 @@ func (o *OpenRouter) GenerateJSON(ctx context.Context, prompt string, temperatur
 			{Role: "user", Content: prompt},
 		},
 		Temperature: temperature,
+		MaxTokens:   o.MaxTokens,
 	}
 	raw, err := postJSON(ctx, o.HTTP, o.URL, o.APIKey, body)
 	if err != nil {
