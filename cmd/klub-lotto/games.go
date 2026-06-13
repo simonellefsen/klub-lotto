@@ -794,6 +794,14 @@ func runKrydsord(ctx context.Context, args []string) error {
 	}
 	fmt.Println("       at:", curURL)
 
+	// ── Stage 1: deconstruct the crossword into a clue graph (no solving) ─────────
+	// Pure vision on the board as rendered on the danskespil.dk PARENT page — we do
+	// NOT call the krydsord.dk iframe API (that's only needed for the structural
+	// mask/solve), so stage 1 never leaves danskespil.dk.
+	if *graphOnly {
+		return deconstructKrydsord(ctx, cfg, br)
+	}
+
 	fmt.Println("[2/4] extracting iframe API data...")
 	extractCtx, cancel := context.WithTimeout(ctx, 60*time.Second)
 	data, err := klublotto.ExtractKrydsordData(extractCtx, br)
@@ -835,11 +843,6 @@ func runKrydsord(ctx context.Context, args []string) error {
 		if dec, decErr := base64.StdEncoding.DecodeString(img); decErr == nil {
 			imgBytes = dec
 		}
-	}
-
-	// ── Stage 1: deconstruct the crossword into a clue graph (no solving) ─────────
-	if *graphOnly {
-		return deconstructKrydsord(ctx, cfg, data, imgBytes)
 	}
 
 	solvedGrid := []string{}
@@ -1056,13 +1059,12 @@ Return ONLY a JSON object, no prose, in exactly this shape:
   "Down":   [ {"clue": "FARTØJ",  "direction": "Down",   "start": [1,2], "length": 9} ]
 }`
 
-// deconstructKrydsord runs stage 1: send the board image to the vision LLM with
-// krydsordDeconstructPrompt and print + save the resulting clue-graph JSON. It
-// does not solve or submit — it's for iterating on graph correctness.
-func deconstructKrydsord(ctx context.Context, cfg *config.Config, data klublotto.KrydsordData, imgBytes []byte) error {
-	if len(imgBytes) == 0 {
-		return fmt.Errorf("krydsord --graph: no board image available to deconstruct")
-	}
+// deconstructKrydsord runs stage 1: screenshot the crossword as rendered on the
+// danskespil.dk parent page, send it to the vision LLM with
+// krydsordDeconstructPrompt, and print + save the resulting clue-graph JSON. It
+// stays on the parent page (no krydsord.dk iframe API call), does not solve, and
+// does not submit — it's purely for iterating on graph correctness.
+func deconstructKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client) error {
 	// Vision provider priority mirrors ordkløver: OpenRouter vision model first
 	// (the user's ~google/gemini-pro-latest reads these boards best), then Gemini.
 	var ac llm.VisionProvider
@@ -1080,14 +1082,24 @@ func deconstructKrydsord(ctx context.Context, cfg *config.Config, data klublotto
 		return fmt.Errorf("krydsord --graph: need OPENROUTER_API_KEY+OPENROUTER_VISION_MODEL, GEMINI_API_KEY, or ANTHROPIC_API_KEY")
 	}
 
-	mediaType := "image/jpeg"
-	if len(imgBytes) > 4 && imgBytes[0] == 0x89 && imgBytes[1] == 'P' && imgBytes[2] == 'N' && imgBytes[3] == 'G' {
-		mediaType = "image/png"
+	// Give the embedded board a moment to finish rendering, then screenshot the
+	// parent page (the crossword the player sees) — no iframe navigation.
+	_ = br.WaitForLoad(ctx, "networkidle")
+	time.Sleep(1500 * time.Millisecond)
+	stamp := time.Now().UTC().Format("20060102-150405")
+	inputPath := filepath.Join(cfg.DataDir, "krydsord-graph-input-"+stamp+".png")
+	if err := br.Screenshot(ctx, inputPath); err != nil {
+		return fmt.Errorf("krydsord --graph: screenshot parent board: %w", err)
+	}
+	imgBytes, _ := os.ReadFile(inputPath)
+	if len(imgBytes) == 0 {
+		return fmt.Errorf("krydsord --graph: parent screenshot was empty (%s)", inputPath)
 	}
 
-	fmt.Printf("[graph] deconstructing %dx%d crossword into a clue graph (no solving)...\n", data.CellCountX, data.CellCountY)
+	fmt.Printf("[graph] deconstructing crossword into a clue graph (no solving)...\n")
+	fmt.Printf("   [graph] input image: %s\n", inputPath)
 	visionCtx, cancel := context.WithTimeout(ctx, 300*time.Second)
-	raw, err := ac.ExtractFromImage(visionCtx, imgBytes, mediaType, krydsordDeconstructPrompt)
+	raw, err := ac.ExtractFromImage(visionCtx, imgBytes, "image/png", krydsordDeconstructPrompt)
 	cancel()
 	if err != nil {
 		return fmt.Errorf("krydsord --graph: vision call failed: %w", err)
@@ -1101,20 +1113,14 @@ func deconstructKrydsord(ctx context.Context, cfg *config.Config, data klublotto
 		out = pretty.String()
 	}
 
-	graphPath := filepath.Join(cfg.DataDir, "krydsord-graph-"+time.Now().UTC().Format("20060102-150405")+".json")
+	graphPath := filepath.Join(cfg.DataDir, "krydsord-graph-"+stamp+".json")
 	_ = os.WriteFile(graphPath, []byte(out+"\n"), 0o644)
 	rawPath := filepath.Join(cfg.DataDir, "krydsord-graph-raw.txt")
 	_ = os.WriteFile(rawPath, []byte(raw), 0o644)
 
 	fmt.Println("\n== Clue graph (stage 1) ==")
 	fmt.Println(out)
-	fmt.Printf("\nSaved: %s\n(raw response: %s)\n", graphPath, rawPath)
-
-	// Quick cross-check against the API-derived slots so we can eyeball whether the
-	// graph's clue counts line up with the authoritative grid structure.
-	slots := klublotto.BuildKrydsordSlots(data)
-	fmt.Printf("\n[cross-check] API slots: %d across, %d down (graph should match these counts)\n",
-		countKrydsordSlots(slots, "across"), countKrydsordSlots(slots, "down"))
+	fmt.Printf("\nSaved: %s\n(input image: %s, raw response: %s)\n", graphPath, inputPath, rawPath)
 	return nil
 }
 
