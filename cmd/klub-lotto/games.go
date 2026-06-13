@@ -4586,37 +4586,52 @@ func submitKrydsord(ctx context.Context, br *browser.Client, data klublotto.Kryd
 	fmt.Printf("       cell refs: %d  filled: %d/%d  tjekRef: %q  gemRef: %q\n",
 		len(cellRefs), filled, len(cellValues), tjekRef, gemRef)
 
-	// Activate the UI with one cell interaction: after the API save the game
-	// already holds the correct solution; one ref-click + keypress ensures the
-	// JS framework registers user activity before we click Tjek løsning.
-	cell, letter := pickASCIIFixCell(data, solvedGrid)
-	if cell.Row == 0 {
-		// fallback to any answer cell
-		for r, rowstr := range solvedGrid {
-			for c, ch := range []rune(rowstr) {
-				if isKrydsordAnswerLetter(ch) {
-					cell = klublotto.KrydsordCell{Row: r + 1, Col: c + 1}
-					letter = ch
-					break
+	// The API save does NOT reliably populate the board (it can leave it empty),
+	// so fill every answer cell directly via its ref — click the cell and type its
+	// letter — exactly like the sudoku submit. cellRefs are the answer cells in
+	// row-major order, matching the order we walk the solved grid; KeyboardType
+	// handles Danish letters (Æ/Ø/Å) that Press can't.
+	if len(cellRefs) == 0 {
+		return fmt.Errorf("no krydsord cell refs found — cannot fill the board")
+	}
+	fmt.Printf("       filling %d answer cells via refs (API save left %d/%d)...\n", len(cellRefs), filled, len(cellRefs))
+	k := 0
+	for _, rowstr := range solvedGrid {
+		for _, ch := range []rune(rowstr) {
+			if !isKrydsordAnswerLetter(ch) {
+				continue
+			}
+			if k < len(cellRefs) {
+				if err := br.Click(ctx, cellRefs[k]); err == nil {
+					time.Sleep(50 * time.Millisecond)
+					_ = br.KeyboardType(ctx, string(ch))
+					time.Sleep(50 * time.Millisecond)
 				}
 			}
-			if cell.Row > 0 {
-				break
-			}
+			k++
 		}
 	}
-	if cell.Row > 0 && len(cellRefs) > 0 {
-		cellIdx := krydsordAnswerCellIndex(solvedGrid, cell.Row-1, cell.Col-1)
-		if cellIdx < 0 || cellIdx >= len(cellRefs) {
-			cellIdx = 0 // fallback: use first available cell ref
+	time.Sleep(600 * time.Millisecond)
+
+	// Verify the board is actually filled before checking — never claim success on
+	// an empty/partial board.
+	snap2, _ := br.SnapshotInteractiveWithFrames(ctx)
+	vals := parseIframeCellValues(snap2)
+	filled = 0
+	for _, ch := range vals {
+		if ch != 0 {
+			filled++
 		}
-		cellRef := cellRefs[cellIdx]
-		fmt.Printf("       activating UI: click ref %s (R%dC%d) + press %s\n", cellRef, cell.Row, cell.Col, string(letter))
-		if err := br.Click(ctx, cellRef); err == nil {
-			time.Sleep(200 * time.Millisecond)
-			_ = br.Press(ctx, string(letter))
-			time.Sleep(300 * time.Millisecond)
-		}
+	}
+	fmt.Printf("       after typing: %d/%d cells filled\n", filled, len(vals))
+	if r := klublotto.FindRefByName(snap2, []string{"TJEK LØSNING", "TJEK LOSNING"}); r != "" {
+		tjekRef = r
+	}
+	if r := klublotto.FindRefByName(snap2, []string{"GEM"}); r != "" {
+		gemRef = r
+	}
+	if filled == 0 {
+		return fmt.Errorf("krydsord board is still empty after typing — answer was not entered; not checking")
 	}
 
 	// Click "TJEK LØSNING" via ref (preferred) or fall back to name search.
@@ -4636,26 +4651,22 @@ func submitKrydsord(ctx context.Context, br *browser.Client, data klublotto.Kryd
 	time.Sleep(1500 * time.Millisecond)
 
 	if ok, detail := waitForKrydsordSuccess(ctx, br); ok {
-		if detail != "" {
-			fmt.Println("       success detected:", detail)
-		}
+		fmt.Println("       success detected:", detail)
 		return nil
+	} else {
+		return fmt.Errorf("Krydsord not confirmed solved: %s", detail)
 	}
-	return fmt.Errorf("Krydsord submission did not show success (look for 'Hvor er du vild' etc.; debug snap saved to krydsord-submit-fail.txt if called from run)")
 }
 
 func waitForKrydsordSuccess(ctx context.Context, br *browser.Client) (bool, string) {
-	markers := []string{
-		"vild",
-		"ordmester",
-		"løste dagens krydsord",
-		"vundet",
-		"tillykke",
-		"dagens første lod",
-		"du har allerede optjent",
-		"løste dagens",
-	}
-	deadline := time.Now().Add(20 * time.Second) // longer poll per review feedback for success text on parent (e.g. "Hvor er du vild")
+	// Krydsord-SPECIFIC success banners only. NOTE: do NOT match "vundet" — the
+	// page's permanent footer/nav contains "vundet eller tabt", which previously
+	// produced a FALSE success on an unsolved board. "tillykke"/"dagens lod" are
+	// likewise too generic.
+	success := []string{"hvor er du vild", "ordmester", "løste dagens krydsord"}
+	// Explicit failure overlay the game shows on a wrong/incomplete solution.
+	failure := []string{"ikke løst korrekt", "prøv igen", "opgaven er ikke løst"}
+	deadline := time.Now().Add(20 * time.Second)
 	for time.Now().Before(deadline) {
 		raw, err := br.Eval(ctx, `(() => { const t = String(document.body ? (document.body.innerText || document.body.textContent || '') : ''); return JSON.stringify({text:t}); })()`)
 		if err == nil {
@@ -4664,7 +4675,12 @@ func waitForKrydsordSuccess(ctx context.Context, br *browser.Client) (bool, stri
 			}
 			if json.Unmarshal([]byte(raw), &p) == nil {
 				low := strings.ToLower(p.Text)
-				for _, m := range markers {
+				for _, m := range failure {
+					if strings.Contains(low, m) {
+						return false, "ikke løst korrekt (" + m + ")"
+					}
+				}
+				for _, m := range success {
 					if strings.Contains(low, m) {
 						return true, m
 					}
@@ -4673,7 +4689,7 @@ func waitForKrydsordSuccess(ctx context.Context, br *browser.Client) (bool, stri
 		}
 		time.Sleep(600 * time.Millisecond)
 	}
-	return false, ""
+	return false, "no success banner (board likely not filled or solution wrong)"
 }
 
 func pickASCIIFixCell(data klublotto.KrydsordData, grid []string) (klublotto.KrydsordCell, rune) {
