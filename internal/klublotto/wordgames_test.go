@@ -38,6 +38,25 @@ func TestParseCandidateJSONNormalizesAnswers(t *testing.T) {
 	}
 }
 
+// Some models (e.g. gpt-5.5) return "candidates" as an array of plain strings
+// with confidence/rationale at the top level. ParseCandidateJSON must accept
+// that shape rather than failing to unmarshal string-into-struct.
+func TestParseCandidateJSONStringArray(t *testing.T) {
+	raw := `{"candidates":["BINDE","FINDE","HINDE","KINDE","MINDE","PINDE"],"confidence":"high","rationale":"matcher _INDE"}`
+	cands, err := ParseCandidateJSON(raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(cands) != 6 || cands[0].Answer != "BINDE" || cands[0].Confidence != "high" {
+		t.Fatalf("candidates = %#v", cands)
+	}
+	// Bare string array, too.
+	bare, err := ParseCandidateJSON(`["BINDE","FINDE"]`)
+	if err != nil || len(bare) != 2 || bare[1].Answer != "FINDE" {
+		t.Fatalf("bare string array: %#v err=%v", bare, err)
+	}
+}
+
 func TestPhraseMatchesLengthPattern(t *testing.T) {
 	if !PhraseMatchesLengthPattern("DET ER EN SANGBOG", "3 / 2 / 2 / 7") {
 		t.Fatal("expected phrase to match Danish word-length pattern")

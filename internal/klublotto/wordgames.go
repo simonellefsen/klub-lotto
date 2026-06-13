@@ -2542,35 +2542,56 @@ func ParseCandidateJSON(raw string) ([]WordCandidate, error) {
 		clean = clean[firstBrace:]
 	}
 
-	// Format 1: bare JSON array  [{…},{…}]  (Gemini 2.5 Pro returns this).
+	// Format 1: bare JSON array. Elements may be objects ([{"answer":…}]) OR
+	// plain strings (["BINDE","FINDE"]) — some models (e.g. gpt-5.5) return the
+	// latter despite the prompt asking for objects.
 	if strings.HasPrefix(clean, "[") {
-		arrStr := ExtractJSONArray(clean)
-		var arr []WordCandidate
-		if err := json.Unmarshal([]byte(arrStr), &arr); err == nil && len(arr) > 0 {
-			for i := range arr {
-				arr[i].Answer = NormalizeDanishPhrase(arr[i].Answer)
+		var raws []json.RawMessage
+		if err := json.Unmarshal([]byte(ExtractJSONArray(clean)), &raws); err == nil && len(raws) > 0 {
+			if cands := decodeCandidateList(raws, "", ""); len(cands) > 0 {
+				return cands, nil
 			}
-			return arr, nil
 		}
 	}
 
-	// Format 2: {"candidates":[…]}  or  {"answer":"…"}  (existing models).
+	// Format 2: {"candidates":[…]}  or  {"answer":"…"}  (existing models). The
+	// candidates entries may again be objects or plain strings, with the
+	// confidence/rationale carried at the top level — apply those as defaults.
 	var wrapped struct {
-		Candidates []WordCandidate `json:"candidates"`
-		Answer     string          `json:"answer"`
-		Confidence string          `json:"confidence"`
-		Rationale  string          `json:"rationale"`
+		Candidates []json.RawMessage `json:"candidates"`
+		Answer     string            `json:"answer"`
+		Confidence string            `json:"confidence"`
+		Rationale  string            `json:"rationale"`
 	}
 	if err := json.Unmarshal([]byte(ExtractJSONObject(clean)), &wrapped); err != nil {
 		return nil, err
 	}
-	if len(wrapped.Candidates) == 0 && wrapped.Answer != "" {
-		wrapped.Candidates = append(wrapped.Candidates, WordCandidate{Answer: wrapped.Answer, Confidence: wrapped.Confidence, Rationale: wrapped.Rationale})
+	cands := decodeCandidateList(wrapped.Candidates, wrapped.Confidence, wrapped.Rationale)
+	if len(cands) == 0 && wrapped.Answer != "" {
+		cands = append(cands, WordCandidate{Answer: NormalizeDanishPhrase(wrapped.Answer), Confidence: wrapped.Confidence, Rationale: wrapped.Rationale})
 	}
-	for i := range wrapped.Candidates {
-		wrapped.Candidates[i].Answer = NormalizeDanishPhrase(wrapped.Candidates[i].Answer)
+	return cands, nil
+}
+
+// decodeCandidateList converts raw JSON candidate entries into WordCandidates,
+// tolerating each element being either an object ({"answer":…}) or a bare
+// string ("BINDE"). For bare strings the supplied confidence/rationale (usually
+// from the enclosing object) are applied as defaults.
+func decodeCandidateList(raws []json.RawMessage, defConfidence, defRationale string) []WordCandidate {
+	var out []WordCandidate
+	for _, r := range raws {
+		var obj WordCandidate
+		if err := json.Unmarshal(r, &obj); err == nil && obj.Answer != "" {
+			obj.Answer = NormalizeDanishPhrase(obj.Answer)
+			out = append(out, obj)
+			continue
+		}
+		var s string
+		if err := json.Unmarshal(r, &s); err == nil && strings.TrimSpace(s) != "" {
+			out = append(out, WordCandidate{Answer: NormalizeDanishPhrase(s), Confidence: defConfidence, Rationale: defRationale})
+		}
 	}
-	return wrapped.Candidates, nil
+	return out
 }
 
 // ExtractJSONArray returns the substring from the first '[' to the matching ']'.
