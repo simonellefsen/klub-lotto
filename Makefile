@@ -33,7 +33,7 @@ ORDKLOEVER_REASON := $(or $(FINAL_PROVIDER),$(final_provider),$(ORDKLOEVER_FINAL
 ORDKNUDE_MODEL := $(or $(PROVIDER),$(provider),$(WORD_PROVIDER),$(ORDKNUDE_PROVIDER),openai/gpt-5.5)
 ORDKNUDE_PROVIDER_FLAG := --provider "$(ORDKNUDE_MODEL)"
 
-.PHONY: help build doctor login quiz quiz-dry sudoku sudoku-dry ordkloever ordkloever-dry ordkloever-extract ordkloever-probe ordknude ordknude-dry ordknude-extract krydsord krydsord-dry krydsord-graph wiki-query wiki-lint sync clean reset \
+.PHONY: help build doctor login quiz quiz-dry sudoku sudoku-dry ordkloever ordkloever-dry ordkloever-extract ordkloever-probe ordknude ordknude-dry ordknude-extract krydsord krydsord-dry krydsord-graph krydsord-solve wiki-query wiki-lint sync clean reset \
         image deploy k8s-up k8s-down k8s-logs port-forward db-shell ui-url tidy \
         db-up db-down db-import db-port-forward
 
@@ -55,6 +55,7 @@ help:
 	@echo "make krydsord-dry — extract today's Krydsord board image, mask, and slots; no submit"
 	@echo "make krydsord      — real solve (vision clues + candidates + grid) + submit via API + Tjek løsning on parent (reuses klublotto session)"
 	@echo "make krydsord-graph— stage 1: deconstruct the crossword into a clue graph (JSON); no solve/submit"
+	@echo "make krydsord-solve— stage 2: solve all clues via reasoning model + crossings (GRAPH_FILE= optional); no submit"
 	@echo "make wiki-query Q='...'  — search the wiki via qmd (or grep)"
 	@echo "make sync        — commit wiki/doc changes and push to origin"
 	@echo "make reset       — close any agent-browser daemons (run if you can't see the window)"
@@ -137,6 +138,14 @@ krydsord-dry: $(BIN)
 # (JSON) via the vision model, then exit. Uses OPENROUTER_VISION_MODEL.
 krydsord-graph: $(BIN)
 	OPENROUTER_VISION_MODEL=$(OPENROUTER_VISION_MODEL) $(LOCAL_BROWSER_ENV) $(BIN) krydsord --graph
+
+# Stage 2: deconstruct (or GRAPH_FILE=...) then solve every clue with the
+# reasoning model using computed crossings. Prints answers; does not submit.
+# Override the solver with PROVIDER=; defaults to ~google/gemini-pro-latest.
+KRYDSORD_SOLVE_PROVIDER := $(or $(PROVIDER),$(provider),$(WORD_PROVIDER),~google/gemini-pro-latest)
+KRYDSORD_GRAPH_FILE_FLAG := $(if $(GRAPH_FILE),--graph-file "$(GRAPH_FILE)")
+krydsord-solve: $(BIN)
+	OPENROUTER_VISION_MODEL=$(OPENROUTER_VISION_MODEL) $(LOCAL_BROWSER_ENV) $(BIN) krydsord --solve --provider "$(KRYDSORD_SOLVE_PROVIDER)" $(KRYDSORD_GRAPH_FILE_FLAG)
 
 krydsord: $(BIN)
 	$(LOCAL_BROWSER_ENV) $(BIN) krydsord --submit

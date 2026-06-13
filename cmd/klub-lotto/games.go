@@ -771,6 +771,8 @@ func runKrydsord(ctx context.Context, args []string) error {
 	gridPath := fs.String("grid", "", "validate a proposed Krydsord grid from JSON or text")
 	partialGrid := fs.Bool("partial", false, "allow _/space unknowns when validating --grid")
 	graphOnly := fs.Bool("graph", false, "stage 1 only: ask the vision LLM to deconstruct the crossword into a clue graph (JSON) and exit — does not solve or submit")
+	solveOnly := fs.Bool("solve", false, "stage 2: deconstruct (or load --graph-file) then solve every clue via the reasoning model using computed crossings; prints answers, does not submit")
+	graphFile := fs.String("graph-file", "", "path to a stage-1 clue-graph JSON to solve (with --solve); if empty, --solve deconstructs fresh via vision")
 	providerFlag := fs.String("provider", "", "word provider for clue candidates: gemini|openai|xai|anthropic|openrouter")
 	headlessFlag := fs.Bool("headless", false, "force headless browser")
 	if err := fs.Parse(args); err != nil {
@@ -800,6 +802,9 @@ func runKrydsord(ctx context.Context, args []string) error {
 	// mask/solve), so stage 1 never leaves danskespil.dk.
 	if *graphOnly {
 		return deconstructKrydsord(ctx, cfg, br)
+	}
+	if *solveOnly {
+		return solveKrydsord(ctx, cfg, br, *graphFile, *providerFlag)
 	}
 
 	fmt.Println("[2/4] extracting iframe API data...")
@@ -1059,12 +1064,10 @@ Return ONLY a JSON object, no prose, in exactly this shape:
   "Down":   [ {"clue": "FARTØJ",  "direction": "Down",   "start": [1,2], "length": 9} ]
 }`
 
-// deconstructKrydsord runs stage 1: screenshot the crossword as rendered on the
-// danskespil.dk parent page, send it to the vision LLM with
-// krydsordDeconstructPrompt, and print + save the resulting clue-graph JSON. It
-// stays on the parent page (no krydsord.dk iframe API call), does not solve, and
-// does not submit — it's purely for iterating on graph correctness.
-func deconstructKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client) error {
+// krydsordGraphJSON runs the stage-1 vision deconstruction: screenshot the
+// crossword on the danskespil.dk parent page and return the clue-graph JSON
+// (cleaned to the {…} object). Stays on the parent page — no iframe API call.
+func krydsordGraphJSON(ctx context.Context, cfg *config.Config, br *browser.Client) (string, error) {
 	// Vision provider priority mirrors ordkløver: OpenRouter vision model first
 	// (the user's ~google/gemini-pro-latest reads these boards best), then Gemini.
 	var ac llm.VisionProvider
@@ -1079,7 +1082,7 @@ func deconstructKrydsord(ctx context.Context, cfg *config.Config, br *browser.Cl
 		ac = llm.NewAnthropic(cfg.AnthropicKey, "claude-haiku-4-5-20251001")
 		fmt.Println("   [graph] vision: anthropic:claude-haiku-4-5-20251001")
 	default:
-		return fmt.Errorf("krydsord --graph: need OPENROUTER_API_KEY+OPENROUTER_VISION_MODEL, GEMINI_API_KEY, or ANTHROPIC_API_KEY")
+		return "", fmt.Errorf("need OPENROUTER_API_KEY+OPENROUTER_VISION_MODEL, GEMINI_API_KEY, or ANTHROPIC_API_KEY")
 	}
 
 	// Give the embedded board a moment to finish rendering, then screenshot the
@@ -1089,39 +1092,191 @@ func deconstructKrydsord(ctx context.Context, cfg *config.Config, br *browser.Cl
 	stamp := time.Now().UTC().Format("20060102-150405")
 	inputPath := filepath.Join(cfg.DataDir, "krydsord-graph-input-"+stamp+".png")
 	if err := br.Screenshot(ctx, inputPath); err != nil {
-		return fmt.Errorf("krydsord --graph: screenshot parent board: %w", err)
+		return "", fmt.Errorf("screenshot parent board: %w", err)
 	}
 	imgBytes, _ := os.ReadFile(inputPath)
 	if len(imgBytes) == 0 {
-		return fmt.Errorf("krydsord --graph: parent screenshot was empty (%s)", inputPath)
+		return "", fmt.Errorf("parent screenshot was empty (%s)", inputPath)
 	}
-
-	fmt.Printf("[graph] deconstructing crossword into a clue graph (no solving)...\n")
 	fmt.Printf("   [graph] input image: %s\n", inputPath)
 	visionCtx, cancel := context.WithTimeout(ctx, 300*time.Second)
 	raw, err := ac.ExtractFromImage(visionCtx, imgBytes, "image/png", krydsordDeconstructPrompt)
 	cancel()
 	if err != nil {
-		return fmt.Errorf("krydsord --graph: vision call failed: %w", err)
+		return "", fmt.Errorf("vision call failed: %w", err)
+	}
+	_ = os.WriteFile(filepath.Join(cfg.DataDir, "krydsord-graph-raw.txt"), []byte(raw), 0o644)
+	return klublotto.ExtractJSONObject(strings.TrimSpace(raw)), nil
+}
+
+// deconstructKrydsord runs stage 1 only: produce + print + save the clue graph.
+func deconstructKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client) error {
+	fmt.Printf("[graph] deconstructing crossword into a clue graph (no solving)...\n")
+	graph, err := krydsordGraphJSON(ctx, cfg, br)
+	if err != nil {
+		return fmt.Errorf("krydsord --graph: %w", err)
+	}
+	out := graph
+	var pretty bytes.Buffer
+	if json.Indent(&pretty, []byte(graph), "", "  ") == nil {
+		out = pretty.String()
+	}
+	graphPath := filepath.Join(cfg.DataDir, "krydsord-graph-"+time.Now().UTC().Format("20060102-150405")+".json")
+	_ = os.WriteFile(graphPath, []byte(out+"\n"), 0o644)
+	fmt.Println("\n== Clue graph (stage 1) ==")
+	fmt.Println(out)
+	fmt.Printf("\nSaved: %s\n", graphPath)
+	return nil
+}
+
+// krydsordGraphClue / krydsordGraph mirror the stage-1 graph JSON.
+type krydsordGraphClue struct {
+	Clue      string `json:"clue"`
+	Direction string `json:"direction"`
+	Start     []int  `json:"start"` // [row, col], 1-indexed
+	Length    int    `json:"length"`
+}
+
+type krydsordGraph struct {
+	Across []krydsordGraphClue `json:"Across"`
+	Down   []krydsordGraphClue `json:"Down"`
+}
+
+// computeKrydsordCrossings derives every shared-cell constraint between an Across
+// and a Down answer: at the crossing, the across answer's k-th letter must equal
+// the down answer's m-th letter. Returns human-readable lines using A1.. / D1..
+// ids that match the labelled clue lists in the solve prompt.
+func computeKrydsordCrossings(g krydsordGraph) []string {
+	cell := func(c krydsordGraphClue) (r, col int, ok bool) {
+		if len(c.Start) != 2 {
+			return 0, 0, false
+		}
+		return c.Start[0], c.Start[1], true
+	}
+	var lines []string
+	for ai, a := range g.Across {
+		ar, ac, ok := cell(a)
+		if !ok {
+			continue
+		}
+		for di, d := range g.Down {
+			dr, dc, ok := cell(d)
+			if !ok {
+				continue
+			}
+			// Across spans row ar, cols [ac, ac+aLen-1]; Down spans col dc,
+			// rows [dr, dr+dLen-1]. They cross at (ar, dc) if it lies in both.
+			if dc < ac || dc > ac+a.Length-1 {
+				continue
+			}
+			if ar < dr || ar > dr+d.Length-1 {
+				continue
+			}
+			acrossPos := dc - ac
+			downPos := ar - dr
+			lines = append(lines, fmt.Sprintf("A%d \"%s\" bogstav %d = D%d \"%s\" bogstav %d",
+				ai+1, a.Clue, acrossPos+1, di+1, d.Clue, downPos+1))
+		}
+	}
+	return lines
+}
+
+// solveKrydsord runs stage 2: obtain the clue graph (from --graph-file or a fresh
+// vision deconstruction), compute the crossings, and ask the reasoning word model
+// to solve every clue in Danish using those crossings. Prints the answers; does
+// not submit.
+func solveKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, graphFile, provider string) error {
+	var graphJSON string
+	if strings.TrimSpace(graphFile) != "" {
+		b, err := os.ReadFile(graphFile)
+		if err != nil {
+			return fmt.Errorf("read --graph-file %s: %w", graphFile, err)
+		}
+		graphJSON = klublotto.ExtractJSONObject(string(b))
+		fmt.Printf("[solve] using graph from %s\n", graphFile)
+	} else {
+		fmt.Println("[solve] stage 1: deconstructing crossword into a clue graph...")
+		g, err := krydsordGraphJSON(ctx, cfg, br)
+		if err != nil {
+			return fmt.Errorf("krydsord --solve: stage 1: %w", err)
+		}
+		graphJSON = g
 	}
 
-	// Pull out the JSON object and pretty-print it; fall back to raw on any issue.
+	var g krydsordGraph
+	if err := json.Unmarshal([]byte(graphJSON), &g); err != nil {
+		return fmt.Errorf("krydsord --solve: parse graph JSON: %w", err)
+	}
+	if len(g.Across)+len(g.Down) == 0 {
+		return fmt.Errorf("krydsord --solve: graph has no clues")
+	}
+	crossings := computeKrydsordCrossings(g)
+	fmt.Printf("[solve] %d across, %d down, %d crossings\n", len(g.Across), len(g.Down), len(crossings))
+
+	p, err := wordProvider(cfg, provider)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("   [solve] model: %s\n", p.Name())
+	prompt := buildKrydsordSolvePrompt(g, crossings)
+	_ = os.WriteFile(filepath.Join(cfg.DataDir, "krydsord-solve-prompt.txt"), []byte(prompt), 0o644)
+
+	solveCtx, cancel := context.WithTimeout(ctx, 540*time.Second)
+	raw, err := p.GenerateJSON(solveCtx, prompt, 0.2)
+	cancel()
+	if err != nil {
+		return fmt.Errorf("krydsord --solve: provider failed: %w", err)
+	}
+
 	clean := klublotto.ExtractJSONObject(strings.TrimSpace(raw))
 	out := clean
 	var pretty bytes.Buffer
 	if json.Indent(&pretty, []byte(clean), "", "  ") == nil {
 		out = pretty.String()
 	}
-
-	graphPath := filepath.Join(cfg.DataDir, "krydsord-graph-"+stamp+".json")
-	_ = os.WriteFile(graphPath, []byte(out+"\n"), 0o644)
-	rawPath := filepath.Join(cfg.DataDir, "krydsord-graph-raw.txt")
-	_ = os.WriteFile(rawPath, []byte(raw), 0o644)
-
-	fmt.Println("\n== Clue graph (stage 1) ==")
+	stamp := time.Now().UTC().Format("20060102-150405")
+	solPath := filepath.Join(cfg.DataDir, "krydsord-solution-"+stamp+".json")
+	_ = os.WriteFile(solPath, []byte(out+"\n"), 0o644)
+	fmt.Println("\n== Solution (stage 2) ==")
 	fmt.Println(out)
-	fmt.Printf("\nSaved: %s\n(input image: %s, raw response: %s)\n", graphPath, inputPath, rawPath)
+	fmt.Printf("\nSaved: %s\n", solPath)
 	return nil
+}
+
+// buildKrydsordSolvePrompt assembles the stage-2 solving prompt: the labelled
+// clue lists, the deterministic crossing constraints, and the user's solve
+// instructions — all framed as a Danish crossword that must use Den Danske Ordbog.
+func buildKrydsordSolvePrompt(g krydsordGraph, crossings []string) string {
+	var b strings.Builder
+	b.WriteString("Du løser et DANSK skandinavisk krydsord (clue-square crossword).\n")
+	b.WriteString("Alle svar er danske ord/udtryk og SKAL findes i Den Danske Ordbog (ordnet.dk/ddo). Ingen svenske/norske/engelske former.\n\n")
+
+	b.WriteString("VANDRETTE (Across):\n")
+	for i, a := range g.Across {
+		fmt.Fprintf(&b, "A%d: \"%s\" — %d bogstaver\n", i+1, a.Clue, a.Length)
+	}
+	b.WriteString("\nLODRETTE (Down):\n")
+	for i, d := range g.Down {
+		fmt.Fprintf(&b, "D%d: \"%s\" — %d bogstaver\n", i+1, d.Clue, d.Length)
+	}
+
+	if len(crossings) > 0 {
+		b.WriteString("\nKRYDSNINGER (delte celler — bogstaverne SKAL stemme nøjagtigt):\n")
+		for _, c := range crossings {
+			b.WriteString("- " + c + "\n")
+		}
+	}
+
+	b.WriteString(`
+Løs krydsordet. Brug ALLE krydsninger ovenfor til at bekræfte hvert bogstav.
+Hvis flere svar passer en ledetråd, behold alternativer indtil krydsningerne udelukker dem.
+Tjek til sidst at hvert krydsende bogstavpar stemmer.
+
+Returner KUN JSON i dette format (ingen anden tekst):
+{"answers":[{"id":"A1","clue":"...","answer":"SVAR","confidence":"high|medium|low"}]}
+- "answer" skal være med STORE bogstaver, kun danske bogstaver (A-Z, Æ, Ø, Å), og have præcis det angivne antal bogstaver.
+`)
+	return b.String()
 }
 
 func gameBrowser(cfg *config.Config, headlessFlag bool) *browser.Client {
