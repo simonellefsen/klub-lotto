@@ -4603,35 +4603,36 @@ func submitKrydsord(ctx context.Context, br *browser.Client, data klublotto.Kryd
 			}
 			if k < len(cellRefs) {
 				if err := br.Click(ctx, cellRefs[k]); err == nil {
-					time.Sleep(50 * time.Millisecond)
-					_ = br.KeyboardType(ctx, string(ch))
-					time.Sleep(50 * time.Millisecond)
+					time.Sleep(150 * time.Millisecond) // let the click focus the cell
+					// The game captures document-level keydowns, so Press works for
+					// every letter — including Æ/Ø/Å (KeyboardType's insertText needs
+					// a focused input the cells don't have, so it silently dropped them).
+					_ = br.Press(ctx, string(ch))
+					time.Sleep(80 * time.Millisecond)
 				}
 			}
 			k++
 		}
 	}
-	time.Sleep(600 * time.Millisecond)
+	time.Sleep(1500 * time.Millisecond) // let the grid commit the typed letters
 
-	// Verify the board is actually filled before checking — never claim success on
-	// an empty/partial board.
+	// Best-effort read of how many cells show a value. NOTE: the cell StaticText
+	// values often haven't committed in the DOM immediately after typing (they
+	// render on blur/commit), so a low count here is NOT reliable — we proceed to
+	// Tjek løsning regardless and let the result banner be the source of truth.
 	snap2, _ := br.SnapshotInteractiveWithFrames(ctx)
-	vals := parseIframeCellValues(snap2)
 	filled = 0
-	for _, ch := range vals {
+	for _, ch := range parseIframeCellValues(snap2) {
 		if ch != 0 {
 			filled++
 		}
 	}
-	fmt.Printf("       after typing: %d/%d cells filled\n", filled, len(vals))
+	fmt.Printf("       typed %d cells (DOM shows %d committed — read is best-effort mid-edit)\n", k, filled)
 	if r := klublotto.FindRefByName(snap2, []string{"TJEK LØSNING", "TJEK LOSNING"}); r != "" {
 		tjekRef = r
 	}
 	if r := klublotto.FindRefByName(snap2, []string{"GEM"}); r != "" {
 		gemRef = r
-	}
-	if filled == 0 {
-		return fmt.Errorf("krydsord board is still empty after typing — answer was not entered; not checking")
 	}
 
 	// Click "TJEK LØSNING" via ref (preferred) or fall back to name search.

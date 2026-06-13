@@ -1,17 +1,63 @@
 {
+  "1500": [
+    "MD"
+  ],
+  "BEHOLDER": [
+    "TANK",
+    "VASE"
+  ],
+  "CIRKUSSCENE": [
+    "ARENA"
+  ],
   "DIGT": [
     "ODE",
     "RIM",
     "ORD"
   ],
+  "DRIK": [
+    "TE"
+  ],
+  "DYR": [
+    "KO"
+  ],
   "DØRSLAG": [
     "SI"
+  ],
+  "FARTØJ": [
+    "LUFTBALLON"
+  ],
+  "FARVE": [
+    "ROSA"
   ],
   "FINDES": [
     "ER"
   ],
+  "FORLANGER": [
+    "KRÆVER"
+  ],
+  "FØDEN": [
+    "MADEN"
+  ],
+  "GRINE": [
+    "LE"
+  ],
+  "IDAG": [
+    "DD"
+  ],
   "IDET": [
     "DA"
+  ],
+  "IMGCASTLE": [
+    "SLOT"
+  ],
+  "IMGICECREAMCONE": [
+    "IS"
+  ],
+  "IMGLIGHTNINGBOLT": [
+    "LYN"
+  ],
+  "IMGSTITCHES": [
+    "AR"
   ],
   "INSEKT": [
     "BI"
@@ -26,23 +72,87 @@
   "KLUDE": [
     "LASER"
   ],
+  "KRAFTIG": [
+    "FED"
+  ],
   "KURSIST": [
     "ELEV"
   ],
+  "LARGE": [
+    "L"
+  ],
   "LØFTE": [
     "ED"
+  ],
+  "MI": [
+    "E"
+  ],
+  "MÆRKE": [
+    "AR"
   ],
   "PAPEGØJE": [
     "ARA",
     "KEA"
   ],
+  "PLADE": [
+    "LP",
+    "EP"
+  ],
+  "PROPPET": [
+    "FYLDT"
+  ],
+  "REDSKAB": [
+    "LOMMEKNIV"
+  ],
+  "RETNING": [
+    "UDAD"
+  ],
+  "REX": [
+    "R"
+  ],
+  "RUM": [
+    "LO"
+  ],
+  "RUMORGANISATION": [
+    "ESA"
+  ],
   "SAMT": [
     "OG"
+  ],
+  "SIKKERT": [
+    "NOK"
+  ],
+  "SKIBSDEL": [
+    "DÆK"
+  ],
+  "SMALL": [
+    "S"
+  ],
+  "STEDORD": [
+    "DE"
+  ],
+  "STÆVNE": [
+    "OL"
+  ],
+  "TALORD": [
+    "NITTEN"
   ],
   "TARA": [
     "T"
   ],
+  "TON": [
+    "T"
+  ],
+  "VEJDEL": [
+    "BANE"
+  ],
   "VÆSEN": [
     "FE"
+  ],
+  "ÅRE": [
+    "AORTA"
+  ],
+  "ØJNE": [
+    "SE"
   ]
 }
