@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
 	"encoding/json"
@@ -769,6 +770,7 @@ func runKrydsord(ctx context.Context, args []string) error {
 	submitFlag := fs.Bool("submit", false, "submit the solved grid (via API save + Tjek løsning on parent)")
 	gridPath := fs.String("grid", "", "validate a proposed Krydsord grid from JSON or text")
 	partialGrid := fs.Bool("partial", false, "allow _/space unknowns when validating --grid")
+	graphOnly := fs.Bool("graph", false, "stage 1 only: ask the vision LLM to deconstruct the crossword into a clue graph (JSON) and exit — does not solve or submit")
 	providerFlag := fs.String("provider", "", "word provider for clue candidates: gemini|openai|xai|anthropic|openrouter")
 	headlessFlag := fs.Bool("headless", false, "force headless browser")
 	if err := fs.Parse(args); err != nil {
@@ -833,6 +835,11 @@ func runKrydsord(ctx context.Context, args []string) error {
 		if dec, decErr := base64.StdEncoding.DecodeString(img); decErr == nil {
 			imgBytes = dec
 		}
+	}
+
+	// ── Stage 1: deconstruct the crossword into a clue graph (no solving) ─────────
+	if *graphOnly {
+		return deconstructKrydsord(ctx, cfg, data, imgBytes)
 	}
 
 	solvedGrid := []string{}
@@ -1011,6 +1018,104 @@ func runKrydsord(ctx context.Context, args []string) error {
 	}
 
 	return upsertDailyGame(ctx, cfg, "Krydsord", "Danish clues-in-squares crossword", gridOneLineKrydsord(solvedGrid), true, true, "Solved via clues OCR + LLM candidates + consistent grid. Saved via vendor API + Tjek løsning. Screenshot: `"+shot+"`.")
+}
+
+// krydsordDeconstructPrompt asks a vision model to read a Scandinavian
+// clue-square crossword and emit the full clue graph (clue text/image, direction,
+// start coordinate, answer length) as JSON — WITHOUT solving. Stage 1 of the
+// two-stage solver: get a correct structural graph first, solve later.
+const krydsordDeconstructPrompt = `Do NOT solve anything yet.
+
+This is a Scandinavian clue-square crossword.
+
+Rules:
+- Text in the left border gives horizontal clues.
+- Text in the top border gives vertical clues.
+- In split clue cells:
+  - upper clue = horizontal answer
+  - lower clue = vertical answer
+- Images follow the same rules:
+  - image in left border = horizontal clue
+  - image in top border = vertical clue
+  - image in a clue cell behaves exactly like text clues
+- The top-left logo is NOT a clue.
+
+First create a complete list of all clues.
+
+For every clue report:
+- clue text (or a short image description, prefixed "IMG: ")
+- direction (Across = horizontal, Down = vertical)
+- starting coordinate [row, col] of the FIRST answer cell (1-indexed, row 1 = top, col 1 = left)
+- answer length (number of cells the answer fills)
+
+Do not attempt solving.
+
+Return ONLY a JSON object, no prose, in exactly this shape:
+{
+  "Across": [ {"clue": "REDSKAB", "direction": "Across", "start": [2,1], "length": 9} ],
+  "Down":   [ {"clue": "FARTØJ",  "direction": "Down",   "start": [1,2], "length": 9} ]
+}`
+
+// deconstructKrydsord runs stage 1: send the board image to the vision LLM with
+// krydsordDeconstructPrompt and print + save the resulting clue-graph JSON. It
+// does not solve or submit — it's for iterating on graph correctness.
+func deconstructKrydsord(ctx context.Context, cfg *config.Config, data klublotto.KrydsordData, imgBytes []byte) error {
+	if len(imgBytes) == 0 {
+		return fmt.Errorf("krydsord --graph: no board image available to deconstruct")
+	}
+	// Vision provider priority mirrors ordkløver: OpenRouter vision model first
+	// (the user's ~google/gemini-pro-latest reads these boards best), then Gemini.
+	var ac llm.VisionProvider
+	switch {
+	case cfg.OpenRouterKey != "" && cfg.OpenRouterVisionModel != "":
+		ac = llm.NewOpenRouterVision(cfg.OpenRouterKey, cfg.OpenRouterVisionModel)
+		fmt.Printf("   [graph] vision: openrouter:%s\n", cfg.OpenRouterVisionModel)
+	case cfg.GeminiKey != "":
+		ac = llm.NewGemini(cfg.GeminiKey, "gemini-2.5-pro")
+		fmt.Println("   [graph] vision: gemini:gemini-2.5-pro")
+	case cfg.AnthropicKey != "":
+		ac = llm.NewAnthropic(cfg.AnthropicKey, "claude-haiku-4-5-20251001")
+		fmt.Println("   [graph] vision: anthropic:claude-haiku-4-5-20251001")
+	default:
+		return fmt.Errorf("krydsord --graph: need OPENROUTER_API_KEY+OPENROUTER_VISION_MODEL, GEMINI_API_KEY, or ANTHROPIC_API_KEY")
+	}
+
+	mediaType := "image/jpeg"
+	if len(imgBytes) > 4 && imgBytes[0] == 0x89 && imgBytes[1] == 'P' && imgBytes[2] == 'N' && imgBytes[3] == 'G' {
+		mediaType = "image/png"
+	}
+
+	fmt.Printf("[graph] deconstructing %dx%d crossword into a clue graph (no solving)...\n", data.CellCountX, data.CellCountY)
+	visionCtx, cancel := context.WithTimeout(ctx, 300*time.Second)
+	raw, err := ac.ExtractFromImage(visionCtx, imgBytes, mediaType, krydsordDeconstructPrompt)
+	cancel()
+	if err != nil {
+		return fmt.Errorf("krydsord --graph: vision call failed: %w", err)
+	}
+
+	// Pull out the JSON object and pretty-print it; fall back to raw on any issue.
+	clean := klublotto.ExtractJSONObject(strings.TrimSpace(raw))
+	out := clean
+	var pretty bytes.Buffer
+	if json.Indent(&pretty, []byte(clean), "", "  ") == nil {
+		out = pretty.String()
+	}
+
+	graphPath := filepath.Join(cfg.DataDir, "krydsord-graph-"+time.Now().UTC().Format("20060102-150405")+".json")
+	_ = os.WriteFile(graphPath, []byte(out+"\n"), 0o644)
+	rawPath := filepath.Join(cfg.DataDir, "krydsord-graph-raw.txt")
+	_ = os.WriteFile(rawPath, []byte(raw), 0o644)
+
+	fmt.Println("\n== Clue graph (stage 1) ==")
+	fmt.Println(out)
+	fmt.Printf("\nSaved: %s\n(raw response: %s)\n", graphPath, rawPath)
+
+	// Quick cross-check against the API-derived slots so we can eyeball whether the
+	// graph's clue counts line up with the authoritative grid structure.
+	slots := klublotto.BuildKrydsordSlots(data)
+	fmt.Printf("\n[cross-check] API slots: %d across, %d down (graph should match these counts)\n",
+		countKrydsordSlots(slots, "across"), countKrydsordSlots(slots, "down"))
+	return nil
 }
 
 func gameBrowser(cfg *config.Config, headlessFlag bool) *browser.Client {
