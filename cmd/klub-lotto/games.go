@@ -1649,7 +1649,13 @@ const krydsordClueHints = `TYPISKE KRYDSORD-TRICKS (skandinavisk krydsord — br
 - Bindeord: OG, MEN, ELLER, FOR, SÅ, AT.
 - Kemisk tegn: ILT=O, BRINT=H, KULSTOF=C, JERN=FE, GULD=AU, SØLV=AG, KOBBER=CU, NATRIUM=NA.
 - Udråb: AH, OH, AV, HØ, FY, NÅ, ØV.
-- Engelske ledetråde kan forekomme (fx SMALL, LARGE); oversæt til det danske svar (SMALL→LILLE/S, LARGE→STOR/L) medmindre svaret tydeligvis er en forkortelse.`
+- Et LAND som ledetråd → landekode (2 bogstaver, ISO): TYRKIET=TR, DANMARK=DK, NORGE=NO, SVERIGE=SE, TYSKLAND=DE, ITALIEN=IT, SPANIEN=ES, FRANKRIG=FR, USA=US, ØSTRIG=AT, SCHWEIZ=CH, POLEN=PL.
+- Engelske ledetråde kan forekomme (fx SMALL, LARGE); oversæt til det danske svar (SMALL→LILLE/S, LARGE→STOR/L) medmindre svaret tydeligvis er en forkortelse.
+
+KRITISK — KUN RIGTIGE DANSKE ORD:
+- Svaret er ALTID dansk. Brug ALDRIG svenske/norske/engelske former (fx lyn = "LYN" på dansk, IKKE det svenske "ELD").
+- Opfind ALDRIG ord for at få længden til at passe (fx "TRAWLERSL" er ikke et ord).
+- Forkort ALDRIG et rigtigt ord til en ikke-eksisterende form (fx "MANEGE" må ikke afkortes til "MANEG"). Vælg et andet ord der har den rigtige længde OG findes i Den Danske Ordbog.`
 
 // buildKrydsordSolvePrompt assembles the stage-2 solving prompt: convention
 // hints, learned-dictionary answers, and the flattened CSP structure (entries +

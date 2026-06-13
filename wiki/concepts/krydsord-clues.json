@@ -4,11 +4,24 @@
     "RIM",
     "ORD"
   ],
+  "DØRSLAG": [
+    "SI"
+  ],
+  "FINDES": [
+    "ER"
+  ],
   "IDET": [
     "DA"
   ],
   "INSEKT": [
     "BI"
+  ],
+  "INSTRUMENT": [
+    "BAS",
+    "LUT",
+    "LUR",
+    "OBO",
+    "SAX"
   ],
   "KLUDE": [
     "LASER"
@@ -16,8 +29,20 @@
   "KURSIST": [
     "ELEV"
   ],
+  "LØFTE": [
+    "ED"
+  ],
   "PAPEGØJE": [
     "ARA",
     "KEA"
+  ],
+  "SAMT": [
+    "OG"
+  ],
+  "TARA": [
+    "T"
+  ],
+  "VÆSEN": [
+    "FE"
   ]
 }
