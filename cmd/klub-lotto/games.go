@@ -1251,7 +1251,9 @@ func solveKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, 
 const krydsordClueHints = `TYPISKE KRYDSORD-TRICKS (skandinavisk krydsord — brug hvor det passer med længde og krydsninger):
 - Tal skrives ofte som ROMERTAL: I=1, V=5, X=10, L=50, C=100, D=500, M=1000. Fx "1500"=MD, "1100"=MC, "2000"=MM, "51"=LI, "9"=IX, "4"=IV.
 - "PLADE"/grammofonplade-format: LP, EP (evt. CD, SINGLE).
-- Musiktone/node: DO, RE, MI, FA, SOL, LA, TI; danske node-bogstaver C, D, E, F, G, A, H.
+- Solmisation → node: DO=C, RE=D, MI=E, FA=F, SOL/SO=G, LA=A, TI=B (på dansk H). Fx ledetråd "MI" → E.
+- Sportsstævne/mesterskab: VM (verdensmesterskab), OL (olympiske lege), DM (danmarksmesterskab), NM (nordisk mesterskab), EM (europamesterskab).
+- "I DAG"/"IDAG" → DD (dags dato).
 - Verdenshjørne/retning: N, S, Ø, V (nord/syd/øst/vest), samt NØ, NV, SØ, SV.
 - Personligt stedord: JEG, DU, HAN, HUN, DEN, DET, VI, I, DE, MIG, DIG, SIG, OS, JER, DEM.
 - Forholdsord: PÅ, I, AF, TIL, VED, OM, FOR, MED, UD, OP, AD.
