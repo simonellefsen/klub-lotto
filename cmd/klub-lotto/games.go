@@ -1256,15 +1256,19 @@ func solveKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, 
 	if err != nil {
 		return err
 	}
-	// Reasoning models (e.g. ~google/gemini-pro-latest) sometimes spend their whole
-	// output budget on internal reasoning and return EMPTY content. Give OpenRouter
-	// models a generous cap so there's room for both reasoning and the answer JSON.
+	// Reasoning models (e.g. ~google/gemini-pro-latest) spend a lot of their output
+	// budget on internal reasoning; give a large cap so the full answer JSON (one
+	// entry per clue) isn't truncated after the reasoning. Too small and the tail
+	// of the answer list is silently cut off.
 	if or, ok := p.(*llm.OpenRouter); ok {
-		or.MaxTokens = 20000
+		or.MaxTokens = 40000
 	}
 	fmt.Printf("   [solve] model: %s\n", p.Name())
 	prompt := buildKrydsordSolvePrompt(string(cspJSON), dictLines)
-	_ = os.WriteFile(filepath.Join(cfg.DataDir, "krydsord-solve-prompt.txt"), []byte(prompt), 0o644)
+	promptPath := filepath.Join(cfg.DataDir, "krydsord-solve-prompt.txt")
+	_ = os.WriteFile(promptPath, []byte(prompt), 0o644)
+	cspPath := filepath.Join(cfg.DataDir, "krydsord-csp.json")
+	fmt.Printf("   [solve] board (CSP): %s\n   [solve] prompt:      %s\n", cspPath, promptPath)
 
 	// Try a few times: the empty-content failure mode above is intermittent, so a
 	// retry usually lands a full answer.
@@ -1300,33 +1304,108 @@ func solveKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, 
 	fmt.Println(out)
 	fmt.Printf("\nSaved: %s\n", solPath)
 
+	// Parse the answers (tolerant of a truncated array) for validation + learning.
+	var sol struct {
+		Answers []struct {
+			Clue   string `json:"clue"`
+			Answer string `json:"answer"`
+			ID     string `json:"id"`
+		} `json:"answers"`
+	}
+	_ = json.Unmarshal([]byte(clean), &sol)
+	answersByID := map[string]string{}
+	for _, a := range sol.Answers {
+		if a.ID != "" {
+			answersByID[a.ID] = klublotto.NormalizeDanishLetters(a.Answer)
+		}
+	}
+
+	// Validate against the CSP: lengths, missing entries, and crossing conflicts.
+	// This surfaces exactly the kind of errors the model makes (wrong-length
+	// answers, dropped entries, letters that disagree at a shared cell).
+	issues := validateKrydsordSolution(csp, answersByID)
+	fmt.Println("\n== Validering (mod CSP) ==")
+	if len(issues) == 0 {
+		fmt.Printf("Alle %d poster besvaret, længder og krydsninger passer ✓\n", len(csp.Entries))
+	} else {
+		fmt.Printf("%d problem(er) — løsningen er ikke konsistent endnu:\n", len(issues))
+		for _, is := range issues {
+			fmt.Println("-", is)
+		}
+		fmt.Println("(disse fejl er typisk forkert længde, manglende poster, eller krydsende bogstaver der ikke stemmer)")
+	}
+
 	// --learn: merge this run's clue→answer pairs into the learned dictionary.
 	// Opt-in (the answers are not yet board-verified), so the user only commits a
 	// solve they trust. Verified auto-learning will come with stage 3 (submit).
 	if learn {
-		var sol struct {
-			Answers []struct {
-				Clue   string `json:"clue"`
-				Answer string `json:"answer"`
-			} `json:"answers"`
+		added := 0
+		for _, a := range sol.Answers {
+			if dict.Add(a.Clue, a.Answer) {
+				added++
+			}
 		}
-		if json.Unmarshal([]byte(clean), &sol) == nil {
-			added := 0
-			for _, a := range sol.Answers {
-				if dict.Add(a.Clue, a.Answer) {
-					added++
-				}
-			}
-			if err := dict.Save(dictPath); err != nil {
-				fmt.Printf("   [learn] failed to save dictionary: %v\n", err)
-			} else {
-				fmt.Printf("   [learn] added %d new clue→answer entries to %s\n", added, dictPath)
-			}
+		if err := dict.Save(dictPath); err != nil {
+			fmt.Printf("   [learn] failed to save dictionary: %v\n", err)
 		} else {
-			fmt.Println("   [learn] could not parse solution JSON; nothing learned")
+			fmt.Printf("   [learn] added %d new clue→answer entries to %s\n", added, dictPath)
 		}
 	}
 	return nil
+}
+
+// validateKrydsordSolution checks a solution against the CSP and returns a list
+// of problems: entries with no answer, answers of the wrong length, and shared
+// cells whose letters disagree across the entries that cross there.
+func validateKrydsordSolution(csp krydsordCSP, answers map[string]string) []string {
+	var issues []string
+	var ids []string
+	for id := range csp.Entries {
+		ids = append(ids, id)
+	}
+	sort.Strings(ids)
+	for _, id := range ids {
+		e := csp.Entries[id]
+		a := answers[id]
+		if a == "" {
+			issues = append(issues, fmt.Sprintf("%s (%q): intet svar", id, e.Clue))
+			continue
+		}
+		if n := len([]rune(a)); n != e.Length {
+			issues = append(issues, fmt.Sprintf("%s (%q): %q har %d bogstaver, forventet %d", id, e.Clue, a, n, e.Length))
+		}
+	}
+	// Crossing consistency: place each correct-length answer into its cells and
+	// flag any cell that ends up with more than one distinct letter.
+	cellLetters := map[string]map[rune][]string{}
+	for id, e := range csp.Entries {
+		a := []rune(answers[id])
+		if len(a) != e.Length {
+			continue // skip wrong-length answers (already reported)
+		}
+		for k, cid := range e.Cells {
+			if cellLetters[cid] == nil {
+				cellLetters[cid] = map[rune][]string{}
+			}
+			cellLetters[cid][a[k]] = append(cellLetters[cid][a[k]], fmt.Sprintf("%s:%d", id, k+1))
+		}
+	}
+	var conflictCells []string
+	for cid, byLetter := range cellLetters {
+		if len(byLetter) > 1 {
+			conflictCells = append(conflictCells, cid)
+		}
+	}
+	sort.Strings(conflictCells)
+	for _, cid := range conflictCells {
+		var parts []string
+		for r, members := range cellLetters[cid] {
+			parts = append(parts, fmt.Sprintf("%c(%s)", r, strings.Join(members, ",")))
+		}
+		sort.Strings(parts)
+		issues = append(issues, fmt.Sprintf("krydsningskonflikt %s: %s", cid, strings.Join(parts, " ≠ ")))
+	}
+	return issues
 }
 
 // krydsordClueHints lists common Scandinavian-crossword conventions the solver
@@ -1374,11 +1453,16 @@ CSP:
 	b.WriteString(cspJSON)
 	b.WriteString(`
 
-Opgave:
-- Find det danske svar til hver post med præcis den angivne længde.
-- Alle krydsninger SKAL passe: en delt celle har samme bogstav i begge poster.
-- Hvis flere svar passer en ledetråd, behold alternativer indtil krydsningerne udelukker dem.
-- Til sidst: gennemgå hver delt celle og bekræft at bogstaverne stemmer.
+Fremgangsmåde (følg denne rækkefølge):
+1. Løs FØRST de sikre, korte poster: tal→romertal (1500=MD), noder (MI=E), billeder (IMG: is-vaffel→IS), forkortelser, stedord/forholdsord. Disse er ankre.
+2. Skriv ankrenes bogstaver ind i deres celler. Brug "cells"-kortet til at se, hvilke bogstaver de dermed LÅSER i de krydsende poster.
+3. Løs de lange poster, så de matcher de allerede låste bogstaver (fx mønster "_ _ _ M E _ _ I _"). FORKAST et gæt der ikke passer mønsteret — også selvom ordet ellers passer ledetråden godt.
+4. Gentag indtil alle poster er udfyldt og alle krydsninger stemmer.
+
+KRAV (overhold dem nøje):
+- Besvar HVER eneste post i "entries" — både alle A* (vandrette) og alle D* (lodrette). Udelad ingen.
+- Tæl bogstaverne: hvert svar SKAL have præcis "length" bogstaver, hverken flere eller færre.
+- Alle delte celler SKAL ende med samme bogstav i de poster der krydser der.
 
 Returner KUN JSON i dette format (ingen anden tekst):
 {"answers":[{"id":"A1","clue":"...","answer":"SVAR","confidence":"high|medium|low"}]}
