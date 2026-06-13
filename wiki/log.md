@@ -199,3 +199,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-12 04:37 UTC] ingest | ordkløver | Category: `Tv og radio`; answer pattern `9` | outcome=submitted
 
+## [2026-06-13 04:35 UTC] ingest | quiz | Hvilken flod løber gennem Wien? | outcome=submitted
+
