@@ -790,7 +790,7 @@ func runKrydsord(ctx context.Context, args []string) error {
 	// Uses --graph-file or the latest `make krydsord-graph` output, builds the CSP
 	// deterministically, and solves. Done before opening any browser.
 	if *solveOnly {
-		return solveKrydsord(ctx, cfg, *graphFile, *providerFlag, *learnFlag)
+		return solveKrydsord(ctx, cfg, *graphFile, *providerFlag, *learnFlag, *dryRun)
 	}
 
 	br := gameBrowser(cfg, *headlessFlag)
@@ -1291,6 +1291,50 @@ func buildKrydsordCSP(g krydsordGraph) krydsordCSP {
 	return csp
 }
 
+// renderKrydsordBoard draws a compact ASCII grid of the puzzle from the CSP so
+// the LLM gets the spatial layout, not just the cell lists: "·" = an answer cell
+// in one entry, "+" = a crossing cell (shared by an across and a down entry),
+// blank = not an answer cell. Row/column headers map back to the cell ids.
+func renderKrydsordBoard(csp krydsordCSP) string {
+	type rc struct{ r, c int }
+	count := map[rc]int{}
+	maxR, maxC := 0, 0
+	for cid, members := range csp.Cells {
+		var r, c int
+		if _, err := fmt.Sscanf(cid, "r%dc%d", &r, &c); err != nil {
+			continue
+		}
+		count[rc{r, c}] = len(members)
+		if r > maxR {
+			maxR = r
+		}
+		if c > maxC {
+			maxC = c
+		}
+	}
+	var b strings.Builder
+	b.WriteString("    ")
+	for c := 1; c <= maxC; c++ {
+		fmt.Fprintf(&b, "%2d ", c)
+	}
+	b.WriteString("\n")
+	for r := 1; r <= maxR; r++ {
+		fmt.Fprintf(&b, "%3d ", r)
+		for c := 1; c <= maxC; c++ {
+			switch n := count[rc{r, c}]; {
+			case n >= 2:
+				b.WriteString(" + ")
+			case n == 1:
+				b.WriteString(" · ")
+			default:
+				b.WriteString("   ")
+			}
+		}
+		b.WriteString("\n")
+	}
+	return b.String()
+}
+
 // crossingCount returns the number of cells shared by two or more entries.
 func (csp krydsordCSP) crossingCount() int {
 	n := 0
@@ -1330,7 +1374,7 @@ func latestKrydsordGraph(dir string) (string, error) {
 // `make krydsord-graph`, builds the CSP deterministically (no AI), and asks the
 // reasoning model to fill it in. Prints the answers + a CSP validation report;
 // does not submit.
-func solveKrydsord(ctx context.Context, cfg *config.Config, graphFile, provider string, learn bool) error {
+func solveKrydsord(ctx context.Context, cfg *config.Config, graphFile, provider string, learn, dry bool) error {
 	if strings.TrimSpace(graphFile) == "" {
 		latest, err := latestKrydsordGraph(cfg.DataDir)
 		if err != nil {
@@ -1355,7 +1399,11 @@ func solveKrydsord(ctx context.Context, cfg *config.Config, graphFile, provider 
 	csp := buildKrydsordCSP(g)
 	cspJSON, _ := json.MarshalIndent(csp, "", "  ")
 	_ = os.WriteFile(filepath.Join(cfg.DataDir, "krydsord-csp.json"), append(cspJSON, '\n'), 0o644)
+	board := renderKrydsordBoard(csp)
+	_ = os.WriteFile(filepath.Join(cfg.DataDir, "krydsord-board.txt"), []byte(board), 0o644)
 	fmt.Printf("[solve] %d across, %d down, %d crossings (CSP)\n", len(g.Across), len(g.Down), csp.crossingCount())
+	fmt.Println("\n== Board ==")
+	fmt.Println(board)
 
 	// Our own learned clue dictionary: feed any entries whose clue is in today's
 	// puzzle into the prompt as preferred answers.
@@ -1373,6 +1421,18 @@ func solveKrydsord(ctx context.Context, cfg *config.Config, graphFile, provider 
 		fmt.Printf("[solve] %d clue(s) matched the learned dictionary\n", len(dictLines))
 	}
 
+	// The board + CSP + prompt are all built deterministically (no AI) — do that
+	// first so --dry-run can inspect them without needing an LLM key/call.
+	prompt := buildKrydsordSolvePrompt(string(cspJSON), board, dictLines)
+	promptPath := filepath.Join(cfg.DataDir, "krydsord-solve-prompt.txt")
+	_ = os.WriteFile(promptPath, []byte(prompt), 0o644)
+	cspPath := filepath.Join(cfg.DataDir, "krydsord-csp.json")
+	fmt.Printf("   [solve] board (CSP): %s\n   [solve] prompt:      %s\n", cspPath, promptPath)
+	if dry {
+		fmt.Printf("\n[solve] --dry-run: generated board + CSP prompt, not calling the LLM.\nPrompt saved: %s\n", promptPath)
+		return nil
+	}
+
 	p, err := wordProvider(cfg, provider)
 	if err != nil {
 		return err
@@ -1385,11 +1445,6 @@ func solveKrydsord(ctx context.Context, cfg *config.Config, graphFile, provider 
 		or.MaxTokens = 40000
 	}
 	fmt.Printf("   [solve] model: %s\n", p.Name())
-	prompt := buildKrydsordSolvePrompt(string(cspJSON), dictLines)
-	promptPath := filepath.Join(cfg.DataDir, "krydsord-solve-prompt.txt")
-	_ = os.WriteFile(promptPath, []byte(prompt), 0o644)
-	cspPath := filepath.Join(cfg.DataDir, "krydsord-csp.json")
-	fmt.Printf("   [solve] board (CSP): %s\n   [solve] prompt:      %s\n", cspPath, promptPath)
 
 	// Try a few times: the empty-content failure mode above is intermittent, so a
 	// retry usually lands a full answer.
@@ -1552,11 +1607,16 @@ const krydsordClueHints = `TYPISKE KRYDSORD-TRICKS (skandinavisk krydsord — br
 // hints, learned-dictionary answers, and the flattened CSP structure (entries +
 // shared cells). The CSP gives the model exact geometry and crossings so it can
 // focus purely on language — framed as a Danish crossword using Den Danske Ordbog.
-func buildKrydsordSolvePrompt(cspJSON string, dictLines []string) string {
+func buildKrydsordSolvePrompt(cspJSON, board string, dictLines []string) string {
 	var b strings.Builder
 	b.WriteString("Du løser et DANSK skandinavisk krydsord (clue-square crossword).\n")
 	b.WriteString("Alle svar er danske ord/udtryk og SKAL findes i Den Danske Ordbog (ordnet.dk/ddo). Ingen svenske/norske/engelske former.\n\n")
 	b.WriteString(krydsordClueHints + "\n\n")
+	if strings.TrimSpace(board) != "" {
+		b.WriteString("BRÆT-LAYOUT (· = svar-felt i én post, + = krydsning mellem en vandret og en lodret post, blank = ikke et svar-felt). Række/kolonne-tal matcher celle-id'erne \"r<række>c<kolonne>\":\n")
+		b.WriteString(board)
+		b.WriteString("\n")
+	}
 	if len(dictLines) > 0 {
 		b.WriteString("KENDTE SVAR FRA EGEN ORDBOG (set i tidligere krydsord — foretræk disse hvis længde + krydsninger passer):\n")
 		for _, l := range dictLines {

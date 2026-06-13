@@ -33,7 +33,7 @@ ORDKLOEVER_REASON := $(or $(FINAL_PROVIDER),$(final_provider),$(ORDKLOEVER_FINAL
 ORDKNUDE_MODEL := $(or $(PROVIDER),$(provider),$(WORD_PROVIDER),$(ORDKNUDE_PROVIDER),openai/gpt-5.5)
 ORDKNUDE_PROVIDER_FLAG := --provider "$(ORDKNUDE_MODEL)"
 
-.PHONY: help build doctor login quiz quiz-dry sudoku sudoku-dry ordkloever ordkloever-dry ordkloever-extract ordkloever-probe ordknude ordknude-dry ordknude-extract krydsord krydsord-dry krydsord-graph krydsord-solve wiki-query wiki-lint sync clean reset \
+.PHONY: help build doctor login quiz quiz-dry sudoku sudoku-dry ordkloever ordkloever-dry ordkloever-extract ordkloever-probe ordknude ordknude-dry ordknude-extract krydsord krydsord-dry krydsord-graph krydsord-solve krydsord-solve-dry wiki-query wiki-lint sync clean reset \
         image deploy k8s-up k8s-down k8s-logs port-forward db-shell ui-url tidy \
         db-up db-down db-import db-port-forward
 
@@ -55,7 +55,8 @@ help:
 	@echo "make krydsord-dry — extract today's Krydsord board image, mask, and slots; no submit"
 	@echo "make krydsord      — real solve (vision clues + candidates + grid) + submit via API + Tjek løsning on parent (reuses klublotto session)"
 	@echo "make krydsord-graph— stage 1: deconstruct + verify the clue graph (JSON); GRAPH_MODEL= to try a vision LLM, VERIFY=false to skip the check; no solve/submit"
-	@echo "make krydsord-solve— stage 2: solve from the latest validated graph (run krydsord-graph first); GRAPH_FILE= optional; no submit"
+	@echo "make krydsord-solve— stage 2: solve from the latest validated graph (GRAPH_FILE=, SOLVE_MODEL= optional); no submit"
+	@echo "make krydsord-solve-dry — build the board + CSP prompt only (no LLM call), for inspecting/iterating"
 	@echo "make wiki-query Q='...'  — search the wiki via qmd (or grep)"
 	@echo "make sync        — commit wiki/doc changes and push to origin"
 	@echo "make reset       — close any agent-browser daemons (run if you can't see the window)"
@@ -145,13 +146,19 @@ krydsord-graph: $(BIN)
 	OPENROUTER_VISION_MODEL=$(KRYDSORD_GRAPH_MODEL) $(LOCAL_BROWSER_ENV) $(BIN) krydsord --graph $(KRYDSORD_VERIFY_FLAG)
 
 # Stage 2: solve from a VALIDATED graph (run `make krydsord-graph` first and
-# check it). Builds the CSP deterministically and solves with the reasoning
-# model — no browser/vision, no re-deconstruction. Uses the latest saved graph
-# unless GRAPH_FILE=path is given. Override the solver with PROVIDER=.
-KRYDSORD_SOLVE_PROVIDER := $(or $(PROVIDER),$(provider),$(WORD_PROVIDER),~google/gemini-pro-latest)
+# check it). Builds the board + CSP deterministically (no AI) and solves with the
+# reasoning model — no browser/vision, no re-deconstruction. Uses the latest saved
+# graph unless GRAPH_FILE=path is given.
+# Configure the solver model with SOLVE_MODEL= (or PROVIDER=), e.g.:
+#   make krydsord-solve GRAPH_FILE=krydsord_20260613_graph.json SOLVE_MODEL=openai/gpt-5.4
+# krydsord-solve-dry builds + saves the board + prompt WITHOUT calling the LLM.
+KRYDSORD_SOLVE_PROVIDER := $(or $(SOLVE_MODEL),$(PROVIDER),$(provider),$(WORD_PROVIDER),~google/gemini-pro-latest)
 KRYDSORD_GRAPH_FILE_FLAG := $(if $(GRAPH_FILE),--graph-file "$(GRAPH_FILE)")
 krydsord-solve: $(BIN)
 	$(BIN) krydsord --solve --provider "$(KRYDSORD_SOLVE_PROVIDER)" $(KRYDSORD_GRAPH_FILE_FLAG)
+
+krydsord-solve-dry: $(BIN)
+	$(BIN) krydsord --solve --dry-run $(KRYDSORD_GRAPH_FILE_FLAG)
 
 krydsord: $(BIN)
 	$(LOCAL_BROWSER_ENV) $(BIN) krydsord --submit
