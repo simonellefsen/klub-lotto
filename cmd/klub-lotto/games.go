@@ -1480,20 +1480,18 @@ func solveKrydsord(ctx context.Context, cfg *config.Config, graphFile, provider 
 	fmt.Println(out)
 	fmt.Printf("\nSaved: %s\n", solPath)
 
-	// Parse the answers (tolerant of a truncated array) for validation + learning.
-	var sol struct {
-		Answers []struct {
-			Clue   string `json:"clue"`
-			Answer string `json:"answer"`
-			ID     string `json:"id"`
-		} `json:"answers"`
-	}
-	_ = json.Unmarshal([]byte(clean), &sol)
+	// Parse the answers tolerantly: reasoning models often truncate the JSON
+	// array, which a strict Unmarshal rejects wholesale. Salvage every complete
+	// {…} object so we still get the answers that did come through.
+	answers := parseKrydsordAnswers(clean)
 	answersByID := map[string]string{}
-	for _, a := range sol.Answers {
+	for _, a := range answers {
 		if a.ID != "" {
 			answersByID[a.ID] = klublotto.NormalizeDanishLetters(a.Answer)
 		}
+	}
+	if n := len(answersByID); n < len(csp.Entries) {
+		fmt.Printf("\n[solve] parsed %d of %d answers — the response was likely truncated (reasoning models do this).\n           Try a non-reasoning model: make krydsord-solve SOLVE_MODEL=openai/gpt-5.4 GRAPH_FILE=...\n", n, len(csp.Entries))
 	}
 
 	// Validate against the CSP: lengths, missing entries, and crossing conflicts.
@@ -1516,7 +1514,7 @@ func solveKrydsord(ctx context.Context, cfg *config.Config, graphFile, provider 
 	// solve they trust. Verified auto-learning will come with stage 3 (submit).
 	if learn {
 		added := 0
-		for _, a := range sol.Answers {
+		for _, a := range answers {
 			if dict.Add(a.Clue, a.Answer) {
 				added++
 			}
@@ -1528,6 +1526,56 @@ func solveKrydsord(ctx context.Context, cfg *config.Config, graphFile, provider 
 		}
 	}
 	return nil
+}
+
+// krydsordAnswer is one solved entry from the model's JSON.
+type krydsordAnswer struct {
+	ID     string `json:"id"`
+	Clue   string `json:"clue"`
+	Answer string `json:"answer"`
+}
+
+// parseKrydsordAnswers extracts answer objects from the model's JSON, tolerating
+// a truncated array: it scans the "answers" array and unmarshals each balanced
+// {…} object individually, so a cut-off tail loses only the missing entries
+// rather than the whole response. (Answers are uppercase letters, so braces only
+// ever appear as object delimiters here.)
+func parseKrydsordAnswers(clean string) []krydsordAnswer {
+	i := strings.Index(clean, `"answers"`)
+	if i < 0 {
+		return nil
+	}
+	s := clean[i:]
+	if j := strings.IndexByte(s, '['); j >= 0 {
+		s = s[j+1:]
+	}
+	var out []krydsordAnswer
+	depth, start := 0, -1
+	for k := 0; k < len(s); k++ {
+		switch s[k] {
+		case '{':
+			if depth == 0 {
+				start = k
+			}
+			depth++
+		case '}':
+			if depth > 0 {
+				depth--
+				if depth == 0 && start >= 0 {
+					var a krydsordAnswer
+					if json.Unmarshal([]byte(s[start:k+1]), &a) == nil && a.ID != "" {
+						out = append(out, a)
+					}
+					start = -1
+				}
+			}
+		case ']':
+			if depth == 0 {
+				return out // array closed cleanly
+			}
+		}
+	}
+	return out // truncated mid-array — return what we salvaged
 }
 
 // validateKrydsordSolution checks a solution against the CSP and returns a list
