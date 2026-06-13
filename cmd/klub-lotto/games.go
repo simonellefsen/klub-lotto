@@ -2020,6 +2020,7 @@ func parseIframeCellRefs(snap string, excludeRefs map[string]bool) []string {
 	var refs []string
 	for _, line := range strings.Split(iframeSection, "\n") {
 		trimmed := strings.TrimSpace(line)
+		trimmed = strings.TrimPrefix(trimmed, "- ") // accessibility-tree list marker
 		if !strings.Contains(trimmed, "[cursor:pointer]") || !strings.Contains(trimmed, "[ref=e") {
 			continue
 		}
@@ -2062,6 +2063,7 @@ func parseIframeCellValues(snap string) []rune {
 	var values []rune
 	for i, line := range lines {
 		trimmed := strings.TrimSpace(line)
+		trimmed = strings.TrimPrefix(trimmed, "- ") // accessibility-tree list marker
 		if !strings.Contains(trimmed, "[cursor:pointer]") || !strings.Contains(trimmed, "[ref=e") {
 			continue
 		}
@@ -2072,6 +2074,7 @@ func parseIframeCellValues(snap string) []rune {
 		var ch rune
 		for j := i + 1; j < len(lines) && j <= i+2; j++ {
 			next := strings.TrimSpace(lines[j])
+			next = strings.TrimPrefix(next, "- ")
 			if next == "" {
 				continue
 			}
