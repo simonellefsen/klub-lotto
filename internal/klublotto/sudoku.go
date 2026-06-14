@@ -111,10 +111,15 @@ func OpenSudoku(ctx context.Context, br *browser.Client) error {
 
 func ExtractSudokuGivens(ctx context.Context, br *browser.Client) (SudokuGrid, string, error) {
 	parentURL, _ := br.URL(ctx)
-	// The game iframe is a cross-origin OOPIF that agent-browser can neither
-	// enter (frame) nor expand (-F snapshot) from the parent, so we must
-	// navigate the top-level tab to the iframe src to read the grid. This brief
-	// switch to mgame.nu is unavoidable with the current agent-browser.
+
+	// Preferred: read the grid INSIDE the embedded game iframe (OOPIF) via a
+	// frame() switch — no top-level navigation, so no danskespil.dk↔mgame.nu
+	// flicker, and it avoids the standalone-URL redirect. Falls back to the
+	// top-level navigation below if the in-frame read fails.
+	if g, ok := extractSudokuGivensInFrame(ctx, br); ok {
+		return g, parentURL, nil
+	}
+
 	src, _ := br.Eval(ctx, `(() => Array.from(document.querySelectorAll('iframe')).map(f => f.src).find(s => /sudoku/i.test(s)) || '')()`)
 	src = unwrapAgentBrowserString(src)
 	if strings.TrimSpace(src) != "" {
@@ -140,6 +145,52 @@ func ExtractSudokuGivens(ctx context.Context, br *browser.Client) (SudokuGrid, s
 		g[i/9][i%9] = v
 	}
 	return g, parentURL, nil
+}
+
+// extractSudokuGivensInFrame reads the 81 givens inside the embedded game iframe
+// (OOPIF) via a frame() switch, so no top-level navigation is needed. Returns
+// ok=false on any failure so the caller falls back to the top-level read.
+func extractSudokuGivensInFrame(ctx context.Context, br *browser.Client) (SudokuGrid, bool) {
+	entered := false
+	for _, sel := range []string{"iframe.kl-game__iframe", "iframe[src*='sudoku']"} {
+		if err := br.Frame(ctx, sel); err == nil {
+			entered = true
+			break
+		}
+	}
+	if !entered {
+		return SudokuGrid{}, false
+	}
+	defer func() { _ = br.Frame(context.Background(), "") }()
+
+	for attempt := 0; attempt < 8; attempt++ {
+		if attempt > 0 {
+			time.Sleep(1 * time.Second)
+		}
+		raw, err := br.Eval(ctx, sudokuExtractJS)
+		if err != nil {
+			continue
+		}
+		var cells []int
+		if err := json.Unmarshal([]byte(raw), &cells); err != nil || len(cells) != 81 {
+			continue
+		}
+		nonZero := 0
+		for _, v := range cells {
+			if v != 0 {
+				nonZero++
+			}
+		}
+		if nonZero < 10 {
+			continue // grid not fully rendered yet
+		}
+		var g SudokuGrid
+		for i, v := range cells {
+			g[i/9][i%9] = v
+		}
+		return g, true
+	}
+	return SudokuGrid{}, false
 }
 
 const sudokuExtractJS = `(() => {

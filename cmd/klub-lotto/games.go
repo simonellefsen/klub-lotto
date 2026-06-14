@@ -3113,76 +3113,68 @@ func parseSudokuNumberRefs(snap string) map[string]string {
 	return out
 }
 
-// navigateToSudokuGame brings the tab to the game iframe URL (mgame.nu), where
-// the grid is reachable as top-level DOM. Used only as a fallback if we aren't
-// already there. The parent adds the game iframe lazily, so it waits for the
-// src to appear before opening it.
-func navigateToSudokuGame(ctx context.Context, br *browser.Client) error {
+func submitSudoku(ctx context.Context, br *browser.Client, givens, solved klublotto.SudokuGrid) error {
+	// The grid is a cross-origin OOPIF (sudoku.…mgame.nu) embedded in the parent.
+	// The patched agent-browser can eval/click/snapshot inside OOPIFs via a
+	// frame() switch, so we fill the EMBEDDED game (staying on danskespil.dk, so
+	// the win registers) rather than navigating to the standalone game URL (which
+	// redirects away). Inside the frame the grid is <div class="cell-<r>-<c>">
+	// cells + a div.number ×9 pad.
+
+	// Ensure we're on the parent with the embedded game iframe present (it is
+	// added lazily after load).
 	if err := br.Open(ctx, klublotto.SudokuURL); err != nil {
 		return fmt.Errorf("open sudoku parent: %w", err)
 	}
 	_ = br.WaitForLoad(ctx, "networkidle")
-	var src string
 	deadline := time.Now().Add(20 * time.Second)
 	for {
-		s, _ := br.Eval(ctx, `(() => Array.from(document.querySelectorAll('iframe')).map(f=>f.src).find(x=>/sudoku/i.test(x)) || '')()`)
-		src = strings.Trim(strings.TrimSpace(s), `"`)
-		if src != "" {
+		has, _ := br.Eval(ctx, `(() => !!Array.from(document.querySelectorAll('iframe')).find(f=>/sudoku/i.test(f.src)))()`)
+		if strings.TrimSpace(has) == "true" {
 			break
 		}
 		if time.Now().After(deadline) {
-			return fmt.Errorf("sudoku game iframe src did not appear on the parent page")
+			return fmt.Errorf("sudoku game iframe did not appear on the parent page")
 		}
 		time.Sleep(1 * time.Second)
 	}
-	if err := br.Open(ctx, src); err != nil {
-		return fmt.Errorf("open sudoku game url: %w", err)
-	}
-	_ = br.WaitForLoad(ctx, "networkidle")
-	return nil
-}
 
-func submitSudoku(ctx context.Context, br *browser.Client, givens, solved klublotto.SudokuGrid) error {
-	// The grid cells live in a cross-origin OOPIF (sudoku.…mgame.nu) that
-	// agent-browser cannot enter (frame → "Frame not found") or expand (-F
-	// snapshot shows the <iframe> node but no cells). They are reachable only
-	// when the tab is AT the iframe URL, where the grid is top-level DOM:
-	// <div class="cell-<r>-<c> cell"> cells + a div.number ×9 pad.
-	//
-	// Extraction already navigated the tab to that URL and rendered the grid, so
-	// we fill it IN PLACE. Crucially we do NOT reload the launcher-token URL —
-	// it is single-use (a second load renders no grid, the failure we hit).
-	// Only navigate if we somehow aren't already on the game page.
-	curURL, _ := br.URL(ctx)
-	if !(strings.Contains(curURL, "mgame.nu") && strings.Contains(curURL, "sudoku")) {
-		if err := navigateToSudokuGame(ctx, br); err != nil {
-			return err
+	// Enter the game iframe (OOPIF) and keep all subsequent eval/click inside it.
+	entered := false
+	for _, sel := range []string{"iframe.kl-game__iframe", "iframe[src*='sudoku']"} {
+		if err := br.Frame(ctx, sel); err == nil {
+			entered = true
+			fmt.Printf("       entered game iframe via %q\n", sel)
+			break
 		}
 	}
+	if !entered {
+		return fmt.Errorf("could not enter the sudoku game iframe")
+	}
+	defer func() { _ = br.Frame(context.Background(), "") }()
 
-	// Wait for the 81 grid cells.
-	deadline := time.Now().Add(30 * time.Second)
+	// Wait for the 81 grid cells inside the frame.
+	deadline = time.Now().Add(30 * time.Second)
 	for {
 		n, _ := br.Eval(ctx, `document.querySelectorAll('.cell').length`)
 		if strings.TrimSpace(n) == "81" {
 			break
 		}
 		if time.Now().After(deadline) {
-			cur, _ := br.URL(ctx)
-			return fmt.Errorf("sudoku grid (.cell ×81) did not render (at %q)", cur)
+			return fmt.Errorf("sudoku grid (.cell ×81) did not render inside the iframe")
 		}
 		time.Sleep(1 * time.Second)
 	}
 
-	// Map number-pad buttons 1–9 to refs.
+	// Map number-pad buttons 1–9 to refs from the in-frame snapshot.
 	snap, _ := br.SnapshotInteractiveCursor(ctx)
 	numRefs := parseSudokuNumberRefs(snap)
 	if len(numRefs) < 9 {
-		return fmt.Errorf("only found %d/9 number-button refs at the game url: %v", len(numRefs), numRefs)
+		return fmt.Errorf("only found %d/9 number-button refs inside the iframe: %v", len(numRefs), numRefs)
 	}
 
 	// Fill: click each empty cell by its unique class, then its number button.
-	fmt.Println("       filling sudoku grid at the game url (.cell-<r>-<c> + number pad)...")
+	fmt.Println("       filling sudoku grid inside the embedded iframe (.cell-<r>-<c> + number pad)...")
 	filled := 0
 	for r := 0; r < 9; r++ {
 		for c := 0; c < 9; c++ {
@@ -3208,15 +3200,9 @@ func submitSudoku(ctx context.Context, br *browser.Client, givens, solved klublo
 	}
 	fmt.Printf("       filled %d cells\n", filled)
 
-	// Return to the parent so the completed game registers the daily lod (the
-	// re-embedded iframe reports completion to danskespil.dk).
-	time.Sleep(800 * time.Millisecond)
-	if err := br.Open(ctx, klublotto.SudokuURL); err != nil {
-		return fmt.Errorf("reopen parent after fill: %w", err)
-	}
-	_ = br.WaitForLoad(ctx, "networkidle")
+	// Back to the parent and check for the success banner.
+	_ = br.Frame(ctx, "")
 	time.Sleep(1200 * time.Millisecond)
-
 	if ok, detail := waitForSudokuSuccess(ctx, br); ok {
 		fmt.Println("       success:", detail)
 		return nil
