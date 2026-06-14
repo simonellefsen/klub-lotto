@@ -3113,35 +3113,54 @@ func parseSudokuNumberRefs(snap string) map[string]string {
 	return out
 }
 
-func submitSudoku(ctx context.Context, br *browser.Client, givens, solved klublotto.SudokuGrid) error {
-	// The game's 81 cells live in a cross-origin OOPIF (sudoku.…mgame.nu) that
-	// agent-browser can neither enter (frame → "Frame not found") nor expand
-	// (-F snapshot shows the <iframe> node but no cells). So we reach the grid
-	// the only way that works: navigate the top-level tab to the iframe URL,
-	// where the grid is top-level DOM — cells are <div class="cell-<r>-<c> cell">
-	// and the number pad is div.number ×9. The brief switch to mgame.nu is
-	// therefore unavoidable with the current agent-browser.
-
-	// Read the iframe src from the parent page.
-	curURL, _ := br.URL(ctx)
-	if !strings.Contains(curURL, "danskespil.dk") || !strings.Contains(curURL, "sudoku") {
-		if err := br.Open(ctx, klublotto.SudokuURL); err != nil {
-			return fmt.Errorf("open sudoku parent: %w", err)
+// navigateToSudokuGame brings the tab to the game iframe URL (mgame.nu), where
+// the grid is reachable as top-level DOM. Used only as a fallback if we aren't
+// already there. The parent adds the game iframe lazily, so it waits for the
+// src to appear before opening it.
+func navigateToSudokuGame(ctx context.Context, br *browser.Client) error {
+	if err := br.Open(ctx, klublotto.SudokuURL); err != nil {
+		return fmt.Errorf("open sudoku parent: %w", err)
+	}
+	_ = br.WaitForLoad(ctx, "networkidle")
+	var src string
+	deadline := time.Now().Add(20 * time.Second)
+	for {
+		s, _ := br.Eval(ctx, `(() => Array.from(document.querySelectorAll('iframe')).map(f=>f.src).find(x=>/sudoku/i.test(x)) || '')()`)
+		src = strings.Trim(strings.TrimSpace(s), `"`)
+		if src != "" {
+			break
 		}
-		_ = br.WaitForLoad(ctx, "networkidle")
-		time.Sleep(800 * time.Millisecond)
+		if time.Now().After(deadline) {
+			return fmt.Errorf("sudoku game iframe src did not appear on the parent page")
+		}
+		time.Sleep(1 * time.Second)
 	}
-	src, _ := br.Eval(ctx, `(() => Array.from(document.querySelectorAll('iframe')).map(f=>f.src).find(s=>/sudoku/i.test(s)) || '')()`)
-	src = strings.Trim(strings.TrimSpace(src), `"`)
-	if src == "" {
-		return fmt.Errorf("could not find the sudoku game iframe src on the parent page")
-	}
-
-	// Navigate to the game URL and wait for the 81 grid cells to render.
 	if err := br.Open(ctx, src); err != nil {
 		return fmt.Errorf("open sudoku game url: %w", err)
 	}
 	_ = br.WaitForLoad(ctx, "networkidle")
+	return nil
+}
+
+func submitSudoku(ctx context.Context, br *browser.Client, givens, solved klublotto.SudokuGrid) error {
+	// The grid cells live in a cross-origin OOPIF (sudoku.…mgame.nu) that
+	// agent-browser cannot enter (frame → "Frame not found") or expand (-F
+	// snapshot shows the <iframe> node but no cells). They are reachable only
+	// when the tab is AT the iframe URL, where the grid is top-level DOM:
+	// <div class="cell-<r>-<c> cell"> cells + a div.number ×9 pad.
+	//
+	// Extraction already navigated the tab to that URL and rendered the grid, so
+	// we fill it IN PLACE. Crucially we do NOT reload the launcher-token URL —
+	// it is single-use (a second load renders no grid, the failure we hit).
+	// Only navigate if we somehow aren't already on the game page.
+	curURL, _ := br.URL(ctx)
+	if !(strings.Contains(curURL, "mgame.nu") && strings.Contains(curURL, "sudoku")) {
+		if err := navigateToSudokuGame(ctx, br); err != nil {
+			return err
+		}
+	}
+
+	// Wait for the 81 grid cells.
 	deadline := time.Now().Add(30 * time.Second)
 	for {
 		n, _ := br.Eval(ctx, `document.querySelectorAll('.cell').length`)
@@ -3149,7 +3168,8 @@ func submitSudoku(ctx context.Context, br *browser.Client, givens, solved klublo
 			break
 		}
 		if time.Now().After(deadline) {
-			return fmt.Errorf("sudoku grid (.cell ×81) did not render at the game url %q", src)
+			cur, _ := br.URL(ctx)
+			return fmt.Errorf("sudoku grid (.cell ×81) did not render (at %q)", cur)
 		}
 		time.Sleep(1 * time.Second)
 	}
