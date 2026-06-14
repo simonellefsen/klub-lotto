@@ -19,13 +19,16 @@ import (
 // inFrame=true means the caller must call br.Frame(main) when finished. It also
 // transparently handles the rare case where the grid is inline on the page.
 func EnterSudokuGameContext(ctx context.Context, br *browser.Client) (inFrame bool, err error) {
+	// NOTE: wrap results in String(...). br.Eval -> decodeString only extracts a
+	// string-typed `result`; a bare number/boolean comes back as the raw JSON
+	// envelope ({"origin":..,"result":81}), which silently broke these checks.
 	cellCount := func() int {
-		n, _ := br.Eval(ctx, `document.querySelectorAll('.cell').length`)
+		n, _ := br.Eval(ctx, `String(document.querySelectorAll('.cell').length)`)
 		v, _ := strconv.Atoi(strings.TrimSpace(n))
 		return v
 	}
 	hasFrame := func() bool {
-		s, _ := br.Eval(ctx, `(() => !!Array.from(document.querySelectorAll('iframe')).find(f=>/sudoku/i.test(f.src)))()`)
+		s, _ := br.Eval(ctx, `String(!!Array.from(document.querySelectorAll('iframe')).find(f=>/sudoku/i.test(f.src)))`)
 		return strings.TrimSpace(s) == "true"
 	}
 	deadline := time.Now().Add(40 * time.Second)
