@@ -4,11 +4,63 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/simonellefsen/klub-lotto/internal/browser"
 )
+
+// EnterSudokuGameContext locates the sudoku grid and puts the browser in the
+// right context to read/fill it. The grid renders inside the embedded
+// cross-origin game iframe (a kl-game OOPIF); the patched agent-browser can
+// eval/click inside OOPIFs via a frame() switch. It waits (the iframe + grid
+// load lazily) and, when the grid is in the iframe, switches into it —
+// inFrame=true means the caller must call br.Frame(main) when finished. It also
+// transparently handles the rare case where the grid is inline on the page.
+func EnterSudokuGameContext(ctx context.Context, br *browser.Client) (inFrame bool, err error) {
+	cellCount := func() int {
+		n, _ := br.Eval(ctx, `document.querySelectorAll('.cell').length`)
+		v, _ := strconv.Atoi(strings.TrimSpace(n))
+		return v
+	}
+	hasFrame := func() bool {
+		s, _ := br.Eval(ctx, `(() => !!Array.from(document.querySelectorAll('iframe')).find(f=>/sudoku/i.test(f.src)))()`)
+		return strings.TrimSpace(s) == "true"
+	}
+	deadline := time.Now().Add(40 * time.Second)
+	for {
+		if cellCount() >= 81 {
+			return false, nil // grid is inline on the current page
+		}
+		if hasFrame() {
+			entered := false
+			for _, sel := range []string{"iframe.kl-game__iframe", "iframe[src*='sudoku']"} {
+				if e := br.Frame(ctx, sel); e == nil {
+					entered = true
+					break
+				}
+			}
+			if entered {
+				fdeadline := time.Now().Add(20 * time.Second)
+				for {
+					if cellCount() >= 81 {
+						return true, nil
+					}
+					if time.Now().After(fdeadline) {
+						_ = br.Frame(context.Background(), "")
+						return false, fmt.Errorf("sudoku grid did not render inside the game iframe")
+					}
+					time.Sleep(1 * time.Second)
+				}
+			}
+		}
+		if time.Now().After(deadline) {
+			return false, fmt.Errorf("sudoku grid did not appear (no inline grid and no game iframe)")
+		}
+		time.Sleep(1 * time.Second)
+	}
+}
 
 type SudokuGrid [9][9]int
 
@@ -112,23 +164,17 @@ func OpenSudoku(ctx context.Context, br *browser.Client) error {
 func ExtractSudokuGivens(ctx context.Context, br *browser.Client) (SudokuGrid, string, error) {
 	parentURL, _ := br.URL(ctx)
 
-	// Preferred: read the grid INSIDE the embedded game iframe (OOPIF) via a
-	// frame() switch — no top-level navigation, so no danskespil.dk↔mgame.nu
-	// flicker, and it avoids the standalone-URL redirect. Falls back to the
-	// top-level navigation below if the in-frame read fails.
-	if g, ok := extractSudokuGivensInFrame(ctx, br); ok {
-		return g, parentURL, nil
+	// Read the grid inside the embedded game iframe (OOPIF) via a frame() switch
+	// — no top-level navigation, so no danskespil.dk↔mgame.nu flicker and it
+	// avoids the single-use standalone-URL redirect.
+	inFrame, err := EnterSudokuGameContext(ctx, br)
+	if err != nil {
+		return SudokuGrid{}, parentURL, err
+	}
+	if inFrame {
+		defer func() { _ = br.Frame(context.Background(), "") }()
 	}
 
-	src, _ := br.Eval(ctx, `(() => Array.from(document.querySelectorAll('iframe')).map(f => f.src).find(s => /sudoku/i.test(s)) || '')()`)
-	src = unwrapAgentBrowserString(src)
-	if strings.TrimSpace(src) != "" {
-		if err := br.Open(ctx, strings.TrimSpace(src)); err != nil {
-			return SudokuGrid{}, parentURL, fmt.Errorf("open sudoku iframe: %w", err)
-		}
-		_ = br.WaitForLoad(ctx, "networkidle")
-		time.Sleep(800 * time.Millisecond)
-	}
 	raw, err := br.Eval(ctx, sudokuExtractJS)
 	if err != nil {
 		return SudokuGrid{}, parentURL, fmt.Errorf("extract sudoku cells: %w", err)
@@ -145,52 +191,6 @@ func ExtractSudokuGivens(ctx context.Context, br *browser.Client) (SudokuGrid, s
 		g[i/9][i%9] = v
 	}
 	return g, parentURL, nil
-}
-
-// extractSudokuGivensInFrame reads the 81 givens inside the embedded game iframe
-// (OOPIF) via a frame() switch, so no top-level navigation is needed. Returns
-// ok=false on any failure so the caller falls back to the top-level read.
-func extractSudokuGivensInFrame(ctx context.Context, br *browser.Client) (SudokuGrid, bool) {
-	entered := false
-	for _, sel := range []string{"iframe.kl-game__iframe", "iframe[src*='sudoku']"} {
-		if err := br.Frame(ctx, sel); err == nil {
-			entered = true
-			break
-		}
-	}
-	if !entered {
-		return SudokuGrid{}, false
-	}
-	defer func() { _ = br.Frame(context.Background(), "") }()
-
-	for attempt := 0; attempt < 8; attempt++ {
-		if attempt > 0 {
-			time.Sleep(1 * time.Second)
-		}
-		raw, err := br.Eval(ctx, sudokuExtractJS)
-		if err != nil {
-			continue
-		}
-		var cells []int
-		if err := json.Unmarshal([]byte(raw), &cells); err != nil || len(cells) != 81 {
-			continue
-		}
-		nonZero := 0
-		for _, v := range cells {
-			if v != 0 {
-				nonZero++
-			}
-		}
-		if nonZero < 10 {
-			continue // grid not fully rendered yet
-		}
-		var g SudokuGrid
-		for i, v := range cells {
-			g[i/9][i%9] = v
-		}
-		return g, true
-	}
-	return SudokuGrid{}, false
 }
 
 const sudokuExtractJS = `(() => {
