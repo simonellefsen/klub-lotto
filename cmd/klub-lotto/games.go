@@ -3121,22 +3121,26 @@ func submitSudoku(ctx context.Context, br *browser.Client, givens, solved klublo
 	// redirects away). Inside the frame the grid is <div class="cell-<r>-<c>">
 	// cells + a div.number ×9 pad.
 
-	// Ensure we're on the parent with the embedded game iframe present (it is
-	// added lazily after load).
-	if err := br.Open(ctx, klublotto.SudokuURL); err != nil {
-		return fmt.Errorf("open sudoku parent: %w", err)
-	}
-	_ = br.WaitForLoad(ctx, "networkidle")
-	deadline := time.Now().Add(20 * time.Second)
-	for {
+	// Ensure the embedded game iframe is present. Extraction already loaded the
+	// parent with it, so normally we DON'T re-open (a fresh re-open reloads the
+	// parent and the iframe is re-added lazily, which timed out). Only re-open if
+	// the iframe is somehow gone.
+	hasIframe := func() bool {
 		has, _ := br.Eval(ctx, `(() => !!Array.from(document.querySelectorAll('iframe')).find(f=>/sudoku/i.test(f.src)))()`)
-		if strings.TrimSpace(has) == "true" {
-			break
+		return strings.TrimSpace(has) == "true"
+	}
+	if !hasIframe() {
+		if err := br.Open(ctx, klublotto.SudokuURL); err != nil {
+			return fmt.Errorf("open sudoku parent: %w", err)
 		}
-		if time.Now().After(deadline) {
-			return fmt.Errorf("sudoku game iframe did not appear on the parent page")
+		_ = br.WaitForLoad(ctx, "networkidle")
+		deadline := time.Now().Add(30 * time.Second)
+		for !hasIframe() {
+			if time.Now().After(deadline) {
+				return fmt.Errorf("sudoku game iframe did not appear on the parent page")
+			}
+			time.Sleep(1 * time.Second)
 		}
-		time.Sleep(1 * time.Second)
 	}
 
 	// Enter the game iframe (OOPIF) and keep all subsequent eval/click inside it.
@@ -3154,7 +3158,7 @@ func submitSudoku(ctx context.Context, br *browser.Client, givens, solved klublo
 	defer func() { _ = br.Frame(context.Background(), "") }()
 
 	// Wait for the 81 grid cells inside the frame.
-	deadline = time.Now().Add(30 * time.Second)
+	deadline := time.Now().Add(30 * time.Second)
 	for {
 		n, _ := br.Eval(ctx, `document.querySelectorAll('.cell').length`)
 		if strings.TrimSpace(n) == "81" {
