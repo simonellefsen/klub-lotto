@@ -211,3 +211,7 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-13 10:33 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
 
+## [2026-06-14 04:50 UTC] ingest | ordkløver | Category: `Makkertrio`; answer pattern `4+2+8` | outcome=submitted
+
+## [2026-06-14 04:53 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
