@@ -3094,8 +3094,16 @@ func submitSudoku(ctx context.Context, br *browser.Client, givens, solved klublo
 	// Tag each number-pad button with a stable per-digit attribute. Filled cells
 	// share the digit text and are also cursor:pointer, so ref/snapshot-based
 	// digit matching is unreliable — a unique attribute selector is not.
-	if _, err := br.Eval(ctx, `(() => { let n=0; document.querySelectorAll('.number').forEach(el=>{const d=(el.textContent||'').trim(); if(/^[1-9]$/.test(d)){el.setAttribute('data-ab-num',d); n++;}}); return n; })()`); err != nil {
+	if _, err := br.Eval(ctx, `(() => { let n=0; document.querySelectorAll('.number').forEach(el=>{const d=(el.textContent||'').trim(); if(/^[1-9]$/.test(d)){el.setAttribute('data-ab-num',d); n++;}}); return String(n); })()`); err != nil {
 		return fmt.Errorf("tag sudoku number buttons: %w", err)
+	}
+
+	// The game's decorative .shadow overlays (top/right/bottom/left/center) sit
+	// over the grid edges and intercept clicks, so agent-browser refuses to click
+	// a covered cell ("covered by <div.shadow.right>"). Disable their pointer
+	// events so every cell click lands on the cell.
+	if _, err := br.Eval(ctx, `(() => { document.querySelectorAll('.shadow').forEach(s=>{s.style.pointerEvents='none';}); return 'ok'; })()`); err != nil {
+		return fmt.Errorf("neutralize sudoku shadow overlays: %w", err)
 	}
 
 	// Fill: click each empty cell by its unique class, then its number button.
