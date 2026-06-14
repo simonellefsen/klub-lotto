@@ -2588,6 +2588,74 @@ func ParseCandidateJSON(raw string) ([]WordCandidate, error) {
 	return cands, nil
 }
 
+// KrydsordBatchClue is one clue in a batched candidate request.
+type KrydsordBatchClue struct {
+	SlotID string
+	Clue   string
+	Length int
+}
+
+// BuildKrydsordBatchPrompt builds a single prompt asking the word provider for
+// candidates for EVERY clue at once (replacing one LLM call per clue). The
+// model returns JSON keyed by slot id. Image clues arrive as English object
+// descriptions (e.g. "turnip", "desk lamp", "t-shirt", "grill"); the prompt
+// tells the model to answer with the Danish word for the depicted object.
+func BuildKrydsordBatchPrompt(clues []KrydsordBatchClue) string {
+	var b strings.Builder
+	b.WriteString("Du løser et dansk krydsord (clues-in-squares). For HVER ledetråd nedenfor, giv 1-8 sandsynlige danske svar med PRÆCIS det angivne antal bogstaver.\n")
+	b.WriteString("Regler:\n")
+	b.WriteString("- Svar er danske ord eller forkortelser, KUN bogstaver (ÆØÅ tilladt), INGEN mellemrum eller tegn.\n")
+	b.WriteString("- Antallet af bogstaver skal være præcis 'len'.\n")
+	b.WriteString("- Hvis ledetråden er en engelsk beskrivelse af et billede (fx \"turnip\", \"desk lamp\", \"t-shirt\", \"grill\"), så svar med det danske ord for tingen (fx ROE, LAMPE, TSHIRT, GRILL).\n")
+	b.WriteString("Returnér KUN JSON på formen: {\"slots\":[{\"id\":\"A1\",\"candidates\":[\"ORD1\",\"ORD2\"]},{\"id\":\"D3\",\"candidates\":[\"ORD\"]}]}\n\n")
+	b.WriteString("Ledetråde:\n")
+	for _, c := range clues {
+		fmt.Fprintf(&b, "- id=%s len=%d clue=%q\n", c.SlotID, c.Length, c.Clue)
+	}
+	return b.String()
+}
+
+// ParseKrydsordBatchCandidates parses the batched {"slots":[...]} JSON into a
+// per-slot map, keeping only candidates whose letter count matches the slot's
+// requested length (want[slotID]). Tolerant of markdown fences and leading
+// reasoning text, like ParseCandidateJSON.
+func ParseKrydsordBatchCandidates(raw string, want map[string]int) (map[string][]WordCandidate, error) {
+	clean := strings.TrimSpace(raw)
+	clean = strings.TrimPrefix(clean, "```json")
+	clean = strings.TrimPrefix(clean, "```")
+	clean = strings.TrimSuffix(clean, "```")
+	clean = strings.TrimSpace(clean)
+	if i := strings.IndexAny(clean, "[{"); i > 0 {
+		clean = clean[i:]
+	}
+	var wrapped struct {
+		Slots []struct {
+			ID         string            `json:"id"`
+			Candidates []json.RawMessage `json:"candidates"`
+		} `json:"slots"`
+	}
+	if err := json.Unmarshal([]byte(ExtractJSONObject(clean)), &wrapped); err != nil {
+		return nil, err
+	}
+	out := map[string][]WordCandidate{}
+	for _, s := range wrapped.Slots {
+		if s.ID == "" {
+			continue
+		}
+		want, hasLen := want[s.ID]
+		var good []WordCandidate
+		for _, c := range decodeCandidateList(s.Candidates, "", "") {
+			if !hasLen || len([]rune(NormalizeDanishLetters(c.Answer))) == want {
+				good = append(good, c)
+			}
+		}
+		if len(good) > 0 {
+			out[s.ID] = good
+		}
+	}
+	return out, nil
+}
+
 // decodeCandidateList converts raw JSON candidate entries into WordCandidates,
 // tolerating each element being either an object ({"answer":…}) or a bare
 // string ("BINDE"). For bare strings the supplied confidence/rationale (usually

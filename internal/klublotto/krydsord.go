@@ -308,6 +308,44 @@ func BuildKrydsordSlots(data KrydsordData) []KrydsordSlot {
 			}
 		}
 	}
+
+	// Include isolated single-cell answers (1-letter clues such as SMALL->S,
+	// TON->T, KILO->K, ØSTRIG->Ø). The two passes above only emit runs of >=2,
+	// so an answer cell with no horizontal AND no vertical neighbour would
+	// otherwise be dropped entirely — leaving it unclued, never filled, and
+	// failing the "answer cell is blank" validation on submit.
+	covered := map[[2]int]bool{}
+	for _, s := range slots {
+		for _, cell := range s.Cells {
+			covered[[2]int{cell.Row, cell.Col}] = true
+		}
+	}
+	for r := 0; r < data.CellCountY; r++ {
+		for c := 0; c < data.CellCountX; c++ {
+			if grid[r][c] == ' ' || covered[[2]int{r + 1, c + 1}] {
+				continue
+			}
+			// Direction only breaks ties in the distance-based clue mapper. A
+			// 1-letter answer's clue usually sits directly above it (a "down"
+			// header) — prefer "down" when the cell above is a clue cell.
+			dir := "across"
+			id := fmt.Sprintf("A%d", acrossN)
+			acrossN++
+			if r > 0 && grid[r-1][c] == ' ' {
+				dir = "down"
+				id = fmt.Sprintf("D%d", downN)
+				downN++
+			}
+			slots = append(slots, KrydsordSlot{
+				ID:        id,
+				Direction: dir,
+				Row:       r + 1,
+				Col:       c + 1,
+				Length:    1,
+				Cells:     []KrydsordCell{{Row: r + 1, Col: c + 1}},
+			})
+		}
+	}
 	return slots
 }
 
@@ -460,9 +498,11 @@ Rules for output (follow strictly):
 - row and col are **1-based** coordinates of the clue *cell* (the . cell) containing the text or icon.
 - dir must be exactly "across" or "down" (decide using the layout rules above).
 - For split cells, output **two** lines with the **same** row/col but different dir + the respective clue text for each part.
-- clue= must contain the exact visible text (preserve hyphens like "RED-SKAB", spaces, ÆØÅ, capitalization). If the cell has an icon/picture instead of (or with) text, use a short description of the icon: "teabag", "envelope", "moon and stars", "onion", "letter".
+- clue= must contain the exact visible text (preserve hyphens like "RED-SKAB", spaces, ÆØÅ, capitalization).
+- IMAGE CLUES (important): some clue cells contain ONLY a picture / icon / emoji and NO text. For those, do NOT invent or guess Danish words and do NOT transcribe random letters — instead describe the depicted object with a short ENGLISH noun phrase. Examples of such descriptions: "teabag", "envelope", "moon and stars", "onion", "turnip", "t-shirt", "shirt", "desk lamp", "grill", "barbecue", "ice cream cone", "castle", "lightning bolt", "anchor". A picture cell MUST still produce a CLUE line, with the description as the clue text. If a cell has BOTH a picture and text, output the text.
+- Small triangular arrows (▼ ▶ ◀ ▲) drawn inside a cell only indicate the answer's reading direction — they are NOT clues and NOT letters. Ignore them (do not output a CLUE line for an arrow, and never include an arrow as part of an answer).
 - Hyphenated or multi-line text in one tall clue cell (e.g. "ALMIN-DELIG-HED" or "KOSTU-ME") should be combined into the full natural phrase when possible ("ALMINDELIGHED", "KOSTUME").
-- Be exhaustive: every clue cell that has visible content must produce a CLUE line. Do not skip any.
+- Be exhaustive: every clue cell that has visible content (text OR a picture) must produce a CLUE line, including 1-letter answers (e.g. SMALL→S, TON→T, KILO→K). Do not skip any.
 - Be extremely precise with row/col — these will be used to match against the mask geometry.
 
 Here are many correct examples for this exact style of board (use them as strong guidance for positions, directions, and how to handle icons/splits):

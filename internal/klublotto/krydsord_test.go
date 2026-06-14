@@ -42,8 +42,8 @@ func TestKrydsordMaskAndSlots(t *testing.T) {
 
 	slots := BuildKrydsordSlots(data)
 	for _, slot := range slots {
-		if slot.Length < 2 {
-			t.Fatalf("slot %s should not be shorter than 2: %+v", slot.ID, slot)
+		if slot.Length < 1 {
+			t.Fatalf("slot %s should not be empty: %+v", slot.ID, slot)
 		}
 		if len(slot.Cells) != slot.Length {
 			t.Fatalf("slot %s cell count mismatch: %+v", slot.ID, slot)
@@ -54,6 +54,68 @@ func TestKrydsordMaskAndSlots(t *testing.T) {
 	}
 	if !hasKrydsordSlot(slots, "down", 2, 2, 10) {
 		t.Fatalf("expected first down run at row 2 col 2 length 10, got %+v", slots)
+	}
+}
+
+func TestBuildKrydsordSlotsIncludesSingleCellAnswers(t *testing.T) {
+	// Each '#' here is an isolated answer cell (clue cells on all four sides),
+	// i.e. a 1-letter answer like SMALL->S. These must still produce a slot so
+	// they get a clue and are filled — previously they were dropped (>=2 only).
+	mask := strings.Join([]string{
+		".....",
+		".#.#.",
+		".....",
+		".#.#.",
+		".....",
+	}, "\n")
+	data := KrydsordData{
+		SolutionSecret: secretFromKrydsordMask(mask),
+		CellCountX:     5,
+		CellCountY:     5,
+	}
+	if err := ValidateKrydsordData(data); err != nil {
+		t.Fatalf("ValidateKrydsordData: %v", err)
+	}
+	slots := BuildKrydsordSlots(data)
+	if len(slots) != 4 {
+		t.Fatalf("expected 4 single-cell slots, got %d: %+v", len(slots), slots)
+	}
+	for _, s := range slots {
+		if s.Length != 1 || len(s.Cells) != 1 {
+			t.Fatalf("expected a length-1 slot, got %+v", s)
+		}
+	}
+	found := false
+	for _, s := range slots {
+		if s.Row == 2 && s.Col == 2 && s.Length == 1 {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("expected a length-1 slot at row 2 col 2: %+v", slots)
+	}
+}
+
+func TestParseKrydsordBatchCandidates(t *testing.T) {
+	raw := "```json\n" +
+		`{"slots":[` +
+		`{"id":"A1","candidates":["ROE","ROER"]},` + // ROER (4) filtered out for len 3
+		`{"id":"D14","candidates":["TSHIRT"]},` +
+		`{"id":"A2","candidates":["XXXX"]}` + // wrong length for len 2 -> A2 absent
+		`]}` + "\n```"
+	want := map[string]int{"A1": 3, "D14": 6, "A2": 2}
+	got, err := ParseKrydsordBatchCandidates(raw, want)
+	if err != nil {
+		t.Fatalf("ParseKrydsordBatchCandidates: %v", err)
+	}
+	if len(got["A1"]) != 1 || got["A1"][0].Answer != "ROE" {
+		t.Fatalf("A1 expected [ROE] after length filter, got %+v", got["A1"])
+	}
+	if len(got["D14"]) != 1 || got["D14"][0].Answer != "TSHIRT" {
+		t.Fatalf("D14 expected [TSHIRT], got %+v", got["D14"])
+	}
+	if _, ok := got["A2"]; ok {
+		t.Fatalf("A2 had no correctly-sized candidate and should be absent, got %+v", got["A2"])
 	}
 }
 

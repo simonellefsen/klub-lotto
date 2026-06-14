@@ -953,9 +953,36 @@ func runKrydsord(ctx context.Context, args []string) error {
 				}
 			}
 			slotCands := map[string][]klublotto.WordCandidate{}
+
+			// Batch every clue into ONE provider call instead of one call per
+			// clue (was ~39 tiny requests). Falls back to per-clue below for any
+			// slot the batch didn't return.
+			batchClues := []klublotto.KrydsordBatchClue{}
+			want := map[string]int{}
 			for _, cl := range clues {
 				if cl.Clue == "" {
-					continue // no usable clue text for this slot from vision; assembler will rely on mask + crossings + allClueTexts list
+					continue // no usable clue text; assembler relies on mask + crossings + allClueTexts
+				}
+				batchClues = append(batchClues, klublotto.KrydsordBatchClue{SlotID: cl.SlotID, Clue: cl.Clue, Length: cl.Length})
+				want[cl.SlotID] = cl.Length
+			}
+			if len(batchClues) > 0 {
+				bp := klublotto.BuildKrydsordBatchPrompt(batchClues)
+				if raw, berr := wordCandidatesRawJSON(ctx, cfg, *providerFlag, bp); berr != nil {
+					fmt.Printf("       batch candidate call failed (%v) — falling back to per-clue\n", berr)
+				} else if m, perr := klublotto.ParseKrydsordBatchCandidates(raw, want); perr != nil {
+					fmt.Printf("       batch candidate parse failed (%v) — falling back to per-clue\n", perr)
+				} else {
+					slotCands = m
+					fmt.Printf("       batch: candidates for %d/%d clues in a single call\n", len(slotCands), len(batchClues))
+				}
+			}
+
+			// Per-clue fill for any slot the batch didn't cover (also the full
+			// fallback path when the batch call/parse failed entirely).
+			for _, cl := range clues {
+				if cl.Clue == "" || len(slotCands[cl.SlotID]) > 0 {
+					continue
 				}
 				prompt := fmt.Sprintf("Danish crossword clue: `%s`; length exactly %d letters; Danish word, no spaces or punctuation in the answer. Return JSON candidates.", cl.Clue, cl.Length)
 				cands, err := wordCandidates(ctx, cfg, *providerFlag, prompt)
@@ -1944,6 +1971,40 @@ func wordCandidates(ctx context.Context, cfg *config.Config, providerName, promp
 		return cands, nil
 	}
 	return nil, fmt.Errorf("all 3 LLM attempts failed: %w", lastErr)
+}
+
+// wordCandidatesRawJSON resolves the word provider and returns the raw JSON
+// response (with retry), for callers that parse a custom shape — e.g. the
+// batched krydsord candidate request keyed by slot id.
+func wordCandidatesRawJSON(ctx context.Context, cfg *config.Config, providerName, prompt string) (string, error) {
+	p, err := wordProvider(cfg, providerName)
+	if err != nil {
+		return "", err
+	}
+	fmt.Printf("   [llm] provider: %s  batch prompt (%d chars, %d clues)\n", p.Name(), len(prompt), strings.Count(prompt, "\n- id="))
+	var lastErr error
+	for attempt := 0; attempt < 3; attempt++ {
+		if attempt > 0 {
+			select {
+			case <-ctx.Done():
+				return "", ctx.Err()
+			case <-time.After(3 * time.Second):
+			}
+			fmt.Printf("   [llm retry %d/3] previous attempt failed (%v), retrying...\n", attempt+1, lastErr)
+		}
+		modelCtx, cancel := context.WithTimeout(ctx, 540*time.Second)
+		raw, callErr := p.GenerateJSON(modelCtx, prompt, 0.2)
+		cancel()
+		if callErr != nil {
+			lastErr = callErr
+			if ctx.Err() != nil {
+				return "", ctx.Err()
+			}
+			continue
+		}
+		return raw, nil
+	}
+	return "", fmt.Errorf("all 3 LLM attempts failed: %w", lastErr)
 }
 
 func wordProvider(cfg *config.Config, override string) (llm.JSONGenerator, error) {
@@ -4816,22 +4877,49 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 		fmt.Fprintf(&b, "- %s (%s,%d): %q cands=%v\n", cl.SlotID, cl.Direction, cl.Length, cl.Clue, candList)
 	}
 	b.WriteString("\nReturn precisely: {\"grid\": [\"row0 . and LETTERS\", \"row1...\" ]} with exactly the row count and column widths. All answer cells filled. No markdown.\n")
+	basePrompt := b.String()
 
-	modelCtx, cancel := context.WithTimeout(ctx, 180*time.Second)
-	defer cancel()
-	raw, err := p.GenerateJSON(modelCtx, b.String(), 0.05)
-	if err != nil {
-		return nil, err
+	// Retry on a malformed/invalid grid, feeding the exact validation errors
+	// back to the model so it can correct itself (wrong column counts, letters
+	// in clue cells, blank answer cells). A single attempt previously aborted
+	// the whole run on any LLM slip.
+	const maxAttempts = 3
+	var lastErr error
+	for attempt := 1; attempt <= maxAttempts; attempt++ {
+		prompt := basePrompt
+		if lastErr != nil {
+			prompt += fmt.Sprintf(
+				"\nYour previous attempt was INVALID: %v\nReturn a CORRECTED grid: EXACTLY %d rows, each row EXACTLY %d characters, '.' only where the mask has '.', and every answer cell filled with a letter.\n",
+				lastErr, data.CellCountY, data.CellCountX)
+		}
+		modelCtx, cancel := context.WithTimeout(ctx, 180*time.Second)
+		raw, genErr := p.GenerateJSON(modelCtx, prompt, 0.05)
+		cancel()
+		if genErr != nil {
+			lastErr = genErr
+			fmt.Printf("       [assemble] attempt %d/%d: model error: %v\n", attempt, maxAttempts, genErr)
+			continue
+		}
+		grid, parseErr := klublotto.ParseKrydsordGrid(raw)
+		if parseErr != nil {
+			lastErr = fmt.Errorf("parse assembled grid: %w", parseErr)
+			if len(raw) > 200 {
+				raw = raw[:200] + "…"
+			}
+			fmt.Printf("       [assemble] attempt %d/%d: %v (raw=%s)\n", attempt, maxAttempts, lastErr, raw)
+			continue
+		}
+		check := klublotto.ValidateKrydsordAnswerGrid(data, grid)
+		if check.OK && check.FilledN == check.AnswerN {
+			if attempt > 1 {
+				fmt.Printf("       [assemble] valid grid on attempt %d/%d\n", attempt, maxAttempts)
+			}
+			return grid, nil
+		}
+		lastErr = fmt.Errorf("validation (filled %d/%d): %v", check.FilledN, check.AnswerN, check.Errors)
+		fmt.Printf("       [assemble] attempt %d/%d invalid: %v\n", attempt, maxAttempts, lastErr)
 	}
-	grid, err := klublotto.ParseKrydsordGrid(raw)
-	if err != nil {
-		return nil, fmt.Errorf("parse assembled grid: %w (raw=%s)", err, raw)
-	}
-	check := klublotto.ValidateKrydsordAnswerGrid(data, grid)
-	if !check.OK || check.FilledN != check.AnswerN {
-		return nil, fmt.Errorf("assembled grid failed validation (filled %d/%d): %v", check.FilledN, check.AnswerN, check.Errors)
-	}
-	return grid, nil
+	return nil, fmt.Errorf("assembled grid failed validation after %d attempts: %w", maxAttempts, lastErr)
 }
 
 func gridOneLineKrydsord(g []string) string {
