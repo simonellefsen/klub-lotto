@@ -74,39 +74,6 @@ func OpenKrydsord(ctx context.Context, br *browser.Client) error {
 	return openParentGame(ctx, br, KrydsordURL)
 }
 
-// krydsordFetchInFrame runs the iframe's POST API fetch from inside the embedded
-// game iframe (via a Frame() context switch, so location.href is the krydsord
-// origin and the fetch is same-origin) without navigating the top-level tab.
-// Returns ok=false on any failure so the caller can fall back to a top-level open.
-func krydsordFetchInFrame(ctx context.Context, br *browser.Client) (string, bool) {
-	entered := false
-	for _, sel := range []string{"iframe[src*='krydsord']", "iframe.kl-game__iframe", "iframe"} {
-		if err := br.Frame(ctx, sel); err == nil {
-			entered = true
-			break
-		}
-	}
-	if !entered {
-		return "", false
-	}
-	defer func() { _ = br.Frame(context.Background(), "") }()
-
-	for attempt := 0; attempt < 4; attempt++ {
-		if attempt > 0 {
-			time.Sleep(700 * time.Millisecond)
-		}
-		raw, err := br.Eval(ctx, krydsordFetchJS)
-		if err != nil {
-			continue
-		}
-		// Sanity: must look like the API envelope, else fall back to top-level.
-		if strings.Contains(raw, `"status"`) || strings.Contains(raw, `"puzzle"`) {
-			return raw, true
-		}
-	}
-	return "", false
-}
-
 func ExtractKrydsordData(ctx context.Context, br *browser.Client) (KrydsordData, error) {
 	var data KrydsordData
 	iframe, _ := br.Eval(ctx, `(() => Array.from(document.querySelectorAll('iframe')).map(f => f.src).find(s => /iframes\.krydsord\.dk/i.test(s)) || '')()`)
@@ -114,22 +81,18 @@ func ExtractKrydsordData(ctx context.Context, br *browser.Client) (KrydsordData,
 	if data.IframeURL == "" {
 		return data, fmt.Errorf("could not find Krydsord iframe on parent page")
 	}
-	// Prefer running the API fetch INSIDE the embedded iframe (same origin via a
-	// Frame() switch), so the top-level tab doesn't visibly navigate to
-	// iframes.krydsord.dk and back. Fall back to a top-level open if the in-frame
-	// eval fails (e.g. an agent-browser build that can't eval inside the OOPIF).
-	raw, ok := krydsordFetchInFrame(ctx, br)
-	if !ok {
-		if err := br.Open(ctx, data.IframeURL); err != nil {
-			return data, fmt.Errorf("open Krydsord iframe: %w", err)
-		}
-		_ = br.WaitForLoad(ctx, "networkidle")
-		time.Sleep(800 * time.Millisecond)
-		r, err := br.Eval(ctx, krydsordFetchJS)
-		if err != nil {
-			return data, fmt.Errorf("fetch Krydsord iframe API: %w", err)
-		}
-		raw = r
+	// The krydsord iframe is a cross-origin OOPIF agent-browser cannot enter, so
+	// we navigate the top-level tab to it to run the same-origin API fetch. This
+	// brief switch to iframes.krydsord.dk is unavoidable with the current
+	// agent-browser.
+	if err := br.Open(ctx, data.IframeURL); err != nil {
+		return data, fmt.Errorf("open Krydsord iframe: %w", err)
+	}
+	_ = br.WaitForLoad(ctx, "networkidle")
+	time.Sleep(800 * time.Millisecond)
+	raw, err := br.Eval(ctx, krydsordFetchJS)
+	if err != nil {
+		return data, fmt.Errorf("fetch Krydsord iframe API: %w", err)
 	}
 	var envelope struct {
 		Status int `json:"status"`

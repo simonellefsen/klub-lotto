@@ -3077,85 +3077,13 @@ func isKrydsordAnswerLetter(ch rune) bool {
 	return (ch >= 'A' && ch <= 'Z') || ch == 'Æ' || ch == 'Ø' || ch == 'Å'
 }
 
-// parseSudokuSnapshotRefs extracts the 81 sudoku cell refs and 9 number-button
-// refs from a SnapshotInteractiveWithFrames snapshot.
-//
-// Cells are in row-major order: index i = row*9 + col.
-// Number buttons (1–9) have a child StaticText; cells have an optional inline value.
-func parseSudokuSnapshotRefs(snap string) (cellRefs [81]string, numRefs map[string]string, ok bool) {
-	numRefs = map[string]string{}
-
-	// Collect ALL generic [cursor:pointer] refs from within the iframe with NO
-	// exclusions. In the snapshot text (depth-first output) grid cells appear
-	// BEFORE the sibling number-button panel, so allRefs[0:81] are cells and
-	// allRefs[81:] are control buttons.
-	//
-	// Why not use FindRefByChildText to exclude buttons first? Because in the
-	// full SnapshotInteractiveWithFrames format, cells with given digit values
-	// render as:
-	//   generic [ref=eXX] clickable [cursor:pointer]
-	//     - StaticText "9"
-	// That is the same pattern FindRefByChildText matches for the "9" button,
-	// so it would incorrectly add cell refs to controlRefs and drop them from
-	// the 81-cell count.
-	allRefs := parseIframeCellRefs(snap, nil)
-	fmt.Printf("       [sudoku-debug] parseIframeCellRefs found %d refs (need ≥81)\n", len(allRefs))
-	if len(allRefs) > 0 {
-		end := len(allRefs)
-		if end > 5 {
-			end = 5
-		}
-		fmt.Printf("       [sudoku-debug] first %d: %v\n", end, allRefs[:end])
-		if len(allRefs) > 5 {
-			start := len(allRefs) - 5
-			fmt.Printf("       [sudoku-debug] last 5: %v\n", allRefs[start:])
-		}
-	}
-	// also check if iframe section is found
-	if strings.Contains(snap, "- Iframe [ref=") {
-		fmt.Printf("       [sudoku-debug] iframe marker found: '- Iframe [ref='\n")
-	} else if strings.Contains(snap, "Iframe [ref=") {
-		fmt.Printf("       [sudoku-debug] iframe marker found: 'Iframe [ref='\n")
-	} else {
-		fmt.Printf("       [sudoku-debug] WARNING: no iframe marker found in snapshot!\n")
-	}
-	if strings.Contains(snap, "[cursor:pointer]") {
-		fmt.Printf("       [sudoku-debug] '[cursor:pointer]' present in snapshot\n")
-	} else {
-		fmt.Printf("       [sudoku-debug] WARNING: '[cursor:pointer]' NOT found in snapshot!\n")
-	}
-	// print up to 10 lines containing [cursor:pointer] so we can see their actual format
-	{
-		printed := 0
-		for _, line := range strings.Split(snap, "\n") {
-			if strings.Contains(line, "[cursor:pointer]") {
-				fmt.Printf("       [sudoku-debug] cursor-line: %q\n", strings.TrimSpace(line))
-				printed++
-				if printed >= 10 {
-					break
-				}
-			}
-		}
-	}
-	if len(allRefs) < 81 {
-		return cellRefs, numRefs, false
-	}
-	copy(cellRefs[:], allRefs[:81])
-
-	// Number buttons (1–9): the current agent-browser output exposes their digit
-	// as an INLINE name (`- generic "5" [ref=eXX] clickable`), exactly like a
-	// filled cell — so a child-StaticText match (FindRefByChildText) finds none.
-	// Identify them by a single-digit inline name on a ref that is NOT one of the
-	// 81 grid cells (cells carry the same inline digit but are excluded by ref).
-	cellSet := map[string]bool{}
-	for _, r := range allRefs[:81] {
-		cellSet[r] = true
-	}
-	iframeSection := snap
-	if idx := strings.Index(snap, "Iframe [ref="); idx >= 0 {
-		iframeSection = snap[idx:]
-	}
-	for _, line := range strings.Split(iframeSection, "\n") {
+// parseSudokuNumberRefs maps number-pad digits 1–9 to their @refs from a
+// snapshot taken at the game iframe URL, where they render as
+// `generic "N" [ref=eX]`. The grid cells are plain `.cell-<r>-<c>` divs (no
+// cursor:pointer), so only the number buttons carry single-digit inline names.
+func parseSudokuNumberRefs(snap string) map[string]string {
+	out := map[string]string{}
+	for _, line := range strings.Split(snap, "\n") {
 		trimmed := strings.TrimPrefix(strings.TrimSpace(line), "- ")
 		if !strings.HasPrefix(trimmed, "generic ") || !strings.Contains(trimmed, "[ref=e") {
 			continue
@@ -3178,38 +3106,23 @@ func parseSudokuSnapshotRefs(snap string) (cellRefs [81]string, numRefs map[stri
 			continue
 		}
 		ref := "@" + trimmed[refStart+len("[ref="):refStart+refEnd]
-		if cellSet[ref] {
-			continue
-		}
-		if _, ok := numRefs[name]; !ok {
-			numRefs[name] = ref
+		if _, ok := out[name]; !ok {
+			out[name] = ref
 		}
 	}
-
-	// Fallback for agent-browser builds that render buttons with a child
-	// StaticText instead of an inline name.
-	if len(numRefs) < 9 {
-		lastCellRef := strings.TrimPrefix(allRefs[80], "@")
-		controlSection := snap
-		if idx := strings.Index(snap, "[ref="+lastCellRef+"]"); idx >= 0 {
-			controlSection = snap[idx:]
-		}
-		for n := 1; n <= 9; n++ {
-			ns := strconv.Itoa(n)
-			if _, ok := numRefs[ns]; ok {
-				continue
-			}
-			if ref := klublotto.FindRefByChildText(controlSection, ns); ref != "" {
-				numRefs[ns] = ref
-			}
-		}
-	}
-
-	return cellRefs, numRefs, true
+	return out
 }
 
 func submitSudoku(ctx context.Context, br *browser.Client, givens, solved klublotto.SudokuGrid) error {
-	// ── Step 1: ensure we are on the parent page (danskespil.dk) ──────────────
+	// The game's 81 cells live in a cross-origin OOPIF (sudoku.…mgame.nu) that
+	// agent-browser can neither enter (frame → "Frame not found") nor expand
+	// (-F snapshot shows the <iframe> node but no cells). So we reach the grid
+	// the only way that works: navigate the top-level tab to the iframe URL,
+	// where the grid is top-level DOM — cells are <div class="cell-<r>-<c> cell">
+	// and the number pad is div.number ×9. The brief switch to mgame.nu is
+	// therefore unavoidable with the current agent-browser.
+
+	// Read the iframe src from the parent page.
 	curURL, _ := br.URL(ctx)
 	if !strings.Contains(curURL, "danskespil.dk") || !strings.Contains(curURL, "sudoku") {
 		if err := br.Open(ctx, klublotto.SudokuURL); err != nil {
@@ -3218,58 +3131,38 @@ func submitSudoku(ctx context.Context, br *browser.Client, givens, solved klublo
 		_ = br.WaitForLoad(ctx, "networkidle")
 		time.Sleep(800 * time.Millisecond)
 	}
-
-	// ── Step 2: enter the game iframe and snapshot INSIDE it. The running
-	// game's 81 cells live in a cross-origin OOPIF (sudoku.…mgame.nu) that the
-	// parent's frames-inclusive snapshot does NOT expand — it shows the <iframe>
-	// node but none of its cells (the "0 cells" failure). Only an explicit
-	// Frame() switch exposes them (same reason the Ordkløver keyboard needs
-	// Frame()). We stay on the parent page, so the iframe is still embedded and
-	// the game registers the win. ─────────────────────────────────────────────
-	entered := false
-	for _, sel := range []string{"iframe.kl-game__iframe", "iframe[src*='sudoku']", "iframe"} {
-		if err := br.Frame(ctx, sel); err == nil {
-			entered = true
-			fmt.Printf("       entered game iframe via %q\n", sel)
-			break
-		}
+	src, _ := br.Eval(ctx, `(() => Array.from(document.querySelectorAll('iframe')).map(f=>f.src).find(s=>/sudoku/i.test(s)) || '')()`)
+	src = strings.Trim(strings.TrimSpace(src), `"`)
+	if src == "" {
+		return fmt.Errorf("could not find the sudoku game iframe src on the parent page")
 	}
-	if !entered {
-		return fmt.Errorf("could not enter the sudoku game iframe to reach the grid cells")
-	}
-	defer func() { _ = br.Frame(context.Background(), "") }() // safety: return to top on any exit
 
-	// Poll the in-frame snapshot until all 81 cell refs have rendered.
-	var snap string
+	// Navigate to the game URL and wait for the 81 grid cells to render.
+	if err := br.Open(ctx, src); err != nil {
+		return fmt.Errorf("open sudoku game url: %w", err)
+	}
+	_ = br.WaitForLoad(ctx, "networkidle")
 	deadline := time.Now().Add(30 * time.Second)
 	for {
-		s, snapErr := br.SnapshotInteractiveCursor(ctx)
-		if snapErr != nil {
-			return fmt.Errorf("snapshot for sudoku refs (in frame): %w", snapErr)
-		}
-		snap = s
-		if len(parseIframeCellRefs(snap, nil)) >= 81 {
+		n, _ := br.Eval(ctx, `document.querySelectorAll('.cell').length`)
+		if strings.TrimSpace(n) == "81" {
 			break
 		}
 		if time.Now().After(deadline) {
-			break // fall through to the parse below, which logs debug + errors
+			return fmt.Errorf("sudoku grid (.cell ×81) did not render at the game url %q", src)
 		}
-		fmt.Println("       grid not ready yet inside iframe — waiting...")
-		time.Sleep(1500 * time.Millisecond)
+		time.Sleep(1 * time.Second)
 	}
 
-	// ── Step 3: parse cell refs (81) and number-button refs (1–9) ─────────────
-	cellRefs, numRefs, refsOK := parseSudokuSnapshotRefs(snap)
-	if !refsOK {
-		return fmt.Errorf("could not find 81 cell refs inside the game iframe — grid did not finish loading")
-	}
-	fmt.Printf("       found 81 cell refs, %d/9 number-button refs (in frame)\n", len(numRefs))
+	// Map number-pad buttons 1–9 to refs.
+	snap, _ := br.SnapshotInteractiveCursor(ctx)
+	numRefs := parseSudokuNumberRefs(snap)
 	if len(numRefs) < 9 {
-		return fmt.Errorf("only found %d/9 number-button refs inside the iframe: %v", len(numRefs), numRefs)
+		return fmt.Errorf("only found %d/9 number-button refs at the game url: %v", len(numRefs), numRefs)
 	}
 
-	// ── Step 4: click each empty cell then its number button ──────────────────
-	fmt.Println("       filling sudoku grid via ref-based clicks...")
+	// Fill: click each empty cell by its unique class, then its number button.
+	fmt.Println("       filling sudoku grid at the game url (.cell-<r>-<c> + number pad)...")
 	filled := 0
 	for r := 0; r < 9; r++ {
 		for c := 0; c < 9; c++ {
@@ -3277,35 +3170,38 @@ func submitSudoku(ctx context.Context, br *browser.Client, givens, solved klublo
 				continue // skip pre-filled givens
 			}
 			n := strconv.Itoa(solved[r][c])
-			cellRef := cellRefs[r*9+c]
 			numRef, hasRef := numRefs[n]
 			if !hasRef {
 				return fmt.Errorf("no ref for number %s (r%d c%d)", n, r+1, c+1)
 			}
-			if err := br.Click(ctx, cellRef); err != nil {
-				return fmt.Errorf("click cell r%d c%d (%s): %w", r+1, c+1, cellRef, err)
+			cellSel := fmt.Sprintf(".cell-%d-%d", r, c)
+			if err := br.Click(ctx, cellSel); err != nil {
+				return fmt.Errorf("click cell %s: %w", cellSel, err)
 			}
-			time.Sleep(60 * time.Millisecond)
+			time.Sleep(50 * time.Millisecond)
 			if err := br.Click(ctx, numRef); err != nil {
 				return fmt.Errorf("click number %s (%s) at r%d c%d: %w", n, numRef, r+1, c+1, err)
 			}
-			time.Sleep(80 * time.Millisecond)
+			time.Sleep(70 * time.Millisecond)
 			filled++
 		}
 	}
 	fmt.Printf("       filled %d cells\n", filled)
 
-	// Return to the top frame so the success banner (rendered on the parent) is
-	// visible to the check below; the deferred Frame("") is just a safety net.
-	_ = br.Frame(ctx, "")
-
-	// ── Step 5: wait for success ───────────────────────────────────────────────
+	// Return to the parent so the completed game registers the daily lod (the
+	// re-embedded iframe reports completion to danskespil.dk).
 	time.Sleep(800 * time.Millisecond)
+	if err := br.Open(ctx, klublotto.SudokuURL); err != nil {
+		return fmt.Errorf("reopen parent after fill: %w", err)
+	}
+	_ = br.WaitForLoad(ctx, "networkidle")
+	time.Sleep(1200 * time.Millisecond)
+
 	if ok, detail := waitForSudokuSuccess(ctx, br); ok {
 		fmt.Println("       success:", detail)
 		return nil
 	}
-	return fmt.Errorf("filled %d cells but did not detect a success confirmation on parent page", filled)
+	return fmt.Errorf("filled %d cells but did not detect a success confirmation", filled)
 }
 
 func waitForSudokuSuccess(ctx context.Context, br *browser.Client) (bool, string) {
