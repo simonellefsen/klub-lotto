@@ -171,6 +171,14 @@ func runOrdKloever(ctx context.Context, args []string) error {
 		ac = llm.NewAnthropic(cfg.AnthropicKey, "claude-haiku-4-5-20251001")
 		fmt.Println("   [vision] primary: anthropic:claude-haiku-4-5-20251001")
 	}
+	// On-error fallback (used only if the primary read fails), preferring a
+	// direct Gemini 2.5 Pro that sidesteps the flaky OpenRouter alias.
+	visionFallback := ordKloeverFallbackVision(cfg, ac)
+	if visionFallback != nil {
+		if n, ok := visionFallback.(interface{ Name() string }); ok {
+			fmt.Printf("   [vision] fallback: %s\n", n.Name())
+		}
+	}
 	br := gameBrowser(cfg, *headlessFlag)
 	restartHeadedSession(ctx, br)
 
@@ -185,8 +193,8 @@ func runOrdKloever(ctx context.Context, args []string) error {
 	fmt.Println("       at:", curURL)
 
 	fmt.Println("[2/4] extracting state...")
-	extractCtx, cancel := context.WithTimeout(ctx, 45*time.Second)
-	st, err := klublotto.ExtractOrdKloeverState(extractCtx, br, ac, nil)
+	extractCtx, cancel := context.WithTimeout(ctx, ordKloeverExtractTimeout)
+	st, err := klublotto.ExtractOrdKloeverState(extractCtx, br, ac, visionFallback)
 	cancel()
 	if err != nil {
 		return err
@@ -904,6 +912,9 @@ func runKrydsord(ctx context.Context, args []string) error {
 			// Use haiku for vision/OCR step (fast, cheap, sufficient for reading clue text in grid image).
 			ac = llm.NewAnthropic(cfg.AnthropicKey, "claude-haiku-4-5-20251001")
 		}
+		if n, ok := ac.(interface{ Name() string }); ok {
+			fmt.Printf("       vision model: %s\n", n.Name())
+		}
 		if ac == nil {
 			fmt.Println("       WARNING: no vision API key (GEMINI_API_KEY or ANTHROPIC_API_KEY); vision-based clue OCR unavailable.")
 			if !*dryRun {
@@ -936,6 +947,11 @@ func runKrydsord(ctx context.Context, args []string) error {
 			}
 
 			fmt.Println("[3.6/4] asking word provider for Danish candidates per clue...")
+			if sp, perr := wordProvider(cfg, *providerFlag); perr == nil {
+				if n, ok := sp.(interface{ Name() string }); ok {
+					fmt.Printf("       solve/word model: %s (used for candidates + grid assembly)\n", n.Name())
+				}
+			}
 			slotCands := map[string][]klublotto.WordCandidate{}
 			for _, cl := range clues {
 				if cl.Clue == "" {
@@ -1082,6 +1098,48 @@ Return ONLY a JSON object, no prose, in exactly this shape:
   "Across": [ {"clue": "REDSKAB", "direction": "Across", "start": {"row": 2, "column": 2}, "length": 9} ],
   "Down":   [ {"clue": "FARTØJ",  "direction": "Down",   "start": {"row": 2, "column": 2}, "length": 10} ]
 }`
+
+// ordKloeverExtractTimeout bounds a single Ordkløver state extraction (browser
+// crop + vision board read). It must be generous enough for a slow reasoning
+// vision model: a 45s budget produced "openrouter-vision: read response:
+// context deadline exceeded" on the ~google/gemini-pro-latest board read
+// mid-game (our ctx expiring during the response read, not the HTTP client,
+// which is already 540s). The on-error fallback gets its own extra budget on a
+// detached context.
+const ordKloeverExtractTimeout = 120 * time.Second
+
+// ordKloeverFallbackVision builds an on-error fallback vision provider that is
+// distinct from the primary, preferring Gemini 2.5 Pro. The primary Ordkløver
+// reader is usually the OpenRouter floating alias (OPENROUTER_VISION_MODEL),
+// which intermittently times out on the board read; a direct Gemini 2.5 Pro
+// call avoids that routing entirely. Returns nil if no distinct provider is
+// available (the caller then just has no fallback).
+func ordKloeverFallbackVision(cfg *config.Config, primary llm.VisionProvider) llm.VisionProvider {
+	name := func(vp llm.VisionProvider) string {
+		if vp == nil {
+			return ""
+		}
+		type namer interface{ Name() string }
+		if n, ok := vp.(namer); ok {
+			return n.Name()
+		}
+		return fmt.Sprintf("%T", vp)
+	}
+	pn := name(primary)
+	// Direct Gemini 2.5 Pro is the most reliable fallback (skips OpenRouter).
+	if cfg.GeminiKey != "" && !strings.Contains(pn, "gemini-2.5-pro") {
+		return llm.NewGemini(cfg.GeminiKey, "gemini-2.5-pro")
+	}
+	// Otherwise Gemini 2.5 Pro pinned via OpenRouter (not the floating alias).
+	if cfg.OpenRouterKey != "" && !strings.Contains(pn, "google/gemini-2.5-pro") {
+		return llm.NewOpenRouterVision(cfg.OpenRouterKey, "google/gemini-2.5-pro")
+	}
+	// Last resort: a different model family.
+	if cfg.AnthropicKey != "" && !strings.Contains(pn, "claude") {
+		return llm.NewAnthropic(cfg.AnthropicKey, "claude-haiku-4-5-20251001")
+	}
+	return nil
+}
 
 // krydsordVisionProvider picks the vision model for the graph step. Override
 // with OPENROUTER_VISION_MODEL (e.g. openai/gpt-5.4) to try a different LLM.
@@ -2344,10 +2402,11 @@ func runOrdKloeverProbe(ctx context.Context, cfg *config.Config, br *browser.Cli
 	// reExtract re-reads game state — defined early so it can also bootstrap an
 	// empty initial state (extraction happens before the game is entered, so the
 	// first pass may see only the welcome screen and return all-empty fields).
+	visionFallback := ordKloeverFallbackVision(cfg, ac)
 	reExtract := func() (klublotto.OrdKloeverState, error) {
 		_ = ensureKloeverActive(ctx, br)
-		extractCtx, cancel := context.WithTimeout(ctx, 45*time.Second)
-		next, err := klublotto.ExtractOrdKloeverState(extractCtx, br, ac, nil)
+		extractCtx, cancel := context.WithTimeout(ctx, ordKloeverExtractTimeout)
+		next, err := klublotto.ExtractOrdKloeverState(extractCtx, br, ac, visionFallback)
 		cancel()
 		return next, err
 	}
@@ -3053,18 +3112,34 @@ func submitSudoku(ctx context.Context, br *browser.Client, givens, solved klublo
 		time.Sleep(800 * time.Millisecond)
 	}
 
-	// ── Step 2: snapshot from parent page — cells and buttons all have refs ────
-	// The patched agent-browser exposes all 81 grid cells as clickable refs
-	// directly from the parent page, so no navigation to the iframe URL needed.
-	snap, err := br.SnapshotInteractiveWithFrames(ctx)
-	if err != nil {
-		return fmt.Errorf("snapshot for sudoku refs: %w", err)
+	// ── Step 2: snapshot from parent page, retrying until the cross-origin game
+	// iframe (mgame.nu) has rendered all 81 cell refs. Re-opening the parent in
+	// step 1 reloads the iframe, and the game app can lag the parent's
+	// networkidle by several seconds — a single snapshot then sees only the
+	// parent chrome with an empty grid (0 cell refs, the failure we hit). Poll
+	// until the grid is ready (or time out and let step 3 log + return). ───────
+	var snap string
+	deadline := time.Now().Add(30 * time.Second)
+	for {
+		s, snapErr := br.SnapshotInteractiveWithFrames(ctx)
+		if snapErr != nil {
+			return fmt.Errorf("snapshot for sudoku refs: %w", snapErr)
+		}
+		snap = s
+		if len(parseIframeCellRefs(snap, nil)) >= 81 {
+			break
+		}
+		if time.Now().After(deadline) {
+			break // fall through to the parse below, which logs debug + errors
+		}
+		fmt.Println("       grid iframe not ready yet (0 cells) — waiting...")
+		time.Sleep(1500 * time.Millisecond)
 	}
 
 	// ── Step 3: parse cell refs (81) and number-button refs (1–9) ─────────────
 	cellRefs, numRefs, refsOK := parseSudokuSnapshotRefs(snap)
 	if !refsOK {
-		return fmt.Errorf("could not find 81 cell refs in snapshot — game may not be fully loaded yet")
+		return fmt.Errorf("could not find 81 cell refs in snapshot after polling — game iframe did not finish loading")
 	}
 	fmt.Printf("       found 81 cell refs, %d/9 number-button refs\n", len(numRefs))
 	if len(numRefs) < 9 {

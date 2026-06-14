@@ -79,8 +79,10 @@ func parseOrdKloeverVisionJSON(text string) (OrdKloeverState, int, bool) {
 	st.Category = strings.TrimSpace(resp.Category)
 	st.Attempts = resp.Attempts.Used
 
-	// Build Board (space-separated tokens, rows joined with " / ") and Shape
-	// (row lengths joined with "+") from pattern_rows.
+	// Build Board (space-separated tokens, words joined with " / ") and Shape
+	// (word lengths joined with "+") from pattern_rows. The vision prompt emits
+	// one pattern_rows entry per WORD of the phrase (multi-word lines split on
+	// gaps, dash line-wraps joined), so each entry maps to one word/length here.
 	// Each pattern_row character is one tile: letter or "_" for blank.
 	patternRows := resp.Board.PatternRows
 	if len(patternRows) == 0 && resp.Board.FullPattern != "" {
@@ -617,12 +619,13 @@ func openParentGame(ctx context.Context, br *browser.Client, url string) error {
 }
 
 // ExtractOrdKloeverState extracts the current Ordkløver game state. Pass an
-// optional second VisionProvider as vp2 to cross-check the board tile count
-// from the primary provider — useful when the primary model misses blank tiles.
+// optional second VisionProvider as vp2 to use as an on-error fallback: when the
+// primary model fails (commonly a context-deadline timeout from a flaky model),
+// the fallback re-reads the board instead of the round being abandoned.
 func ExtractOrdKloeverState(ctx context.Context, br *browser.Client, ac llm.VisionProvider, vp2 ...llm.VisionProvider) (OrdKloeverState, error) {
-	var secondaryVP llm.VisionProvider
+	var fallbackVP llm.VisionProvider
 	if len(vp2) > 0 {
-		secondaryVP = vp2[0]
+		fallbackVP = vp2[0]
 	}
 	var st OrdKloeverState
 
@@ -636,7 +639,7 @@ func ExtractOrdKloeverState(ctx context.Context, br *browser.Client, ac llm.Visi
 
 	// Prefer vision crop from parent (no top-level iframe open) if ac available.
 	if ac != nil {
-		if v, ok := extractOrdKloeverViaVision(ctx, br, ac, secondaryVP); ok {
+		if v, ok := extractOrdKloeverViaVision(ctx, br, ac, fallbackVP); ok {
 			st = v
 			raw, _ := br.Eval(ctx, `document.body ? document.body.innerText : ""`)
 			st.Raw = raw
@@ -655,7 +658,7 @@ func ExtractOrdKloeverState(ctx context.Context, br *browser.Client, ac llm.Visi
 				} else {
 					_ = br.Frame(context.Background(), "")
 				}
-				if v2, ok2 := extractOrdKloeverViaVision(ctx, br, ac, secondaryVP); ok2 {
+				if v2, ok2 := extractOrdKloeverViaVision(ctx, br, ac, fallbackVP); ok2 {
 					st = v2
 				}
 			}
@@ -798,7 +801,7 @@ func ExtractOrdKloeverState(ctx context.Context, br *browser.Client, ac llm.Visi
 	return st, nil
 }
 
-func extractOrdKloeverViaVision(ctx context.Context, br *browser.Client, ac llm.VisionProvider, secondary llm.VisionProvider) (OrdKloeverState, bool) {
+func extractOrdKloeverViaVision(ctx context.Context, br *browser.Client, ac llm.VisionProvider, fallback llm.VisionProvider) (OrdKloeverState, bool) {
 	if ac == nil {
 		return OrdKloeverState{}, false
 	}
@@ -951,10 +954,9 @@ Schema:
   }
 }
 
-BOARD EXTRACTION
+BOARD EXTRACTION — board.rows (physical tile layout)
 
-The board may contain multiple rows.
-
+board.rows captures the physical layout, one entry per visual line of tiles.
 Each visible tile position must be represented.
 
 For each tile:
@@ -968,39 +970,63 @@ For hidden tiles:
 For revealed tiles:
     letter=<visible letter>
 
-Represent hidden tiles with "_".
+Character encoding (used by both board.rows tiles and pattern_rows below):
+represent a hidden/blank tile with "_" and a revealed tile with its letter.
 
-Example:
+Example — one visual line of tiles encodes to a string:
 
-Row 1:
-_ E _
+    B R _ _ _ T E   ->   "BR___TE"
 
-becomes:
+WORD SEGMENTATION — pattern_rows MUST be WORDS, not visual rows
 
-"_E_"
+The board.rows / tiles above capture the PHYSICAL tile layout (one entry per
+visual line, with column positions). The fields pattern_rows and full_pattern
+are DIFFERENT: they capture the LOGICAL phrase split into its individual WORDS.
+A visual line is NOT necessarily one word — it may hold several words, and a
+single word may be split across two lines. Build pattern_rows with exactly ONE
+entry per word, using "_" for each blank tile and the visible letter for each
+revealed tile, by applying these rules:
 
-Row 2:
-B R _ _ _ T E
+1. MULTIPLE WORDS ON ONE LINE: a clear gap between two groups of tiles on the
+   same visual line separates two different words. Emit one entry per group.
+   Look actively for these gaps — do not merge separate groups into one word.
+   Example line "B I N G    O G"  ->  "BING", "OG".
 
-becomes:
+2. WORD SPLIT ACROSS LINES WITH A DASH: when a line ends with a hyphen "-" and
+   the word continues on the next line (line wrapping), it is ONE word.
+   Concatenate the parts and DROP the hyphen.
+   Example:
+       LOKOMOTIV-
+       FØRER
+   -> one word "LOKOMOTIVFØRER".
 
-"BR___TE"
+3. A hyphen "-" that sits BETWEEN two letters on the SAME line is a real
+   character of the word — keep it (e.g. "TV-AVIS").
 
-The field pattern_rows must contain one entry per board row.
+4. Combine the rules as needed. Example board:
+       VÆRKSTEDS-
+       MESTER HOS
+       BING OG GRØN-
+       DAHL
+   -> words: "VÆRKSTEDSMESTER", "HOS", "BING", "OG", "GRØNDAHL".
 
-The field full_pattern must join rows using a single space.
+The field full_pattern must be all words joined with a single space.
 
-Example:
+tile_count is the total number of letter/blank tiles across all words (the sum
+of the word lengths) — it excludes word-separating gaps and any dropped
+line-wrap hyphen.
+
+Example: the board shows "_ I N _    O _" on the first line (two words) and
+"_ R _ N D A _ L" on the second line (one word) — three words total:
 
 {
   "pattern_rows": [
-    "_E_",
-    "BR___TE",
-    "__R_S",
-    "T__T__"
+    "_IN_",
+    "O_",
+    "_R_NDA_L"
   ],
 
-  "full_pattern": "_E_ BR___TE __R_S T__T__"
+  "full_pattern": "_IN_ O_ _R_NDA_L"
 }
 
 KEYBOARD EXTRACTION – CRITICAL SECTION (Be Extremely Precise)
@@ -1051,47 +1077,36 @@ If the game is finished or already answered: set attempts.used equal to attempts
 	}
 
 	text, err := ac.ExtractFromImage(ctx, imgBytes, "image/png", prompt)
+	usedProvider := providerName(ac)
 	if err != nil {
 		fmt.Printf("   [vision] primary error: %v\n", err)
-		return OrdKloeverState{}, false
+		// On any primary failure (commonly a context-deadline timeout from a
+		// flaky model/route), fall back to a second vision model rather than
+		// abandoning the round. The fallback runs on its own detached time
+		// budget so an already-exhausted parent deadline doesn't doom it too.
+		if fallback == nil {
+			return OrdKloeverState{}, false
+		}
+		fmt.Printf("   [vision] falling back to %s...\n", providerName(fallback))
+		fbCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 90*time.Second)
+		text, err = fallback.ExtractFromImage(fbCtx, imgBytes, "image/png", prompt)
+		cancel()
+		if err != nil {
+			fmt.Printf("   [vision] fallback error: %v\n", err)
+			return OrdKloeverState{}, false
+		}
+		usedProvider = providerName(fallback)
+		fmt.Printf("   [vision] fallback succeeded via %s\n", usedProvider)
 	}
 	text = strings.TrimSpace(text)
 	ts := time.Now().UTC().Format("20060102-150405")
 	_ = os.WriteFile(filepath.Join(".klublotto", "ordkloever-vision-raw-"+ts+".txt"), []byte(text), 0o644)
 
-	fmt.Printf("   [vision] primary raw response:\n")
+	fmt.Printf("   [vision] raw response (%s):\n", usedProvider)
 	for _, l := range strings.Split(text, "\n") {
 		fmt.Printf("      | %s\n", l)
 	}
-	fmt.Printf("   [vision] primary board tokens: %d\n", countVisionBoardTokens(text))
-
-	// Secondary vision cross-check: run the same prompt through the second provider
-	// and compare board tile counts. Gemini 2.5 Pro occasionally misses a blank tile
-	// at mid-word position (reports 10 instead of 11). If the secondary model reports
-	// a higher tile count, prefer its reading.
-	if secondary != nil {
-		fmt.Printf("   [vision cross-check] secondary model: %s\n", providerName(secondary))
-		text2, err2 := secondary.ExtractFromImage(ctx, imgBytes, "image/png", prompt)
-		if err2 != nil {
-			fmt.Printf("   [vision cross-check] secondary error: %v — using primary\n", err2)
-		} else {
-			text2 = strings.TrimSpace(text2)
-			_ = os.WriteFile(filepath.Join(".klublotto", "ordkloever-vision-raw2-"+ts+".txt"), []byte(text2), 0o644)
-			fmt.Printf("   [vision cross-check] secondary raw response:\n")
-			for _, l := range strings.Split(text2, "\n") {
-				fmt.Printf("      | %s\n", l)
-			}
-			primaryCount := countVisionBoardTokens(text)
-			secondaryCount := countVisionBoardTokens(text2)
-			fmt.Printf("   [vision cross-check] primary tokens=%d  secondary tokens=%d\n", primaryCount, secondaryCount)
-			if secondaryCount > primaryCount {
-				fmt.Printf("   [vision cross-check] ✓ secondary has more tokens (%d > %d) — switching to secondary\n", secondaryCount, primaryCount)
-				text = text2
-			} else {
-				fmt.Printf("   [vision cross-check] keeping primary (primary=%d >= secondary=%d)\n", primaryCount, secondaryCount)
-			}
-		}
-	}
+	fmt.Printf("   [vision] board tokens: %d\n", countVisionBoardTokens(text))
 
 	st, tileCount, parseOK := parseOrdKloeverVisionJSON(text)
 	st.Raw = text
