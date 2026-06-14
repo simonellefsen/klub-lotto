@@ -939,7 +939,11 @@ func runKrydsord(ctx context.Context, args []string) error {
 			}
 			fmt.Printf("       %d clues extracted\n", len(clues))
 			for _, cl := range clues {
-				fmt.Printf("       %s %s (%d): %s\n", cl.SlotID, cl.Direction, cl.Length, cl.Clue)
+				tag := ""
+				if cl.IsImage {
+					tag = " [image]"
+				}
+				fmt.Printf("       %s %s (%d): %s%s\n", cl.SlotID, cl.Direction, cl.Length, cl.Clue, tag)
 			}
 
 			if len(clues) == 0 && !*dryRun {
@@ -963,7 +967,7 @@ func runKrydsord(ctx context.Context, args []string) error {
 				if cl.Clue == "" {
 					continue // no usable clue text; assembler relies on mask + crossings + allClueTexts
 				}
-				batchClues = append(batchClues, klublotto.KrydsordBatchClue{SlotID: cl.SlotID, Clue: cl.Clue, Length: cl.Length})
+				batchClues = append(batchClues, klublotto.KrydsordBatchClue{SlotID: cl.SlotID, Clue: cl.Clue, Length: cl.Length, IsImage: cl.IsImage})
 				want[cl.SlotID] = cl.Length
 			}
 			if len(batchClues) > 0 {
@@ -1459,6 +1463,48 @@ func buildKrydsordGridFromAnswers(csp krydsordCSP, answersByID map[string]string
 		out[r] = string(grid[r])
 	}
 	return out
+}
+
+// buildKrydsordGridFromSlotAnswers places per-slot answers (keyed by slot ID)
+// deterministically into a w×h grid using each slot's known cells — so the grid
+// dimensions are always correct (the LLM only picks words, never emits the
+// grid, which is what caused "row N has 11 columns"). It returns the grid plus
+// any crossing conflicts: cells two slots disagree on, fed back to the LLM.
+func buildKrydsordGridFromSlotAnswers(data klublotto.KrydsordData, slots []klublotto.KrydsordSlot, answersByID map[string]string) (grid []string, conflicts []string) {
+	w, h := data.CellCountX, data.CellCountY
+	cells := make([][]rune, h)
+	for r := range cells {
+		cells[r] = make([]rune, w)
+		for c := range cells[r] {
+			cells[r][c] = '.'
+		}
+	}
+	// Track which slot last wrote each cell so we can report disagreements.
+	owner := map[[2]int]string{}
+	for _, s := range slots {
+		a := []rune(klublotto.NormalizeDanishLetters(answersByID[s.ID]))
+		if len(a) != s.Length {
+			continue
+		}
+		for k, cell := range s.Cells {
+			if cell.Row < 1 || cell.Row > h || cell.Col < 1 || cell.Col > w {
+				continue
+			}
+			cur := cells[cell.Row-1][cell.Col-1]
+			if cur != '.' && cur != a[k] {
+				conflicts = append(conflicts, fmt.Sprintf("R%dC%d: %s wants %c but %s set %c",
+					cell.Row, cell.Col, s.ID, a[k], owner[[2]int{cell.Row, cell.Col}], cur))
+				continue
+			}
+			cells[cell.Row-1][cell.Col-1] = a[k]
+			owner[[2]int{cell.Row, cell.Col}] = s.ID
+		}
+	}
+	grid = make([]string, h)
+	for r := range cells {
+		grid[r] = string(cells[r])
+	}
+	return grid, conflicts
 }
 
 // crossingCount returns the number of cells shared by two or more entries.
@@ -4876,40 +4922,52 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 	if err != nil {
 		return nil, err
 	}
-	var b strings.Builder
-	fmt.Fprintf(&b, "Solve this Danish krydsord (clues-in-squares). Output ONLY the JSON object with grid.\n")
-	fmt.Fprintf(&b, "Dimensions %dx%d. . = clue/non-answer cell (keep as .); # or letter positions must be filled with exact-length Danish words consistent at every crossing.\n\n", data.CellCountX, data.CellCountY)
-	fmt.Fprintf(&b, "Mask:\n%s\n\n", klublotto.FormatKrydsordMask(data))
-	if len(allClueTexts) > 0 {
-		fmt.Fprintf(&b, "All visible clue texts from the board (the per-slot assignments below may be approximate or wrong due to OCR — use the mask geometry + crossings + these texts to assign clues correctly to runs):\n%q\n\n", allClueTexts)
-	}
-	fmt.Fprintf(&b, "Clues + candidates per slot (the clue text for a slot may be mis-mapped; prefer the mask and any matching clue from the all-clues list above. Use a candidate when it fits crossings; otherwise a correct Danish word):\n")
+	// Ask the model for ONE answer per slot id, NOT the whole grid. Go then
+	// places the letters deterministically from each slot's known cells, so the
+	// grid dimensions are always correct. Emitting the grid directly produced
+	// persistent "row N has 11 columns" / blank-cell errors no retry could fix.
+	slots := klublotto.BuildKrydsordSlots(data)
+	cluesByID := map[string]klublotto.KrydsordClue{}
 	for _, cl := range clues {
-		cands := perSlot[cl.SlotID]
-		candList := []string{}
-		for _, c := range cands {
+		cluesByID[cl.SlotID] = cl
+	}
+
+	var b strings.Builder
+	fmt.Fprintf(&b, "Løs dette danske krydsord (clues-in-squares). VÆLG for HVER slot ét dansk svar med PRÆCIS den angivne længde, så bogstaverne passer ved ALLE krydsninger (celler delt mellem to slots skal have samme bogstav).\n")
+	fmt.Fprintf(&b, "Billedledetråde står som engelske beskrivelser (fx \"grill\", \"t-shirt\", \"turnip\", \"desk lamp\") — svar med det danske ord for tingen (GRILL, TSHIRT, ROE, LAMPE).\n")
+	if len(allClueTexts) > 0 {
+		fmt.Fprintf(&b, "Alle synlige ledetråde (OCR-tildelingen pr. slot kan være unøjagtig): %q\n", allClueTexts)
+	}
+	fmt.Fprintf(&b, "\nSlots (id, retning, længde, ledetråd, celler r<row>c<col>, kandidater):\n")
+	for _, s := range slots {
+		cl := cluesByID[s.ID]
+		var candList []string
+		for _, c := range perSlot[s.ID] {
 			a := klublotto.NormalizeDanishLetters(c.Answer)
-			if len([]rune(a)) == cl.Length {
+			if len([]rune(a)) == s.Length {
 				candList = append(candList, a)
 			}
 		}
-		fmt.Fprintf(&b, "- %s (%s,%d): %q cands=%v\n", cl.SlotID, cl.Direction, cl.Length, cl.Clue, candList)
+		cellIDs := make([]string, 0, len(s.Cells))
+		for _, cell := range s.Cells {
+			cellIDs = append(cellIDs, fmt.Sprintf("r%dc%d", cell.Row, cell.Col))
+		}
+		kind := ""
+		if cl.IsImage {
+			kind = " BILLEDE"
+		}
+		fmt.Fprintf(&b, "- %s %s len=%d clue=%q%s cells=%s cands=%v\n", s.ID, s.Direction, s.Length, cl.Clue, kind, strings.Join(cellIDs, ","), candList)
 	}
-	b.WriteString("\nReturn precisely: {\"grid\": [\"row0 . and LETTERS\", \"row1...\" ]} with exactly the row count and column widths. All answer cells filled. No markdown.\n")
+	b.WriteString("\nReturnér KUN JSON: {\"answers\":{\"A1\":\"ORD\",\"D1\":\"ORD\", ...}} med ét svar pr. slot-id ovenfor. Kun bogstaver (ÆØÅ tilladt), ingen mellemrum/tegn. INGEN markdown.\n")
 	basePrompt := b.String()
 
-	// Retry on a malformed/invalid grid, feeding the exact validation errors
-	// back to the model so it can correct itself (wrong column counts, letters
-	// in clue cells, blank answer cells). A single attempt previously aborted
-	// the whole run on any LLM slip.
+	// Retry, feeding back which slots are missing or which crossings conflict.
 	const maxAttempts = 3
 	var lastErr error
 	for attempt := 1; attempt <= maxAttempts; attempt++ {
 		prompt := basePrompt
 		if lastErr != nil {
-			prompt += fmt.Sprintf(
-				"\nYour previous attempt was INVALID: %v\nReturn a CORRECTED grid: EXACTLY %d rows, each row EXACTLY %d characters, '.' only where the mask has '.', and every answer cell filled with a letter.\n",
-				lastErr, data.CellCountY, data.CellCountX)
+			prompt += fmt.Sprintf("\nForrige forsøg var forkert: %v\nRet svarene: hvert slot skal have et svar med korrekt længde, og delte celler skal have samme bogstav.\n", lastErr)
 		}
 		modelCtx, cancel := context.WithTimeout(ctx, 180*time.Second)
 		raw, genErr := p.GenerateJSON(modelCtx, prompt, 0.05)
@@ -4919,26 +4977,29 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 			fmt.Printf("       [assemble] attempt %d/%d: model error: %v\n", attempt, maxAttempts, genErr)
 			continue
 		}
-		grid, parseErr := klublotto.ParseKrydsordGrid(raw)
-		if parseErr != nil {
-			lastErr = fmt.Errorf("parse assembled grid: %w", parseErr)
-			if len(raw) > 200 {
-				raw = raw[:200] + "…"
-			}
-			fmt.Printf("       [assemble] attempt %d/%d: %v (raw=%s)\n", attempt, maxAttempts, lastErr, raw)
+		answers, parseErr := klublotto.ParseKrydsordAnswerMap(raw)
+		if parseErr != nil || len(answers) == 0 {
+			lastErr = fmt.Errorf("parse per-slot answers: %v", parseErr)
+			fmt.Printf("       [assemble] attempt %d/%d: %v\n", attempt, maxAttempts, lastErr)
 			continue
 		}
+		grid, conflicts := buildKrydsordGridFromSlotAnswers(data, slots, answers)
 		check := klublotto.ValidateKrydsordAnswerGrid(data, grid)
-		if check.OK && check.FilledN == check.AnswerN {
+		if check.OK && check.FilledN == check.AnswerN && len(conflicts) == 0 {
 			if attempt > 1 {
-				fmt.Printf("       [assemble] valid grid on attempt %d/%d\n", attempt, maxAttempts)
+				fmt.Printf("       [assemble] consistent solution on attempt %d/%d\n", attempt, maxAttempts)
 			}
 			return grid, nil
 		}
-		lastErr = fmt.Errorf("validation (filled %d/%d): %v", check.FilledN, check.AnswerN, check.Errors)
+		errs := append([]string{}, check.Errors...)
+		errs = append(errs, conflicts...)
+		if len(errs) > 8 {
+			errs = append(errs[:8], "…")
+		}
+		lastErr = fmt.Errorf("filled %d/%d answer cells, %d crossing conflicts: %v", check.FilledN, check.AnswerN, len(conflicts), errs)
 		fmt.Printf("       [assemble] attempt %d/%d invalid: %v\n", attempt, maxAttempts, lastErr)
 	}
-	return nil, fmt.Errorf("assembled grid failed validation after %d attempts: %w", maxAttempts, lastErr)
+	return nil, fmt.Errorf("krydsord assembly failed after %d attempts: %w", maxAttempts, lastErr)
 }
 
 func gridOneLineKrydsord(g []string) string {

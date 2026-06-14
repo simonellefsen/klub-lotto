@@ -2590,9 +2590,10 @@ func ParseCandidateJSON(raw string) ([]WordCandidate, error) {
 
 // KrydsordBatchClue is one clue in a batched candidate request.
 type KrydsordBatchClue struct {
-	SlotID string
-	Clue   string
-	Length int
+	SlotID  string
+	Clue    string
+	Length  int
+	IsImage bool
 }
 
 // BuildKrydsordBatchPrompt builds a single prompt asking the word provider for
@@ -2610,7 +2611,11 @@ func BuildKrydsordBatchPrompt(clues []KrydsordBatchClue) string {
 	b.WriteString("Returnér KUN JSON på formen: {\"slots\":[{\"id\":\"A1\",\"candidates\":[\"ORD1\",\"ORD2\"]},{\"id\":\"D3\",\"candidates\":[\"ORD\"]}]}\n\n")
 	b.WriteString("Ledetråde:\n")
 	for _, c := range clues {
-		fmt.Fprintf(&b, "- id=%s len=%d clue=%q\n", c.SlotID, c.Length, c.Clue)
+		kind := ""
+		if c.IsImage {
+			kind = " (BILLEDE — clue er en engelsk beskrivelse af et billede; svar med det danske ord for tingen)"
+		}
+		fmt.Fprintf(&b, "- id=%s len=%d clue=%q%s\n", c.SlotID, c.Length, c.Clue, kind)
 	}
 	return b.String()
 }
@@ -2654,6 +2659,78 @@ func ParseKrydsordBatchCandidates(raw string, want map[string]int) (map[string][
 		}
 	}
 	return out, nil
+}
+
+// ParseKrydsordAnswerMap parses an assembler response that gives one answer per
+// slot id, into a slotID->answer map. Accepts {"answers":{"A1":"ORD"}},
+// {"answers":[{"id":"A1","answer":"ORD"}]}, or a bare {"A1":"ORD"} object.
+// Tolerant of markdown fences and leading reasoning text.
+func ParseKrydsordAnswerMap(raw string) (map[string]string, error) {
+	clean := strings.TrimSpace(raw)
+	clean = strings.TrimPrefix(clean, "```json")
+	clean = strings.TrimPrefix(clean, "```")
+	clean = strings.TrimSuffix(clean, "```")
+	clean = strings.TrimSpace(clean)
+	if i := strings.IndexAny(clean, "[{"); i > 0 {
+		clean = clean[i:]
+	}
+	obj := ExtractJSONObject(clean)
+	out := map[string]string{}
+
+	var wrapped struct {
+		Answers json.RawMessage `json:"answers"`
+	}
+	if err := json.Unmarshal([]byte(obj), &wrapped); err == nil && len(wrapped.Answers) > 0 {
+		if addKrydsordAnswerEntries(wrapped.Answers, out) {
+			return out, nil
+		}
+	}
+	if addKrydsordAnswerEntries(json.RawMessage(obj), out) {
+		return out, nil
+	}
+	if len(out) == 0 {
+		return nil, fmt.Errorf("no per-slot answers parsed from %q", truncateForErr(raw, 120))
+	}
+	return out, nil
+}
+
+func addKrydsordAnswerEntries(raw json.RawMessage, out map[string]string) bool {
+	// Object form: {"A1":"ORD"}.
+	var m map[string]string
+	if err := json.Unmarshal(raw, &m); err == nil && len(m) > 0 {
+		for k, v := range m {
+			if id := strings.TrimSpace(k); id != "" {
+				out[id] = strings.TrimSpace(v)
+			}
+		}
+		return len(out) > 0
+	}
+	// Array form: [{"id":"A1","answer":"ORD"}].
+	var arr []struct {
+		ID     string `json:"id"`
+		Answer string `json:"answer"`
+		Word   string `json:"word"`
+	}
+	if err := json.Unmarshal(raw, &arr); err == nil && len(arr) > 0 {
+		for _, e := range arr {
+			a := e.Answer
+			if a == "" {
+				a = e.Word
+			}
+			if id := strings.TrimSpace(e.ID); id != "" {
+				out[id] = strings.TrimSpace(a)
+			}
+		}
+		return len(out) > 0
+	}
+	return false
+}
+
+func truncateForErr(s string, n int) string {
+	if len(s) > n {
+		return s[:n] + "…"
+	}
+	return s
 }
 
 // decodeCandidateList converts raw JSON candidate entries into WordCandidates,

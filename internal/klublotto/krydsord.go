@@ -65,10 +65,46 @@ type KrydsordClue struct {
 	Direction string `json:"direction"`
 	Clue      string `json:"clue"`
 	Length    int    `json:"length"`
+	// IsImage marks a clue whose cell is a picture/icon (the Clue text is then an
+	// English description of the depicted object, e.g. "grill", "t-shirt").
+	IsImage bool `json:"is_image,omitempty"`
 }
 
 func OpenKrydsord(ctx context.Context, br *browser.Client) error {
 	return openParentGame(ctx, br, KrydsordURL)
+}
+
+// krydsordFetchInFrame runs the iframe's POST API fetch from inside the embedded
+// game iframe (via a Frame() context switch, so location.href is the krydsord
+// origin and the fetch is same-origin) without navigating the top-level tab.
+// Returns ok=false on any failure so the caller can fall back to a top-level open.
+func krydsordFetchInFrame(ctx context.Context, br *browser.Client) (string, bool) {
+	entered := false
+	for _, sel := range []string{"iframe[src*='krydsord']", "iframe.kl-game__iframe", "iframe"} {
+		if err := br.Frame(ctx, sel); err == nil {
+			entered = true
+			break
+		}
+	}
+	if !entered {
+		return "", false
+	}
+	defer func() { _ = br.Frame(context.Background(), "") }()
+
+	for attempt := 0; attempt < 4; attempt++ {
+		if attempt > 0 {
+			time.Sleep(700 * time.Millisecond)
+		}
+		raw, err := br.Eval(ctx, krydsordFetchJS)
+		if err != nil {
+			continue
+		}
+		// Sanity: must look like the API envelope, else fall back to top-level.
+		if strings.Contains(raw, `"status"`) || strings.Contains(raw, `"puzzle"`) {
+			return raw, true
+		}
+	}
+	return "", false
 }
 
 func ExtractKrydsordData(ctx context.Context, br *browser.Client) (KrydsordData, error) {
@@ -78,15 +114,22 @@ func ExtractKrydsordData(ctx context.Context, br *browser.Client) (KrydsordData,
 	if data.IframeURL == "" {
 		return data, fmt.Errorf("could not find Krydsord iframe on parent page")
 	}
-	if err := br.Open(ctx, data.IframeURL); err != nil {
-		return data, fmt.Errorf("open Krydsord iframe: %w", err)
-	}
-	_ = br.WaitForLoad(ctx, "networkidle")
-	time.Sleep(800 * time.Millisecond)
-
-	raw, err := br.Eval(ctx, krydsordFetchJS)
-	if err != nil {
-		return data, fmt.Errorf("fetch Krydsord iframe API: %w", err)
+	// Prefer running the API fetch INSIDE the embedded iframe (same origin via a
+	// Frame() switch), so the top-level tab doesn't visibly navigate to
+	// iframes.krydsord.dk and back. Fall back to a top-level open if the in-frame
+	// eval fails (e.g. an agent-browser build that can't eval inside the OOPIF).
+	raw, ok := krydsordFetchInFrame(ctx, br)
+	if !ok {
+		if err := br.Open(ctx, data.IframeURL); err != nil {
+			return data, fmt.Errorf("open Krydsord iframe: %w", err)
+		}
+		_ = br.WaitForLoad(ctx, "networkidle")
+		time.Sleep(800 * time.Millisecond)
+		r, err := br.Eval(ctx, krydsordFetchJS)
+		if err != nil {
+			return data, fmt.Errorf("fetch Krydsord iframe API: %w", err)
+		}
+		raw = r
 	}
 	var envelope struct {
 		Status int `json:"status"`
@@ -492,11 +535,12 @@ CLUE row=2 col=2 dir=down clue="BE-STEMTE"
 CLUE row=2 col=2 dir=across clue="ALMINDELIGHED"
 CLUE row=4 col=8 dir=across clue="POTE"
 CLUE row=5 col=7 dir=down clue="HELE"
-CLUE row=2 col=10 dir=down clue="teabag"
+CLUE row=2 col=10 dir=down img=true clue="teabag"
 
 Rules for output (follow strictly):
 - row and col are **1-based** coordinates of the clue *cell* (the . cell) containing the text or icon.
 - dir must be exactly "across" or "down" (decide using the layout rules above).
+- Add **img=true** when the clue cell is a picture / icon / emoji (no text); for those the clue= value is your short English description of the depicted object. Omit img (or img=false) for normal text clues.
 - For split cells, output **two** lines with the **same** row/col but different dir + the respective clue text for each part.
 - clue= must contain the exact visible text (preserve hyphens like "RED-SKAB", spaces, ÆØÅ, capitalization).
 - IMAGE CLUES (important): some clue cells contain ONLY a picture / icon / emoji and NO text. For those, do NOT invent or guess Danish words and do NOT transcribe random letters — instead describe the depicted object with a short ENGLISH noun phrase. Examples of such descriptions: "teabag", "envelope", "moon and stars", "onion", "turnip", "t-shirt", "shirt", "desk lamp", "grill", "barbecue", "ice cream cone", "castle", "lightning bolt", "anchor". A picture cell MUST still produce a CLUE line, with the description as the clue text. If a cell has BOTH a picture and text, output the text.
@@ -562,8 +606,9 @@ Output ONLY the CLUE lines (one per clue cell or split part). If you identify ~3
 	}
 
 	// Parse line-based format (robust to truncation — we take whatever lines we got).
+	// img=true is optional and marks a picture/icon clue.
 	var vclues []visionClue
-	re := regexp.MustCompile(`(?i)CLUE\s+row=(\d+)\s+col=(\d+)\s+dir=(across|down)\s+clue="([^"]+)"`)
+	re := regexp.MustCompile(`(?i)CLUE\s+row=(\d+)\s+col=(\d+)\s+dir=(across|down)(?:\s+img=(true|false))?\s+clue="([^"]+)"`)
 	for _, line := range strings.Split(text, "\n") {
 		line = strings.TrimSpace(line)
 		if m := re.FindStringSubmatch(line); m != nil {
@@ -573,7 +618,8 @@ Output ONLY the CLUE lines (one per clue cell or split part). If you identify ~3
 				Row:       r,
 				Col:       c,
 				Direction: m[3],
-				Clue:      m[4],
+				IsImage:   strings.EqualFold(m[4], "true"),
+				Clue:      m[5],
 			})
 		}
 	}
@@ -591,6 +637,7 @@ type visionClue struct {
 	Col       int    `json:"col"`
 	Direction string `json:"direction"`
 	Clue      string `json:"clue"`
+	IsImage   bool   `json:"is_image,omitempty"`
 	Length    int    `json:"length,omitempty"`
 }
 
@@ -638,6 +685,7 @@ func mapVisionCluesToSlots(data KrydsordData, vclues []visionClue) []KrydsordClu
 		}
 		if bestIdx >= 0 {
 			c.Clue = vclues[bestIdx].Clue
+			c.IsImage = vclues[bestIdx].IsImage
 		}
 		out = append(out, c)
 	}

@@ -119,6 +119,26 @@ func TestParseKrydsordBatchCandidates(t *testing.T) {
 	}
 }
 
+func TestParseKrydsordAnswerMap(t *testing.T) {
+	cases := []string{
+		"```json\n{\"answers\":{\"A1\":\"LOMMEKNIV\",\"D1\":\"LUFTBALLON\"}}\n```",
+		`{"answers":[{"id":"A1","answer":"LOMMEKNIV"},{"id":"D1","word":"LUFTBALLON"}]}`,
+		`Here you go: {"A1":"LOMMEKNIV","D1":"LUFTBALLON"}`,
+	}
+	for i, raw := range cases {
+		got, err := ParseKrydsordAnswerMap(raw)
+		if err != nil {
+			t.Fatalf("case %d: %v", i, err)
+		}
+		if got["A1"] != "LOMMEKNIV" || got["D1"] != "LUFTBALLON" {
+			t.Fatalf("case %d: got %+v", i, got)
+		}
+	}
+	if _, err := ParseKrydsordAnswerMap("not json"); err == nil {
+		t.Fatalf("expected error for non-JSON input")
+	}
+}
+
 func TestValidateKrydsordDataRejectsBadDimensions(t *testing.T) {
 	err := ValidateKrydsordData(KrydsordData{
 		SolutionSecret: "XXX",
