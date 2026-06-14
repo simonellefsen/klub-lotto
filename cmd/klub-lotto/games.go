@@ -3173,18 +3173,33 @@ func submitSudoku(ctx context.Context, br *browser.Client, givens, solved klublo
 		time.Sleep(800 * time.Millisecond)
 	}
 
-	// ── Step 2: snapshot from parent page, retrying until the cross-origin game
-	// iframe (mgame.nu) has rendered all 81 cell refs. Re-opening the parent in
-	// step 1 reloads the iframe, and the game app can lag the parent's
-	// networkidle by several seconds — a single snapshot then sees only the
-	// parent chrome with an empty grid (0 cell refs, the failure we hit). Poll
-	// until the grid is ready (or time out and let step 3 log + return). ───────
+	// ── Step 2: enter the game iframe and snapshot INSIDE it. The running
+	// game's 81 cells live in a cross-origin OOPIF (sudoku.…mgame.nu) that the
+	// parent's frames-inclusive snapshot does NOT expand — it shows the <iframe>
+	// node but none of its cells (the "0 cells" failure). Only an explicit
+	// Frame() switch exposes them (same reason the Ordkløver keyboard needs
+	// Frame()). We stay on the parent page, so the iframe is still embedded and
+	// the game registers the win. ─────────────────────────────────────────────
+	entered := false
+	for _, sel := range []string{"iframe.kl-game__iframe", "iframe[src*='sudoku']", "iframe"} {
+		if err := br.Frame(ctx, sel); err == nil {
+			entered = true
+			fmt.Printf("       entered game iframe via %q\n", sel)
+			break
+		}
+	}
+	if !entered {
+		return fmt.Errorf("could not enter the sudoku game iframe to reach the grid cells")
+	}
+	defer func() { _ = br.Frame(context.Background(), "") }() // safety: return to top on any exit
+
+	// Poll the in-frame snapshot until all 81 cell refs have rendered.
 	var snap string
 	deadline := time.Now().Add(30 * time.Second)
 	for {
-		s, snapErr := br.SnapshotInteractiveWithFrames(ctx)
+		s, snapErr := br.SnapshotInteractiveCursor(ctx)
 		if snapErr != nil {
-			return fmt.Errorf("snapshot for sudoku refs: %w", snapErr)
+			return fmt.Errorf("snapshot for sudoku refs (in frame): %w", snapErr)
 		}
 		snap = s
 		if len(parseIframeCellRefs(snap, nil)) >= 81 {
@@ -3193,18 +3208,18 @@ func submitSudoku(ctx context.Context, br *browser.Client, givens, solved klublo
 		if time.Now().After(deadline) {
 			break // fall through to the parse below, which logs debug + errors
 		}
-		fmt.Println("       grid iframe not ready yet (0 cells) — waiting...")
+		fmt.Println("       grid not ready yet inside iframe — waiting...")
 		time.Sleep(1500 * time.Millisecond)
 	}
 
 	// ── Step 3: parse cell refs (81) and number-button refs (1–9) ─────────────
 	cellRefs, numRefs, refsOK := parseSudokuSnapshotRefs(snap)
 	if !refsOK {
-		return fmt.Errorf("could not find 81 cell refs in snapshot after polling — game iframe did not finish loading")
+		return fmt.Errorf("could not find 81 cell refs inside the game iframe — grid did not finish loading")
 	}
-	fmt.Printf("       found 81 cell refs, %d/9 number-button refs\n", len(numRefs))
+	fmt.Printf("       found 81 cell refs, %d/9 number-button refs (in frame)\n", len(numRefs))
 	if len(numRefs) < 9 {
-		return fmt.Errorf("only found %d/9 number-button refs: %v", len(numRefs), numRefs)
+		return fmt.Errorf("only found %d/9 number-button refs inside the iframe: %v", len(numRefs), numRefs)
 	}
 
 	// ── Step 4: click each empty cell then its number button ──────────────────
@@ -3233,6 +3248,10 @@ func submitSudoku(ctx context.Context, br *browser.Client, givens, solved klublo
 		}
 	}
 	fmt.Printf("       filled %d cells\n", filled)
+
+	// Return to the top frame so the success banner (rendered on the parent) is
+	// visible to the check below; the deferred Frame("") is just a safety net.
+	_ = br.Frame(ctx, "")
 
 	// ── Step 5: wait for success ───────────────────────────────────────────────
 	time.Sleep(800 * time.Millisecond)

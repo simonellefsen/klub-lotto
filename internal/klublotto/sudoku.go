@@ -111,6 +111,16 @@ func OpenSudoku(ctx context.Context, br *browser.Client) error {
 
 func ExtractSudokuGivens(ctx context.Context, br *browser.Client) (SudokuGrid, string, error) {
 	parentURL, _ := br.URL(ctx)
+
+	// Preferred: read the grid INSIDE the embedded game iframe via a Frame()
+	// context switch. This avoids navigating the top-level tab to the iframe
+	// src, which is what made the page visibly flip danskespil.dk → mgame.nu →
+	// back. Falls back to the top-level navigation below if the in-frame read
+	// fails (e.g. an agent-browser build that can't eval inside the OOPIF).
+	if g, ok := extractSudokuGivensInFrame(ctx, br); ok {
+		return g, parentURL, nil
+	}
+
 	src, _ := br.Eval(ctx, `(() => Array.from(document.querySelectorAll('iframe')).map(f => f.src).find(s => /sudoku/i.test(s)) || '')()`)
 	src = unwrapAgentBrowserString(src)
 	if strings.TrimSpace(src) != "" {
@@ -136,6 +146,55 @@ func ExtractSudokuGivens(ctx context.Context, br *browser.Client) (SudokuGrid, s
 		g[i/9][i%9] = v
 	}
 	return g, parentURL, nil
+}
+
+// extractSudokuGivensInFrame reads the 81 givens by entering the embedded game
+// iframe (no top-level navigation, so no danskespil.dk→mgame.nu flicker). It
+// polls a few times because the game DOM can lag the parent's load, and returns
+// ok=false on any failure so the caller can fall back to the top-level read.
+func extractSudokuGivensInFrame(ctx context.Context, br *browser.Client) (SudokuGrid, bool) {
+	entered := false
+	for _, sel := range []string{"iframe.kl-game__iframe", "iframe[src*='sudoku']", "iframe"} {
+		if err := br.Frame(ctx, sel); err == nil {
+			entered = true
+			break
+		}
+	}
+	if !entered {
+		return SudokuGrid{}, false
+	}
+	defer func() { _ = br.Frame(context.Background(), "") }()
+
+	for attempt := 0; attempt < 6; attempt++ {
+		if attempt > 0 {
+			time.Sleep(1 * time.Second)
+		}
+		raw, err := br.Eval(ctx, sudokuExtractJS)
+		if err != nil {
+			continue
+		}
+		var cells []int
+		if err := json.Unmarshal([]byte(raw), &cells); err != nil || len(cells) != 81 {
+			continue
+		}
+		// Require at least a few givens — an all-zero read means the grid hasn't
+		// rendered yet inside the frame.
+		nonZero := 0
+		for _, v := range cells {
+			if v != 0 {
+				nonZero++
+			}
+		}
+		if nonZero < 10 {
+			continue
+		}
+		var g SudokuGrid
+		for i, v := range cells {
+			g[i/9][i%9] = v
+		}
+		return g, true
+	}
+	return SudokuGrid{}, false
 }
 
 const sudokuExtractJS = `(() => {
