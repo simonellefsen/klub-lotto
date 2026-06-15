@@ -1875,7 +1875,10 @@ func parseWordsFromSnapTextNode(snap string) []string {
 func extractOrdknudeLettersFromSnap(snap string) []string {
 	lines := strings.Split(snap, "\n")
 
-	// Find the Iframe element and its indentation level.
+	// Find the Iframe element (parent-page snapshot): its direct-child StaticText
+	// nodes hold the letters. When we snapshot from INSIDE the frame (br.Frame
+	// now succeeds for OOPIFs), there is NO Iframe element and the letters sit at
+	// the TOP level instead — handle both.
 	iframeIdx := -1
 	iframeIndent := 0
 	for i, line := range lines {
@@ -1886,22 +1889,26 @@ func extractOrdknudeLettersFromSnap(snap string) []string {
 			break
 		}
 	}
-	if iframeIdx < 0 {
-		return nil
+
+	// startIdx/childIndent select the depth at which the per-tile StaticText
+	// letters appear: under the Iframe (parent snapshot) or at the top level
+	// (in-frame snapshot).
+	startIdx := 0
+	childIndent := 0
+	if iframeIdx >= 0 {
+		startIdx = iframeIdx + 1
+		childIndent = iframeIndent + 2 // agent-browser uses 2 spaces per level
 	}
 
-	// Direct children are at iframeIndent + 2 spaces (agent-browser uses 2
-	// spaces per indentation level).
-	childIndent := iframeIndent + 2
 	var letters []string
-	for _, line := range lines[iframeIdx+1:] {
+	for _, line := range lines[startIdx:] {
 		if line == "" {
 			continue
 		}
 		trimmed := strings.TrimLeft(line, " ")
 		lineIndent := len(line) - len(trimmed)
 
-		if lineIndent <= iframeIndent {
+		if iframeIdx >= 0 && lineIndent <= iframeIndent {
 			break // left the Iframe section
 		}
 		if lineIndent != childIndent {

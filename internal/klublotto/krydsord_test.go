@@ -1,6 +1,7 @@
 package klublotto
 
 import (
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -116,6 +117,46 @@ func TestParseKrydsordBatchCandidates(t *testing.T) {
 	}
 	if _, ok := got["A2"]; ok {
 		t.Fatalf("A2 had no correctly-sized candidate and should be absent, got %+v", got["A2"])
+	}
+}
+
+func TestExtractOrdknudeLettersFromSnap(t *testing.T) {
+	// In-frame snapshot (br.Frame succeeded → no Iframe element; letters are
+	// top-level StaticText nodes before the keyboard generic).
+	inFrame := strings.Join([]string{
+		`- button [ref=e1]`,
+		`  - image`,
+		`- StaticText "T"`,
+		`- StaticText "A"`,
+		`- StaticText "L"`,
+		`- StaticText "E"`,
+		`- StaticText "R"`,
+		`- StaticText "L"`,
+		`- StaticText "A"`,
+		`- StaticText "G"`,
+		`- StaticText "E"`,
+		`- StaticText "R"`,
+		`- generic`,
+		`  - button "Q" [ref=e2]`,
+		`    - StaticText "Q"`,
+	}, "\n")
+	if got := extractOrdknudeLettersFromSnap(inFrame); !reflect.DeepEqual(got, []string{"TALER", "LAGER"}) {
+		t.Fatalf("in-frame: got %v, want [TALER LAGER]", got)
+	}
+
+	// Parent-page snapshot (letters under the Iframe element) must still work.
+	parent := strings.Join([]string{
+		`- Iframe [ref=e54]`,
+		`  - StaticText "Ø"`,
+		`  - StaticText "R"`,
+		`  - StaticText "K"`,
+		`  - StaticText "E"`,
+		`  - StaticText "N"`,
+		`  - generic`,
+		`    - button "Q" [ref=e2]`,
+	}, "\n")
+	if got := extractOrdknudeLettersFromSnap(parent); !reflect.DeepEqual(got, []string{"ØRKEN"}) {
+		t.Fatalf("parent: got %v, want [ØRKEN]", got)
 	}
 }
 
