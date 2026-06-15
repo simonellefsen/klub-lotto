@@ -119,6 +119,20 @@ func TestParseKrydsordBatchCandidates(t *testing.T) {
 	}
 }
 
+func TestSpaceOutBoardPositions(t *testing.T) {
+	cases := map[string]string{
+		"BONBON_LAN_":   "B O N B O N _ L A N _", // concatenated DOM board -> per-position
+		"BING / OG":     "B I N G / O G",         // group separator preserved
+		"B O N _ / O _": "B O N _ / O _",         // already spaced -> unchanged
+		"":              "",
+	}
+	for in, want := range cases {
+		if got := spaceOutBoardPositions(in); got != want {
+			t.Fatalf("spaceOutBoardPositions(%q) = %q, want %q", in, got, want)
+		}
+	}
+}
+
 func TestParseKrydsordAnswerMap(t *testing.T) {
 	cases := []string{
 		"```json\n{\"answers\":{\"A1\":\"LOMMEKNIV\",\"D1\":\"LUFTBALLON\"}}\n```",

@@ -30,6 +30,31 @@ func abs(x int) int {
 	return x
 }
 
+// spaceOutBoardPositions converts a board where each word group's positions are
+// concatenated ("BONBON_LAN_") into the space-separated-per-position form that
+// the prompt builders expect ("B O N B O N _ L A N _"), preserving the " / "
+// word-group separators. Groups that already contain spaces are left as-is.
+func spaceOutBoardPositions(board string) string {
+	groups := strings.Split(board, "/")
+	out := make([]string, 0, len(groups))
+	for _, g := range groups {
+		g = strings.TrimSpace(g)
+		if g == "" {
+			continue
+		}
+		if strings.Contains(g, " ") {
+			out = append(out, g) // already one token per position
+			continue
+		}
+		toks := make([]string, 0, len([]rune(g)))
+		for _, r := range g {
+			toks = append(toks, string(r))
+		}
+		out = append(out, strings.Join(toks, " "))
+	}
+	return strings.Join(out, " / ")
+}
+
 // visionBoardResponse is the JSON schema returned by the vision model.
 type visionBoardResponse struct {
 	Category string `json:"category"`
@@ -675,23 +700,45 @@ func ExtractOrdKloeverState(ctx context.Context, br *browser.Client, ac llm.Visi
 			if !domOK {
 				fmt.Printf("   [dom cross-check] no board from DOM (cross-origin iframe — expected)\n")
 			} else {
+				const danishLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ"
 				domCount := len(strings.Fields(domBoard.Board))
 				visionCount := len(strings.Fields(st.Board))
+				domHasLetters := strings.ContainsAny(strings.ToUpper(domBoard.Board), danishLetters)
+				visionHasLetters := strings.ContainsAny(strings.ToUpper(st.Board), danishLetters)
 				fmt.Printf("   [dom cross-check] DOM board=%q (%d tokens)  vision board=%q (%d tokens)\n",
 					domBoard.Board, domCount, st.Board, visionCount)
-				if domCount > 0 && visionCount > 0 && domCount != visionCount {
-					domHasLetters := strings.ContainsAny(strings.ToUpper(domBoard.Board), "ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ")
-					if domHasLetters || abs(domCount-visionCount) == 1 {
-						fmt.Printf("   [dom cross-check] ✓ correcting board from DOM (%d→%d tokens)\n", visionCount, domCount)
-						st.Board = domBoard.Board
-						if domBoard.Shape != "" {
-							st.Shape = domBoard.Shape
-						}
-					} else {
-						fmt.Printf("   [dom cross-check] count differs (%d vs %d) but no letters in DOM — keeping vision\n", domCount, visionCount)
+				// The DOM board is read INSIDE the iframe (works now that
+				// agent-browser can eval in OOPIFs) and is the ground truth for
+				// which tiles are revealed. Adopt it whenever vision produced no
+				// usable board, or when the DOM shows revealed letters and vision
+				// does not — previously a vision-empty board (the common case
+				// today) was silently discarded, leaving the final guess with no
+				// answer pattern at all.
+				// The DOM board concatenates letters within a word group
+				// ("BONBON_LAN_"), but downstream prompts expect one space-
+				// separated token per position ("B O N _"). Convert on adoption.
+				domSpaced := spaceOutBoardPositions(domBoard.Board)
+				switch {
+				case strings.TrimSpace(st.Board) == "" && domBoard.Board != "":
+					fmt.Printf("   [dom cross-check] ✓ adopting DOM board (vision produced none)\n")
+					st.Board = domSpaced
+					if domBoard.Shape != "" {
+						st.Shape = domBoard.Shape
 					}
-				} else {
-					fmt.Printf("   [dom cross-check] counts match (%d) — no correction needed\n", visionCount)
+				case domHasLetters && !visionHasLetters:
+					fmt.Printf("   [dom cross-check] ✓ adopting DOM board (DOM has revealed letters, vision does not)\n")
+					st.Board = domSpaced
+					if domBoard.Shape != "" {
+						st.Shape = domBoard.Shape
+					}
+				case domCount > 0 && visionCount > 0 && domCount != visionCount && (domHasLetters || abs(domCount-visionCount) == 1):
+					fmt.Printf("   [dom cross-check] ✓ correcting board from DOM (%d→%d tokens)\n", visionCount, domCount)
+					st.Board = domSpaced
+					if domBoard.Shape != "" {
+						st.Shape = domBoard.Shape
+					}
+				default:
+					fmt.Printf("   [dom cross-check] keeping vision board\n")
 				}
 			}
 			// Read keyboard state from inside the iframe — runs in iframe context so
@@ -1246,7 +1293,7 @@ const ordKloeverBoardJS = `(() => {
     const isControl = el.tagName.toLowerCase() === 'button' || !!el.closest('button,[role="button"]');
     if (isControl) continue;
     const text = (el.innerText || el.textContent || '').trim().toUpperCase();
-    const chars = Array.from(text).filter(ch => alphabet.includes(ch));
+    const chars = Array.from(text).filter(ch => alphabet.includes(ch) || ch === '-');
     gridTiles.push({col, row, letter: chars[0] || '_'});
   }
 
@@ -1304,7 +1351,7 @@ const ordKloeverBoardJS = `(() => {
   let boxes = Array.from(document.querySelectorAll('[class*="tile"],[class*="cell"],[class*="letter"],[class*="square"],[role="gridcell"]')).map(el => {
     const r = el.getBoundingClientRect();
     const text = (el.innerText || el.textContent || '').trim().toUpperCase();
-    const chars = Array.from(text).filter(ch => alphabet.includes(ch));
+    const chars = Array.from(text).filter(ch => alphabet.includes(ch) || ch === '-');
     const cls = String(el.className || '').toLowerCase();
     const tag = el.tagName.toLowerCase();
     const isControl = tag === 'button' || tag === 'input' || tag === 'textarea' || !!el.closest('button,[role="button"]');
