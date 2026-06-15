@@ -215,3 +215,7 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-14 04:53 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
 
+## [2026-06-14 20:41 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
+## [2026-06-15 04:57 UTC] ingest | quiz | Hvilken dansker vandt Tour de France i 1996? | outcome=submitted
+
