@@ -219,3 +219,11 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-15 04:57 UTC] ingest | quiz | Hvilken dansker vandt Tour de France i 1996? | outcome=submitted
 
+## [2026-06-15 04:58 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
+## [2026-06-15 05:01 UTC] ingest | ordkløver | Category: `På danmarkskortet` | outcome=submitted
+
+## [2026-06-15 05:09 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-16 04:33 UTC] ingest | quiz | I hvilket land finder man det berømte tempelkompleks Angkor… | outcome=submitted
+
