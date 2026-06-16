@@ -14,7 +14,9 @@ AGENT_BROWSER_BIN ?= /Users/lindau/codex/agent-browser/cli/target/release/agent-
 LOCAL_BROWSER_ENV := AGENT_BROWSER_SESSION=$(AGENT_BROWSER_SESSION) AGENT_BROWSER_SESSION_NAME=$(AGENT_BROWSER_SESSION_NAME) AGENT_BROWSER_HEADED=$(AGENT_BROWSER_HEADED) AGENT_BROWSER_BIN=$(AGENT_BROWSER_BIN)
 # Vision model for reading the Ordkløver board. A "~"-prefixed slug is a valid
 # OpenRouter floating alias (resolves to the current concrete model).
-OPENROUTER_VISION_MODEL ?= ~google/gemini-pro-latest
+# Override the vision model with either VISION_MODEL=... or
+# OPENROUTER_VISION_MODEL=... e.g. `make krydsord VISION_MODEL=~google/gemini-pro-latest`.
+OPENROUTER_VISION_MODEL ?= $(or $(VISION_MODEL),~google/gemini-pro-latest)
 GAME_ANSWER := $(or $(ANSWER),$(answer),$(SOLUTION),$(solution))
 GAME_PROVIDER := $(or $(PROVIDER),$(provider))
 GAME_PROVIDER_FLAG := $(if $(GAME_PROVIDER),--provider "$(GAME_PROVIDER)")
@@ -161,13 +163,13 @@ KRYDSORD_SUBMIT_FLAG := $(if $(filter true 1 yes,$(SUBMIT)),--submit)
 # SOLUTION_FILE= re-submits a saved solution JSON without re-running the LLM.
 KRYDSORD_SOLUTION_FILE_FLAG := $(if $(SOLUTION_FILE),--solution-file "$(SOLUTION_FILE)")
 krydsord-solve: $(BIN)
-	$(LOCAL_BROWSER_ENV) $(BIN) krydsord --solve --provider "$(KRYDSORD_SOLVE_PROVIDER)" $(KRYDSORD_GRAPH_FILE_FLAG) $(KRYDSORD_SOLUTION_FILE_FLAG) $(KRYDSORD_SUBMIT_FLAG)
+	OPENROUTER_VISION_MODEL=$(OPENROUTER_VISION_MODEL) $(LOCAL_BROWSER_ENV) $(BIN) krydsord --solve --provider "$(KRYDSORD_SOLVE_PROVIDER)" $(KRYDSORD_GRAPH_FILE_FLAG) $(KRYDSORD_SOLUTION_FILE_FLAG) $(KRYDSORD_SUBMIT_FLAG)
 
 krydsord-solve-dry: $(BIN)
 	$(BIN) krydsord --solve --dry-run $(KRYDSORD_GRAPH_FILE_FLAG)
 
 krydsord: $(BIN)
-	$(LOCAL_BROWSER_ENV) $(BIN) krydsord --submit
+	OPENROUTER_VISION_MODEL=$(OPENROUTER_VISION_MODEL) $(LOCAL_BROWSER_ENV) $(BIN) krydsord --submit
 
 wiki-query: $(BIN)
 	@$(BIN) wiki query "$(Q)"

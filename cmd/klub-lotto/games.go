@@ -625,6 +625,13 @@ func runOrdknude(ctx context.Context, args []string) error {
 				// NOTE: "dagens første lod" intentionally omitted — appears after ANY game earns the lod.
 				st.Solved = true
 			}
+			// The winning guess flips the board to the win overlay INSIDE the
+			// iframe, which the re-extract reads as an empty board ("0 guesses").
+			// Check the iframe body text directly before we force-reload below.
+			if !st.Solved && ordknudeSolvedViaIframe(ctx, br) {
+				fmt.Println("   win screen detected inside game iframe — marking as solved")
+				st.Solved = true
+			}
 
 			// Extra guarantee we are on the parent (embedded) before the next LLM call or submit.
 			// The extract above tries to restore, but we force it here too to avoid flicker-related
@@ -660,6 +667,13 @@ func runOrdknude(ctx context.Context, args []string) error {
 		// Post-loop win-screen check: when the win overlay replaces the game board the
 		// re-extract returns "0 guesses, 0 remaining" (empty state) so st.Solved is never
 		// set inside the loop.  Take a fresh snapshot and look for the overlay text.
+		if !st.Solved && ordknudeSolvedViaIframe(ctx, br) {
+			fmt.Println("   win screen detected inside game iframe (post-loop) — marking as solved")
+			st.Solved = true
+			if st.Answer == "" {
+				st.Answer = lastSubmittedAnswer // the answer that triggered the win
+			}
+		}
 		if !st.Solved {
 			if pageSnap, snapErr := br.Snapshot(ctx); snapErr == nil {
 				pageLow := strings.ToLower(pageSnap)
@@ -905,13 +919,9 @@ func runKrydsord(ctx context.Context, args []string) error {
 		// Real solve path (no dry-run simulation): vision OCR clues from board image + mask/slots,
 		// per-slot word candidates via configured word provider, then LLM assembly of full consistent grid.
 		fmt.Println("[3.5/4] extracting clues from board image via vision...")
-		var ac llm.VisionProvider
-		if cfg.GeminiKey != "" {
-			ac = llm.NewGemini(cfg.GeminiKey, "gemini-2.5-pro")
-		} else if cfg.AnthropicKey != "" {
-			// Use haiku for vision/OCR step (fast, cheap, sufficient for reading clue text in grid image).
-			ac = llm.NewAnthropic(cfg.AnthropicKey, "claude-haiku-4-5-20251001")
-		}
+		// Same provider selection as the graph step, so OPENROUTER_VISION_MODEL
+		// overrides the default (e.g. OPENROUTER_VISION_MODEL=~google/gemini-pro-latest).
+		ac, _ := krydsordVisionProvider(cfg)
 		if n, ok := ac.(interface{ Name() string }); ok {
 			fmt.Printf("       vision model: %s\n", n.Name())
 		}
@@ -1172,18 +1182,18 @@ func ordKloeverFallbackVision(cfg *config.Config, primary llm.VisionProvider) ll
 	return nil
 }
 
-// krydsordVisionProvider picks the vision model for the graph step. Override
-// with OPENROUTER_VISION_MODEL (e.g. openai/gpt-5.4) to try a different LLM.
+// krydsordVisionProvider picks the vision model for the krydsord graph AND
+// clue-extraction steps. Override the default with OPENROUTER_VISION_MODEL
+// (e.g. OPENROUTER_VISION_MODEL=~google/gemini-pro-latest or openai/gpt-5.4).
+// The caller logs the chosen model.
 func krydsordVisionProvider(cfg *config.Config) (llm.VisionProvider, error) {
 	switch {
 	case cfg.OpenRouterKey != "" && cfg.OpenRouterVisionModel != "":
-		fmt.Printf("   [graph] vision: openrouter:%s\n", cfg.OpenRouterVisionModel)
 		return llm.NewOpenRouterVision(cfg.OpenRouterKey, cfg.OpenRouterVisionModel), nil
 	case cfg.GeminiKey != "":
-		fmt.Println("   [graph] vision: gemini:gemini-2.5-pro")
 		return llm.NewGemini(cfg.GeminiKey, "gemini-2.5-pro"), nil
 	case cfg.AnthropicKey != "":
-		fmt.Println("   [graph] vision: anthropic:claude-haiku-4-5-20251001")
+		// Haiku for vision/OCR (fast, cheap, sufficient for reading clue text).
 		return llm.NewAnthropic(cfg.AnthropicKey, "claude-haiku-4-5-20251001"), nil
 	}
 	return nil, fmt.Errorf("need OPENROUTER_API_KEY+OPENROUTER_VISION_MODEL, GEMINI_API_KEY, or ANTHROPIC_API_KEY")
@@ -1197,6 +1207,9 @@ func krydsordGraphJSON(ctx context.Context, cfg *config.Config, br *browser.Clie
 	ac, err := krydsordVisionProvider(cfg)
 	if err != nil {
 		return "", nil, err
+	}
+	if n, ok := ac.(interface{ Name() string }); ok {
+		fmt.Printf("   [graph] vision model: %s\n", n.Name())
 	}
 	// Give the embedded board a moment to finish rendering, then screenshot the
 	// parent page (the crossword the player sees) — no iframe navigation.
@@ -4241,6 +4254,32 @@ func filterOrdknudeCandidates(cands []klublotto.WordCandidate, st klublotto.Ordk
 //	- paragraph: gummi
 //
 // For a win it contains "Tillykke" and the answer word in the board.
+// ordknudeSolvedViaIframe checks for the win screen INSIDE the game iframe
+// ("Super imponerende!", "Du fandt frem til dagens ord", "ord-haj", or the
+// "optjent dagens lod" already-earned line). The win overlay replaces the board
+// and renders inside the cross-origin iframe, so a parent-page snapshot can't
+// see it; we read the iframe body text via a frame() switch (works now that
+// agent-browser can eval inside OOPIFs).
+func ordknudeSolvedViaIframe(ctx context.Context, br *browser.Client) bool {
+	entered := false
+	for _, sel := range []string{"iframe.kl-game__iframe", "iframe[src*='ordknuden']", "iframe[src*='ordknude']", "iframe"} {
+		if br.Frame(ctx, sel) == nil {
+			entered = true
+			break
+		}
+	}
+	if !entered {
+		return false
+	}
+	defer func() { _ = br.Frame(context.Background(), "") }()
+	txt, _ := br.Eval(ctx, `String(document.body ? (document.body.innerText || document.body.textContent || '') : '')`)
+	low := strings.ToLower(txt)
+	return strings.Contains(low, "imponerende") ||
+		strings.Contains(low, "fandt frem til") ||
+		strings.Contains(low, "ord-haj") ||
+		strings.Contains(low, "optjent dagens lod")
+}
+
 func extractOrdknudeAnswerFromSnap(snap string) string {
 	lines := strings.Split(snap, "\n")
 	for i, line := range lines {
