@@ -58,6 +58,35 @@ func TestKrydsordMaskAndSlots(t *testing.T) {
 	}
 }
 
+func TestBuildKrydsordSlotsEmitsCrossingOneLetterSlots(t *testing.T) {
+	// (r2,c3) and (r2,c5) are part of the across run on row 2 but are length-1
+	// down with a clue cell directly above — the KAMMERTONEN->A / TON->T case.
+	mask := strings.Join([]string{
+		".....",
+		".####",
+		".#.#.",
+		".###.",
+	}, "\n")
+	data := KrydsordData{
+		SolutionSecret: secretFromKrydsordMask(mask),
+		CellCountX:     5,
+		CellCountY:     4,
+	}
+	if err := ValidateKrydsordData(data); err != nil {
+		t.Fatalf("ValidateKrydsordData: %v", err)
+	}
+	slots := BuildKrydsordSlots(data)
+	found := false
+	for _, s := range slots {
+		if s.Length == 1 && s.Direction == "down" && s.Row == 2 && s.Col == 3 {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("expected a length-1 down slot at r2c3 (crossing 1-letter answer), got %+v", slots)
+	}
+}
+
 func TestBuildKrydsordSlotsIncludesSingleCellAnswers(t *testing.T) {
 	// Each '#' here is an isolated answer cell (clue cells on all four sides),
 	// i.e. a 1-letter answer like SMALL->S. These must still produce a slot so

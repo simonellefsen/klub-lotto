@@ -4814,6 +4814,12 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 	fmt.Fprintf(&b, "\nSlots (id, retning, længde, ledetråd, celler r<row>c<col>, kandidater):\n")
 	for _, s := range slots {
 		cl := cluesByID[s.ID]
+		// Skip speculative 1-letter slots that got no clue from vision — their
+		// single cell is already fixed by the crossing word, and asking the LLM
+		// to "answer" them only invites a wrong letter that conflicts.
+		if s.Length == 1 && strings.TrimSpace(cl.Clue) == "" {
+			continue
+		}
 		var candList []string
 		for _, c := range perSlot[s.ID] {
 			a := klublotto.NormalizeDanishLetters(c.Answer)

@@ -315,41 +315,74 @@ func BuildKrydsordSlots(data KrydsordData) []KrydsordSlot {
 		}
 	}
 
-	// Include isolated single-cell answers (1-letter clues such as SMALL->S,
-	// TON->T, KILO->K, ØSTRIG->Ø). The two passes above only emit runs of >=2,
-	// so an answer cell with no horizontal AND no vertical neighbour would
-	// otherwise be dropped entirely — leaving it unclued, never filled, and
-	// failing the "answer cell is blank" validation on submit.
-	covered := map[[2]int]bool{}
+	// Emit length-1 slots so single-letter clue answers are not dropped. Two
+	// kinds, both common in these boards:
+	//   - A cell that is part of a >=2 word in ONE direction but length-1 in the
+	//     OTHER, governed by a clue in the short direction (KAMMERTONEN->A,
+	//     TON->T, REX->R, RØNTGEN->R, SPANIEN->E). Without a slot the clue is
+	//     lost and the crossing letter is unconstrained by it.
+	//   - A truly isolated single cell (no neighbour either way).
+	// Track across- and down-coverage by the >=2 runs separately.
+	acrossCovered := map[[2]int]bool{}
+	downCovered := map[[2]int]bool{}
 	for _, s := range slots {
 		for _, cell := range s.Cells {
-			covered[[2]int{cell.Row, cell.Col}] = true
+			key := [2]int{cell.Row, cell.Col}
+			if s.Direction == "across" {
+				acrossCovered[key] = true
+			} else {
+				downCovered[key] = true
+			}
 		}
 	}
 	for r := 0; r < data.CellCountY; r++ {
 		for c := 0; c < data.CellCountX; c++ {
-			if grid[r][c] == ' ' || covered[[2]int{r + 1, c + 1}] {
+			if grid[r][c] == ' ' {
 				continue
 			}
-			// Direction only breaks ties in the distance-based clue mapper. A
-			// 1-letter answer's clue usually sits directly above it (a "down"
-			// header) — prefer "down" when the cell above is a clue cell.
-			dir := "across"
-			id := fmt.Sprintf("A%d", acrossN)
-			acrossN++
-			if r > 0 && grid[r-1][c] == ' ' {
-				dir = "down"
-				id = fmt.Sprintf("D%d", downN)
-				downN++
+			key := [2]int{r + 1, c + 1}
+			inA, inD := acrossCovered[key], downCovered[key]
+			switch {
+			case inA && inD:
+				// normal crossing of two real words — nothing to add
+			case inA && !inD:
+				// part of an across word, length-1 down: a clue directly above
+				// it governs a 1-letter down answer.
+				if r > 0 && grid[r-1][c] == ' ' {
+					slots = append(slots, KrydsordSlot{
+						ID: fmt.Sprintf("D%d", downN), Direction: "down",
+						Row: r + 1, Col: c + 1, Length: 1,
+						Cells: []KrydsordCell{{Row: r + 1, Col: c + 1}},
+					})
+					downN++
+				}
+			case inD && !inA:
+				// part of a down word, length-1 across: a clue to its left
+				// governs a 1-letter across answer.
+				if c > 0 && grid[r][c-1] == ' ' {
+					slots = append(slots, KrydsordSlot{
+						ID: fmt.Sprintf("A%d", acrossN), Direction: "across",
+						Row: r + 1, Col: c + 1, Length: 1,
+						Cells: []KrydsordCell{{Row: r + 1, Col: c + 1}},
+					})
+					acrossN++
+				}
+			default:
+				// isolated single cell — one slot, prefer "down" if a clue cell
+				// sits directly above.
+				dir := "across"
+				id := fmt.Sprintf("A%d", acrossN)
+				acrossN++
+				if r > 0 && grid[r-1][c] == ' ' {
+					dir = "down"
+					id = fmt.Sprintf("D%d", downN)
+					downN++
+				}
+				slots = append(slots, KrydsordSlot{
+					ID: id, Direction: dir, Row: r + 1, Col: c + 1, Length: 1,
+					Cells: []KrydsordCell{{Row: r + 1, Col: c + 1}},
+				})
 			}
-			slots = append(slots, KrydsordSlot{
-				ID:        id,
-				Direction: dir,
-				Row:       r + 1,
-				Col:       c + 1,
-				Length:    1,
-				Cells:     []KrydsordCell{{Row: r + 1, Col: c + 1}},
-			})
 		}
 	}
 	return slots
@@ -647,8 +680,21 @@ func mapVisionCluesToSlots(data KrydsordData, vclues []visionClue) []KrydsordClu
 			Length:    s.Length,
 		}
 		if bestIdx >= 0 {
-			c.Clue = vclues[bestIdx].Clue
-			c.IsImage = vclues[bestIdx].IsImage
+			vc := vclues[bestIdx]
+			// For 1-letter slots, require a CLOSE, direction-matching clue (the
+			// adjacent clue cell). Many 1-letter slots are emitted speculatively
+			// (a length-1 run crossing a longer word); if no real clue sits next
+			// to it, leave the clue empty so the crossing word fills the cell
+			// rather than a mis-mapped clue forcing a wrong letter.
+			if s.Length == 1 {
+				if absInt(vc.Row-s.Row)+absInt(vc.Col-s.Col) <= 1 && strings.EqualFold(vc.Direction, s.Direction) {
+					c.Clue = vc.Clue
+					c.IsImage = vc.IsImage
+				}
+			} else {
+				c.Clue = vc.Clue
+				c.IsImage = vc.IsImage
+			}
 		}
 		out = append(out, c)
 	}
