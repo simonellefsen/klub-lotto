@@ -227,3 +227,13 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-16 04:33 UTC] ingest | quiz | I hvilket land finder man det berømte tempelkompleks Angkor… | outcome=submitted
 
+## [2026-06-16 04:40 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-16 04:44 UTC] ingest | ordkløver | Category: `På danmarlskortet`; answer pattern `9` | outcome=submitted
+
+## [2026-06-16 04:45 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
+## [2026-06-16 16:21 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+
+## [2026-06-17 03:53 UTC] ingest | quiz | Hvad hedder den administrative hovedstad i Sydafrika? | outcome=submitted
+
