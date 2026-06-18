@@ -237,3 +237,19 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-17 03:53 UTC] ingest | quiz | Hvad hedder den administrative hovedstad i Sydafrika? | outcome=submitted
 
+## [2026-06-17 03:57 UTC] ingest | ordkløver | Category: `Film & tv`; answer pattern `6 / 9` | outcome=submitted
+
+## [2026-06-17 04:09 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-17 04:14 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
+## [2026-06-17 15:49 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+
+## [2026-06-18 04:17 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
+## [2026-06-18 04:21 UTC] ingest | ordkløver | Category: `Skuespiller`; answer pattern `5 / 7` | outcome=submitted
+
+## [2026-06-18 04:28 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-18 04:28 UTC] ingest | quiz | Hvilket band udgav albummet OK Computer? | outcome=submitted
+

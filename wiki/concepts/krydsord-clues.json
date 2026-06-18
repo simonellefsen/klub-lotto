@@ -2,12 +2,43 @@
   "1500": [
     "MD"
   ],
+  "ANNO": [
+    "A"
+  ],
+  "ANONYM": [
+    "NN"
+  ],
+  "ARVEENHED": [
+    "GEN"
+  ],
+  "BALLADE": [
+    "URO"
+  ],
   "BEHOLDER": [
     "TANK",
     "VASE"
   ],
+  "BLOMSTRE": [
+    "GRO",
+    "DRÆ"
+  ],
+  "BRINT": [
+    "H"
+  ],
+  "BØN": [
+    "AVE"
+  ],
+  "CAMERA": [
+    "KAMERA"
+  ],
   "CIRKUSSCENE": [
     "ARENA"
+  ],
+  "CUPCAKE": [
+    "KAGE"
+  ],
+  "CUPOFTEA": [
+    "TEKOP"
   ],
   "DIGT": [
     "ODE",
@@ -18,34 +49,67 @@
     "TE"
   ],
   "DYR": [
-    "KO"
+    "KO",
+    "SO",
+    "RÅ",
+    "DÅ",
+    "RÆV",
+    "TYR"
   ],
   "DØRSLAG": [
     "SI"
+  ],
+  "EXIT": [
+    "UD"
   ],
   "FARTØJ": [
     "LUFTBALLON"
   ],
   "FARVE": [
-    "ROSA"
+    "ROSA",
+    "ORANGE"
   ],
   "FINDES": [
     "ER"
   ],
+  "FORESTILLING": [
+    "REVY"
+  ],
   "FORLANGER": [
     "KRÆVER"
+  ],
+  "FORLYSTELSE": [
+    "RUTSJEBANE"
+  ],
+  "FRUGT": [
+    "MELON"
   ],
   "FØDEN": [
     "MADEN"
   ],
+  "GRIBE": [
+    "TY"
+  ],
   "GRINE": [
     "LE"
+  ],
+  "GRÆSKTEGN": [
+    "MY"
+  ],
+  "HJEM": [
+    "BO"
+  ],
+  "HOLDERMEGETAF": [
+    "ELSKER"
   ],
   "IDAG": [
     "DD"
   ],
   "IDET": [
     "DA"
+  ],
+  "ILT": [
+    "O"
   ],
   "IMGCASTLE": [
     "SLOT"
@@ -69,8 +133,22 @@
     "OBO",
     "SAX"
   ],
+  "JEG": [
+    "EGO"
+  ],
+  "JOB": [
+    "MALER",
+    "PLADS",
+    "HVERV"
+  ],
   "KAMMERTONEN": [
     "A"
+  ],
+  "KARAT": [
+    "K"
+  ],
+  "KIGGE": [
+    "SE"
   ],
   "KLUDE": [
     "LASER"
@@ -81,8 +159,14 @@
   "KURSIST": [
     "ELEV"
   ],
+  "KÆRTEGNE": [
+    "AE"
+  ],
   "LARGE": [
     "L"
+  ],
+  "LED": [
+    "KNO"
   ],
   "LØFTE": [
     "ED"
@@ -90,12 +174,22 @@
   "MI": [
     "E"
   ],
+  "MÅLER": [
+    "UR"
+  ],
   "MÆRKE": [
-    "AR"
+    "AR",
+    "LOGO"
+  ],
+  "NIT": [
+    "N"
   ],
   "PAPEGØJE": [
     "ARA",
     "KEA"
+  ],
+  "PEP": [
+    "GO"
   ],
   "PLADE": [
     "LP",
@@ -116,11 +210,14 @@
   "RUM": [
     "LO"
   ],
-  "RØNTGEN": [
-    "R"
-  ],
   "RUMORGANISATION": [
     "ESA"
+  ],
+  "RYGE": [
+    "OSE"
+  ],
+  "RØNTGEN": [
+    "R"
   ],
   "SAMT": [
     "OG"
@@ -128,11 +225,17 @@
   "SIKKERT": [
     "NOK"
   ],
+  "SKABER": [
+    "TER"
+  ],
   "SKIBSDEL": [
     "DÆK"
   ],
   "SMALL": [
     "S"
+  ],
+  "SMYKKESTEN": [
+    "OPAL"
   ],
   "SPANIEN": [
     "E"
@@ -141,7 +244,13 @@
     "DE"
   ],
   "STÆVNE": [
-    "OL"
+    "OL",
+    "EM",
+    "NM",
+    "VM"
+  ],
+  "SØDEMIDDEL": [
+    "ROESUKKER"
   ],
   "TALORD": [
     "NITTEN"
@@ -149,17 +258,44 @@
   "TARA": [
     "T"
   ],
+  "TIDLIGERE": [
+    "EKS",
+    "FØR",
+    "SEN"
+  ],
   "TON": [
     "T"
   ],
+  "TRÅDE": [
+    "SENER"
+  ],
+  "TRÆ": [
+    "EG",
+    "AHORN"
+  ],
+  "TÆRE": [
+    "ÆTSE"
+  ],
+  "URAN": [
+    "U"
+  ],
+  "VEG": [
+    "SLAP"
+  ],
   "VEJDEL": [
     "BANE"
+  ],
+  "VEST": [
+    "V"
   ],
   "VÆSEN": [
     "FE"
   ],
   "ÅRE": [
     "AORTA"
+  ],
+  "ÆDELSTEN": [
+    "JUVEL"
   ],
   "ØJNE": [
     "SE"
