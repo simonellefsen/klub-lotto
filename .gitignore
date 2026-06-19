@@ -38,3 +38,7 @@ deploy/k8s/20-secret-env.yaml
 
 # Local working crossword graphs (per-day, kept out of git)
 /krydsord_*.json
+
+# Python bytecode (tools/blok perception venv)
+__pycache__/
+*.pyc
