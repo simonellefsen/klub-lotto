@@ -13,6 +13,40 @@ The daily target is 200 points, but the game only reports completion when
 it reaches game-over; `gameCompleted` is emitted when the final score is
 at least 200.
 
+## 2026-06-19 Result — FIRST AUTOMATED WIN ✓
+
+- Final score: `200` → game auto-completed at the 200-point goal.
+- Win screen (embedded parent): `Du klarede det Blok for blok! … Du samlede 200 point. (Du har allerede optjent dagens lod)`.
+- Registered: ✓ checkmark on the Spil & Quiz overview tile.
+- Solved live by the Python tooling now committed at `tools/blok/`:
+  - `blok.py` — perception (pixel-sampling): `read_board` (8×8 occupancy from the
+    empty-maroon mask) + `read_pieces` (tray shape matrices + viewport pickup point).
+  - `blok_play.py` — solver + executor: full-trio lookahead greedy
+    (`120*lines_cleared + quality`, quality penalises dead 1×1 holes), smooth
+    stepped coordinate drags, and **predicted-board** placement verification
+    (`apply_p` result), receding-horizon re-read after every move.
+  - Run: `BLOK_SHOTDIR=<dir> /tmp/blokenv/bin/python tools/blok/blok_play.py <target_cells>`
+    after opening the game and clicking "Start spil". `target_cells` is a cumulative
+    placed-cell budget; since score = placed cells + combo bonuses, it's a safe lower
+    bound on score (e.g. 190 placed cells reached 200 actual via combos).
+  - venv: `/tmp/blokenv` (Pillow + numpy); recreate if missing — system PIL is
+    blocked by PEP-668.
+
+### Key learnings (2026-06-19)
+- **The game auto-completes at 200 points** — you do NOT have to play to a board-full
+  game-over. The board is replaced by the win screen the moment score hits 200.
+- Consequently, when the executor's `read_settled` throws
+  `could not read board (canvas blank/collapsed?)`, that is very likely the **win
+  screen** (board gone), not a failure — screenshot and check before treating it as an error.
+- **Concurrency:** the player and any monitoring share ONE agent-browser session;
+  `frame` switches race. Never issue agent-browser commands (screenshot/frame/eval)
+  while the background player runs. Monitor via its `-u` (unbuffered) log only.
+- **Detect placement success against the predicted board, not `board==board`** — a
+  placement that immediately clears a line can leave the board identical or emptier,
+  which the old equality test misread as a failed drag.
+- Staleness/edge-placement (the two 2026-06-18 blockers) did not bite this run; the
+  drag animation forces a fresh OOPIF composite so post-move reads were reliably fresh.
+
 ## 2026-05-31 Result
 
 - Final score: `228`

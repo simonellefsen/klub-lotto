@@ -255,3 +255,11 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-19 04:46 UTC] ingest | quiz | Hvilket årti begyndte Første Verdenskrig? | outcome=submitted
 
+## [2026-06-19 04:56 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
+## [2026-06-19 04:59 UTC] ingest | ordkløver | Category: `Udtryk`; answer pattern `5 / 6 / 2 / 6` | outcome=submitted
+
+## [2026-06-19 05:13 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-19 15:21 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=solved (200/200, lod earned, first automation)
+
