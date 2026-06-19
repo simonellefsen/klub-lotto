@@ -183,6 +183,15 @@ func runQuiz(ctx context.Context, args []string) error {
 		return fmt.Errorf("snapshot quiz: %w", err)
 	}
 	_ = saveDebug(cfg.DataDir, "quiz-snapshot.txt", snap)
+	// Always capture a screenshot of the rendered question BEFORE we extract, so a
+	// misread (e.g. options losing their year prefix) can be diagnosed after the
+	// fact. Timestamped so reruns don't clobber the evidence. Best-effort.
+	shotPath := filepath.Join(cfg.DataDir, "quiz-"+time.Now().UTC().Format("20060102-150405")+".png")
+	if err := br.Screenshot(ctx, shotPath); err != nil {
+		fmt.Printf("       WARNING: could not save pre-extraction screenshot: %v\n", err)
+	} else {
+		fmt.Printf("       screenshot saved: %s\n", shotPath)
+	}
 	if klublotto.IsLoginRequired(curURL, snap) {
 		return fmt.Errorf("login required before quiz can run (landed at %s; snapshot saved to %s)", curURL, filepath.Join(cfg.DataDir, "quiz-snapshot.txt"))
 	}

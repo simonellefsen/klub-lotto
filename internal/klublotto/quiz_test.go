@@ -90,3 +90,26 @@ func TestIsLoginRequiredLoggedInSignalsBeatHeaderLoginButton(t *testing.T) {
 		t.Fatal("IsLoginRequired() = true for logged-in quiz snapshot with account drawer")
 	}
 }
+
+func TestStripOptionPrefix(t *testing.T) {
+	cases := map[string]string{
+		// Real enumerators (label + separator) are stripped.
+		"A) Japan":     "Japan",
+		"0. Japan":     "Japan",
+		"10. Foo":      "Foo",
+		"B: Berlin":    "Berlin",
+		"3) 1920'erne": "1920'erne", // strip enumerator, keep the decade
+		// No separator after digits → not an enumerator; keep the year.
+		"1900'erne": "1900'erne",
+		"1910'erne": "1910'erne",
+		"1914":      "1914",
+		// Names beginning with A–D must be left intact.
+		"Atlanterhavet": "Atlanterhavet",
+		"Berlin":        "Berlin",
+	}
+	for in, want := range cases {
+		if got := stripOptionPrefix(in); got != want {
+			t.Errorf("stripOptionPrefix(%q) = %q, want %q", in, got, want)
+		}
+	}
+}

@@ -281,7 +281,7 @@ func stripOptionPrefix(s string) string {
 		return s
 	}
 	// Work with runes to safely handle unicode dashes (– —) and multi-byte chars (ÆØÅ etc).
-	// Skips common quiz prefixes from labels or model output: "A) ", "A. ", "A ", "0. ",
+	// Skips common quiz enumerators from labels or model output: "A) ", "A. ", "A ", "0. ",
 	// "3) ", "B: ", "10. " etc. Stops before name text even if name starts with A-D (e.g. "Atlanterhavet").
 	runes := []rune(s)
 	if len(runes) < 2 {
@@ -292,26 +292,27 @@ func stripOptionPrefix(s string) string {
 	if !(labelIsDigit || (first >= 'A' && first <= 'D') || (first >= 'a' && first <= 'd')) {
 		return s
 	}
-	// Skip the initial label + following seps. Also eat extra digits right after initial digit (for "10. " etc).
-	// Never eat letters in the skip phase (names can start with A-D like "Amazon", "Atlanterhavet").
+	// Consume the label: a run of digits ("10") or a single A–D letter.
 	i := 1
+	if labelIsDigit {
+		for i < len(runes) && runes[i] >= '0' && runes[i] <= '9' {
+			i++
+		}
+	}
+	// A real enumerator is FOLLOWED by a separator. Consume one or more. If none
+	// follow, this wasn't a label — leave the text intact. This keeps decade
+	// options like "1900'erne" (digits then an apostrophe, no separator) and
+	// names like "Atlanterhavet" whole, while still stripping "3) 1920'erne".
+	sepStart := i
 	for i < len(runes) {
 		c := runes[i]
 		if c == ' ' || c == ')' || c == '.' || c == ':' || c == '-' || c == '–' || c == '—' {
 			i++
 			continue
 		}
-		if labelIsDigit && c >= '0' && c <= '9' {
-			i++
-			continue
-		}
 		break
 	}
-	// skip any remaining leading spaces
-	for i < len(runes) && runes[i] == ' ' {
-		i++
-	}
-	if i > 1 && i < len(runes) {
+	if i > sepStart && i < len(runes) {
 		return strings.TrimSpace(string(runes[i:]))
 	}
 	return s
