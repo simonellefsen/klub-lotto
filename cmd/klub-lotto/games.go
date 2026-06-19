@@ -988,7 +988,7 @@ func runKrydsord(ctx context.Context, args []string) error {
 					continue
 				}
 				var matching []string
-				for _, ans := range dict.Lookup(cl.Clue) {
+				for _, ans := range dict.Lookup(klublotto.WithImageMarker(cl.Clue, cl.IsImage)) {
 					ans = klublotto.NormalizeDanishLetters(ans)
 					if len([]rune(ans)) == cl.Length {
 						matching = append(matching, ans)
@@ -1126,7 +1126,7 @@ func runKrydsord(ctx context.Context, args []string) error {
 			if len(ans) != s.Length {
 				continue
 			}
-			if dict.Add(cl.Clue, string(ans)) {
+			if dict.Add(klublotto.WithImageMarker(cl.Clue, cl.IsImage), string(ans)) {
 				added++
 			}
 		}

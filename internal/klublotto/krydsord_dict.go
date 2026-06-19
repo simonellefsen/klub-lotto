@@ -14,20 +14,59 @@ import (
 // rules (Roman numerals, solfège, …), this is accumulated lexical knowledge.
 type KrydsordDict map[string][]string
 
+// ImageCluePrefix marks the key of an image/picture clue so it can't collide with
+// a same-spelled text clue: a picture of a CAMERA keys as "[IMG]CAMERA", distinct
+// from the word clue CAMERA. Keys in krydsord-clues.json carry this literal prefix.
+const ImageCluePrefix = "[IMG]"
+
 // NormKrydsordClue normalizes a clue for dictionary keying/lookup: uppercase,
 // keep only Danish letters and digits (so "1500" and "I DAG"→"IDAG" both work),
-// drop everything else. Image-description clues ("IMG: …") collapse to letters,
-// which simply won't match — that's fine.
+// drop everything else. An image-description clue — recognized by an inline
+// "IMG:" or "[IMG]" prefix in the text (the graph deconstruct path emits
+// descriptions prefixed "IMG: ") — keeps a literal ImageCluePrefix on its key,
+// e.g. "IMG: bees" → "[IMG]BEES". For structured clues whose image-ness is a
+// separate bool, run the text through WithImageMarker first.
 func NormKrydsordClue(s string) string {
-	s = strings.ToUpper(strings.TrimSpace(s))
+	img, rest := splitImageMarker(strings.TrimSpace(s))
 	var b strings.Builder
-	for _, r := range s {
+	if img {
+		b.WriteString(ImageCluePrefix)
+	}
+	for _, r := range strings.ToUpper(rest) {
 		switch {
 		case r >= 'A' && r <= 'Z', r >= '0' && r <= '9', r == 'Æ', r == 'Ø', r == 'Å':
 			b.WriteRune(r)
 		}
 	}
 	return b.String()
+}
+
+// splitImageMarker reports whether s begins with an image marker ("[IMG]" or
+// "IMG:", case-insensitive) and returns the remaining text with that marker
+// stripped. s is expected to be already space-trimmed.
+func splitImageMarker(s string) (bool, string) {
+	u := strings.ToUpper(s)
+	switch {
+	case strings.HasPrefix(u, ImageCluePrefix):
+		return true, s[len(ImageCluePrefix):]
+	case strings.HasPrefix(u, "IMG:"):
+		return true, s[len("IMG:"):]
+	}
+	return false, s
+}
+
+// WithImageMarker prepends ImageCluePrefix to a clue when isImage is set and the
+// text isn't already marked. Structured callers (KrydsordClue carries IsImage as
+// a separate bool, with plain description text) use this so they key into the
+// dictionary identically to inline "IMG:"-prefixed clue text.
+func WithImageMarker(clue string, isImage bool) string {
+	if !isImage {
+		return clue
+	}
+	if marked, _ := splitImageMarker(strings.TrimSpace(clue)); marked {
+		return clue
+	}
+	return ImageCluePrefix + clue
 }
 
 // LoadKrydsordDict reads the dictionary JSON; a missing/invalid file yields an
