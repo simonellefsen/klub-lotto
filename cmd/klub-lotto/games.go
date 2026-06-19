@@ -886,6 +886,9 @@ func runKrydsord(ctx context.Context, args []string) error {
 	}
 
 	solvedGrid := []string{}
+	// solveClues carries the vision-extracted clues (slot id + clue text) out of the
+	// solve branch so we can auto-learn clue→answer mappings after a confirmed submit.
+	var solveClues []klublotto.KrydsordClue
 	if strings.TrimSpace(*gridPath) != "" {
 		fmt.Println()
 		fmt.Println("[grid] validating proposed grid:", *gridPath)
@@ -968,14 +971,56 @@ func runKrydsord(ctx context.Context, args []string) error {
 			}
 			slotCands := map[string][]klublotto.WordCandidate{}
 
-			// Batch every clue into ONE provider call instead of one call per
-			// clue (was ~39 tiny requests). Falls back to per-clue below for any
-			// slot the batch didn't return.
+			// 1) Seed answers from our learned dictionary FIRST. A clue with a SINGLE
+			// valid answer of the right length is UNAMBIGUOUS, so it's treated as FIXED:
+			// pre-placed on the grid as a crossing constraint (e.g. URAN=U → A1 reads
+			// __U______, ILT=O → D1 _______O__). A clue with SEVERAL valid answers
+			// (e.g. STÆVNE → OL/EM/NM/VM championship abbreviations, or DIGT → ODE/RIM/
+			// ORD) is AMBIGUOUS — we seed all of them as candidates but must NOT force
+			// one, since only the crossings reveal which fits. These curated candidates
+			// also let us skip the LLM for those slots entirely (faster).
+			dictPath := filepath.Join(wikiRoot(), "concepts", "krydsord-clues.json")
+			dict := klublotto.LoadKrydsordDict(dictPath)
+			knownAnswers := map[string]string{}
+			seeded := 0
+			for _, cl := range clues {
+				if cl.Clue == "" {
+					continue
+				}
+				var matching []string
+				for _, ans := range dict.Lookup(cl.Clue) {
+					ans = klublotto.NormalizeDanishLetters(ans)
+					if len([]rune(ans)) == cl.Length {
+						matching = append(matching, ans)
+					}
+				}
+				if len(matching) == 0 {
+					continue
+				}
+				for _, ans := range matching {
+					slotCands[cl.SlotID] = append(slotCands[cl.SlotID], klublotto.WordCandidate{Answer: ans, Confidence: "high", Rationale: "learned dictionary"})
+					seeded++
+				}
+				if len(matching) == 1 {
+					knownAnswers[cl.SlotID] = matching[0] // unambiguous → fix as a crossing constraint
+				}
+			}
+			if seeded > 0 {
+				fmt.Printf("       seeded %d candidate(s) from the learned dictionary (%s); %d slot(s) fixed as crossing constraints\n", seeded, dictPath, len(knownAnswers))
+			}
+
+			// 2) Ask the word provider — in ONE batch call — for candidates for every
+			// clue we DON'T already know from the dictionary. Image clues are phrased
+			// as "an image of a X" so the model treats them as picture clues (see
+			// BuildKrydsordBatchPrompt). On failure we do NOT fan out to ~45 per-clue
+			// calls (that fan-out is what made this step take many minutes) — the
+			// assembler still receives every clue text + the dictionary patterns and
+			// can solve without per-slot candidates.
 			batchClues := []klublotto.KrydsordBatchClue{}
 			want := map[string]int{}
 			for _, cl := range clues {
-				if cl.Clue == "" {
-					continue // no usable clue text; assembler relies on mask + crossings + allClueTexts
+				if cl.Clue == "" || len(slotCands[cl.SlotID]) > 0 {
+					continue // no clue text, or already covered by dictionary candidates
 				}
 				batchClues = append(batchClues, klublotto.KrydsordBatchClue{SlotID: cl.SlotID, Clue: cl.Clue, Length: cl.Length, IsImage: cl.IsImage})
 				want[cl.SlotID] = cl.Length
@@ -983,36 +1028,14 @@ func runKrydsord(ctx context.Context, args []string) error {
 			if len(batchClues) > 0 {
 				bp := klublotto.BuildKrydsordBatchPrompt(batchClues)
 				if raw, berr := wordCandidatesRawJSON(ctx, cfg, *providerFlag, bp); berr != nil {
-					fmt.Printf("       batch candidate call failed (%v) — falling back to per-clue\n", berr)
+					fmt.Printf("       batch candidate call failed (%v) — assembling from clue texts + dictionary patterns only\n", berr)
 				} else if m, perr := klublotto.ParseKrydsordBatchCandidates(raw, want); perr != nil {
-					fmt.Printf("       batch candidate parse failed (%v) — falling back to per-clue\n", perr)
+					fmt.Printf("       batch candidate parse failed (%v) — assembling from clue texts + dictionary patterns only\n", perr)
 				} else {
-					slotCands = m
-					fmt.Printf("       batch: candidates for %d/%d clues in a single call\n", len(slotCands), len(batchClues))
-				}
-			}
-
-			// Per-clue fill for any slot the batch didn't cover (also the full
-			// fallback path when the batch call/parse failed entirely).
-			for _, cl := range clues {
-				if cl.Clue == "" || len(slotCands[cl.SlotID]) > 0 {
-					continue
-				}
-				prompt := fmt.Sprintf("Danish crossword clue: `%s`; length exactly %d letters; Danish word, no spaces or punctuation in the answer. Return JSON candidates.", cl.Clue, cl.Length)
-				cands, err := wordCandidates(ctx, cfg, *providerFlag, prompt)
-				if err != nil {
-					fmt.Printf("       %s: provider err: %v\n", cl.SlotID, err)
-					continue
-				}
-				var good []klublotto.WordCandidate
-				for _, c := range cands {
-					if len([]rune(klublotto.NormalizeDanishLetters(c.Answer))) == cl.Length {
-						good = append(good, c)
+					for id, cs := range m {
+						slotCands[id] = append(slotCands[id], cs...) // dict answer (if any) stays first
 					}
-				}
-				if len(good) > 0 {
-					slotCands[cl.SlotID] = good
-					printCandidates(good)
+					fmt.Printf("       batch: candidates for %d/%d remaining clues in a single call\n", len(m), len(batchClues))
 				}
 			}
 
@@ -1027,10 +1050,11 @@ func runKrydsord(ctx context.Context, args []string) error {
 					allClueTexts = append(allClueTexts, cl.Clue)
 				}
 			}
-			grid, err := assembleKrydsordSolutionGrid(ctx, cfg, *providerFlag, data, clues, slotCands, allClueTexts)
+			grid, err := assembleKrydsordSolutionGrid(ctx, cfg, *providerFlag, data, clues, slotCands, allClueTexts, knownAnswers)
 			if err != nil {
 				return fmt.Errorf("solve krydsord: %w", err)
 			}
+			solveClues = clues // remember for post-submit auto-learn
 			solvedGrid = grid
 			_ = saveDebug(cfg.DataDir, "krydsord-solution.txt", strings.Join(solvedGrid, "\n")+"\n")
 			fmt.Println()
@@ -1066,6 +1090,54 @@ func runKrydsord(ctx context.Context, args []string) error {
 	}
 	shot := filepath.Join(cfg.DataDir, "krydsord-result-"+time.Now().UTC().Format("20060102-150405")+".png")
 	_ = br.Screenshot(ctx, shot)
+
+	// Auto-learn: the submit confirmed the solution is correct (submitKrydsord only
+	// returns nil on a success banner), so record every clue→answer mapping into the
+	// learned dictionary for future puzzles. Each slot's verified answer is read
+	// straight from the solved grid; dict.Add de-dupes and accumulates alternatives
+	// (so STÆVNE gains EM alongside OL, BLOMSTRE gains today's answer, etc.).
+	if len(solveClues) > 0 {
+		dictPath := filepath.Join(wikiRoot(), "concepts", "krydsord-clues.json")
+		dict := klublotto.LoadKrydsordDict(dictPath)
+		slots := klublotto.BuildKrydsordSlots(data)
+		slotByID := map[string]klublotto.KrydsordSlot{}
+		for _, s := range slots {
+			slotByID[s.ID] = s
+		}
+		added := 0
+		for _, cl := range solveClues {
+			if strings.TrimSpace(cl.Clue) == "" {
+				continue
+			}
+			s, ok := slotByID[cl.SlotID]
+			if !ok {
+				continue
+			}
+			var ans []rune
+			for _, cell := range s.Cells {
+				if cell.Row-1 < 0 || cell.Row-1 >= len(solvedGrid) {
+					continue
+				}
+				row := []rune(solvedGrid[cell.Row-1])
+				if cell.Col-1 >= 0 && cell.Col-1 < len(row) {
+					ans = append(ans, row[cell.Col-1])
+				}
+			}
+			if len(ans) != s.Length {
+				continue
+			}
+			if dict.Add(cl.Clue, string(ans)) {
+				added++
+			}
+		}
+		if added > 0 {
+			if serr := dict.Save(dictPath); serr != nil {
+				fmt.Printf("       [learn] failed to save dictionary: %v\n", serr)
+			} else {
+				fmt.Printf("       [learn] recorded %d new clue→answer entries to %s\n", added, dictPath)
+			}
+		}
+	}
 
 	// Best-effort auto-attach of the result screenshot (full page is acceptable start;
 	// tight crop to just the grid like the 05-31 manual example in .klublotto/ is ideal
@@ -2042,16 +2114,19 @@ func wordCandidatesRawJSON(ctx context.Context, cfg *config.Config, providerName
 	}
 	fmt.Printf("   [llm] provider: %s  batch prompt (%d chars, %d clues)\n", p.Name(), len(prompt), strings.Count(prompt, "\n- id="))
 	var lastErr error
-	for attempt := 0; attempt < 3; attempt++ {
+	// Candidate lists are short; a slow/stuck model shouldn't hold the whole solve
+	// hostage. Cap each attempt at 150s (×2) so we fail fast and let the assembler
+	// proceed from clue texts + dictionary patterns rather than hanging for minutes.
+	for attempt := 0; attempt < 2; attempt++ {
 		if attempt > 0 {
 			select {
 			case <-ctx.Done():
 				return "", ctx.Err()
 			case <-time.After(3 * time.Second):
 			}
-			fmt.Printf("   [llm retry %d/3] previous attempt failed (%v), retrying...\n", attempt+1, lastErr)
+			fmt.Printf("   [llm retry %d/2] previous attempt failed (%v), retrying...\n", attempt+1, lastErr)
 		}
-		modelCtx, cancel := context.WithTimeout(ctx, 540*time.Second)
+		modelCtx, cancel := context.WithTimeout(ctx, 150*time.Second)
 		raw, callErr := p.GenerateJSON(modelCtx, prompt, 0.2)
 		cancel()
 		if callErr != nil {
@@ -2063,7 +2138,7 @@ func wordCandidatesRawJSON(ctx context.Context, cfg *config.Config, providerName
 		}
 		return raw, nil
 	}
-	return "", fmt.Errorf("all 3 LLM attempts failed: %w", lastErr)
+	return "", fmt.Errorf("all LLM attempts failed: %w", lastErr)
 }
 
 func wordProvider(cfg *config.Config, override string) (llm.JSONGenerator, error) {
@@ -4620,18 +4695,55 @@ func dailyGamePageURL(slug string) string {
 
 // --- Krydsord submit and solve helpers (modeled exactly on sudoku/ord* patterns) ---
 
+// enterKrydsordGameFrame switches the browser into the krydsord game iframe
+// (a cross-origin OOPIF) and confirms the board has actually rendered inside it.
+// Two things race: the board iframe attaches lazily after the parent loads, and
+// the OOPIF CDP session attaches slightly after br.Frame() returns — so we
+// re-enter and re-check until the `.cell` divs appear (a frame switch that
+// "succeeds" but lands on the main session evaluates against the parent doc,
+// which has no .cell). On success the caller must switch back with br.Frame("").
+func enterKrydsordGameFrame(ctx context.Context, br *browser.Client) error {
+	selectors := []string{
+		"iframe.kl-game__iframe",
+		"iframe[src*='krydsord']",
+		"iframe[src*='kryds']",
+	}
+	deadline := time.Now().Add(25 * time.Second)
+	for time.Now().Before(deadline) {
+		for _, sel := range selectors {
+			if br.Frame(ctx, sel) == nil {
+				// Verify we're inside the game frame and the grid has rendered.
+				n, _ := br.Eval(ctx, `String(document.querySelectorAll('.cell').length)`)
+				if cnt, _ := strconv.Atoi(strings.TrimSpace(n)); cnt > 0 {
+					return nil
+				}
+			}
+		}
+		time.Sleep(800 * time.Millisecond)
+	}
+	return fmt.Errorf("krydsord board cells never rendered inside the game iframe")
+}
+
 func submitKrydsord(ctx context.Context, br *browser.Client, data klublotto.KrydsordData, solvedGrid []string) error {
 	if len(solvedGrid) == 0 {
 		return fmt.Errorf("no solved grid to submit")
 	}
-	userSol := klublotto.BuildKrydsordUserSolution(data, solvedGrid)
-	fmt.Printf("       saving solution via API (len=%d, crossword_id=%s)...\n", len(userSol), data.CrosswordID)
-	if err := klublotto.SetKrydsordUserSolutionViaAPI(ctx, br, data.IframeURL, data.CrosswordID, userSol); err != nil {
-		return err
+	// Letters of the solved grid in row-major order. The board's .cell divs, sorted
+	// by their (top,left) pixel position, come out in the same row-major order, so
+	// the i-th cell gets the i-th letter.
+	var letters []string
+	for _, rowstr := range solvedGrid {
+		for _, ch := range []rune(rowstr) {
+			if isKrydsordAnswerLetter(ch) {
+				letters = append(letters, string(ch))
+			}
+		}
 	}
 
-	// Re-open the Danske Spil *parent* so the iframe is embedded; the parent receives
-	// gameCompleted etc and awards the daily lod. (Direct iframe would bypass credit.)
+	// Open the Danske Spil *parent* so the game iframe is embedded; the parent
+	// receives gameCompleted etc and awards the daily lod. We deliberately do NOT
+	// navigate to the standalone iframe URL — that URL carries a single-use launcher
+	// token and, loaded directly, hangs forever on the red loading spinner.
 	fmt.Println("       opening parent page (iframe embedded for registration)...")
 	if err := br.Open(ctx, klublotto.KrydsordURL); err != nil {
 		return fmt.Errorf("open parent for krydsord submit: %w", err)
@@ -4639,78 +4751,67 @@ func submitKrydsord(ctx context.Context, br *browser.Client, data klublotto.Kryd
 	_ = br.WaitForLoad(ctx, "networkidle")
 	time.Sleep(1200 * time.Millisecond)
 
-	// Snapshot from the parent page to find cell and button refs exposed by the
-	// new agent-browser. Both grid cells and the "TJEK LØSNING" / "GEM" buttons
-	// are visible as clickable refs from the parent page (cross-frame refs).
-	snap, _ := br.SnapshotInteractiveWithFrames(ctx)
-	cellRefs := parseIframeCellRefs(snap, nil)
+	// The board is a cross-origin OOPIF whose answer cells are bare clickable divs
+	// with no accessibility role — they never appear in the snapshot (interactive
+	// OR cursor), so there are no refs to click. But they DO take real input: a
+	// genuine mouse click at the cell's screen position selects it, after which the
+	// game's document-level keydown handler accepts the typed letter. So we fill by
+	// coordinate. Read the iframe's viewport offset from the PARENT first (a
+	// cross-origin iframe's rect is only visible from the parent).
+	var ifr struct {
+		X float64 `json:"x"`
+		Y float64 `json:"y"`
+	}
+	ifrRaw, _ := br.Eval(ctx, `JSON.stringify((()=>{const f=document.querySelector("iframe.kl-game__iframe");if(!f)return{x:-1,y:-1};const r=f.getBoundingClientRect();return{x:r.x,y:r.y};})())`)
+	if json.Unmarshal([]byte(ifrRaw), &ifr) != nil || ifr.X < 0 {
+		return fmt.Errorf("krydsord game iframe not found on parent page (raw=%s)", ifrRaw)
+	}
+
+	// Switch into the OOPIF and confirm the grid rendered.
+	if err := enterKrydsordGameFrame(ctx, br); err != nil {
+		return fmt.Errorf("enter krydsord game iframe: %w", err)
+	}
+	defer func() { _ = br.Frame(context.Background(), "") }()
+
+	// Collect every answer cell's center (frame-viewport coords), sorted row-major.
+	cellsRaw, _ := br.Eval(ctx, `JSON.stringify((()=>{const cs=Array.from(document.querySelectorAll(".cell"));const p=cs.map(c=>{const r=c.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2,t:parseFloat(c.style.top)||r.y,l:parseFloat(c.style.left)||r.x};});p.sort((a,b)=>Math.abs(a.t-b.t)>5?a.t-b.t:a.l-b.l);return p.map(o=>({x:Math.round(o.x),y:Math.round(o.y)}));})())`)
+	var cells []struct {
+		X int `json:"x"`
+		Y int `json:"y"`
+	}
+	if err := json.Unmarshal([]byte(cellsRaw), &cells); err != nil {
+		return fmt.Errorf("read krydsord cell positions: %w (raw=%s)", err, cellsRaw)
+	}
+	if len(cells) != len(letters) {
+		fmt.Printf("       [warn] cell count %d != answer letters %d — filling min(...)\n", len(cells), len(letters))
+	}
+	n := len(cells)
+	if len(letters) < n {
+		n = len(letters)
+	}
+	fmt.Printf("       filling %d answer cells by coordinate (iframe at %.0f,%.0f)...\n", n, ifr.X, ifr.Y)
+	for i := 0; i < n; i++ {
+		absX := int(ifr.X) + cells[i].X
+		absY := int(ifr.Y) + cells[i].Y
+		if err := br.MouseClick(ctx, absX, absY); err != nil {
+			continue
+		}
+		time.Sleep(60 * time.Millisecond) // let the click select the cell
+		// The game captures document-level keydowns, so Press works for every
+		// letter — including Æ/Ø/Å.
+		_ = br.Press(ctx, letters[i])
+		time.Sleep(50 * time.Millisecond)
+	}
+	time.Sleep(1200 * time.Millisecond) // let the grid commit the typed letters
+
+	// Find the "TJEK LØSNING" button — the buttons DO carry roles, so they appear
+	// in the in-frame interactive snapshot as refs.
+	snap, _ := br.SnapshotInteractive(ctx)
 	tjekRef := klublotto.FindRefByName(snap, []string{"TJEK LØSNING", "TJEK LOSNING"})
 	gemRef := klublotto.FindRefByName(snap, []string{"GEM"})
 
-	// Verify API save: count how many cells are already filled in the snapshot.
-	// After a successful API save the iframe reloads with all letters visible
-	// as StaticText children of each cell ref.
-	cellValues := parseIframeCellValues(snap)
-	filled := 0
-	for _, ch := range cellValues {
-		if ch != 0 {
-			filled++
-		}
-	}
-	fmt.Printf("       cell refs: %d  filled: %d/%d  tjekRef: %q  gemRef: %q\n",
-		len(cellRefs), filled, len(cellValues), tjekRef, gemRef)
-
-	// The API save does NOT reliably populate the board (it can leave it empty),
-	// so fill every answer cell directly via its ref — click the cell and type its
-	// letter — exactly like the sudoku submit. cellRefs are the answer cells in
-	// row-major order, matching the order we walk the solved grid; KeyboardType
-	// handles Danish letters (Æ/Ø/Å) that Press can't.
-	if len(cellRefs) == 0 {
-		return fmt.Errorf("no krydsord cell refs found — cannot fill the board")
-	}
-	fmt.Printf("       filling %d answer cells via refs (API save left %d/%d)...\n", len(cellRefs), filled, len(cellRefs))
-	k := 0
-	for _, rowstr := range solvedGrid {
-		for _, ch := range []rune(rowstr) {
-			if !isKrydsordAnswerLetter(ch) {
-				continue
-			}
-			if k < len(cellRefs) {
-				if err := br.Click(ctx, cellRefs[k]); err == nil {
-					time.Sleep(150 * time.Millisecond) // let the click focus the cell
-					// The game captures document-level keydowns, so Press works for
-					// every letter — including Æ/Ø/Å (KeyboardType's insertText needs
-					// a focused input the cells don't have, so it silently dropped them).
-					_ = br.Press(ctx, string(ch))
-					time.Sleep(80 * time.Millisecond)
-				}
-			}
-			k++
-		}
-	}
-	time.Sleep(1500 * time.Millisecond) // let the grid commit the typed letters
-
-	// Best-effort read of how many cells show a value. NOTE: the cell StaticText
-	// values often haven't committed in the DOM immediately after typing (they
-	// render on blur/commit), so a low count here is NOT reliable — we proceed to
-	// Tjek løsning regardless and let the result banner be the source of truth.
-	snap2, _ := br.SnapshotInteractiveWithFrames(ctx)
-	filled = 0
-	for _, ch := range parseIframeCellValues(snap2) {
-		if ch != 0 {
-			filled++
-		}
-	}
-	fmt.Printf("       typed %d cells (DOM shows %d committed — read is best-effort mid-edit)\n", k, filled)
-	if r := klublotto.FindRefByName(snap2, []string{"TJEK LØSNING", "TJEK LOSNING"}); r != "" {
-		tjekRef = r
-	}
-	if r := klublotto.FindRefByName(snap2, []string{"GEM"}); r != "" {
-		gemRef = r
-	}
-
 	// Click "TJEK LØSNING" via ref (preferred) or fall back to name search.
-	fmt.Println("       clicking Tjek løsning (on parent)...")
+	fmt.Println("       clicking Tjek løsning...")
 	var checkErr error
 	switch {
 	case tjekRef != "":
@@ -4725,8 +4826,17 @@ func submitKrydsord(ctx context.Context, br *browser.Client, data klublotto.Kryd
 	}
 	time.Sleep(1500 * time.Millisecond)
 
+	// Check for the success banner. We're still inside the game frame, so the eval
+	// reads the game iframe's body — where "hvor er du vild"/"ordmester" render.
 	if ok, detail := waitForKrydsordSuccess(ctx, br); ok {
-		fmt.Println("       success detected:", detail)
+		fmt.Println("       success detected (in game frame):", detail)
+		return nil
+	}
+	// Fallback: some confirmations ("løste dagens krydsord") surface on the parent
+	// page, so switch back to main and check there before declaring failure.
+	_ = br.Frame(context.Background(), "")
+	if ok, detail := waitForKrydsordSuccess(ctx, br); ok {
+		fmt.Println("       success detected (on parent page):", detail)
 		return nil
 	} else {
 		return fmt.Errorf("Krydsord not confirmed solved: %s", detail)
@@ -4738,7 +4848,11 @@ func waitForKrydsordSuccess(ctx context.Context, br *browser.Client) (bool, stri
 	// page's permanent footer/nav contains "vundet eller tabt", which previously
 	// produced a FALSE success on an unsolved board. "tillykke"/"dagens lod" are
 	// likewise too generic.
-	success := []string{"hvor er du vild", "ordmester", "løste dagens krydsord"}
+	// Observed win banners: "Hvor er du vild…", "…Ordmester…", and
+	// "Rigtig godt arbejde! Du klarede krydsordet med bravur! Det var virkelig
+	// imponerende, og du får et lod." (2026-06-19).
+	success := []string{"hvor er du vild", "ordmester", "løste dagens krydsord",
+		"rigtig godt arbejde", "klarede krydsordet", "med bravur"}
 	// Explicit failure overlay the game shows on a wrong/incomplete solution.
 	failure := []string{"ikke løst korrekt", "prøv igen", "opgaven er ikke løst"}
 	deadline := time.Now().Add(20 * time.Second)
@@ -4790,7 +4904,7 @@ func pickASCIIFixCell(data klublotto.KrydsordData, grid []string) (klublotto.Kry
 	return klublotto.KrydsordCell{}, 0
 }
 
-func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provider string, data klublotto.KrydsordData, clues []klublotto.KrydsordClue, perSlot map[string][]klublotto.WordCandidate, allClueTexts []string) ([]string, error) {
+func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provider string, data klublotto.KrydsordData, clues []klublotto.KrydsordClue, perSlot map[string][]klublotto.WordCandidate, allClueTexts []string, knownAnswers map[string]string) ([]string, error) {
 	p, err := wordProvider(cfg, provider)
 	if err != nil {
 		return nil, err
@@ -4803,6 +4917,60 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 	cluesByID := map[string]klublotto.KrydsordClue{}
 	for _, cl := range clues {
 		cluesByID[cl.SlotID] = cl
+	}
+	slotByID := map[string]klublotto.KrydsordSlot{}
+	for _, s := range slots {
+		slotByID[s.ID] = s
+	}
+
+	// Pre-place the deterministic known answers onto the grid as FIXED cells, so
+	// every crossing slot inherits the constraint as a letter pattern. cellKey is
+	// "r<row>c<col>"; the value is the fixed rune at that cell.
+	cellKey := func(r, c int) string { return fmt.Sprintf("r%dc%d", r, c) }
+	fixed := map[string]rune{}
+	for id, ans := range knownAnswers {
+		s, ok := slotByID[id]
+		if !ok {
+			continue
+		}
+		rs := []rune(ans)
+		if len(rs) != len(s.Cells) {
+			continue
+		}
+		for i, cell := range s.Cells {
+			k := cellKey(cell.Row, cell.Col)
+			if ex, seen := fixed[k]; seen && ex != rs[i] {
+				continue // two known answers disagree (mapping/curation error) — keep first
+			}
+			fixed[k] = rs[i]
+		}
+	}
+	// slotPattern returns the crossing pattern for a slot ("." = unknown), plus
+	// the count of fixed letters in it. matchesPattern tests a candidate rune-wise.
+	slotPattern := func(s klublotto.KrydsordSlot) (string, int) {
+		var pb strings.Builder
+		known := 0
+		for _, cell := range s.Cells {
+			if r, ok := fixed[cellKey(cell.Row, cell.Col)]; ok {
+				pb.WriteRune(r)
+				known++
+			} else {
+				pb.WriteRune('.')
+			}
+		}
+		return pb.String(), known
+	}
+	matchesPattern := func(word, pat string) bool {
+		wr, pr := []rune(word), []rune(pat)
+		if len(wr) != len(pr) {
+			return false
+		}
+		for i := range pr {
+			if pr[i] != '.' && pr[i] != wr[i] {
+				return false
+			}
+		}
+		return true
 	}
 
 	var b strings.Builder
@@ -4820,6 +4988,7 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 		if s.Length == 1 && strings.TrimSpace(cl.Clue) == "" {
 			continue
 		}
+		pat, known := slotPattern(s)
 		var candList []string
 		for _, c := range perSlot[s.ID] {
 			a := klublotto.NormalizeDanishLetters(c.Answer)
@@ -4827,18 +4996,57 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 				candList = append(candList, a)
 			}
 		}
+		// If crossings fix some letters, prefer candidates that match the pattern.
+		// Only narrow when at least one survives — never starve a slot to zero.
+		if known > 0 {
+			var keep []string
+			for _, a := range candList {
+				if matchesPattern(a, pat) {
+					keep = append(keep, a)
+				}
+			}
+			if len(keep) > 0 {
+				candList = keep
+			}
+		}
 		cellIDs := make([]string, 0, len(s.Cells))
 		for _, cell := range s.Cells {
-			cellIDs = append(cellIDs, fmt.Sprintf("r%dc%d", cell.Row, cell.Col))
+			cellIDs = append(cellIDs, cellKey(cell.Row, cell.Col))
 		}
+		clueText := cl.Clue
 		kind := ""
 		if cl.IsImage {
+			// Spell out that this clue is a picture so the model translates the
+			// depicted object instead of treating the description as a literal word.
+			if clueText != "" {
+				clueText = "an image of a " + clueText
+			}
 			kind = " BILLEDE"
 		}
-		fmt.Fprintf(&b, "- %s %s len=%d clue=%q%s cells=%s cands=%v\n", s.ID, s.Direction, s.Length, cl.Clue, kind, strings.Join(cellIDs, ","), candList)
+		patHint := ""
+		if known > 0 {
+			// Show the fixed-letter pattern so the model picks a crossing-consistent word.
+			patHint = fmt.Sprintf(" mønster=%s", pat)
+		}
+		fmt.Fprintf(&b, "- %s %s len=%d clue=%q%s%s cells=%s cands=%v\n", s.ID, s.Direction, s.Length, clueText, kind, patHint, strings.Join(cellIDs, ","), candList)
+	}
+	if len(fixed) > 0 {
+		fmt.Fprintf(&b, "\nVIGTIGT: 'mønster' viser bogstaver der ALLEREDE er fastlagt af krydsende ord (. = ukendt). Dit svar for sådan et slot SKAL matche mønsteret nøjagtigt på de kendte positioner.\n")
 	}
 	b.WriteString("\nReturnér KUN JSON: {\"answers\":{\"A1\":\"ORD\",\"D1\":\"ORD\", ...}} med ét svar pr. slot-id ovenfor. Kun bogstaver (ÆØÅ tilladt), ingen mellemrum/tegn. INGEN markdown.\n")
 	basePrompt := b.String()
+
+	// Surface the exact assembler prompt — including the per-slot `mønster=` patterns
+	// derived from the fixed 1-letter clues (e.g. ILT=O making D1 BILLEDE `_______O__`)
+	// — so it can be inspected. Saved to a file and echoed to the console.
+	promptPath := filepath.Join(cfg.DataDir, "krydsord-assemble-prompt.txt")
+	_ = os.WriteFile(promptPath, []byte(basePrompt), 0o644)
+	fmt.Printf("       [assemble] prompt (%d chars) saved: %s\n", len(basePrompt), promptPath)
+	fmt.Println("       ---- assembler prompt ----")
+	for _, ln := range strings.Split(strings.TrimRight(basePrompt, "\n"), "\n") {
+		fmt.Println("       | " + ln)
+	}
+	fmt.Println("       ---- end prompt ----")
 
 	// Retry, feeding back which slots are missing or which crossings conflict.
 	const maxAttempts = 3
@@ -4856,11 +5064,33 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 			fmt.Printf("       [assemble] attempt %d/%d: model error: %v\n", attempt, maxAttempts, genErr)
 			continue
 		}
+		_ = os.WriteFile(filepath.Join(cfg.DataDir, "krydsord-assemble-raw.txt"), []byte(raw), 0o644)
 		answers, parseErr := klublotto.ParseKrydsordAnswerMap(raw)
 		if parseErr != nil || len(answers) == 0 {
 			lastErr = fmt.Errorf("parse per-slot answers: %v", parseErr)
 			fmt.Printf("       [assemble] attempt %d/%d: %v\n", attempt, maxAttempts, lastErr)
 			continue
+		}
+		// Force the deterministic known answers: the dictionary is trusted over the
+		// model, so a 1-letter abbreviation (or other curated answer) is never lost
+		// to a model hallucination. Any resulting crossing conflict is a real signal
+		// the model's crossing word is wrong, which the retry then corrects.
+		for id, ans := range knownAnswers {
+			answers[id] = ans
+		}
+		// Echo the answers used this attempt (model's + forced dictionary answers).
+		ids := make([]string, 0, len(answers))
+		for id := range answers {
+			ids = append(ids, id)
+		}
+		sort.Strings(ids)
+		fmt.Printf("       [assemble] attempt %d answers:\n", attempt)
+		for _, id := range ids {
+			tag := ""
+			if _, ok := knownAnswers[id]; ok {
+				tag = " (dict)"
+			}
+			fmt.Printf("       | %-4s %s%s\n", id, answers[id], tag)
 		}
 		grid, conflicts := buildKrydsordGridFromSlotAnswers(data, slots, answers)
 		check := klublotto.ValidateKrydsordAnswerGrid(data, grid)
@@ -4870,6 +5100,30 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 			}
 			return grid, nil
 		}
+
+		// Near-miss repair: the grid is fully filled but a few crossings disagree
+		// (e.g. A10=OL where D1/D3 demand E,M → A10 should be EM). Re-prompting all
+		// 75 cells is slow and the model tends to regress; instead ask it to fix ONLY
+		// the conflicting slots, telling it the exact letters their crossings demand.
+		if check.FilledN == check.AnswerN && len(conflicts) > 0 && len(conflicts) <= 8 {
+			if repaired, ok := repairKrydsordConflictsLLM(ctx, p, slots, cluesByID, perSlot, answers); ok {
+				for id, ans := range knownAnswers {
+					repaired[id] = ans // dictionary answers stay authoritative
+				}
+				g2, c2 := buildKrydsordGridFromSlotAnswers(data, slots, repaired)
+				chk2 := klublotto.ValidateKrydsordAnswerGrid(data, g2)
+				if chk2.OK && chk2.FilledN == chk2.AnswerN && len(c2) == 0 {
+					fmt.Printf("       [assemble] resolved by targeted conflict repair (after attempt %d)\n", attempt)
+					return g2, nil
+				}
+				if len(c2) < len(conflicts) {
+					// Improved but not perfect — carry it into the next whole-grid retry.
+					answers, grid, conflicts = repaired, g2, c2
+					fmt.Printf("       [assemble] targeted repair reduced conflicts to %d\n", len(c2))
+				}
+			}
+		}
+
 		errs := append([]string{}, check.Errors...)
 		errs = append(errs, conflicts...)
 		if len(errs) > 8 {
@@ -4887,4 +5141,154 @@ func gridOneLineKrydsord(g []string) string {
 		s = s[:117] + "..."
 	}
 	return s
+}
+
+// krydsordMatchesPattern reports whether word fits pat rune-wise ('.' = wildcard).
+func krydsordMatchesPattern(word, pat string) bool {
+	wr, pr := []rune(word), []rune(pat)
+	if len(wr) != len(pr) {
+		return false
+	}
+	for i := range pr {
+		if pr[i] != '.' && pr[i] != wr[i] {
+			return false
+		}
+	}
+	return true
+}
+
+// krydsordConflictSlots returns the slots involved in any crossing disagreement
+// (for a fully-filled answer set) and, for each, the pattern its CROSSINGS demand
+// ('.' where unconstrained or where the crossings themselves disagree). A slot that
+// disagrees with several crossings (like an outvoted 2-letter across) shows up with
+// a mostly- or fully-determined pattern — exactly the hint needed to refit it.
+func krydsordConflictSlots(slots []klublotto.KrydsordSlot, answers map[string]string) (involved []string, patternByID map[string]string) {
+	type ref struct {
+		id  string
+		pos int
+	}
+	cellRefs := map[[2]int][]ref{}
+	byID := map[string]klublotto.KrydsordSlot{}
+	for _, s := range slots {
+		byID[s.ID] = s
+		for k, cell := range s.Cells {
+			key := [2]int{cell.Row, cell.Col}
+			cellRefs[key] = append(cellRefs[key], ref{s.ID, k})
+		}
+	}
+	letterAt := func(id string, pos int) (rune, bool) {
+		a := []rune(klublotto.NormalizeDanishLetters(answers[id]))
+		if len(a) != byID[id].Length || pos < 0 || pos >= len(a) {
+			return 0, false
+		}
+		return a[pos], true
+	}
+	inv := map[string]bool{}
+	for _, refs := range cellRefs {
+		letters := map[string]rune{}
+		for _, r := range refs {
+			if ch, ok := letterAt(r.id, r.pos); ok {
+				letters[r.id] = ch
+			}
+		}
+		distinct := map[rune]bool{}
+		for _, ch := range letters {
+			distinct[ch] = true
+		}
+		if len(distinct) > 1 {
+			for id := range letters {
+				inv[id] = true
+			}
+		}
+	}
+	patternByID = map[string]string{}
+	for id := range inv {
+		s := byID[id]
+		pat := make([]rune, s.Length)
+		for k, cell := range s.Cells {
+			pat[k] = '.'
+			var want rune
+			ok, bad := false, false
+			for _, r := range cellRefs[[2]int{cell.Row, cell.Col}] {
+				if r.id == id {
+					continue
+				}
+				if ch, has := letterAt(r.id, r.pos); has {
+					if !ok {
+						want, ok = ch, true
+					} else if want != ch {
+						bad = true
+					}
+				}
+			}
+			if ok && !bad {
+				pat[k] = want
+			}
+		}
+		patternByID[id] = string(pat)
+		involved = append(involved, id)
+	}
+	sort.Strings(involved)
+	return involved, patternByID
+}
+
+// repairKrydsordConflictsLLM asks the model to correct ONLY the slots involved in
+// crossing conflicts, given the exact letters each one's crossings demand. This is
+// a small, fast prompt (a handful of slots) instead of re-emitting the whole grid.
+// Returns a full answers map (a copy with the corrected slots overwritten) and
+// whether the call produced any change.
+func repairKrydsordConflictsLLM(ctx context.Context, p llm.JSONGenerator, slots []klublotto.KrydsordSlot, cluesByID map[string]klublotto.KrydsordClue, perSlot map[string][]klublotto.WordCandidate, answers map[string]string) (map[string]string, bool) {
+	involved, patternByID := krydsordConflictSlots(slots, answers)
+	if len(involved) == 0 {
+		return nil, false
+	}
+	byID := map[string]klublotto.KrydsordSlot{}
+	for _, s := range slots {
+		byID[s.ID] = s
+	}
+	var b strings.Builder
+	b.WriteString("Dette danske krydsord er NÆSTEN løst, men nogle krydsende ord er uenige om bogstaver i delte celler. RET KUN nedenstående slots, så hvert svar matcher 'mønster' (bogstaver fastlagt af de KRYDSENDE ord; . = frit). Vælg om nødvendigt et andet dansk ord der både passer ledetråden OG mønsteret. Behold alle andre svar uændret.\n\n")
+	for _, id := range involved {
+		s := byID[id]
+		cl := cluesByID[id]
+		clueText := cl.Clue
+		if cl.IsImage && clueText != "" {
+			clueText = "an image of a " + clueText
+		}
+		var cands []string
+		for _, c := range perSlot[id] {
+			cand := klublotto.NormalizeDanishLetters(c.Answer)
+			if len([]rune(cand)) == s.Length && krydsordMatchesPattern(cand, patternByID[id]) {
+				cands = append(cands, cand)
+			}
+		}
+		fmt.Fprintf(&b, "- %s len=%d clue=%q nu=%s mønster=%s mulige=%v\n", id, s.Length, clueText, answers[id], patternByID[id], cands)
+	}
+	b.WriteString("\nReturnér KUN JSON: {\"answers\":{\"A1\":\"ORD\", ...}} med rettede svar for KUN ovenstående slots. Kun bogstaver (ÆØÅ), ingen mellemrum/tegn. INGEN markdown.\n")
+
+	fmt.Printf("       [repair] asking model to fix %d conflicting slot(s): %v\n", len(involved), involved)
+	modelCtx, cancel := context.WithTimeout(ctx, 90*time.Second)
+	raw, err := p.GenerateJSON(modelCtx, b.String(), 0.05)
+	cancel()
+	if err != nil {
+		fmt.Printf("       [repair] model error: %v\n", err)
+		return nil, false
+	}
+	fixed, perr := klublotto.ParseKrydsordAnswerMap(raw)
+	if perr != nil || len(fixed) == 0 {
+		return nil, false
+	}
+	out := map[string]string{}
+	for id, a := range answers {
+		out[id] = a
+	}
+	changed := false
+	for id, a := range fixed {
+		a = klublotto.NormalizeDanishLetters(a)
+		if a != "" && out[id] != a {
+			out[id] = a
+			changed = true
+		}
+	}
+	return out, changed
 }

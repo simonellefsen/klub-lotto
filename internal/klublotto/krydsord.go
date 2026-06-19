@@ -77,15 +77,23 @@ func OpenKrydsord(ctx context.Context, br *browser.Client) error {
 func ExtractKrydsordData(ctx context.Context, br *browser.Client) (KrydsordData, error) {
 	var data KrydsordData
 	iframe, _ := br.Eval(ctx, `(() => Array.from(document.querySelectorAll('iframe')).map(f => f.src).find(s => /iframes\.krydsord\.dk/i.test(s)) || '')()`)
-	data.IframeURL = unwrapAgentBrowserString(iframe)
-	if data.IframeURL == "" {
+	iframeSrc := unwrapAgentBrowserString(iframe)
+	if iframeSrc == "" {
 		return data, fmt.Errorf("could not find Krydsord iframe on parent page")
 	}
-	// The krydsord iframe is a cross-origin OOPIF agent-browser cannot enter, so
-	// we navigate the top-level tab to it to run the same-origin API fetch. This
-	// brief switch to iframes.krydsord.dk is unavoidable with the current
-	// agent-browser.
-	if err := br.Open(ctx, data.IframeURL); err != nil {
+
+	// Run the same-origin API fetch INSIDE the embedded OOPIF (agent-browser can now
+	// enter it). This avoids navigating the top tab to the standalone iframe URL,
+	// which carries a single-use launcher token and just hangs on the red spinner.
+	// If the in-frame fetch doesn't yield a usable payload (older daemon, frame not
+	// yet attached, vendor quirk), fall back to the legacy navigate-and-fetch path.
+	raw, inFrameOK := fetchKrydsordAPIInFrame(ctx, br)
+	if d, err := parseKrydsordEnvelope(raw, iframeSrc); inFrameOK && err == nil {
+		return d, nil
+	}
+
+	// Fallback: navigate the top-level tab to the iframe URL and fetch there.
+	if err := br.Open(ctx, iframeSrc); err != nil {
 		return data, fmt.Errorf("open Krydsord iframe: %w", err)
 	}
 	_ = br.WaitForLoad(ctx, "networkidle")
@@ -93,6 +101,44 @@ func ExtractKrydsordData(ctx context.Context, br *browser.Client) (KrydsordData,
 	raw, err := br.Eval(ctx, krydsordFetchJS)
 	if err != nil {
 		return data, fmt.Errorf("fetch Krydsord iframe API: %w", err)
+	}
+	return parseKrydsordEnvelope(raw, iframeSrc)
+}
+
+// fetchKrydsordAPIInFrame switches into the embedded game iframe, runs the
+// same-origin API fetch there, and switches back to the main frame. Returns the
+// raw envelope JSON and whether the frame switch + eval succeeded.
+func fetchKrydsordAPIInFrame(ctx context.Context, br *browser.Client) (string, bool) {
+	entered := false
+	for _, sel := range []string{"iframe.kl-game__iframe", "iframe[src*='krydsord']"} {
+		if br.Frame(ctx, sel) == nil {
+			// Confirm we're actually inside the game doc (not the parent fallback).
+			n, _ := br.Eval(ctx, `String(document.querySelectorAll('.cell').length)`)
+			if cnt, _ := strconv.Atoi(strings.TrimSpace(n)); cnt > 0 {
+				entered = true
+				break
+			}
+		}
+	}
+	if !entered {
+		_ = br.Frame(context.Background(), "")
+		return "", false
+	}
+	raw, err := br.Eval(ctx, krydsordFetchJS)
+	_ = br.Frame(context.Background(), "")
+	if err != nil {
+		return "", false
+	}
+	return raw, true
+}
+
+// parseKrydsordEnvelope decodes the {status,puzzle,text,error} envelope returned
+// by krydsordFetchJS into KrydsordData. A non-empty error, non-2xx status, or
+// unparseable payload yields an error (so the caller can fall back).
+func parseKrydsordEnvelope(raw, iframeSrc string) (KrydsordData, error) {
+	var data KrydsordData
+	if strings.TrimSpace(raw) == "" {
+		return data, fmt.Errorf("empty Krydsord API response")
 	}
 	var envelope struct {
 		Status int `json:"status"`
@@ -116,7 +162,7 @@ func ExtractKrydsordData(ctx context.Context, br *browser.Client) (KrydsordData,
 	if err := json.Unmarshal([]byte(envelope.Text), &data); err != nil {
 		return data, fmt.Errorf("parse Krydsord API payload: %w", err)
 	}
-	data.IframeURL = unwrapAgentBrowserString(iframe)
+	data.IframeURL = iframeSrc
 	data.PuzzleID = envelope.Puzzle.ID
 	data.CrosswordID = envelope.Puzzle.CrosswordID
 	return data, ValidateKrydsordData(data)
@@ -539,7 +585,8 @@ Rules for output (follow strictly):
 - Add **img=true** when the clue cell is a picture / icon / emoji (no text); for those the clue= value is your short English description of the depicted object. Omit img (or img=false) for normal text clues.
 - For split cells, output **two** lines with the **same** row/col but different dir + the respective clue text for each part.
 - clue= must contain the exact visible text (preserve hyphens like "RED-SKAB", spaces, ÆØÅ, capitalization).
-- IMAGE CLUES (important): some clue cells contain ONLY a picture / icon / emoji and NO text. For those, do NOT invent or guess Danish words and do NOT transcribe random letters — instead describe the depicted object with a short ENGLISH noun phrase. Examples of such descriptions: "teabag", "envelope", "moon and stars", "onion", "turnip", "t-shirt", "shirt", "desk lamp", "grill", "barbecue", "ice cream cone", "castle", "lightning bolt", "anchor". A picture cell MUST still produce a CLUE line, with the description as the clue text. If a cell has BOTH a picture and text, output the text.
+- IMAGE CLUES (important): some clue cells contain ONLY a picture / icon / emoji and NO text. For those, do NOT invent or guess Danish words and do NOT transcribe random letters — instead describe the depicted object with a short ENGLISH noun phrase. Examples of such descriptions: "teabag", "envelope", "moon and stars", "onion", "turnip", "t-shirt", "shirt", "desk lamp", "grill", "barbecue", "ice cream cone", "castle", "lightning bolt", "anchor", "cheese wedges", "cheese", "cherries", "sun", "paint splat", "fish", "key", "apple". A picture cell MUST still produce a CLUE line, with the description as the clue text. If a cell has BOTH a picture and text, output the text.
+- TYPESET-TEXT vs DRAWING (critical, read carefully): only transcribe a cell as text when it is clearly printed/typeset LETTERS (uniform font, black on light). A colored or shaded DRAWING/illustration of an object (food, fruit, vegetables, cheese wedges, animals, tools, household items) is a PICTURE — set img=true and describe it; never "read" a Danish word out of a drawing. If you find yourself outputting a word whose letters you are not 100%% certain are actually printed in the cell (e.g. a shape that merely resembles letters), it is almost certainly a picture: emit img=true with an English description instead of guessing the word.
 - Small triangular arrows (▼ ▶ ◀ ▲) drawn inside a cell only indicate the answer's reading direction — they are NOT clues and NOT letters. Ignore them (do not output a CLUE line for an arrow, and never include an arrow as part of an answer).
 - Hyphenated or multi-line text in one tall clue cell (e.g. "ALMIN-DELIG-HED" or "KOSTU-ME") should be combined into the full natural phrase when possible ("ALMINDELIGHED", "KOSTUME").
 - Be exhaustive: every clue cell that has visible content (text OR a picture) must produce a CLUE line, including 1-letter answers (e.g. SMALL→S, TON→T, KILO→K). Do not skip any.

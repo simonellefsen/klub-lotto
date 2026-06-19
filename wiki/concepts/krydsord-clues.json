@@ -2,6 +2,9 @@
   "1500": [
     "MD"
   ],
+  "ANGER": [
+    "RUELSE"
+  ],
   "ANNO": [
     "A"
   ],
@@ -14,9 +17,26 @@
   "BALLADE": [
     "URO"
   ],
+  "BEDE": [
+    "ROE",
+    "FÅR",
+    "BØN"
+  ],
+  "BEES": [
+    "BIER"
+  ],
+  "BEETLE": [
+    "BILLE"
+  ],
   "BEHOLDER": [
     "TANK",
-    "VASE"
+    "VASE",
+    "DÅSE"
+  ],
+  "BIJOB": [
+    "BEN",
+    "JOB",
+    "BUD"
   ],
   "BLOMSTRE": [
     "GRO",
@@ -24,6 +44,9 @@
   ],
   "BRINT": [
     "H"
+  ],
+  "BØJE": [
+    "EKSE"
   ],
   "BØN": [
     "AVE"
@@ -40,13 +63,20 @@
   "CUPOFTEA": [
     "TEKOP"
   ],
+  "CYKELDEL": [
+    "PEDAL"
+  ],
+  "DESSERT": [
+    "IS"
+  ],
   "DIGT": [
     "ODE",
     "RIM",
     "ORD"
   ],
   "DRIK": [
-    "TE"
+    "TE",
+    "ØL"
   ],
   "DYR": [
     "KO",
@@ -58,6 +88,12 @@
   ],
   "DØRSLAG": [
     "SI"
+  ],
+  "ENGELSKTITEL": [
+    "SIR"
+  ],
+  "ETAGE": [
+    "SAL"
   ],
   "EXIT": [
     "UD"
@@ -94,7 +130,8 @@
     "LE"
   ],
   "GRÆSKTEGN": [
-    "MY"
+    "MY",
+    "PI"
   ],
   "HJEM": [
     "BO"
@@ -131,7 +168,8 @@
     "LUT",
     "LUR",
     "OBO",
-    "SAX"
+    "SAX",
+    "SÆKKEPIBE"
   ],
   "JEG": [
     "EGO"
@@ -150,14 +188,32 @@
   "KIGGE": [
     "SE"
   ],
+  "KILO": [
+    "K"
+  ],
   "KLUDE": [
     "LASER"
+  ],
+  "KORTBOG": [
+    "ATLAS"
+  ],
+  "KRADSE": [
+    "KLØ"
   ],
   "KRAFTIG": [
     "FED"
   ],
+  "KRONER": [
+    "KR"
+  ],
+  "KUN": [
+    "BARE"
+  ],
   "KURSIST": [
     "ELEV"
+  ],
+  "KVIKT": [
+    "RAPT"
   ],
   "KÆRTEGNE": [
     "AE"
@@ -168,11 +224,20 @@
   "LED": [
     "KNO"
   ],
+  "LYS": [
+    "KERTE"
+  ],
   "LØFTE": [
     "ED"
   ],
+  "MASSERE": [
+    "ÆLTE"
+  ],
   "MI": [
     "E"
+  ],
+  "MUSIKGENRE": [
+    "ROCK"
   ],
   "MÅLER": [
     "UR"
@@ -184,9 +249,22 @@
   "NIT": [
     "N"
   ],
+  "OARS": [
+    "ÅRER"
+  ],
+  "OMSLAG": [
+    "BLE"
+  ],
+  "OMTALE": [
+    "PR",
+    "RY"
+  ],
   "PAPEGØJE": [
     "ARA",
     "KEA"
+  ],
+  "PAPERCLIPS": [
+    "CLIPS"
   ],
   "PEP": [
     "GO"
@@ -199,7 +277,8 @@
     "FYLDT"
   ],
   "REDSKAB": [
-    "LOMMEKNIV"
+    "LOMMEKNIV",
+    "LE"
   ],
   "RETNING": [
     "UDAD"
@@ -216,6 +295,9 @@
   "RYGE": [
     "OSE"
   ],
+  "RØG": [
+    "OS"
+  ],
   "RØNTGEN": [
     "R"
   ],
@@ -229,7 +311,10 @@
     "TER"
   ],
   "SKIBSDEL": [
-    "DÆK"
+    "BOV",
+    "DÆK",
+    "KØL",
+    "ROR"
   ],
   "SMALL": [
     "S"
@@ -237,11 +322,25 @@
   "SMYKKESTEN": [
     "OPAL"
   ],
+  "SOLO": [
+    "ENE"
+  ],
   "SPANIEN": [
     "E"
   ],
+  "SPANSKTITEL": [
+    "DON"
+  ],
+  "SPORTSUDSTYR": [
+    "SKATEBOARD"
+  ],
   "STEDORD": [
-    "DE"
+    "DE",
+    "I"
+  ],
+  "STÆR": [
+    "BEO",
+    "DYR"
   ],
   "STÆVNE": [
     "OL",
@@ -249,11 +348,15 @@
     "NM",
     "VM"
   ],
+  "SÆR": [
+    "APARTE"
+  ],
   "SØDEMIDDEL": [
     "ROESUKKER"
   ],
   "TALORD": [
-    "NITTEN"
+    "NITTEN",
+    "TRE"
   ],
   "TARA": [
     "T"
@@ -263,8 +366,18 @@
     "FØR",
     "SEN"
   ],
+  "TOENS": [
+    "OO"
+  ],
   "TON": [
     "T"
+  ],
+  "TONE": [
+    "FA",
+    "RE"
+  ],
+  "TRENDY": [
+    "IN"
   ],
   "TRÅDE": [
     "SENER"
@@ -299,5 +412,8 @@
   ],
   "ØJNE": [
     "SE"
+  ],
+  "ØSTRIG": [
+    "A"
   ]
 }

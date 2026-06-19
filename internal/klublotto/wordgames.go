@@ -2665,11 +2665,15 @@ func BuildKrydsordBatchPrompt(clues []KrydsordBatchClue) string {
 	b.WriteString("Returnér KUN JSON på formen: {\"slots\":[{\"id\":\"A1\",\"candidates\":[\"ORD1\",\"ORD2\"]},{\"id\":\"D3\",\"candidates\":[\"ORD\"]}]}\n\n")
 	b.WriteString("Ledetråde:\n")
 	for _, c := range clues {
+		clueText := c.Clue
 		kind := ""
 		if c.IsImage {
-			kind = " (BILLEDE — clue er en engelsk beskrivelse af et billede; svar med det danske ord for tingen)"
+			// Make the picture-ness explicit in the clue text itself so the model
+			// never mistakes the English description for a literal word to translate.
+			clueText = "an image of a " + c.Clue
+			kind = " (BILLEDE — svar med det danske ord for tingen på billedet)"
 		}
-		fmt.Fprintf(&b, "- id=%s len=%d clue=%q%s\n", c.SlotID, c.Length, c.Clue, kind)
+		fmt.Fprintf(&b, "- id=%s len=%d clue=%q%s\n", c.SlotID, c.Length, clueText, kind)
 	}
 	return b.String()
 }
