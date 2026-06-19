@@ -253,3 +253,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-18 04:28 UTC] ingest | quiz | Hvilket band udgav albummet OK Computer? | outcome=submitted
 
+## [2026-06-19 04:46 UTC] ingest | quiz | Hvilket årti begyndte Første Verdenskrig? | outcome=submitted
+

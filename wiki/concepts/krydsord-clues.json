@@ -22,10 +22,10 @@
     "FÅR",
     "BØN"
   ],
-  "BEES": [
+  "[IMG]BEES": [
     "BIER"
   ],
-  "BEETLE": [
+  "[IMG]BEETLE": [
     "BILLE"
   ],
   "BEHOLDER": [
@@ -51,16 +51,16 @@
   "BØN": [
     "AVE"
   ],
-  "CAMERA": [
+  "[IMG]CAMERA": [
     "KAMERA"
   ],
   "CIRKUSSCENE": [
     "ARENA"
   ],
-  "CUPCAKE": [
+  "[IMG]CUPCAKE": [
     "KAGE"
   ],
-  "CUPOFTEA": [
+  "[IMG]CUPOFTEA": [
     "TEKOP"
   ],
   "CYKELDEL": [
@@ -148,16 +148,16 @@
   "ILT": [
     "O"
   ],
-  "IMGCASTLE": [
+  "[IMG]CASTLE": [
     "SLOT"
   ],
-  "IMGICECREAMCONE": [
+  "[IMG]ICECREAMCONE": [
     "IS"
   ],
-  "IMGLIGHTNINGBOLT": [
+  "[IMG]LIGHTNINGBOLT": [
     "LYN"
   ],
-  "IMGSTITCHES": [
+  "[IMG]STITCHES": [
     "AR"
   ],
   "INSEKT": [
@@ -237,7 +237,9 @@
     "E"
   ],
   "MUSIKGENRE": [
-    "ROCK"
+    "FOLK",
+    "ROCK",
+    "SOUL"
   ],
   "MÅLER": [
     "UR"
@@ -263,7 +265,7 @@
     "ARA",
     "KEA"
   ],
-  "PAPERCLIPS": [
+  "[IMG]PAPERCLIPS": [
     "CLIPS"
   ],
   "PEP": [
