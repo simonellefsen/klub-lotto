@@ -62,6 +62,27 @@ def read_settled(tries=6):
         raise RuntimeError("could not read board (canvas blank/collapsed?)")
     return last
 
+def read_scores():
+    """Read the live (current, best) score straight from the game's DOM inside the
+    iframe — `.game-current-score-value` / `.game-best-score-value`. Unlike the
+    WebGL board, these are plain DOM text nodes, so the read is exact and immune to
+    the stale-canvas problem. Returns (current, best) as ints, or None for any value
+    that couldn't be read (e.g. on the win/intro screen). Leaves the frame on main."""
+    ab("frame", "iframe.kl-game__iframe")
+    out = ab("eval",
+             '(function(){function n(s){var e=document.querySelector(s);'
+             'if(!e)return "";return (e.textContent||"").replace(/[^0-9]/g,"");}'
+             'return n(".game-current-score-value")+"|"+n(".game-best-score-value");})()')
+    ab("frame", "main")
+    out = out.strip().strip('"')
+    parts = out.split("|")
+    def toi(s):
+        s = s.strip()
+        return int(s) if s.isdigit() else None
+    if len(parts) == 2:
+        return toi(parts[0]), toi(parts[1])
+    return None, None
+
 # --- mechanics --------------------------------------------------------------
 def drag(p, q, steps=30):
     """Smooth, stepped pointer drag. Phaser only lifts the piece for continuous
@@ -165,10 +186,16 @@ def place_and_verify(board, geom, piece, r, c):
     # soft-success and let the next receding-horizon re-read re-plan from reality.
     return 'ok', board2
 
-def main(target=205, max_steps=400):
+def main(target=205, max_steps=400, goal_score=int(os.environ.get("BLOK_GOAL", "200"))):
     placed_cells = 0; steps = 0; stuck = 0
     bad = set()                              # (piece-signature, r, c) moves to avoid this trio
     last_sig = None
+    # Per-move score record (current + best, read from the DOM). One row per placed
+    # piece; also echoed to stdout. Lives next to the screenshots.
+    rec_path = os.path.join(SHOTDIR, "blok-scores.csv")
+    rec = open(rec_path, "w", buffering=1)
+    rec.write("step,piece,row,col,current_score,best_score,placed_cells,board_filled\n")
+    print("recording per-move scores to %s (goal current_score>=%d)" % (rec_path, goal_score))
     while placed_cells < target and steps < max_steps:
         steps += 1
         try:
@@ -180,6 +207,7 @@ def main(target=205, max_steps=400):
             shot(os.path.join(SHOTDIR, "blok_final.png"))
             print("[%d] board gone (%s) — likely game complete (win/game-over). "
                   "cells_placed~%d. See blok_final.png" % (steps, e, placed_cells))
+            rec.close(); print("score record written to %s" % rec_path)
             return placed_cells
         sig = _key(board, pieces)
         if sig != last_sig:                  # board/tray changed → fresh trio context
@@ -206,8 +234,20 @@ def main(target=205, max_steps=400):
         stuck = 0
         placed_cells += sum(sum(row) for row in piece['shape'])
         last_sig = _key(board2, [])          # force fresh trio detection next loop
-        print("[%d] placed %dx%d@(%d,%d)  cells_placed~%d/%d  board_filled=%d"
-              % (steps, h, w, r, c, placed_cells, target, cells(board2)))
+        cur, best = read_scores()            # exact score straight from the DOM
+        rec.write("%d,%dx%d,%d,%d,%s,%s,%d,%d\n"
+                  % (steps, h, w, r, c,
+                     "" if cur is None else cur, "" if best is None else best,
+                     placed_cells, cells(board2)))
+        print("[%d] placed %dx%d@(%d,%d)  score=%s  best=%s  cells_placed~%d  board_filled=%d"
+              % (steps, h, w, r, c,
+                 "?" if cur is None else cur, "?" if best is None else best,
+                 placed_cells, cells(board2)))
+        if cur is not None and cur >= goal_score:
+            print("[%d] GOAL REACHED: current score %d >= %d" % (steps, cur, goal_score))
+            break
+    rec.close()
+    print("score record written to %s" % rec_path)
     shot(os.path.join(SHOTDIR, "blok_final.png"))
     print("DONE: ~%d points placed in %d steps (target %d)" % (placed_cells, steps, target))
     return placed_cells
