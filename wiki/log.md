@@ -265,3 +265,11 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-20 03:11 UTC] ingest | quiz | Hvad er verdens dybeste sø? | outcome=submitted
 
+## [2026-06-20 03:16 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-20 03:18 UTC] ingest | ordkløver | Category: `Begivenhed`; answer pattern `5 / 3` | outcome=submitted
+
+## [2026-06-20 03:19 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
+## [2026-06-20 03:46 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+

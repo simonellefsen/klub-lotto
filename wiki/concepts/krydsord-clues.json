@@ -1,4 +1,7 @@
 {
+  "1050": [
+    "ML"
+  ],
   "1500": [
     "MD"
   ],
@@ -14,6 +17,9 @@
   "ARVEENHED": [
     "GEN"
   ],
+  "BALJE": [
+    "KAR"
+  ],
   "BALLADE": [
     "URO"
   ],
@@ -22,21 +28,27 @@
     "FÅR",
     "BØN"
   ],
-  "[IMG]BEES": [
-    "BIER"
-  ],
-  "[IMG]BEETLE": [
-    "BILLE"
-  ],
   "BEHOLDER": [
     "TANK",
     "VASE",
     "DÅSE"
   ],
+  "BESVÆR": [
+    "BØVL"
+  ],
   "BIJOB": [
     "BEN",
     "JOB",
     "BUD"
+  ],
+  "BIL": [
+    "AUTO"
+  ],
+  "BIORD": [
+    "AN"
+  ],
+  "BLOMST": [
+    "ROSE"
   ],
   "BLOMSTRE": [
     "GRO",
@@ -45,23 +57,18 @@
   "BRINT": [
     "H"
   ],
+  "BRODERE": [
+    "RI",
+    "SY"
+  ],
   "BØJE": [
     "EKSE"
   ],
   "BØN": [
     "AVE"
   ],
-  "[IMG]CAMERA": [
-    "KAMERA"
-  ],
   "CIRKUSSCENE": [
     "ARENA"
-  ],
-  "[IMG]CUPCAKE": [
-    "KAGE"
-  ],
-  "[IMG]CUPOFTEA": [
-    "TEKOP"
   ],
   "CYKELDEL": [
     "PEDAL"
@@ -78,13 +85,18 @@
     "TE",
     "ØL"
   ],
+  "DRØM": [
+    "UTOPI"
+  ],
   "DYR": [
     "KO",
     "SO",
     "RÅ",
     "DÅ",
+    "FÅR",
     "RÆV",
-    "TYR"
+    "TYR",
+    "ULV"
   ],
   "DØRSLAG": [
     "SI"
@@ -94,6 +106,38 @@
   ],
   "ETAGE": [
     "SAL"
+  ],
+  "ETPAR": [
+    "TO",
+    "AA",
+    "BB",
+    "CC",
+    "DD",
+    "EE",
+    "FF",
+    "GG",
+    "HH",
+    "II",
+    "JJ",
+    "KK",
+    "LL",
+    "MM",
+    "NN",
+    "OO",
+    "PP",
+    "QQ",
+    "RR",
+    "SS",
+    "TT",
+    "UU",
+    "VV",
+    "WW",
+    "XX",
+    "YY",
+    "ZZ",
+    "ÆÆ",
+    "ØØ",
+    "ÅÅ"
   ],
   "EXIT": [
     "UD"
@@ -108,6 +152,9 @@
   "FINDES": [
     "ER"
   ],
+  "FORBUND": [
+    "EU"
+  ],
   "FORESTILLING": [
     "REVY"
   ],
@@ -117,11 +164,17 @@
   "FORLYSTELSE": [
     "RUTSJEBANE"
   ],
+  "FRANKRIG": [
+    "F"
+  ],
   "FRUGT": [
     "MELON"
   ],
   "FØDEN": [
     "MADEN"
+  ],
+  "GAMMELDAGS": [
+    "YT"
   ],
   "GRIBE": [
     "TY"
@@ -148,20 +201,11 @@
   "ILT": [
     "O"
   ],
-  "[IMG]CASTLE": [
-    "SLOT"
-  ],
-  "[IMG]ICECREAMCONE": [
-    "IS"
-  ],
-  "[IMG]LIGHTNINGBOLT": [
-    "LYN"
-  ],
-  "[IMG]STITCHES": [
-    "AR"
-  ],
   "INSEKT": [
     "BI"
+  ],
+  "INSPEKTION": [
+    "SYN"
   ],
   "INSTRUMENT": [
     "BAS",
@@ -194,6 +238,9 @@
   "KLUDE": [
     "LASER"
   ],
+  "KORT": [
+    "ES"
+  ],
   "KORTBOG": [
     "ATLAS"
   ],
@@ -223,6 +270,9 @@
   ],
   "LED": [
     "KNO"
+  ],
+  "LITER": [
+    "L"
   ],
   "LYS": [
     "KERTE"
@@ -261,12 +311,15 @@
     "PR",
     "RY"
   ],
+  "OPFØRER": [
+    "TER"
+  ],
   "PAPEGØJE": [
     "ARA",
     "KEA"
   ],
-  "[IMG]PAPERCLIPS": [
-    "CLIPS"
+  "PASSWORDS": [
+    "KODER"
   ],
   "PEP": [
     "GO"
@@ -275,8 +328,24 @@
     "LP",
     "EP"
   ],
+  "PLANTEDEL": [
+    "AKS",
+    "BÆR",
+    "FRØ",
+    "LØG",
+    "ROD"
+  ],
+  "POPGRUPPE": [
+    "ABBA"
+  ],
+  "PRIS": [
+    "ROS"
+  ],
   "PROPPET": [
     "FYLDT"
+  ],
+  "RAMMER": [
+    "KARME"
   ],
   "REDSKAB": [
     "LOMMEKNIV",
@@ -296,6 +365,9 @@
   ],
   "RYGE": [
     "OSE"
+  ],
+  "RYTMISKE": [
+    "TAKTFASTE"
   ],
   "RØG": [
     "OS"
@@ -318,6 +390,9 @@
     "KØL",
     "ROR"
   ],
+  "SKILTETEKST": [
+    "P"
+  ],
   "SMALL": [
     "S"
   ],
@@ -333,12 +408,21 @@
   "SPANSKTITEL": [
     "DON"
   ],
+  "SPEKULERE": [
+    "RUGE"
+  ],
   "SPORTSUDSTYR": [
     "SKATEBOARD"
   ],
   "STEDORD": [
     "DE",
     "I"
+  ],
+  "STRAKS": [
+    "NU"
+  ],
+  "STUEN": [
+    "ST"
   ],
   "STÆR": [
     "BEO",
@@ -350,6 +434,9 @@
     "NM",
     "VM"
   ],
+  "SÆLSOM": [
+    "APARTE"
+  ],
   "SÆR": [
     "APARTE"
   ],
@@ -357,8 +444,11 @@
     "ROESUKKER"
   ],
   "TALORD": [
+    "ELLEVE",
     "NITTEN",
-    "TRE"
+    "TOLV",
+    "TRE",
+    "TRETTEN"
   ],
   "TARA": [
     "T"
@@ -367,6 +457,9 @@
     "EKS",
     "FØR",
     "SEN"
+  ],
+  "TJAVS": [
+    "LOK"
   ],
   "TOENS": [
     "OO"
@@ -378,8 +471,14 @@
     "FA",
     "RE"
   ],
+  "TOV": [
+    "REB"
+  ],
   "TRENDY": [
     "IN"
+  ],
+  "TROLDMANDSUDSTYR": [
+    "TRYLLESTAV"
   ],
   "TRÅDE": [
     "SENER"
@@ -388,14 +487,26 @@
     "EG",
     "AHORN"
   ],
+  "TRÆET": [
+    "ESPEN"
+  ],
   "TÆRE": [
     "ÆTSE"
   ],
   "URAN": [
     "U"
   ],
+  "VALUTA": [
+    "EURO"
+  ],
+  "VANDHUL": [
+    "SØ"
+  ],
   "VEG": [
     "SLAP"
+  ],
+  "VEJ": [
+    "RUTE"
   ],
   "VEJDEL": [
     "BANE"
@@ -403,8 +514,53 @@
   "VEST": [
     "V"
   ],
+  "VÆGTFORK": [
+    "KG"
+  ],
   "VÆSEN": [
     "FE"
+  ],
+  "[IMG]BEES": [
+    "BIER"
+  ],
+  "[IMG]BEETLE": [
+    "BILLE"
+  ],
+  "[IMG]CAMERA": [
+    "KAMERA"
+  ],
+  "[IMG]CASTLE": [
+    "SLOT"
+  ],
+  "[IMG]CUPCAKE": [
+    "KAGE"
+  ],
+  "[IMG]CUPOFTEA": [
+    "TEKOP"
+  ],
+  "[IMG]GRAPES": [
+    "DRUER"
+  ],
+  "[IMG]ICECREAMCONE": [
+    "IS"
+  ],
+  "[IMG]LIGHTNINGBOLT": [
+    "LYN"
+  ],
+  "[IMG]PAPERCLIPS": [
+    "CLIPS"
+  ],
+  "[IMG]RUNES": [
+    "RUNER"
+  ],
+  "[IMG]STITCHES": [
+    "AR"
+  ],
+  "[IMG]TELEVISION": [
+    "TV"
+  ],
+  "[IMG]WINEGLASS": [
+    "VIN"
   ],
   "ÅRE": [
     "AORTA"
