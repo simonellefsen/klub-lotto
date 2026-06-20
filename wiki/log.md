@@ -263,3 +263,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-19 15:21 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=solved (200/200, lod earned, first automation)
 
+## [2026-06-20 03:11 UTC] ingest | quiz | Hvad er verdens dybeste sø? | outcome=submitted
+
