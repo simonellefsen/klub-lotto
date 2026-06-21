@@ -169,6 +169,10 @@ func TestClassifyOrdknudeTile(t *testing.T) {
 		{name: "green class", tile: OrdknudeTile{ClassName: "tile correct"}, want: "correct"},
 		{name: "yellow class", tile: OrdknudeTile{ClassName: "tile present"}, want: "present"},
 		{name: "red rgb", tile: OrdknudeTile{Background: "rgb(130, 20, 10)"}, want: "absent"},
+		// Real board colours (CSS-module hashed classes, so only RGB matters).
+		// Regression for the green-D-in-GRØDE misread: rgb(1,158,1) must be correct.
+		{name: "board green rgb", tile: OrdknudeTile{ClassName: "_tile_x", Background: "rgb(1, 158, 1)"}, want: "correct"},
+		{name: "board absent rgb", tile: OrdknudeTile{ClassName: "_tile_x", Background: "rgb(136, 0, 3)"}, want: "absent"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

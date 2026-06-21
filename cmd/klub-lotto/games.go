@@ -440,6 +440,10 @@ func runOrdknude(ctx context.Context, args []string) error {
 		// constrained board (e.g. only one letter unknown) doesn't pay for a fresh
 		// LLM round on every attempt.
 		var pool []klublotto.WordCandidate
+		// noConsistentRounds counts consecutive provider batches that produced no
+		// word respecting the known green pattern. We re-ask rather than submit a
+		// pattern-violating guess; after a few rounds we fall back to a local word.
+		noConsistentRounds := 0
 		// lastGoodHistory keeps the most recent non-empty board history: the win/
 		// loss overlay re-extract returns "0 guesses", wiping st.History, so we
 		// snapshot it here to reconstruct the guess sequence for the ledger.
@@ -526,19 +530,50 @@ func runOrdknude(ctx context.Context, args []string) error {
 							continue
 						}
 					} else {
-						// Keep only constraint-consistent words as the reusable pool.
-						// If that over-prunes (e.g. a mark was mis-read), fall back to
-						// the full DDO-valid set rather than discarding everything.
+						// Keep only fully-constraint-consistent words as the reusable pool.
 						pool = prunePool(validated)
 						if len(pool) == 0 {
-							pool = validated
+							// Full consistency over-pruned (often a mis-read yellow). Keep at
+							// least the words that respect the confirmed GREEN letters — we
+							// must never submit a word that contradicts a known green (e.g.
+							// GRUBE when the pattern is G R _ D E).
+							for _, c := range validated {
+								if klublotto.ConsistentWithOrdknudeGreens(c.Answer, st.History) {
+									pool = append(pool, c)
+								}
+							}
 						}
-						printCandidates(pool)
-						idx := rand.Intn(len(pool))
-						pick := pool[idx]
-						pool = append(pool[:idx], pool[idx+1:]...)
-						currentAnswer = klublotto.NormalizeDanishLetters(pick.Answer)
-						fmt.Printf("   -> trying %s (%s) — %s\n", currentAnswer, pick.Confidence, pick.Rationale)
+						if len(pool) == 0 {
+							// Every provider candidate violates a known green letter. Reject
+							// the whole batch and ask again rather than wasting a real guess.
+							for _, c := range validated {
+								w := klublotto.NormalizeDanishLetters(c.Answer)
+								if !containsWord(rejected, w) {
+									rejected = append(rejected, w)
+								}
+							}
+							noConsistentRounds++
+							if noConsistentRounds <= 3 {
+								fmt.Printf("   all %d candidate(s) violate the known green pattern — asking provider for different words...\n", len(validated))
+								continue
+							}
+							// Repeated failures: fall back to a local green-consistent word
+							// instead of looping forever.
+							if fb := klublotto.FallbackOrdknudeGuess(st.History, rejected); fb != "" {
+								fmt.Printf("   no consistent provider word after %d rounds; local fallback %s\n", noConsistentRounds, fb)
+								currentAnswer = fb
+							} else {
+								return fmt.Errorf("no green-consistent candidate after %d provider rounds — stopping to avoid wasting a guess", noConsistentRounds)
+							}
+						} else {
+							noConsistentRounds = 0
+							printCandidates(pool)
+							idx := rand.Intn(len(pool))
+							pick := pool[idx]
+							pool = append(pool[:idx], pool[idx+1:]...)
+							currentAnswer = klublotto.NormalizeDanishLetters(pick.Answer)
+							fmt.Printf("   -> trying %s (%s) — %s\n", currentAnswer, pick.Confidence, pick.Rationale)
+						}
 					}
 				}
 			}
@@ -557,6 +592,15 @@ func runOrdknude(ctx context.Context, args []string) error {
 			}
 			if containsWord(triedThisRun, currentAnswer) {
 				fmt.Printf("   %s already submitted this run (re-extract may have missed it), asking again...\n", currentAnswer)
+				continue
+			}
+			// Final hard guard: never submit a word that contradicts a confirmed green
+			// letter, regardless of which path produced it. Reject it and ask again.
+			if !klublotto.ConsistentWithOrdknudeGreens(currentAnswer, st.History) {
+				fmt.Printf("   %s violates the known green pattern — rejecting and asking for another word...\n", currentAnswer)
+				if w := klublotto.NormalizeDanishLetters(currentAnswer); !containsWord(rejected, w) {
+					rejected = append(rejected, w)
+				}
 				continue
 			}
 

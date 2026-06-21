@@ -1712,12 +1712,25 @@ SPROG absent,absent,present,absent,absent`
 // paths. Given a list of guessed words (letters only), it calls
 // getColorMarksViaVision to classify the tile colors and populates st.History.
 func buildOrdknudeStateFromWords(ctx context.Context, br *browser.Client, ac llm.VisionProvider, words []string, lowerRaw string, st *OrdknudeState) (OrdknudeState, error) {
-	allMarks, visErr := getColorMarksViaVision(ctx, br, ac, words)
-	if visErr != nil {
-		fmt.Printf("   [vision] color classification failed (%v), using all-absent fallback\n", visErr)
-		allMarks = make([][]string, len(words))
-		for i := range allMarks {
-			allMarks[i] = []string{"absent", "absent", "absent", "absent", "absent"}
+	// PRIMARY: read the exact tile colours from the game DOM (getComputedStyle inside
+	// the iframe). The green tiles are an unambiguous rgb(1,158,1) and absent ones
+	// rgb(136,0,3), so this is far more reliable than asking a vision model to read
+	// the small, dark tiles — which mis-classified e.g. the green D in GRØDE as absent.
+	allMarks := getColorMarksViaDOM(ctx, br, words)
+	if allMarks != nil {
+		fmt.Println("   [dom] read tile colours from the board DOM (exact)")
+	} else {
+		// FALLBACK: vision (screenshot + LLM) only when the DOM read didn't line up.
+		var visErr error
+		allMarks, visErr = getColorMarksViaVision(ctx, br, ac, words)
+		if visErr != nil {
+			fmt.Printf("   [vision] color classification failed (%v), using all-absent fallback\n", visErr)
+			allMarks = make([][]string, len(words))
+			for i := range allMarks {
+				allMarks[i] = []string{"absent", "absent", "absent", "absent", "absent"}
+			}
+		} else {
+			fmt.Println("   [vision] read tile colours via screenshot (DOM unavailable)")
 		}
 	}
 	for i, w := range words {
@@ -1946,6 +1959,80 @@ func extractOrdknudeLettersFromSnap(snap string) []string {
 }
 
 // getColorMarksViaVision takes a screenshot of the current page and asks the
+// getColorMarksViaDOM reads the exact tile colours straight from the game DOM
+// inside the iframe (getComputedStyle background-color) and classifies each tile
+// as correct/present/absent by RGB. The board colours are unambiguous —
+// rgb(1,158,1) green / rgb(136,0,3) dark — so this is the reliable primary path,
+// unlike vision which mis-read e.g. the green D in GRØDE as absent.
+//
+// It returns one mark row per input word (matched by the tile letters), or nil if
+// the board can't be read or doesn't line up with the known words — in which case
+// the caller falls back to vision. Leaves the frame on main.
+func getColorMarksViaDOM(ctx context.Context, br *browser.Client, words []string) [][]string {
+	if err := br.Frame(ctx, "iframe.kl-game__iframe"); err != nil {
+		return nil
+	}
+	defer func() { _ = br.Frame(ctx, "main") }()
+	// Collect single-letter, tile-sized elements, group them into rows by their top
+	// coordinate, and keep only rows of exactly 5 (the board; the keyboard rows have
+	// 7-11 keys). Each tile carries its computed background colour.
+	out, err := br.Eval(ctx, `(() => {
+  const tiles = [...document.querySelectorAll('*')].filter(k => {
+    const t = (k.innerText || k.textContent || '').trim().toUpperCase();
+    const r = k.getBoundingClientRect();
+    return t.length === 1 && /[A-ZÆØÅ]/.test(t) && r.width > 15 && r.height > 15 && r.width < 90 && r.height < 90;
+  });
+  const rows = {};
+  for (const k of tiles) {
+    const r = k.getBoundingClientRect();
+    const key = Math.round(r.top / 10) * 10;
+    (rows[key] = rows[key] || []).push({ letter: (k.innerText || '').trim().toUpperCase(), left: Math.round(r.left), background: getComputedStyle(k).backgroundColor, className: String(k.className || '') });
+  }
+  const result = Object.keys(rows).map(Number).sort((a, b) => a - b)
+    .map(y => rows[y].sort((a, b) => a.left - b.left))
+    .filter(row => row.length === 5);
+  return JSON.stringify(result);
+})()`)
+	if err != nil || strings.TrimSpace(out) == "" {
+		return nil
+	}
+	var rows [][]OrdknudeTile
+	if json.Unmarshal([]byte(out), &rows) != nil {
+		return nil
+	}
+	byWord := map[string][]string{}
+	for _, row := range rows {
+		if len(row) != 5 {
+			continue
+		}
+		var w strings.Builder
+		marks := make([]string, 5)
+		ok := true
+		for j, t := range row {
+			letter := NormalizeDanishLetters(t.Letter)
+			mark := classifyOrdknudeTile(t)
+			if letter == "" || mark == "pending" {
+				ok = false
+				break
+			}
+			w.WriteString(letter)
+			marks[j] = mark
+		}
+		if ok {
+			byWord[w.String()] = marks
+		}
+	}
+	allMarks := make([][]string, len(words))
+	for i, word := range words {
+		m, found := byWord[NormalizeDanishLetters(word)]
+		if !found {
+			return nil // board didn't line up with the known words — let vision try
+		}
+		allMarks[i] = m
+	}
+	return allMarks
+}
+
 // vision model to classify the tile colors for the known guessed words.
 // Since the words are already known, Claude only needs to read the colors.
 func getColorMarksViaVision(ctx context.Context, br *browser.Client, ac llm.VisionProvider, words []string) ([][]string, error) {
@@ -2951,6 +3038,32 @@ func ConsistentWithOrdknudeHistory(word string, history []OrdknudeGuess) bool {
 	for _, h := range history {
 		if !sameMarks(scoreOrdknudeGuess(word, NormalizeDanishLetters(h.Word)), h.Marks) {
 			return false
+		}
+	}
+	return true
+}
+
+// ConsistentWithOrdknudeGreens is the HARD floor: it only requires that every
+// confirmed-green (correct) letter sits at its known position. A confirmed green
+// is the most reliable signal on the board (a solid-green tile), and any valid
+// answer MUST contain it — so a word that contradicts one (e.g. GRUBE when the
+// pattern is G R _ D E: the green at position 4 is D, but GRUBE has B there) can
+// never be the answer and must never be submitted, even if the fuller
+// ConsistentWithOrdknudeHistory check over-prunes due to a mis-read yellow.
+func ConsistentWithOrdknudeGreens(word string, history []OrdknudeGuess) bool {
+	word = NormalizeDanishLetters(word)
+	if !IsDanishFiveLetterWord(word) {
+		return false
+	}
+	runes := []rune(word)
+	for _, h := range history {
+		hr := []rune(NormalizeDanishLetters(h.Word))
+		for i, m := range h.Marks {
+			if m == "correct" && i < len(hr) {
+				if i >= len(runes) || runes[i] != hr[i] {
+					return false
+				}
+			}
 		}
 	}
 	return true
