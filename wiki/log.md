@@ -273,3 +273,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-20 03:46 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
 
+## [2026-06-21 05:16 UTC] ingest | quiz | Hvilken italiensk by regnes traditionelt for at være pizzae… | outcome=submitted
+
