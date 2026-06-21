@@ -19,7 +19,9 @@ BIN="${AGENT_BROWSER_BIN:-/Users/lindau/codex/agent-browser/cli/target/release/a
 export AGENT_BROWSER_SESSION="${AGENT_BROWSER_SESSION:-klublotto}"
 export AGENT_BROWSER_SESSION_NAME="${AGENT_BROWSER_SESSION_NAME:-klublotto}"
 PY="${BLOK_PYTHON:-/tmp/blokenv/bin/python}"
-TARGET="${BLOK_TARGET:-190}"
+# Placed-cell budget the solver loops up to. Default huge so the run plays on
+# until game-over (set BLOK_GOAL>0 to instead stop at a target score).
+TARGET="${BLOK_TARGET:-100000}"
 SHOTDIR="${BLOK_SHOTDIR:-$(pwd)/.klublotto}"
 URL="https://danskespil.dk/klublotto/dagens-blok-for-blok"
 GAME_IFRAME="iframe.kl-game__iframe"
@@ -48,8 +50,13 @@ sleep 1.5
 "$BIN" frame main >/dev/null 2>&1 || true
 sleep 1
 
-echo "blok: running solver (target=${TARGET} placed cells; shots in ${SHOTDIR})"
-BLOK_SHOTDIR="$SHOTDIR" AGENT_BROWSER_BIN="$BIN" "$PY" -u tools/blok/blok_play.py "$TARGET"
+GOAL="${BLOK_GOAL:-0}"
+if [ "$GOAL" -gt 0 ] 2>/dev/null; then
+  echo "blok: running solver (stop at score>=${GOAL}; shots in ${SHOTDIR})"
+else
+  echo "blok: running solver (playing to game-over for max score; shots in ${SHOTDIR})"
+fi
+BLOK_SHOTDIR="$SHOTDIR" BLOK_GOAL="$GOAL" AGENT_BROWSER_BIN="$BIN" "$PY" -u tools/blok/blok_play.py "$TARGET"
 
 echo "blok: done — final screenshot at ${SHOTDIR}/blok_final.png"
 echo "blok: verify the ✓ on the Spil & Quiz overview to confirm the lod registered."

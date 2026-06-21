@@ -186,7 +186,10 @@ def place_and_verify(board, geom, piece, r, c):
     # soft-success and let the next receding-horizon re-read re-plan from reality.
     return 'ok', board2
 
-def main(target=205, max_steps=400, goal_score=int(os.environ.get("BLOK_GOAL", "200"))):
+def main(target=100000, max_steps=2000, goal_score=int(os.environ.get("BLOK_GOAL", "0"))):
+    # By default (goal_score<=0, target huge) the run plays on until the board can't
+    # take any more pieces — game-over — to maximise the score. Set BLOK_GOAL>0 to
+    # stop early once the live score reaches it (e.g. just earn the 200-pt lod).
     placed_cells = 0; steps = 0; stuck = 0
     bad = set()                              # (piece-signature, r, c) moves to avoid this trio
     last_sig = None
@@ -195,7 +198,9 @@ def main(target=205, max_steps=400, goal_score=int(os.environ.get("BLOK_GOAL", "
     rec_path = os.path.join(SHOTDIR, "blok-scores.csv")
     rec = open(rec_path, "w", buffering=1)
     rec.write("step,piece,row,col,current_score,best_score,placed_cells,board_filled\n")
-    print("recording per-move scores to %s (goal current_score>=%d)" % (rec_path, goal_score))
+    print("recording per-move scores to %s (%s)" % (
+        rec_path, ("stop at current_score>=%d" % goal_score) if goal_score > 0
+        else "playing to game-over for max score"))
     while placed_cells < target and steps < max_steps:
         steps += 1
         try:
@@ -243,7 +248,7 @@ def main(target=205, max_steps=400, goal_score=int(os.environ.get("BLOK_GOAL", "
               % (steps, h, w, r, c,
                  "?" if cur is None else cur, "?" if best is None else best,
                  placed_cells, cells(board2)))
-        if cur is not None and cur >= goal_score:
+        if goal_score > 0 and cur is not None and cur >= goal_score:
             print("[%d] GOAL REACHED: current score %d >= %d" % (steps, cur, goal_score))
             break
     rec.close()
@@ -253,5 +258,5 @@ def main(target=205, max_steps=400, goal_score=int(os.environ.get("BLOK_GOAL", "
     return placed_cells
 
 if __name__ == "__main__":
-    tgt = int(sys.argv[1]) if len(sys.argv) > 1 else 205
+    tgt = int(sys.argv[1]) if len(sys.argv) > 1 else 100000
     main(tgt)

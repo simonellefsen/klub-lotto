@@ -26,8 +26,8 @@ the WebGL canvas — `div.game-current-score-value` and `div.game-best-score-val
 exact and immune to the stale-canvas problem that affects board reads. After each
 placed piece the executor records a row to `<BLOK_SHOTDIR>/blok-scores.csv`
 (`step,piece,row,col,current_score,best_score,placed_cells,board_filled`) and
-echoes `score=… best=…` to the log. Set `BLOK_GOAL` (default 200) to stop once the
-current score reaches it; set it very high to play on to game-over for a max score.
+echoes `score=… best=…` to the log. By default the run plays to game-over; set
+`BLOK_GOAL=<n>` (>0) to stop early once the current score reaches `<n>`.
 
 ## Setup
 ```sh
@@ -40,14 +40,14 @@ python3 -m venv /tmp/blokenv && /tmp/blokenv/bin/pip install pillow numpy
    "Start spil" DIV works), so the empty board + tray is showing.
 2. ```sh
    BLOK_SHOTDIR=/path/for/screenshots \
-   /tmp/blokenv/bin/python -u tools/blok/blok_play.py 190
+   /tmp/blokenv/bin/python -u tools/blok/blok_play.py
    ```
-   The argument is a cumulative **placed-cell budget** (a fallback bound); the run
-   normally stops when the live DOM score reaches `BLOK_GOAL` (default 200). The
-   **first** time you cross 200 the game shows the win screen and earns the lod.
-   Once the lod is earned, replays do NOT stop at 200 — the game runs on until
-   game-over while tracking a best score, so set `BLOK_GOAL` very high (and a large
-   placed-cell budget) to chase a maximum score.
+   By default it **plays on until game-over** (the board can't take another piece),
+   maximising the score. The **first** time you cross 200 the game shows the win
+   screen and earns the lod; once the lod is earned, replays run all the way to a
+   real game-over while tracking a best score. Set `BLOK_GOAL=<n>` to stop early
+   once the live DOM score reaches `<n>` (e.g. `BLOK_GOAL=200` to just earn the
+   lod); the optional positional arg caps placed cells (default huge).
 
 ## Gotchas
 - The player and any monitoring share ONE `agent-browser` session; `frame`

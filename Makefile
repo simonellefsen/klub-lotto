@@ -59,7 +59,7 @@ help:
 	@echo "make krydsord-graph— stage 1: deconstruct + verify the clue graph (JSON); GRAPH_MODEL= to try a vision LLM, VERIFY=false to skip the check; no solve/submit"
 	@echo "make krydsord-solve— stage 2/3: solve from a validated graph (GRAPH_FILE=, SOLVE_MODEL=); SUBMIT=true fills + submits the board"
 	@echo "make krydsord-solve-dry — build the board + CSP prompt only (no LLM call), for inspecting/iterating"
-	@echo "make blok        — play today's Blok for Blok to the 200pt goal (Python perception+solver+drag in tools/blok/). TARGET= placed-cell budget (default 190)"
+	@echo "make blok        — play today's Blok for Blok to game-over, maximising score (tools/blok/). GOAL=<n> to stop early at a score (e.g. GOAL=200 to just earn the lod)"
 	@echo "make wiki-query Q='...'  — search the wiki via qmd (or grep)"
 	@echo "make sync        — commit wiki/doc changes and push to origin"
 	@echo "make reset       — close any agent-browser daemons (run if you can't see the window)"
@@ -175,15 +175,17 @@ krydsord: $(BIN)
 # Blok for Blok is a Phaser WebGL canvas game with no accessible JS state, so it
 # is automated OUTSIDE the Go CLI: Python pixel-perception + real coordinate
 # mouse-drags (tools/blok/). The target opens the game, clicks "Start spil", then
-# drives the board to the 200-point goal (the game auto-completes there). Run
-# `make login` first if the session isn't authenticated. Override the placed-cell
-# budget — a safe lower bound on score — with TARGET= (default 190).
-BLOK_TARGET := $(or $(TARGET),$(target),190)
+# plays ON until the board can't take another piece (game-over), maximising the
+# score. The first play of the day still earns the lod when it crosses 200. Run
+# `make login` first if the session isn't authenticated. Pass GOAL=<n> to stop
+# early at a target score instead, or TARGET=<n> to cap placed cells.
+BLOK_GOAL := $(or $(GOAL),$(goal),0)
+BLOK_TARGET := $(or $(TARGET),$(target),100000)
 blok:
 	AGENT_BROWSER_BIN=$(AGENT_BROWSER_BIN) \
 	  AGENT_BROWSER_SESSION=$(AGENT_BROWSER_SESSION) \
 	  AGENT_BROWSER_SESSION_NAME=$(AGENT_BROWSER_SESSION_NAME) \
-	  BLOK_TARGET=$(BLOK_TARGET) BLOK_SHOTDIR=$(CURDIR)/.klublotto \
+	  BLOK_GOAL=$(BLOK_GOAL) BLOK_TARGET=$(BLOK_TARGET) BLOK_SHOTDIR=$(CURDIR)/.klublotto \
 	  bash tools/blok/play.sh
 
 wiki-query: $(BIN)
