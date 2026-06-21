@@ -44,6 +44,9 @@
   "BIL": [
     "AUTO"
   ],
+  "BILLEDE": [
+    "FOTO"
+  ],
   "BIORD": [
     "AN"
   ],
@@ -60,6 +63,9 @@
   "BRODERE": [
     "RI",
     "SY"
+  ],
+  "BULDER": [
+    "TORDEN"
   ],
   "BØJE": [
     "EKSE"
@@ -96,7 +102,8 @@
     "FÅR",
     "RÆV",
     "TYR",
-    "ULV"
+    "ULV",
+    "ABE"
   ],
   "DØRSLAG": [
     "SI"
@@ -152,11 +159,17 @@
   "FINDES": [
     "ER"
   ],
+  "FLAMMER": [
+    "ILD"
+  ],
   "FORBUND": [
     "EU"
   ],
   "FORESTILLING": [
     "REVY"
+  ],
+  "FORKERTE": [
+    "UKORREKTE"
   ],
   "FORLANGER": [
     "KRÆVER"
@@ -168,7 +181,11 @@
     "F"
   ],
   "FRUGT": [
-    "MELON"
+    "MELON",
+    "ÆBLE"
+  ],
+  "FURER": [
+    "RILLER"
   ],
   "FØDEN": [
     "MADEN"
@@ -184,13 +201,20 @@
   ],
   "GRÆSKTEGN": [
     "MY",
-    "PI"
+    "PI",
+    "ETA"
+  ],
+  "HIMMELSYN": [
+    "UFO"
   ],
   "HJEM": [
     "BO"
   ],
   "HOLDERMEGETAF": [
     "ELSKER"
+  ],
+  "HOVEDSTAD": [
+    "OSLO"
   ],
   "IDAG": [
     "DD"
@@ -235,8 +259,14 @@
   "KILO": [
     "K"
   ],
+  "KLASSE": [
+    "KL"
+  ],
   "KLUDE": [
     "LASER"
+  ],
+  "KNEB": [
+    "NEV"
   ],
   "KORT": [
     "ES"
@@ -280,8 +310,14 @@
   "LØFTE": [
     "ED"
   ],
+  "MAGASIN": [
+    "BLAD"
+  ],
   "MASSERE": [
     "ÆLTE"
+  ],
+  "MEDIEHUS": [
+    "DR"
   ],
   "MI": [
     "E"
@@ -314,9 +350,15 @@
   "OPFØRER": [
     "TER"
   ],
+  "PALADS": [
+    "SLOT"
+  ],
   "PAPEGØJE": [
     "ARA",
     "KEA"
+  ],
+  "PARTIKEL": [
+    "ION"
   ],
   "PASSWORDS": [
     "KODER"
@@ -349,9 +391,16 @@
   ],
   "REDSKAB": [
     "LOMMEKNIV",
-    "LE"
+    "LE",
+    "FIL"
   ],
   "RETNING": [
+    "NV",
+    "SV",
+    "NØ",
+    "SØ",
+    "OP",
+    "UD",
     "UDAD"
   ],
   "REX": [
@@ -384,6 +433,12 @@
   "SKABER": [
     "TER"
   ],
+  "SKIB": [
+    "MF",
+    "MS",
+    "NS",
+    "SS"
+  ],
   "SKIBSDEL": [
     "BOV",
     "DÆK",
@@ -398,6 +453,9 @@
   ],
   "SMYKKESTEN": [
     "OPAL"
+  ],
+  "SOLGUD": [
+    "RA"
   ],
   "SOLO": [
     "ENE"
@@ -424,6 +482,9 @@
   "STUEN": [
     "ST"
   ],
+  "STÆDIG": [
+    "UFORSONLIG"
+  ],
   "STÆR": [
     "BEO",
     "DYR"
@@ -433,6 +494,9 @@
     "EM",
     "NM",
     "VM"
+  ],
+  "SVINGOM": [
+    "DANS"
   ],
   "SÆLSOM": [
     "APARTE"
@@ -444,14 +508,28 @@
     "ROESUKKER"
   ],
   "TALORD": [
+    "EN",
+    "TO",
+    "NI",
+    "TI",
+    "FEM",
+    "TRE",
+    "SYV",
+    "FIRE",
+    "OTTE",
+    "SEKS",
+    "TOLV",
+    "TRES",
+    "TRE",
     "ELLEVE",
     "NITTEN",
-    "TOLV",
-    "TRE",
     "TRETTEN"
   ],
   "TARA": [
     "T"
+  ],
+  "TEGN": [
+    "NODE"
   ],
   "TIDLIGERE": [
     "EKS",
@@ -477,6 +555,9 @@
   "TRENDY": [
     "IN"
   ],
+  "TRICK": [
+    "KNEB"
+  ],
   "TROLDMANDSUDSTYR": [
     "TRYLLESTAV"
   ],
@@ -485,13 +566,17 @@
   ],
   "TRÆ": [
     "EG",
-    "AHORN"
+    "AHORN",
+    "ESP"
   ],
   "TRÆET": [
     "ESPEN"
   ],
   "TÆRE": [
     "ÆTSE"
+  ],
+  "UDBRUD": [
+    "AV"
   ],
   "URAN": [
     "U"
@@ -511,14 +596,26 @@
   "VEJDEL": [
     "BANE"
   ],
+  "VEJVISER": [
+    "GPS"
+  ],
   "VEST": [
     "V"
   ],
   "VÆGTFORK": [
     "KG"
   ],
+  "VÆKST": [
+    "TRÆ"
+  ],
   "VÆSEN": [
     "FE"
+  ],
+  "X": [
+    "TI"
+  ],
+  "[IMG]ACEOFDIAMONDS": [
+    "ES"
   ],
   "[IMG]BEES": [
     "BIER"
@@ -531,6 +628,12 @@
   ],
   "[IMG]CASTLE": [
     "SLOT"
+  ],
+  "[IMG]CHAIRS": [
+    "STOLE"
+  ],
+  "[IMG]CLOVER": [
+    "KLØVER"
   ],
   "[IMG]CUPCAKE": [
     "KAGE"
@@ -546,6 +649,9 @@
   ],
   "[IMG]LIGHTNINGBOLT": [
     "LYN"
+  ],
+  "[IMG]LION": [
+    "LØVE"
   ],
   "[IMG]PAPERCLIPS": [
     "CLIPS"

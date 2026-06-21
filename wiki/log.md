@@ -275,3 +275,11 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-21 05:16 UTC] ingest | quiz | Hvilken italiensk by regnes traditionelt for at være pizzae… | outcome=submitted
 
+## [2026-06-21 05:59 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-21 06:33 UTC] ingest | ordkløver | Category: `Person`; answer pattern `6 / 9` | outcome=submitted
+
+## [2026-06-21 06:35 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
+## [2026-06-21 06:56 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+
