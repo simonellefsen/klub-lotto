@@ -2150,6 +2150,24 @@ func wordProvider(cfg *config.Config, override string) (llm.JSONGenerator, error
 		name = "gemini"
 	}
 
+	// Z.AI (Zhipu GLM) — OpenAI-compatible, cheaper than OpenRouter's fused models.
+	// Accept "zai" (default model), "zai:<model>"/"zai/<model>", or a bare "glm-…"
+	// slug. Checked before the '/' OpenRouter routing so "zai/glm-5.2" doesn't leak
+	// to OpenRouter.
+	if low := strings.ToLower(name); low == "zai" || low == "glm" || low == "zhipu" ||
+		strings.HasPrefix(low, "zai:") || strings.HasPrefix(low, "zai/") || strings.HasPrefix(low, "glm-") {
+		if cfg.ZAIKey == "" {
+			return nil, fmt.Errorf("ZAI_API_KEY is required for Z.AI provider %q", name)
+		}
+		model := cfg.ZAIModel
+		if i := strings.IndexAny(name, ":/"); i >= 0 { // zai:glm-5.2 / zai/glm-5.2
+			model = strings.TrimSpace(name[i+1:])
+		} else if strings.HasPrefix(low, "glm-") { // bare "glm-5.2"
+			model = name
+		}
+		return llm.NewZAI(cfg.ZAIKey, model), nil
+	}
+
 	// If the name contains a '/' it is an OpenRouter model slug
 	// (e.g. "google/gemini-3.1-pro-preview", "meta-llama/llama-3.3-70b-instruct").
 	// Route it directly to OpenRouter without requiring the keyword "openrouter".
@@ -2187,7 +2205,7 @@ func wordProvider(cfg *config.Config, override string) (llm.JSONGenerator, error
 		}
 		return llm.NewOpenRouter(cfg.OpenRouterKey, cfg.OpenRouterModel), nil
 	default:
-		return nil, fmt.Errorf("unknown word provider %q — use a keyword (gemini|openai|xai|anthropic|openrouter) or a full OpenRouter model slug (e.g. google/gemini-3.1-pro-preview)", name)
+		return nil, fmt.Errorf("unknown word provider %q — use a keyword (gemini|openai|xai|anthropic|openrouter|zai) or a model slug (zai:glm-5.2, or a full OpenRouter slug e.g. google/gemini-3.1-pro-preview)", name)
 	}
 }
 

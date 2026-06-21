@@ -25,6 +25,8 @@ type Config struct {
 	// Extended provider keys (used by ordknude and future commands)
 	AnthropicKey     string
 	OpenRouterKey    string
+	ZAIKey           string // Z.AI (Zhipu) — OpenAI-compatible GLM models; cheaper than OpenRouter fused models
+	ZAIModel         string // Z.AI model slug, default glm-5.2
 	OpenAIModel      string
 	OpenRouterModel  string
 	OpenRouterVisionModel string // optional second vision model for cross-check (e.g. google/gemini-flash-1.5 via OpenRouter)
@@ -78,6 +80,11 @@ func Load(repoRoot string) (*Config, error) {
 		wordProvider = get("ORDKNUDE_PROVIDER")
 	}
 
+	zaiModel := get("ZAI_MODEL")
+	if zaiModel == "" {
+		zaiModel = "glm-5.2"
+	}
+
 	return &Config{
 		DanskespilUsername: get("DANSKESPIL_USERNAME"),
 		DanskespilPassword: get("DANSKESPIL_PASSWORD"),
@@ -86,6 +93,8 @@ func Load(repoRoot string) (*Config, error) {
 		GeminiKey:          get("GEMINI_API_KEY"),
 		AnthropicKey:       get("ANTHROPIC_API_KEY"),
 		OpenRouterKey:      get("OPENROUTER_API_KEY"),
+		ZAIKey:             get("ZAI_API_KEY"),
+		ZAIModel:           zaiModel,
 		OpenAIModel:        get("OPENAI_MODEL"),
 		OpenRouterModel:    get("OPENROUTER_MODEL"),
 		OpenRouterVisionModel: get("OPENROUTER_VISION_MODEL"),
