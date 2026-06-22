@@ -2661,6 +2661,15 @@ func runOrdKloeverProbe(ctx context.Context, cfg *config.Config, br *browser.Cli
 	// first pass may see only the welcome screen and return all-empty fields).
 	visionFallback := ordKloeverFallbackVision(cfg, ac)
 	reExtract := func() (klublotto.OrdKloeverState, error) {
+		// If danskespil's generic crash page ("Der skete en fejl. Prøv igen.")
+		// replaced the game (it sometimes does right after a submit), reading the
+		// board off it yields a blank screen that mis-reads as a finished/solved
+		// game. Detect it FIRST and recover by reopening the game so we extract the
+		// real, server-remembered state.
+		if body, _ := br.Eval(ctx, `document.body ? document.body.innerText : ""`); klublotto.IsDanskeSpilErrorScreen(body) {
+			fmt.Println(`   [recover] danskespil error screen detected ("Der skete en fejl") — reopening Ordkløver to recover real state...`)
+			recoverFromOrdKloeverError(ctx, br)
+		}
 		_ = ensureKloeverActive(ctx, br)
 		extractCtx, cancel := context.WithTimeout(ctx, ordKloeverExtractTimeout)
 		next, err := klublotto.ExtractOrdKloeverState(extractCtx, br, ac, visionFallback)
@@ -3678,7 +3687,36 @@ func submitOrdKloever(ctx context.Context, br *browser.Client, answer string) er
 	if klublotto.IsOrdKloeverWinText(raw) {
 		return nil
 	}
+	// danskespil sometimes replaces the game with its generic crash page after a
+	// submit. That is neither a win nor a confirmed wrong guess — flag it
+	// distinctly so the caller recovers (reopen + re-extract) instead of treating
+	// a nil return as a win or recording a blank/false result off the error page.
+	if klublotto.IsDanskeSpilErrorScreen(resultSnap) || klublotto.IsDanskeSpilErrorScreen(raw) {
+		return fmt.Errorf("ordkloever: danskespil returned an error screen after submit (\"Der skete en fejl\") — guess not confirmed")
+	}
 	return fmt.Errorf("ordkloever: guess did not produce a win screen (answer may be wrong)")
+}
+
+// recoverFromOrdKloeverError handles danskespil's generic crash page ("Der
+// skete en fejl. Prøv igen.") that can replace the Ordkløver game after a
+// submit. It returns to the top frame and reopens the parent page + re-enters
+// the game, so a follow-up extraction reads the real, server-remembered state
+// (which correctly reflects a win or the true remaining attempts) instead of a
+// blank board scraped off the error screen.
+func recoverFromOrdKloeverError(ctx context.Context, br *browser.Client) {
+	_ = br.Frame(context.Background(), "") // leave any (now-stale) game iframe
+	for i := 0; i < 3; i++ {
+		if err := br.Open(ctx, klublotto.OrdKloeverURL); err == nil {
+			_ = br.WaitForLoad(ctx, "networkidle")
+			time.Sleep(800 * time.Millisecond)
+			break
+		}
+		if i < 2 {
+			time.Sleep(700 * time.Millisecond)
+		}
+	}
+	_ = startGameIfNeeded(ctx, br, "SPIL ORDKLØVER", "SPIL ORDKLOEVER")
+	_ = focusIntoKloeverGame(ctx, br)
 }
 
 func clearOrdKloeverPending(ctx context.Context, br *browser.Client, answer string) {

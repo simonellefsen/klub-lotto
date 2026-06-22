@@ -511,6 +511,22 @@ func IsOrdKloeverWinText(s string) bool {
 	return false
 }
 
+// IsDanskeSpilErrorScreen reports whether the page text is danskespil's generic
+// crash/error screen ("Der skete en fejl. Prøv igen. Hvis fejlen fortsætter
+// bedes du kontakte vores Kundecenter ..."), which sometimes replaces a game
+// after a submit. It is NOT a win and NOT a normal blank board — detecting it
+// lets the caller reopen the game and recover the real, server-remembered state
+// instead of mis-reading the blank error page (e.g. recording a false solve).
+func IsDanskeSpilErrorScreen(s string) bool {
+	low := strings.ToLower(s)
+	if strings.Contains(low, "der skete en fejl") {
+		return true
+	}
+	// Be conservative otherwise: require the Kundecenter sentence alongside
+	// "prøv igen" so a stray "prøv igen" in normal game copy never trips this.
+	return strings.Contains(low, "prøv igen") && strings.Contains(low, "kundecenter")
+}
+
 // BoardHasHit reports whether any letter from the given probe set appears as a
 // revealed (non-underscore) character in the board string. Used to detect
 // whether an initial letter-probe round produced at least one correct hit.

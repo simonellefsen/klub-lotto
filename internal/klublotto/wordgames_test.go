@@ -138,6 +138,27 @@ func TestSuggestOrdKloeverLetters(t *testing.T) {
 	}
 }
 
+func TestIsDanskeSpilErrorScreen(t *testing.T) {
+	// The exact crash page danskespil showed after an Ordkløver submit.
+	errPage := "Ordkløver\nDer skete en fejl. Prøv igen. Hvis fejlen fortsætter bedes " +
+		"du kontakte vores Kundecenter på tlf. 3672 8080.\nPRØV IGEN\nFORSIDE"
+	if !IsDanskeSpilErrorScreen(errPage) {
+		t.Fatal("IsDanskeSpilErrorScreen() = false for the danskespil crash page")
+	}
+	// "Prøv igen" + "Kundecenter" without the headline still counts.
+	if !IsDanskeSpilErrorScreen("noget gik galt — prøv igen, ellers kontakt vores Kundecenter") {
+		t.Fatal("IsDanskeSpilErrorScreen() = false for the prøv-igen + Kundecenter variant")
+	}
+	// A normal win screen must NOT be mistaken for an error.
+	if IsDanskeSpilErrorScreen("Flot præstation! Du har knækket koden. Dagens lod er din.") {
+		t.Fatal("IsDanskeSpilErrorScreen() = true for a win screen")
+	}
+	// A stray "prøv igen" in normal copy (no Kundecenter, no headline) must not trip it.
+	if IsDanskeSpilErrorScreen("Forkert gæt — prøv igen med et nyt ord.") {
+		t.Fatal("IsDanskeSpilErrorScreen() = true for a benign 'prøv igen' hint")
+	}
+}
+
 func TestRejectedWordsAreDeduplicated(t *testing.T) {
 	dir := t.TempDir()
 	if err := RecordRejectedWord(dir, "salær"); err != nil {
