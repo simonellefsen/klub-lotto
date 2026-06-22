@@ -283,3 +283,9 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-21 06:56 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
 
+## [2026-06-22 04:28 UTC] ingest | quiz | Hvilken dyregruppe er krokodiller evolutionært set nærmest… | outcome=dry-run
+
+## [2026-06-22 04:31 UTC] ingest | quiz | Hvilken dyregruppe er krokodiller evolutionært set nærmest… | outcome=dry-run
+
+## [2026-06-22 04:33 UTC] ingest | quiz | Hvilken dyregruppe er krokodiller evolutionært set nærmest… | outcome=submitted
+
