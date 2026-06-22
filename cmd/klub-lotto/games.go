@@ -699,6 +699,7 @@ func runOrdknude(ctx context.Context, args []string) error {
 				if notes == "" {
 					notes = "Auto-solved by repeated real LLM-guided guesses on parent page."
 				}
+				notes = appendModelNote(notes, wordModelLabel(cfg, *providerFlag))
 				return upsertDailyGame(ctx, cfg, "Ordknuden", "5-letter Danish word puzzle", currentAnswer, true, true, notes)
 			}
 			// loop: next iteration will ask LLM again with the updated history+marks in the prompt
@@ -778,6 +779,7 @@ func runOrdknude(ctx context.Context, args []string) error {
 				notes = seq + " · Ikke løst"
 			}
 		}
+		notes = appendModelNote(notes, wordModelLabel(cfg, *providerFlag))
 		return upsertDailyGame(ctx, cfg, "Ordknuden", "5-letter Danish word puzzle", recordedAnswer, true, st.Solved, notes)
 	}
 
@@ -1211,7 +1213,16 @@ func runKrydsord(ctx context.Context, args []string) error {
 		}
 	}
 
-	return upsertDailyGame(ctx, cfg, "Krydsord", "Danish clues-in-squares crossword", gridOneLineKrydsord(solvedGrid), true, true, "Solved via clues OCR + LLM candidates + consistent grid. Saved via vendor API + Tjek løsning. Screenshot: `"+shot+"`.")
+	krydsordModel := wordModelLabel(cfg, *providerFlag)
+	if vp, verr := krydsordVisionProvider(cfg); verr == nil {
+		if n, ok := vp.(interface{ Name() string }); ok {
+			if vn := strings.TrimSpace(n.Name()); vn != "" {
+				krydsordModel = krydsordModel + " (vision: " + vn + ")"
+			}
+		}
+	}
+	notes := appendModelNote("Solved via clues OCR + LLM candidates + consistent grid. Saved via vendor API + Tjek løsning. Screenshot: `"+shot+"`.", krydsordModel)
+	return upsertDailyGame(ctx, cfg, "Krydsord", "Danish clues-in-squares crossword", gridOneLineKrydsord(solvedGrid), true, true, notes)
 }
 
 // krydsordDeconstructPrompt asks a vision model to read a Scandinavian
@@ -2185,6 +2196,42 @@ func wordCandidatesRawJSON(ctx context.Context, cfg *config.Config, providerName
 	return "", fmt.Errorf("all LLM attempts failed: %w", lastErr)
 }
 
+// wordModelLabel returns a stable identifier for the word/JSON model that
+// wordProvider would resolve for `override` (falling back to the configured
+// default). It is recorded in the daily ledger so we can see which model solved
+// or failed each word puzzle. On a resolution error it returns the raw override
+// (or configured default) so the ledger still shows what was attempted.
+func wordModelLabel(cfg *config.Config, override string) string {
+	if p, err := wordProvider(cfg, override); err == nil {
+		if s := strings.TrimSpace(p.Name()); s != "" {
+			return s
+		}
+	}
+	name := strings.TrimSpace(override)
+	if name == "" {
+		name = strings.TrimSpace(cfg.WordProvider)
+	}
+	if name == "" {
+		return "unknown"
+	}
+	return name
+}
+
+// appendModelNote appends a "Word model: `…`." sentence to a ledger Notes cell,
+// recording which model solved (or failed) the puzzle. It is a no-op for an
+// empty label so already-solved / explicit-answer rows (no model used) stay clean.
+func appendModelNote(notes, label string) string {
+	label = strings.TrimSpace(label)
+	if label == "" {
+		return notes
+	}
+	suffix := "Word model: `" + label + "`."
+	if strings.TrimSpace(notes) == "" {
+		return suffix
+	}
+	return strings.TrimRight(notes, " ") + " " + suffix
+}
+
 func wordProvider(cfg *config.Config, override string) (llm.JSONGenerator, error) {
 	name := strings.TrimSpace(override)
 	if name == "" {
@@ -2844,6 +2891,13 @@ func runOrdKloeverProbe(ctx context.Context, cfg *config.Config, br *browser.Cli
 				shape = preShape
 			}
 			notes := ordKloeverNotes(shape, revealSrc, probedThisRun, label)
+			modelLabel := wordModelLabel(cfg, provider)
+			if finalProvider != "" {
+				if fl := wordModelLabel(cfg, finalProvider); fl != modelLabel {
+					modelLabel = fmt.Sprintf("%s → %s (from %d/12)", modelLabel, fl, ordKloeverReasoningAttempts)
+				}
+			}
+			notes = appendModelNote(notes, modelLabel)
 			_ = upsertDailyGame(ctx, cfg, "Ordkløver", ordKloeverPrompt(st), phrase, true, solved, notes)
 			return true, nil
 		}
