@@ -9,8 +9,17 @@ ENV = dict(os.environ, AGENT_BROWSER_SESSION="klublotto",
            AGENT_BROWSER_SESSION_NAME="klublotto", _ZO_DOCTOR="0")
 SHOTDIR = os.environ.get("BLOK_SHOTDIR", "/tmp")
 
+# Per-call timeout so a hung agent-browser command (e.g. switching into the game
+# iframe after it's been replaced by the game-over screen) can never freeze the
+# whole run. A timed-out call returns "" and is treated as a failed read.
+AB_TIMEOUT = float(os.environ.get("BLOK_AB_TIMEOUT", "20"))
+
 def ab(*a):
-    return subprocess.run([BIN, *a], env=ENV, capture_output=True, text=True).stdout
+    try:
+        return subprocess.run([BIN, *a], env=ENV, capture_output=True, text=True,
+                              timeout=AB_TIMEOUT).stdout
+    except subprocess.TimeoutExpired:
+        return ""
 
 def resize_fix():
     # The cross-origin game canvas collapses to 30px on (re)embed; an in-frame
@@ -248,6 +257,17 @@ def main(target=100000, max_steps=2000, goal_score=int(os.environ.get("BLOK_GOAL
               % (steps, h, w, r, c,
                  "?" if cur is None else cur, "?" if best is None else best,
                  placed_cells, cells(board2)))
+        if cur is None:
+            # The live score element is gone → the board has been replaced by the
+            # win / game-over result screen. Confirm once (guard a transient
+            # mid-animation miss), then finish cleanly rather than looping into the
+            # next read, which would otherwise stall trying to reach the removed
+            # game iframe.
+            time.sleep(0.8)
+            cur, best = read_scores()
+            if cur is None:
+                print("[%d] score element gone — game over / completed. Finishing." % steps)
+                break
         if goal_score > 0 and cur is not None and cur >= goal_score:
             print("[%d] GOAL REACHED: current score %d >= %d" % (steps, cur, goal_score))
             break
