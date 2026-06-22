@@ -91,6 +91,44 @@ func TestIsLoginRequiredLoggedInSignalsBeatHeaderLoginButton(t *testing.T) {
 	}
 }
 
+func TestIsLoginRequiredQuizPresentBeatsHeaderLoginLinks(t *testing.T) {
+	// Real interactive snapshot shape: the account menu carries LOG IND / OPRET
+	// KONTO links (present even when logged in) and there is no balance StaticText,
+	// but the quiz itself is loaded and answerable. Login must NOT be reported.
+	snap := `- button "Log ind" [ref=e14]
+- link "LOG IND" [ref=e45]
+- link "OPRET KONTO" [ref=e46]
+- radio "Hvilken dyregruppe er krokodiller...?FugleØglerSkildpadderAfgiv" [checked=false, ref=e1]
+  - LabelText "Fugle" [ref=e53]
+  - button "AFGIV SVAR" [ref=e52]`
+	if IsLoginRequired("https://danskespil.dk/klublotto/dagens-quiz", snap) {
+		t.Fatal("IsLoginRequired() = true while the quiz (AFGIV SVAR) is present and answerable")
+	}
+}
+
+func TestIsLoginRequiredPersistentHeaderButtonIsNotLoggedOut(t *testing.T) {
+	// After the header hydrates logged-in, the account-drawer LOG IND / OPRET KONTO
+	// links are gone, but the header's `button "Log ind"` persists. With no quiz UI
+	// present (e.g. an already-answered quiz) this must still NOT report login.
+	snap := `- button "Log ind" [ref=e14]
+- button "Luk kontomenu" [ref=e44]
+- link "Dine præmier" [ref=e84]
+- link "Spil & Quiz" [ref=e71]`
+	if IsLoginRequired("https://danskespil.dk/klublotto/dagens-quiz", snap) {
+		t.Fatal("IsLoginRequired() = true for a settled logged-in snapshot (persistent header button only)")
+	}
+}
+
+func TestIsLoginRequiredGenuineLogoutStillDetected(t *testing.T) {
+	// A real logged-out drawer carries the LOG IND / OPRET KONTO links and no quiz.
+	snap := `- button "Log ind" [ref=e14]
+- link "LOG IND" [ref=e45]
+- link "OPRET KONTO" [ref=e46]`
+	if !IsLoginRequired("https://danskespil.dk/klublotto/dagens-quiz", snap) {
+		t.Fatal("IsLoginRequired() = false for a genuinely logged-out snapshot")
+	}
+}
+
 func TestStripOptionPrefix(t *testing.T) {
 	cases := map[string]string{
 		// Real enumerators (label + separator) are stripped.

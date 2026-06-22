@@ -155,13 +155,56 @@ func IsLoginRequired(pageURL, snap string) bool {
 	if strings.Contains(u, "/log-ind") || strings.Contains(u, "source=klublottorestriction") {
 		return true
 	}
+	low := strings.ToLower(snap)
+	// If the quiz itself is present and answerable, login is clearly NOT blocking.
+	// The page header / account menu always carries "Log ind" / "Opret konto" links
+	// (even when logged in), and the interactive snapshot omits the "1,00 kr." balance
+	// StaticText that looksLoggedIn keys on — so without this positive page signal the
+	// generic header links trip a false positive on a perfectly playable quiz.
+	if strings.Contains(low, `"afgiv svar"`) {
+		return false
+	}
 	if looksLoggedIn(pageURL, snap, "") {
 		return false
 	}
-	low := strings.ToLower(snap)
+	// Only the account-drawer links are meaningful: "LOG IND" / "OPRET KONTO" are
+	// present when logged out and disappear once the header hydrates logged-in. The
+	// header's `button "Log ind"` PERSISTS even when logged in, so it carries no
+	// information and must NOT be treated as a login-required signal.
 	return strings.Contains(low, `link "log ind"`) ||
-		strings.Contains(low, `button "log ind"`) ||
 		strings.Contains(low, `link "opret konto"`)
+}
+
+// WaitForQuizReady polls until the Klub Lotto page has hydrated its logged-in
+// header (the "Saldo … kr." balance) or rendered the quiz answer UI, so the
+// snapshot used for login detection isn't taken mid-hydration. The header fetches
+// account state asynchronously after load, so a too-early snapshot shows only the
+// logged-out chrome ("Log ind"/"Opret konto", no balance) and trips a false
+// login-required. Best-effort: returns true once ready, or false when ctx expires.
+func WaitForQuizReady(ctx context.Context, br *browser.Client) bool {
+	for {
+		select {
+		case <-ctx.Done():
+			return false
+		default:
+		}
+		raw, err := br.Eval(ctx, `document.body ? document.body.innerText : ""`)
+		if err == nil {
+			low := strings.ToLower(raw)
+			// Ready when the logged-in balance has rendered, or the quiz itself is
+			// up. "kr." without a "log ind" affordance also means the header settled.
+			if strings.Contains(low, "afgiv svar") ||
+				strings.Contains(low, "saldo") ||
+				(strings.Contains(low, "kr.") && !strings.Contains(low, "log ind")) {
+				return true
+			}
+		}
+		select {
+		case <-ctx.Done():
+			return false
+		case <-time.After(400 * time.Millisecond):
+		}
+	}
 }
 
 // ExtractRoundFromScreenshot takes a screenshot of the current quiz page and
