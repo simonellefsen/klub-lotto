@@ -289,3 +289,13 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-22 04:33 UTC] ingest | quiz | Hvilken dyregruppe er krokodiller evolutionært set nærmest… | outcome=submitted
 
+## [2026-06-22 04:43 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-22 04:51 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
+## [2026-06-22 05:10 UTC] ingest | ordkløver | Category: `Købt hos boghandleren`; answer pattern `4 / 6 / … | outcome=submitted
+
+## [2026-06-22 05:32 UTC] ingest | ordkløver | Category: `Købt hos boghandleren`; answer pattern `4 / 6 / … | outcome=submitted
+
+## [2026-06-22 05:47 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+

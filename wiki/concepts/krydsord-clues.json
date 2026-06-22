@@ -33,6 +33,9 @@
     "VASE",
     "DÅSE"
   ],
+  "BEMÆRK": [
+    "NB"
+  ],
   "BESVÆR": [
     "BØVL"
   ],
@@ -46,6 +49,9 @@
   ],
   "BILLEDE": [
     "FOTO"
+  ],
+  "BINDEMIDDEL": [
+    "REB"
   ],
   "BIORD": [
     "AN"
@@ -63,6 +69,9 @@
   "BRODERE": [
     "RI",
     "SY"
+  ],
+  "BUD": [
+    "KURER"
   ],
   "BULDER": [
     "TORDEN"
@@ -103,7 +112,9 @@
     "RÆV",
     "TYR",
     "ULV",
-    "ABE"
+    "ABE",
+    "EGERN",
+    "BUK"
   ],
   "DØRSLAG": [
     "SI"
@@ -146,6 +157,9 @@
     "ØØ",
     "ÅÅ"
   ],
+  "EVIGHEDSBLOMST": [
+    "ETERNEL"
+  ],
   "EXIT": [
     "UD"
   ],
@@ -156,8 +170,17 @@
     "ROSA",
     "ORANGE"
   ],
+  "FASHION": [
+    "MODE"
+  ],
+  "FILMFIGUR": [
+    "ET"
+  ],
   "FINDES": [
     "ER"
+  ],
+  "FIRMA": [
+    "VIRKSOMHED"
   ],
   "FLAMMER": [
     "ILD"
@@ -180,9 +203,16 @@
   "FRANKRIG": [
     "F"
   ],
+  "FRISERES": [
+    "REDES"
+  ],
   "FRUGT": [
-    "MELON",
-    "ÆBLE"
+    "ÆBLE",
+    "AGERN",
+    "MELON"
+  ],
+  "FUGL": [
+    "ØRN"
   ],
   "FURER": [
     "RILLER"
@@ -192,6 +222,9 @@
   ],
   "GAMMELDAGS": [
     "YT"
+  ],
+  "GLKARAKTR": [
+    "UG"
   ],
   "GRIBE": [
     "TY"
@@ -204,6 +237,12 @@
     "PI",
     "ETA"
   ],
+  "GRÆSMARK": [
+    "ENG"
+  ],
+  "GUDINDE": [
+    "ATE"
+  ],
   "HIMMELSYN": [
     "UFO"
   ],
@@ -212,6 +251,9 @@
   ],
   "HOLDERMEGETAF": [
     "ELSKER"
+  ],
+  "HORISONTALE": [
+    "VANDRETTE"
   ],
   "HOVEDSTAD": [
     "OSLO"
@@ -268,6 +310,9 @@
   "KNEB": [
     "NEV"
   ],
+  "KNOB": [
+    "KN"
+  ],
   "KORT": [
     "ES"
   ],
@@ -304,6 +349,9 @@
   "LITER": [
     "L"
   ],
+  "LUNS": [
+    "BID"
+  ],
   "LYS": [
     "KERTE"
   ],
@@ -334,6 +382,9 @@
     "AR",
     "LOGO"
   ],
+  "NEDBØR": [
+    "SNE"
+  ],
   "NIT": [
     "N"
   ],
@@ -363,8 +414,14 @@
   "PASSWORDS": [
     "KODER"
   ],
+  "PASTASTYKKE": [
+    "NUDEL"
+  ],
   "PEP": [
     "GO"
+  ],
+  "PINE": [
+    "NAGE"
   ],
   "PLADE": [
     "LP",
@@ -448,6 +505,9 @@
   "SKILTETEKST": [
     "P"
   ],
+  "SKRÆMME": [
+    "TRUE"
+  ],
   "SMALL": [
     "S"
   ],
@@ -469,8 +529,17 @@
   "SPEKULERE": [
     "RUGE"
   ],
+  "SPISEKORT": [
+    "MENU"
+  ],
+  "SPORTSSTÆVNE": [
+    "OL"
+  ],
   "SPORTSUDSTYR": [
     "SKATEBOARD"
+  ],
+  "STEDNAVN": [
+    "ORØ"
   ],
   "STEDORD": [
     "DE",
@@ -478,6 +547,9 @@
   ],
   "STRAKS": [
     "NU"
+  ],
+  "STRUDS": [
+    "EMU"
   ],
   "STUEN": [
     "ST"
@@ -572,6 +644,9 @@
   "TRÆET": [
     "ESPEN"
   ],
+  "TYSKLAND": [
+    "D"
+  ],
   "TÆRE": [
     "ÆTSE"
   ],
@@ -602,6 +677,9 @@
   "VEST": [
     "V"
   ],
+  "VREDE": [
+    "RASERI"
+  ],
   "VÆGTFORK": [
     "KG"
   ],
@@ -610,6 +688,9 @@
   ],
   "VÆSEN": [
     "FE"
+  ],
+  "VÆSNET": [
+    "ENGLEN"
   ],
   "X": [
     "TI"
@@ -653,8 +734,17 @@
   "[IMG]LION": [
     "LØVE"
   ],
+  "[IMG]MUSICALNOTES": [
+    "NODER"
+  ],
+  "[IMG]NESTWITHEGGS": [
+    "REDE"
+  ],
   "[IMG]PAPERCLIPS": [
     "CLIPS"
+  ],
+  "[IMG]PIGEON": [
+    "DUE"
   ],
   "[IMG]RUNES": [
     "RUNER"
@@ -674,8 +764,14 @@
   "ÆDELSTEN": [
     "JUVEL"
   ],
+  "ØDELAGT": [
+    "ITU"
+  ],
   "ØJNE": [
     "SE"
+  ],
+  "ØLSORT": [
+    "ALE"
   ],
   "ØSTRIG": [
     "A"
