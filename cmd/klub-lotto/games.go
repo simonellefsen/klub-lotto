@@ -470,7 +470,7 @@ func runOrdknude(ctx context.Context, args []string) error {
 		// with the observed marks (a wrong guess tightens the constraints).
 		prunePool := func(in []klublotto.WordCandidate) []klublotto.WordCandidate {
 			var out []klublotto.WordCandidate
-			for _, c := range filterOrdknudeCandidates(in, st, rejected) {
+			for _, c := range klublotto.FilterOrdknudeCandidates(in, st, rejected) {
 				if klublotto.ConsistentWithOrdknudeHistory(c.Answer, st.History) {
 					out = append(out, c)
 				}
@@ -523,7 +523,7 @@ func runOrdknude(ctx context.Context, args []string) error {
 					}
 				} else {
 					// Filter: remove non-5-letter, already-tried, rejected, and duplicates within the batch.
-					beforeDDO := filterOrdknudeCandidates(cands, st, rejected)
+					beforeDDO := klublotto.FilterOrdknudeCandidates(cands, st, rejected)
 					// Validate remaining candidates against ordnet.dk/ddo (drop non-Danish words).
 					validated := beforeDDO
 					if len(validated) > 0 {
@@ -604,7 +604,7 @@ func runOrdknude(ctx context.Context, args []string) error {
 				fmt.Printf("   %s previously rejected, asking provider for different guess...\n", currentAnswer)
 				continue
 			}
-			if alreadyTried(currentAnswer, st.History) {
+			if klublotto.AlreadyTriedOrdknude(currentAnswer, st.History) {
 				fmt.Printf("   %s already tried in this game (persisted state), asking again...\n", currentAnswer)
 				continue
 			}
@@ -4134,45 +4134,6 @@ func containsWord(words []string, want string) bool {
 		}
 	}
 	return false
-}
-
-func alreadyTried(word string, history []klublotto.OrdknudeGuess) bool {
-	w := klublotto.NormalizeDanishLetters(word)
-	for _, h := range history {
-		if klublotto.NormalizeDanishLetters(h.Word) == w {
-			return true
-		}
-	}
-	return false
-}
-
-// filterOrdknudeCandidates removes candidates that are:
-//   - not exactly 5 Danish letters
-//   - already in the game history
-//   - in the rejected-words list
-//   - duplicates within the batch (keeps first occurrence)
-func filterOrdknudeCandidates(cands []klublotto.WordCandidate, st klublotto.OrdknudeState, rejected []string) []klublotto.WordCandidate {
-	seen := map[string]bool{}
-	out := make([]klublotto.WordCandidate, 0, len(cands))
-	for _, c := range cands {
-		word := klublotto.NormalizeDanishLetters(c.Answer)
-		if word == "" || seen[word] {
-			continue
-		}
-		if !klublotto.IsDanishFiveLetterWord(word) {
-			continue
-		}
-		if alreadyTried(word, st.History) {
-			continue
-		}
-		if containsWord(rejected, word) {
-			continue
-		}
-		seen[word] = true
-		c.Answer = word
-		out = append(out, c)
-	}
-	return out
 }
 
 // extractOrdknudeAnswerFromSnap parses the agent-browser accessibility snapshot
