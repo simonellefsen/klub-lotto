@@ -629,7 +629,7 @@ func runLogin(ctx context.Context, args []string) error {
 	if err := br.Open(openCtx, klublotto.KlubLottoURL); err != nil {
 		return fmt.Errorf("open klublotto: %w", err)
 	}
-	_ = br.WaitForLoad(openCtx, "networkidle")
+	br.WaitSettled(openCtx)
 
 	if ok, _ := klublotto.IsLoggedIn(openCtx, br); ok {
 		fmt.Println("already logged in")

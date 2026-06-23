@@ -236,6 +236,22 @@ func (c *Client) WaitForLoad(ctx context.Context, state string) error {
 	return err
 }
 
+// settleTimeout caps a "networkidle" wait. danskespil keeps tracker/analytics
+// connections open, so a raw networkidle wait can block for ~30s (a very
+// noticeable stall) before the page is interactable.
+const settleTimeout = 6 * time.Second
+
+// WaitSettled waits for the page to reach "networkidle", but caps the wait at
+// settleTimeout so a tracker-heavy page can't stall the run. It returns early
+// when the page genuinely settles; the wait is best-effort (downstream snapshot/
+// readiness retries cover anything not yet painted), so there is no error to
+// return.
+func (c *Client) WaitSettled(ctx context.Context) {
+	waitCtx, cancel := context.WithTimeout(ctx, settleTimeout)
+	defer cancel()
+	_ = c.WaitForLoad(waitCtx, "networkidle")
+}
+
 // WaitForText blocks until text appears anywhere on the page.
 func (c *Client) WaitForText(ctx context.Context, text string) error {
 	_, err := c.run(ctx, "wait", "--text", text)

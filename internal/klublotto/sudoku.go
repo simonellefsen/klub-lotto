@@ -159,13 +159,10 @@ func OpenSudoku(ctx context.Context, br *browser.Client) error {
 	if err := br.Open(ctx, SudokuURL); err != nil {
 		return err
 	}
-	// danskespil keeps tracker/analytics connections open, so "networkidle" can
-	// block for ~30s before the board is interactable. Cap the wait so we read
-	// the board promptly; it still returns early when the page genuinely settles,
-	// and EnterSudokuGameContext retries until the iframe is ready.
-	waitCtx, cancel := context.WithTimeout(ctx, 6*time.Second)
-	_ = br.WaitForLoad(waitCtx, "networkidle")
-	cancel()
+	// WaitSettled caps the networkidle wait (danskespil keeps tracker connections
+	// open, which would otherwise stall ~30s); EnterSudokuGameContext retries
+	// until the iframe is ready.
+	br.WaitSettled(ctx)
 	time.Sleep(1200 * time.Millisecond)
 	return nil
 }

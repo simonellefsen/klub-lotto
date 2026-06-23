@@ -54,7 +54,7 @@ func OpenOrdknude(ctx context.Context, br *browser.Client) error {
 	if err := br.Open(ctx, OrdknudeURL); err != nil {
 		return err
 	}
-	_ = br.WaitForLoad(ctx, "networkidle")
+	br.WaitSettled(ctx)
 	time.Sleep(1500 * time.Millisecond)
 
 	src, err := br.Eval(ctx, `(() => {
@@ -70,7 +70,7 @@ func OpenOrdknude(ctx context.Context, br *browser.Client) error {
 	if err := br.Open(ctx, src); err != nil {
 		return fmt.Errorf("open Ordknuden iframe: %w", err)
 	}
-	_ = br.WaitForLoad(ctx, "networkidle")
+	br.WaitSettled(ctx)
 	time.Sleep(1500 * time.Millisecond)
 	return nil
 }
@@ -160,7 +160,7 @@ func startOrdknude(ctx context.Context, br *browser.Client) error {
 			return fmt.Errorf("click Ordknuden start: %w", err)
 		}
 		time.Sleep(1500 * time.Millisecond)
-		_ = br.WaitForLoad(ctx, "networkidle")
+		br.WaitSettled(ctx)
 	}
 	_, _ = br.Eval(ctx, `(() => {
   const close = Array.from(document.querySelectorAll('button')).find((b) => /luk|close/i.test(b.getAttribute('aria-label') || b.textContent || ''));

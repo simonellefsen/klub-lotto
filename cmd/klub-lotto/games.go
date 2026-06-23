@@ -683,7 +683,7 @@ func runOrdknude(ctx context.Context, args []string) error {
 			if u, _ := br.URL(ctx); isImmerspieleURL(u) || !strings.Contains(u, "danskespil.dk") {
 				fmt.Println("       post-extract force to parent page for next action...")
 				if err := br.Open(ctx, klublotto.OrdknudeURL); err == nil {
-					_ = br.WaitForLoad(ctx, "networkidle")
+					br.WaitSettled(ctx)
 					time.Sleep(800 * time.Millisecond)
 				}
 			}
@@ -1340,7 +1340,7 @@ func krydsordGraphJSON(ctx context.Context, cfg *config.Config, br *browser.Clie
 	}
 	// Give the embedded board a moment to finish rendering, then screenshot the
 	// parent page (the crossword the player sees) — no iframe navigation.
-	_ = br.WaitForLoad(ctx, "networkidle")
+	br.WaitSettled(ctx)
 	time.Sleep(1500 * time.Millisecond)
 	stamp := time.Now().UTC().Format("20060102-150405")
 	inputPath := filepath.Join(cfg.DataDir, "krydsord-graph-input-"+stamp+".png")
@@ -2691,7 +2691,7 @@ func runOrdKloeverProbe(ctx context.Context, cfg *config.Config, br *browser.Cli
 		fmt.Println("       navigating to Ordkløver parent page for probe start...")
 		for i := 0; i < 3; i++ {
 			if err := br.Open(ctx, klublotto.OrdKloeverURL); err == nil {
-				_ = br.WaitForLoad(ctx, "networkidle")
+				br.WaitSettled(ctx)
 				time.Sleep(500 * time.Millisecond)
 				break
 			}
@@ -3446,7 +3446,7 @@ func submitOrdKloeverLetter(ctx context.Context, br *browser.Client, letter stri
 		var openErr error
 		for i := 0; i < 3; i++ {
 			if openErr = br.Open(ctx, klublotto.OrdKloeverURL); openErr == nil {
-				_ = br.WaitForLoad(ctx, "networkidle")
+				br.WaitSettled(ctx)
 				time.Sleep(600 * time.Millisecond)
 				break
 			}
@@ -3555,7 +3555,7 @@ func submitOrdKloeverLetters(ctx context.Context, br *browser.Client, letters []
 		fmt.Println("       navigating to Ordkløver parent page...")
 		for i := 0; i < 3; i++ {
 			if err := br.Open(ctx, klublotto.OrdKloeverURL); err == nil {
-				_ = br.WaitForLoad(ctx, "networkidle")
+				br.WaitSettled(ctx)
 				time.Sleep(600 * time.Millisecond)
 				break
 			}
@@ -3664,7 +3664,7 @@ func submitOrdKloever(ctx context.Context, br *browser.Client, answer string) er
 		var openErr error
 		for i := 0; i < 3; i++ {
 			if openErr = br.Open(ctx, klublotto.OrdKloeverURL); openErr == nil {
-				_ = br.WaitForLoad(ctx, "networkidle")
+				br.WaitSettled(ctx)
 				time.Sleep(600 * time.Millisecond)
 				break
 			}
@@ -3772,7 +3772,7 @@ func recoverFromOrdKloeverError(ctx context.Context, br *browser.Client) {
 	_ = br.Frame(context.Background(), "") // leave any (now-stale) game iframe
 	for i := 0; i < 3; i++ {
 		if err := br.Open(ctx, klublotto.OrdKloeverURL); err == nil {
-			_ = br.WaitForLoad(ctx, "networkidle")
+			br.WaitSettled(ctx)
 			time.Sleep(800 * time.Millisecond)
 			break
 		}
@@ -3824,7 +3824,7 @@ func submitOrdknude(ctx context.Context, br *browser.Client, answer string, star
 		var openErr error
 		for i := 0; i < 3; i++ {
 			if openErr = br.Open(ctx, klublotto.OrdknudeURL); openErr == nil {
-				_ = br.WaitForLoad(ctx, "networkidle")
+				br.WaitSettled(ctx)
 				time.Sleep(800 * time.Millisecond)
 				break
 			}
@@ -4068,7 +4068,7 @@ func ensureKloeverActive(ctx context.Context, br *browser.Client) error {
 	if !strings.Contains(curURL, "danskespil.dk") || !strings.Contains(curURL, "ordkloever") {
 		for i := 0; i < 2; i++ {
 			if err := br.Open(ctx, klublotto.OrdKloeverURL); err == nil {
-				_ = br.WaitForLoad(ctx, "networkidle")
+				br.WaitSettled(ctx)
 				time.Sleep(400 * time.Millisecond)
 				break
 			}
@@ -4913,7 +4913,7 @@ func submitKrydsord(ctx context.Context, br *browser.Client, data klublotto.Kryd
 	if err := br.Open(ctx, klublotto.KrydsordURL); err != nil {
 		return fmt.Errorf("open parent for krydsord submit: %w", err)
 	}
-	_ = br.WaitForLoad(ctx, "networkidle")
+	br.WaitSettled(ctx)
 	time.Sleep(1200 * time.Millisecond)
 
 	// The board is a cross-origin OOPIF whose answer cells are bare clickable divs

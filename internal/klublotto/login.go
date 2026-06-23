@@ -31,7 +31,7 @@ func Login(ctx context.Context, br *browser.Client, username, password string) e
 	if err := br.Open(ctx, KlubLottoURL); err != nil {
 		return fmt.Errorf("open klublotto: %w", err)
 	}
-	_ = br.WaitForLoad(ctx, "networkidle")
+	br.WaitSettled(ctx)
 
 	if loggedIn, _ := IsLoggedIn(ctx, br); loggedIn {
 		return nil
@@ -41,7 +41,7 @@ func Login(ctx context.Context, br *browser.Client, username, password string) e
 	if err := br.Open(ctx, LoginURL); err != nil {
 		return fmt.Errorf("open login: %w", err)
 	}
-	_ = br.WaitForLoad(ctx, "networkidle")
+	br.WaitSettled(ctx)
 
 	// Step 3: cookie/consent banner often blocks the form on first run.
 	// We try a few common accept buttons; failures are non-fatal.

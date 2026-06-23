@@ -96,7 +96,7 @@ func ExtractKrydsordData(ctx context.Context, br *browser.Client) (KrydsordData,
 	if err := br.Open(ctx, iframeSrc); err != nil {
 		return data, fmt.Errorf("open Krydsord iframe: %w", err)
 	}
-	_ = br.WaitForLoad(ctx, "networkidle")
+	br.WaitSettled(ctx)
 	time.Sleep(800 * time.Millisecond)
 	raw, err := br.Eval(ctx, krydsordFetchJS)
 	if err != nil {
@@ -794,7 +794,7 @@ func SetKrydsordUserSolutionViaAPI(ctx context.Context, br *browser.Client, ifra
 			if err := br.Open(ctx, iframeURL); err != nil {
 				return fmt.Errorf("reopen krydsord iframe for save: %w", err)
 			}
-			_ = br.WaitForLoad(ctx, "networkidle")
+			br.WaitSettled(ctx)
 			time.Sleep(500 * time.Millisecond)
 		}
 	}

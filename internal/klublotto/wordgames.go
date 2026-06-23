@@ -681,14 +681,10 @@ func openParentGame(ctx context.Context, br *browser.Client, url string) error {
 	if err := br.Open(ctx, url); err != nil {
 		return err
 	}
-	// danskespil keeps tracker/analytics connections open, so "networkidle" can
-	// block for ~30s before the game is interactable — a very noticeable stall on
-	// the welcome screen. Cap the wait so we enter the game promptly; it still
-	// returns early when the page genuinely settles, and the downstream snapshot /
-	// keyboard-readiness retries handle anything not yet painted.
-	waitCtx, cancel := context.WithTimeout(ctx, 6*time.Second)
-	_ = br.WaitForLoad(waitCtx, "networkidle")
-	cancel()
+	// WaitSettled caps the networkidle wait (danskespil keeps tracker connections
+	// open, which would otherwise stall ~30s on the welcome screen); downstream
+	// snapshot / keyboard-readiness retries handle anything not yet painted.
+	br.WaitSettled(ctx)
 	time.Sleep(1200 * time.Millisecond)
 	return nil
 }
@@ -825,7 +821,7 @@ func ExtractOrdKloeverState(ctx context.Context, br *browser.Client, ac llm.Visi
 			// step and causing the board↔welcome flicker between rounds.
 			if curNow, _ := br.URL(ctx); !strings.Contains(curNow, "danskespil.dk") || !strings.Contains(curNow, "ordkloever") {
 				_ = br.Open(ctx, parentURL)
-				_ = br.WaitForLoad(ctx, "networkidle")
+				br.WaitSettled(ctx)
 				time.Sleep(500 * time.Millisecond)
 			}
 			return st, nil
@@ -839,7 +835,7 @@ func ExtractOrdKloeverState(ctx context.Context, br *browser.Client, ac llm.Visi
 		if err := br.Open(ctx, st.IframeURL); err != nil {
 			return st, fmt.Errorf("open Ordkløver iframe: %w", err)
 		}
-		_ = br.WaitForLoad(ctx, "networkidle")
+		br.WaitSettled(ctx)
 		time.Sleep(800 * time.Millisecond)
 		_ = startWordGameIfPresent(ctx, br, "SPIL ORDKLØVER", "SPIL ORDKLOEVER", "Spil Ordkløver", "Spil Ordkløver")
 	}
@@ -884,7 +880,7 @@ func ExtractOrdKloeverState(ctx context.Context, br *browser.Client, ac llm.Visi
 	if err := br.Open(ctx, parentURL); err != nil {
 		// best effort
 	} else {
-		_ = br.WaitForLoad(ctx, "networkidle")
+		br.WaitSettled(ctx)
 		time.Sleep(800 * time.Millisecond)
 	}
 
@@ -2382,7 +2378,7 @@ func ExtractOrdknudeState(ctx context.Context, br *browser.Client, ac llm.Vision
 	// No iframe navigation in this path; ensure we are on parent.
 	if u, _ := br.URL(ctx); isImmerspieleURL(u) || !strings.Contains(u, "danskespil.dk") {
 		_ = br.Open(ctx, OrdknudeURL)
-		_ = br.WaitForLoad(ctx, "networkidle")
+		br.WaitSettled(ctx)
 		time.Sleep(500 * time.Millisecond)
 	}
 
@@ -3302,7 +3298,7 @@ func startWordGameIfPresent(ctx context.Context, br *browser.Client, names ...st
 		if err := br.Click(ctx, ref); err != nil {
 			return err
 		}
-		_ = br.WaitForLoad(ctx, "networkidle")
+		br.WaitSettled(ctx)
 		time.Sleep(1200 * time.Millisecond)
 	}
 	// Best-effort close of the "Sådan spiller du" modal if it auto-opens.

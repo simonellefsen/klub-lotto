@@ -43,7 +43,7 @@ func OpenQuiz(ctx context.Context, br *browser.Client) error {
 	if err := br.Open(ctx, QuizURL); err != nil {
 		return err
 	}
-	_ = br.WaitForLoad(ctx, "networkidle")
+	br.WaitSettled(ctx)
 	// If we landed on a 404 or the marketing page, fall back to menu nav.
 	cur, _ := br.URL(ctx)
 	if !strings.Contains(cur, "quiz") {
@@ -58,7 +58,7 @@ func OpenQuiz(ctx context.Context, br *browser.Client) error {
 		); err != nil {
 			return fmt.Errorf("could not find Quiz entry: %w", err)
 		}
-		_ = br.WaitForLoad(ctx, "networkidle")
+		br.WaitSettled(ctx)
 	}
 	return nil
 }
