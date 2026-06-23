@@ -179,71 +179,29 @@ func appendModelNote(notes, label string) string {
 	return strings.TrimRight(notes, " ") + " " + suffix
 }
 
+// wordProvider resolves the configured/overridden word-model name to a provider.
+// The routing itself lives in (and is tested in) internal/llm; this wrapper just
+// supplies the default from config and maps config fields to llm.Keys.
 func wordProvider(cfg *config.Config, override string) (llm.JSONGenerator, error) {
 	name := strings.TrimSpace(override)
 	if name == "" {
 		name = strings.TrimSpace(cfg.WordProvider)
 	}
-	if name == "" {
-		name = "gemini"
-	}
+	return llm.Resolve(name, providerKeys(cfg))
+}
 
-	// Z.AI (Zhipu GLM) — OpenAI-compatible, cheaper than OpenRouter's fused models.
-	// Accept "zai" (default model), "zai:<model>"/"zai/<model>", or a bare "glm-…"
-	// slug. Checked before the '/' OpenRouter routing so "zai/glm-5.2" doesn't leak
-	// to OpenRouter.
-	if low := strings.ToLower(name); low == "zai" || low == "glm" || low == "zhipu" ||
-		strings.HasPrefix(low, "zai:") || strings.HasPrefix(low, "zai/") || strings.HasPrefix(low, "glm-") {
-		if cfg.ZAIKey == "" {
-			return nil, fmt.Errorf("ZAI_API_KEY is required for Z.AI provider %q", name)
-		}
-		model := cfg.ZAIModel
-		if i := strings.IndexAny(name, ":/"); i >= 0 { // zai:glm-5.2 / zai/glm-5.2
-			model = strings.TrimSpace(name[i+1:])
-		} else if strings.HasPrefix(low, "glm-") { // bare "glm-5.2"
-			model = name
-		}
-		return llm.NewZAI(cfg.ZAIKey, model), nil
-	}
-
-	// If the name contains a '/' it is an OpenRouter model slug
-	// (e.g. "google/gemini-3.1-pro-preview", "meta-llama/llama-3.3-70b-instruct").
-	// Route it directly to OpenRouter without requiring the keyword "openrouter".
-	if strings.Contains(name, "/") {
-		if cfg.OpenRouterKey == "" {
-			return nil, fmt.Errorf("OPENROUTER_API_KEY is required for OpenRouter model %q", name)
-		}
-		return llm.NewOpenRouter(cfg.OpenRouterKey, name), nil
-	}
-
-	switch strings.ToLower(name) {
-	case "gemini":
-		if cfg.GeminiKey == "" {
-			return nil, fmt.Errorf("GEMINI_API_KEY is required for word provider gemini")
-		}
-		return llm.NewGemini(cfg.GeminiKey, "gemini-2.5-pro"), nil
-	case "openai":
-		if cfg.OpenAIKey == "" {
-			return nil, fmt.Errorf("OPENAI_API_KEY is required for word provider openai")
-		}
-		return llm.NewOpenAI(cfg.OpenAIKey, cfg.OpenAIModel), nil
-	case "xai", "grok":
-		if cfg.XAIKey == "" {
-			return nil, fmt.Errorf("XAI_API_KEY is required for word provider xai")
-		}
-		return llm.NewXAI(cfg.XAIKey, ""), nil
-	case "anthropic", "claude":
-		if cfg.AnthropicKey == "" {
-			return nil, fmt.Errorf("ANTHROPIC_API_KEY is required for word provider anthropic")
-		}
-		return llm.NewAnthropic(cfg.AnthropicKey, ""), nil
-	case "openrouter":
-		if cfg.OpenRouterKey == "" {
-			return nil, fmt.Errorf("OPENROUTER_API_KEY is required for word provider openrouter")
-		}
-		return llm.NewOpenRouter(cfg.OpenRouterKey, cfg.OpenRouterModel), nil
-	default:
-		return nil, fmt.Errorf("unknown word provider %q — use a keyword (gemini|openai|xai|anthropic|openrouter|zai) or a model slug (zai:glm-5.2, or a full OpenRouter slug e.g. google/gemini-3.1-pro-preview)", name)
+// providerKeys maps the config's API keys + default models into llm.Keys.
+func providerKeys(cfg *config.Config) llm.Keys {
+	return llm.Keys{
+		Gemini:          cfg.GeminiKey,
+		OpenAI:          cfg.OpenAIKey,
+		OpenAIModel:     cfg.OpenAIModel,
+		XAI:             cfg.XAIKey,
+		Anthropic:       cfg.AnthropicKey,
+		OpenRouter:      cfg.OpenRouterKey,
+		OpenRouterModel: cfg.OpenRouterModel,
+		ZAI:             cfg.ZAIKey,
+		ZAIModel:        cfg.ZAIModel,
 	}
 }
 
