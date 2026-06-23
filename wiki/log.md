@@ -299,3 +299,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-22 05:47 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
 
+## [2026-06-23 03:20 UTC] ingest | quiz | Hvilken komponist skrev musikken til 'Peer Gynt'-suiten? | outcome=submitted
+
