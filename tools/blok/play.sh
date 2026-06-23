@@ -18,7 +18,8 @@ export _ZO_DOCTOR=0
 BIN="${AGENT_BROWSER_BIN:-/Users/lindau/codex/agent-browser/cli/target/release/agent-browser}"
 export AGENT_BROWSER_SESSION="${AGENT_BROWSER_SESSION:-klublotto}"
 export AGENT_BROWSER_SESSION_NAME="${AGENT_BROWSER_SESSION_NAME:-klublotto}"
-PY="${BLOK_PYTHON:-/tmp/blokenv/bin/python}"
+DEFAULT_VENV=/tmp/blokenv
+PY="${BLOK_PYTHON:-$DEFAULT_VENV/bin/python}"
 # Placed-cell budget the solver loops up to. Default huge so the run plays on
 # until game-over (set BLOK_GOAL>0 to instead stop at a target score).
 TARGET="${BLOK_TARGET:-100000}"
@@ -28,12 +29,28 @@ GAME_IFRAME="iframe.kl-game__iframe"
 
 mkdir -p "$SHOTDIR"
 
-# Bootstrap the perception venv if it's missing (system PIL is blocked by PEP-668).
-if [ ! -x "$PY" ]; then
-  echo "blok: creating perception venv at /tmp/blokenv (Pillow+numpy)…"
-  python3 -m venv /tmp/blokenv
-  /tmp/blokenv/bin/pip -q install pillow numpy
-  PY=/tmp/blokenv/bin/python
+# Ensure a perception venv with Pillow+numpy (system PIL is blocked by PEP-668).
+# Verify the deps actually IMPORT — checking only that the python binary exists
+# is not enough: a stale/partial /tmp/blokenv (binary present, numpy never
+# installed) would otherwise be used as-is and crash with ModuleNotFoundError.
+blok_deps_ok() { "$PY" -c 'import numpy, PIL' >/dev/null 2>&1; }
+if [ -n "${BLOK_PYTHON:-}" ]; then
+  # Caller supplied their own interpreter — validate, don't mutate it.
+  if ! blok_deps_ok; then
+    echo "blok: ERROR: \$BLOK_PYTHON ($PY) cannot import numpy + PIL; install them or unset BLOK_PYTHON." >&2
+    exit 1
+  fi
+elif [ ! -x "$PY" ] || ! blok_deps_ok; then
+  echo "blok: setting up perception venv at $DEFAULT_VENV (Pillow+numpy)…"
+  # --clear fully rebuilds a stale/partial venv (e.g. one created without pip);
+  # use `python -m pip` (+ ensurepip) rather than the pip wrapper, which may be
+  # missing in such a broken venv.
+  python3 -m venv --clear "$DEFAULT_VENV"
+  PY="$DEFAULT_VENV/bin/python"
+  "$PY" -m ensurepip --upgrade >/dev/null 2>&1 || true
+  "$PY" -m pip -q install --upgrade pip >/dev/null 2>&1 || true
+  "$PY" -m pip -q install pillow numpy
+  blok_deps_ok || { echo "blok: ERROR: venv setup failed to provide numpy + PIL." >&2; exit 1; }
 fi
 
 echo "blok: opening $URL"
