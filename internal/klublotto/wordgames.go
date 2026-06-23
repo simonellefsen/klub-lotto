@@ -487,72 +487,8 @@ func EffectiveShapeForMatching(board, shape string) string {
 	return shape
 }
 
-// IsOrdKloeverWinText reports whether a page's text contains one of Danske
-// Spil's Ordkløver success banners. The game uses several phrasings (e.g.
-// "Flot præstation", "Super imponerende!", "Du har knækket koden") rather than
-// a single fixed string, so we match all known variants. Kept deliberately
-// specific (multi-word phrases) to avoid false positives from marketing copy.
-func IsOrdKloeverWinText(s string) bool {
-	low := strings.ToLower(s)
-	for _, banner := range []string{
-		"flot præstation", "flot praestation",
-		"super imponerende", "imponerende",
-		"knækket koden", "knaekket koden",
-		"godt klaret", "godt gået", "godt gaet",
-		"du har vundet", "du vandt",
-		"tillykke",
-		"dagens lod", "dagens første lod", "dagens forste lod",
-		"belønning", "beloenning",
-	} {
-		if strings.Contains(low, banner) {
-			return true
-		}
-	}
-	return false
-}
-
-// IsOrdknudeWinText reports whether the page text carries the Ordknuden win
-// banner ("Super imponerende! Du fandt frem til dagens ord. Du er en sand
-// ord-haj!"). These phrases appear in the Danske Spil *parent* page body
-// (document.body.innerText) once the puzzle is solved, while the board itself
-// is wiped to a 0-guess overlay — so this banner, not the empty board, is the
-// reliable solved signal.
-//
-// Deliberately excludes bare "vundet" (the account nav permanently reads
-// "vundet eller tabt") and "dagens første lod" (awarded after ANY game earns
-// the lod), both of which would false-positive on every page load.
-func IsOrdknudeWinText(s string) bool {
-	low := strings.ToLower(s)
-	for _, banner := range []string{
-		"super imponerende",
-		"fandt frem til dagens ord",
-		"du fandt frem til",
-		"ord-haj",
-		"tillykke",
-		"du vandt",
-	} {
-		if strings.Contains(low, banner) {
-			return true
-		}
-	}
-	return false
-}
-
-// IsDanskeSpilErrorScreen reports whether the page text is danskespil's generic
-// crash/error screen ("Der skete en fejl. Prøv igen. Hvis fejlen fortsætter
-// bedes du kontakte vores Kundecenter ..."), which sometimes replaces a game
-// after a submit. It is NOT a win and NOT a normal blank board — detecting it
-// lets the caller reopen the game and recover the real, server-remembered state
-// instead of mis-reading the blank error page (e.g. recording a false solve).
-func IsDanskeSpilErrorScreen(s string) bool {
-	low := strings.ToLower(s)
-	if strings.Contains(low, "der skete en fejl") {
-		return true
-	}
-	// Be conservative otherwise: require the Kundecenter sentence alongside
-	// "prøv igen" so a stray "prøv igen" in normal game copy never trips this.
-	return strings.Contains(low, "prøv igen") && strings.Contains(low, "kundecenter")
-}
+// Win/loss/error-screen detectors (IsOrdKloeverWinText, IsOrdknudeWinText,
+// IsDanskeSpilErrorScreen, OrdknudeSolvedViaIframe) live in screens.go.
 
 // BoardHasHit reports whether any letter from the given probe set appears as a
 // revealed (non-underscore) character in the board string. Used to detect

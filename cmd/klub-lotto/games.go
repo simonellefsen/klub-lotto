@@ -672,7 +672,7 @@ func runOrdknude(ctx context.Context, args []string) error {
 			// The winning guess flips the board to the win overlay INSIDE the
 			// iframe, which the re-extract reads as an empty board ("0 guesses").
 			// Check the iframe body text directly before we force-reload below.
-			if !st.Solved && ordknudeSolvedViaIframe(ctx, br) {
+			if !st.Solved && klublotto.OrdknudeSolvedViaIframe(ctx, br) {
 				fmt.Println("   win screen detected inside game iframe — marking as solved")
 				st.Solved = true
 			}
@@ -712,7 +712,7 @@ func runOrdknude(ctx context.Context, args []string) error {
 		// Post-loop win-screen check: when the win overlay replaces the game board the
 		// re-extract returns "0 guesses, 0 remaining" (empty state) so st.Solved is never
 		// set inside the loop.  Take a fresh snapshot and look for the overlay text.
-		if !st.Solved && ordknudeSolvedViaIframe(ctx, br) {
+		if !st.Solved && klublotto.OrdknudeSolvedViaIframe(ctx, br) {
 			fmt.Println("   win screen detected inside game iframe (post-loop) — marking as solved")
 			st.Solved = true
 			if st.Answer == "" {
@@ -4494,32 +4494,6 @@ func filterOrdknudeCandidates(cands []klublotto.WordCandidate, st klublotto.Ordk
 //	- paragraph: gummi
 //
 // For a win it contains "Tillykke" and the answer word in the board.
-// ordknudeSolvedViaIframe checks for the win screen INSIDE the game iframe
-// ("Super imponerende!", "Du fandt frem til dagens ord", "ord-haj", or the
-// "optjent dagens lod" already-earned line). The win overlay replaces the board
-// and renders inside the cross-origin iframe, so a parent-page snapshot can't
-// see it; we read the iframe body text via a frame() switch (works now that
-// agent-browser can eval inside OOPIFs).
-func ordknudeSolvedViaIframe(ctx context.Context, br *browser.Client) bool {
-	entered := false
-	for _, sel := range []string{klublotto.GameIframe, "iframe[src*='ordknuden']", "iframe[src*='ordknude']", "iframe"} {
-		if br.Frame(ctx, sel) == nil {
-			entered = true
-			break
-		}
-	}
-	if !entered {
-		return false
-	}
-	defer klublotto.LeaveFrame(br)
-	txt, _ := br.Eval(ctx, `String(document.body ? (document.body.innerText || document.body.textContent || '') : '')`)
-	low := strings.ToLower(txt)
-	return strings.Contains(low, "imponerende") ||
-		strings.Contains(low, "fandt frem til") ||
-		strings.Contains(low, "ord-haj") ||
-		strings.Contains(low, "optjent dagens lod")
-}
-
 func extractOrdknudeAnswerFromSnap(snap string) string {
 	lines := strings.Split(snap, "\n")
 	for i, line := range lines {
