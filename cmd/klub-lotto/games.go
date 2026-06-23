@@ -233,14 +233,32 @@ func runOrdKloever(ctx context.Context, args []string) error {
 						var jj map[string]interface{}
 						if json.Unmarshal([]byte(clean), &jj) == nil {
 							j = jj
-							if v, ok := j["CATEGORY"].(string); ok && v != "" && !strings.EqualFold(v, "Not visible") { st.Category = v }
-							if v, ok := j["HINT"].(string); ok && v != "" && !strings.EqualFold(v, "Not visible") { st.Hint = v }
-							if v, ok := j["SHAPE"].(string); ok && v != "" && !strings.EqualFold(v, "Unknown") { st.Shape = v; if st.VisualShape == "" { st.VisualShape = v } }
-							if v, ok := j["BOARD"].(string); ok && v != "" { st.Board = v; if st.VisualBoard == "" { st.VisualBoard = v } }
-							if v, ok := j["GUESSED"].(string); ok && v != "" { st.GuessedLetters = klublotto.CleanGuessedLetters(v) }
+							if v, ok := j["CATEGORY"].(string); ok && v != "" && !strings.EqualFold(v, "Not visible") {
+								st.Category = v
+							}
+							if v, ok := j["HINT"].(string); ok && v != "" && !strings.EqualFold(v, "Not visible") {
+								st.Hint = v
+							}
+							if v, ok := j["SHAPE"].(string); ok && v != "" && !strings.EqualFold(v, "Unknown") {
+								st.Shape = v
+								if st.VisualShape == "" {
+									st.VisualShape = v
+								}
+							}
+							if v, ok := j["BOARD"].(string); ok && v != "" {
+								st.Board = v
+								if st.VisualBoard == "" {
+									st.VisualBoard = v
+								}
+							}
+							if v, ok := j["GUESSED"].(string); ok && v != "" {
+								st.GuessedLetters = klublotto.CleanGuessedLetters(v)
+							}
 							if v, ok := j["ATTEMPTS"].(string); ok && st.Attempts == 0 {
 								if idx := strings.Index(v, "/"); idx > 0 {
-									if n, _ := strconv.Atoi(strings.TrimSpace(v[:idx])); n > 0 { st.Attempts = n }
+									if n, _ := strconv.Atoi(strings.TrimSpace(v[:idx])); n > 0 {
+										st.Attempts = n
+									}
 								}
 							}
 						} else {
@@ -432,7 +450,7 @@ func runOrdknude(ctx context.Context, args []string) error {
 			fmt.Printf("   (continuing from persisted Danske Spil state: %d guesses already made, %d remaining)\n", len(st.History), st.Remaining)
 		}
 		attemptsThisRun := 0
-		lastSubmittedAnswer := "" // tracks the most recent word submitted (for end-of-game recording)
+		lastSubmittedAnswer := ""  // tracks the most recent word submitted (for end-of-game recording)
 		triedThisRun := []string{} // words submitted in this run (guards against re-suggest when re-extract fails)
 		// pool holds DDO-valid candidates from the most recent LLM call that we
 		// haven't tried yet. We reuse it across wrong guesses — picking another at
@@ -1434,230 +1452,6 @@ func deconstructKrydsord(ctx context.Context, cfg *config.Config, br *browser.Cl
 	return nil
 }
 
-// krydsordStart is the 1-indexed start cell of an answer. It unmarshals from the
-// explicit object form {"row":2,"column":2} AND the legacy array form [2,2], so
-// previously-saved graphs still load.
-type krydsordStart struct {
-	Row int `json:"row"`
-	Col int `json:"column"`
-}
-
-func (s *krydsordStart) UnmarshalJSON(b []byte) error {
-	t := bytes.TrimSpace(b)
-	if len(t) > 0 && t[0] == '[' { // legacy [row, col]
-		var arr []int
-		if err := json.Unmarshal(b, &arr); err != nil {
-			return err
-		}
-		if len(arr) == 2 {
-			s.Row, s.Col = arr[0], arr[1]
-		}
-		return nil
-	}
-	type alias krydsordStart // object {"row","column"}
-	var a alias
-	if err := json.Unmarshal(b, &a); err != nil {
-		return err
-	}
-	*s = krydsordStart(a)
-	return nil
-}
-
-func (s krydsordStart) valid() bool { return s.Row >= 1 && s.Col >= 1 }
-
-// krydsordGraphClue / krydsordGraph mirror the stage-1 graph JSON.
-type krydsordGraphClue struct {
-	Clue      string        `json:"clue"`
-	Direction string        `json:"direction"`
-	Start     krydsordStart `json:"start"` // {"row":R,"column":C}, 1-indexed
-	Length    int           `json:"length"`
-}
-
-type krydsordGraph struct {
-	Across []krydsordGraphClue `json:"Across"`
-	Down   []krydsordGraphClue `json:"Down"`
-}
-
-// krydsordCSP is the flattened constraint-satisfaction view of the crossword:
-// every entry's exact cells plus, per cell, which (entry:position) pairs share
-// it. Shared cells (>1 member) ARE the crossings — letters there must match.
-// Handing this to the solver removes all geometry inference; it can focus on
-// language + crossings, where LLMs are strongest.
-type krydsordCSP struct {
-	Language string                      `json:"language"`
-	Entries  map[string]krydsordCSPEntry `json:"entries"`
-	Cells    map[string][]string         `json:"cells"`
-}
-
-type krydsordCSPEntry struct {
-	Clue   string   `json:"clue"`
-	Length int      `json:"length"`
-	Cells  []string `json:"cells"`
-}
-
-// buildKrydsordCSP flattens the clue graph into the CSP structure. Cell ids are
-// "r<row>c<col>" (1-indexed); membership entries are "<EntryID>:<position>" with
-// position 1-indexed (letter 1 = first cell of the answer).
-func buildKrydsordCSP(g krydsordGraph) krydsordCSP {
-	csp := krydsordCSP{Language: "da", Entries: map[string]krydsordCSPEntry{}, Cells: map[string][]string{}}
-	add := func(id, clue string, length, r, c int, down bool) {
-		e := krydsordCSPEntry{Clue: clue, Length: length}
-		for k := 0; k < length; k++ {
-			rr, cc := r, c+k
-			if down {
-				rr, cc = r+k, c
-			}
-			cid := fmt.Sprintf("r%dc%d", rr, cc)
-			e.Cells = append(e.Cells, cid)
-			csp.Cells[cid] = append(csp.Cells[cid], fmt.Sprintf("%s:%d", id, k+1))
-		}
-		csp.Entries[id] = e
-	}
-	for i, a := range g.Across {
-		if a.Start.valid() && a.Length > 0 {
-			add(fmt.Sprintf("A%d", i+1), a.Clue, a.Length, a.Start.Row, a.Start.Col, false)
-		}
-	}
-	for i, d := range g.Down {
-		if d.Start.valid() && d.Length > 0 {
-			add(fmt.Sprintf("D%d", i+1), d.Clue, d.Length, d.Start.Row, d.Start.Col, true)
-		}
-	}
-	return csp
-}
-
-// renderKrydsordBoard draws a compact ASCII grid of the puzzle from the CSP so
-// the LLM gets the spatial layout, not just the cell lists: "·" = an answer cell
-// in one entry, "+" = a crossing cell (shared by an across and a down entry),
-// blank = not an answer cell. Row/column headers map back to the cell ids.
-func renderKrydsordBoard(csp krydsordCSP) string {
-	type rc struct{ r, c int }
-	count := map[rc]int{}
-	maxR, maxC := 0, 0
-	for cid, members := range csp.Cells {
-		var r, c int
-		if _, err := fmt.Sscanf(cid, "r%dc%d", &r, &c); err != nil {
-			continue
-		}
-		count[rc{r, c}] = len(members)
-		if r > maxR {
-			maxR = r
-		}
-		if c > maxC {
-			maxC = c
-		}
-	}
-	var b strings.Builder
-	b.WriteString("    ")
-	for c := 1; c <= maxC; c++ {
-		fmt.Fprintf(&b, "%2d ", c)
-	}
-	b.WriteString("\n")
-	for r := 1; r <= maxR; r++ {
-		fmt.Fprintf(&b, "%3d ", r)
-		for c := 1; c <= maxC; c++ {
-			switch n := count[rc{r, c}]; {
-			case n >= 2:
-				b.WriteString(" + ")
-			case n == 1:
-				b.WriteString(" · ")
-			default:
-				b.WriteString("   ")
-			}
-		}
-		b.WriteString("\n")
-	}
-	return b.String()
-}
-
-// buildKrydsordGridFromAnswers places each solved answer's letters into its CSP
-// cells, producing a w×h grid of rows (answer cells = uppercase letter, every
-// other cell = "."). The cell ids ("r<row>c<col>", 1-indexed) line up with the
-// live API mask, so the result feeds straight into ValidateKrydsordAnswerGrid /
-// BuildKrydsordUserSolution.
-func buildKrydsordGridFromAnswers(csp krydsordCSP, answersByID map[string]string, w, h int) []string {
-	grid := make([][]rune, h)
-	for r := range grid {
-		grid[r] = make([]rune, w)
-		for c := range grid[r] {
-			grid[r][c] = '.'
-		}
-	}
-	for id, e := range csp.Entries {
-		a := []rune(answersByID[id])
-		if len(a) != e.Length {
-			continue
-		}
-		for k, cid := range e.Cells {
-			var r, c int
-			if _, err := fmt.Sscanf(cid, "r%dc%d", &r, &c); err != nil {
-				continue
-			}
-			if r >= 1 && r <= h && c >= 1 && c <= w {
-				grid[r-1][c-1] = a[k]
-			}
-		}
-	}
-	out := make([]string, h)
-	for r := range grid {
-		out[r] = string(grid[r])
-	}
-	return out
-}
-
-// buildKrydsordGridFromSlotAnswers places per-slot answers (keyed by slot ID)
-// deterministically into a w×h grid using each slot's known cells — so the grid
-// dimensions are always correct (the LLM only picks words, never emits the
-// grid, which is what caused "row N has 11 columns"). It returns the grid plus
-// any crossing conflicts: cells two slots disagree on, fed back to the LLM.
-func buildKrydsordGridFromSlotAnswers(data klublotto.KrydsordData, slots []klublotto.KrydsordSlot, answersByID map[string]string) (grid []string, conflicts []string) {
-	w, h := data.CellCountX, data.CellCountY
-	cells := make([][]rune, h)
-	for r := range cells {
-		cells[r] = make([]rune, w)
-		for c := range cells[r] {
-			cells[r][c] = '.'
-		}
-	}
-	// Track which slot last wrote each cell so we can report disagreements.
-	owner := map[[2]int]string{}
-	for _, s := range slots {
-		a := []rune(klublotto.NormalizeDanishLetters(answersByID[s.ID]))
-		if len(a) != s.Length {
-			continue
-		}
-		for k, cell := range s.Cells {
-			if cell.Row < 1 || cell.Row > h || cell.Col < 1 || cell.Col > w {
-				continue
-			}
-			cur := cells[cell.Row-1][cell.Col-1]
-			if cur != '.' && cur != a[k] {
-				conflicts = append(conflicts, fmt.Sprintf("R%dC%d: %s wants %c but %s set %c",
-					cell.Row, cell.Col, s.ID, a[k], owner[[2]int{cell.Row, cell.Col}], cur))
-				continue
-			}
-			cells[cell.Row-1][cell.Col-1] = a[k]
-			owner[[2]int{cell.Row, cell.Col}] = s.ID
-		}
-	}
-	grid = make([]string, h)
-	for r := range cells {
-		grid[r] = string(cells[r])
-	}
-	return grid, conflicts
-}
-
-// crossingCount returns the number of cells shared by two or more entries.
-func (csp krydsordCSP) crossingCount() int {
-	n := 0
-	for _, members := range csp.Cells {
-		if len(members) >= 2 {
-			n++
-		}
-	}
-	return n
-}
-
 // latestKrydsordGraph returns the most recently saved stage-1 clue graph in dir
 // (krydsord-graph-*.json, written by `make krydsord-graph`), or an error telling
 // the user to produce one first.
@@ -1701,19 +1495,19 @@ func solveKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, 
 	graphJSON := klublotto.ExtractJSONObject(string(b))
 	fmt.Printf("[solve] using validated graph: %s\n", graphFile)
 
-	var g krydsordGraph
+	var g klublotto.KrydsordGraph
 	if err := json.Unmarshal([]byte(graphJSON), &g); err != nil {
 		return fmt.Errorf("krydsord --solve: parse graph JSON: %w", err)
 	}
 	if len(g.Across)+len(g.Down) == 0 {
 		return fmt.Errorf("krydsord --solve: graph has no clues")
 	}
-	csp := buildKrydsordCSP(g)
+	csp := klublotto.BuildKrydsordCSP(g)
 	cspJSON, _ := json.MarshalIndent(csp, "", "  ")
 	_ = os.WriteFile(filepath.Join(cfg.DataDir, "krydsord-csp.json"), append(cspJSON, '\n'), 0o644)
-	board := renderKrydsordBoard(csp)
+	board := klublotto.RenderKrydsordBoard(csp)
 	_ = os.WriteFile(filepath.Join(cfg.DataDir, "krydsord-board.txt"), []byte(board), 0o644)
-	fmt.Printf("[solve] %d across, %d down, %d crossings (CSP)\n", len(g.Across), len(g.Down), csp.crossingCount())
+	fmt.Printf("[solve] %d across, %d down, %d crossings (CSP)\n", len(g.Across), len(g.Down), csp.CrossingCount())
 	fmt.Println("\n== Board ==")
 	fmt.Println(board)
 
@@ -1802,7 +1596,7 @@ func solveKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, 
 	// Parse the answers tolerantly: reasoning models often truncate the JSON
 	// array, which a strict Unmarshal rejects wholesale. Salvage every complete
 	// {…} object so we still get the answers that did come through.
-	answers := parseKrydsordAnswers(clean)
+	answers := klublotto.ParseKrydsordAnswers(clean)
 	answersByID := map[string]string{}
 	for _, a := range answers {
 		if a.ID != "" {
@@ -1816,7 +1610,7 @@ func solveKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, 
 	// Validate against the CSP: lengths, missing entries, and crossing conflicts.
 	// This surfaces exactly the kind of errors the model makes (wrong-length
 	// answers, dropped entries, letters that disagree at a shared cell).
-	issues := validateKrydsordSolution(csp, answersByID)
+	issues := klublotto.ValidateKrydsordSolution(csp, answersByID)
 	fmt.Println("\n== Validering (mod CSP) ==")
 	if len(issues) == 0 {
 		fmt.Printf("Alle %d poster besvaret, længder og krydsninger passer ✓\n", len(csp.Entries))
@@ -1865,7 +1659,7 @@ func solveKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, 
 		if derr != nil {
 			return fmt.Errorf("submit: extract krydsord API data: %w", derr)
 		}
-		grid := buildKrydsordGridFromAnswers(csp, answersByID, data.CellCountX, data.CellCountY)
+		grid := klublotto.BuildKrydsordGridFromAnswers(csp, answersByID, data.CellCountX, data.CellCountY)
 		// Safety net: the built grid must match the live mask exactly. If the graph
 		// coordinates didn't line up with the API grid, this fails and we DON'T submit.
 		if chk := klublotto.ValidateKrydsordAnswerGrid(data, grid); !chk.OK {
@@ -1899,110 +1693,6 @@ func solveKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, 
 			fmt.Sprintf("Solved via two-stage graph→CSP→LLM (%s). Screenshot: `%s`.", solveSource, shot))
 	}
 	return nil
-}
-
-// krydsordAnswer is one solved entry from the model's JSON.
-type krydsordAnswer struct {
-	ID     string `json:"id"`
-	Clue   string `json:"clue"`
-	Answer string `json:"answer"`
-}
-
-// parseKrydsordAnswers extracts answer objects from the model's JSON, tolerating
-// a truncated array: it scans the "answers" array and unmarshals each balanced
-// {…} object individually, so a cut-off tail loses only the missing entries
-// rather than the whole response. (Answers are uppercase letters, so braces only
-// ever appear as object delimiters here.)
-func parseKrydsordAnswers(clean string) []krydsordAnswer {
-	i := strings.Index(clean, `"answers"`)
-	if i < 0 {
-		return nil
-	}
-	s := clean[i:]
-	if j := strings.IndexByte(s, '['); j >= 0 {
-		s = s[j+1:]
-	}
-	var out []krydsordAnswer
-	depth, start := 0, -1
-	for k := 0; k < len(s); k++ {
-		switch s[k] {
-		case '{':
-			if depth == 0 {
-				start = k
-			}
-			depth++
-		case '}':
-			if depth > 0 {
-				depth--
-				if depth == 0 && start >= 0 {
-					var a krydsordAnswer
-					if json.Unmarshal([]byte(s[start:k+1]), &a) == nil && a.ID != "" {
-						out = append(out, a)
-					}
-					start = -1
-				}
-			}
-		case ']':
-			if depth == 0 {
-				return out // array closed cleanly
-			}
-		}
-	}
-	return out // truncated mid-array — return what we salvaged
-}
-
-// validateKrydsordSolution checks a solution against the CSP and returns a list
-// of problems: entries with no answer, answers of the wrong length, and shared
-// cells whose letters disagree across the entries that cross there.
-func validateKrydsordSolution(csp krydsordCSP, answers map[string]string) []string {
-	var issues []string
-	var ids []string
-	for id := range csp.Entries {
-		ids = append(ids, id)
-	}
-	sort.Strings(ids)
-	for _, id := range ids {
-		e := csp.Entries[id]
-		a := answers[id]
-		if a == "" {
-			issues = append(issues, fmt.Sprintf("%s (%q): intet svar", id, e.Clue))
-			continue
-		}
-		if n := len([]rune(a)); n != e.Length {
-			issues = append(issues, fmt.Sprintf("%s (%q): %q har %d bogstaver, forventet %d", id, e.Clue, a, n, e.Length))
-		}
-	}
-	// Crossing consistency: place each correct-length answer into its cells and
-	// flag any cell that ends up with more than one distinct letter.
-	cellLetters := map[string]map[rune][]string{}
-	for id, e := range csp.Entries {
-		a := []rune(answers[id])
-		if len(a) != e.Length {
-			continue // skip wrong-length answers (already reported)
-		}
-		for k, cid := range e.Cells {
-			if cellLetters[cid] == nil {
-				cellLetters[cid] = map[rune][]string{}
-			}
-			cellLetters[cid][a[k]] = append(cellLetters[cid][a[k]], fmt.Sprintf("%s:%d", id, k+1))
-		}
-	}
-	var conflictCells []string
-	for cid, byLetter := range cellLetters {
-		if len(byLetter) > 1 {
-			conflictCells = append(conflictCells, cid)
-		}
-	}
-	sort.Strings(conflictCells)
-	for _, cid := range conflictCells {
-		var parts []string
-		for r, members := range cellLetters[cid] {
-			parts = append(parts, fmt.Sprintf("%c(%s)", r, strings.Join(members, ",")))
-		}
-		sort.Strings(parts)
-		issues = append(issues, fmt.Sprintf("krydsningskonflikt %s: %s", cid, strings.Join(parts, " ≠ ")))
-	}
-	return issues
 }
 
 // krydsordClueHints lists common Scandinavian-crossword conventions the solver
@@ -3265,7 +2955,7 @@ func parseIframeCellValues(snap string) []rune {
 			}
 			// Pattern: StaticText "Æ" — a single Danish letter.
 			if strings.HasPrefix(next, `StaticText "`) && strings.HasSuffix(next, `"`) {
-				inner := []rune(next[len(`StaticText "`):len(next)-1])
+				inner := []rune(next[len(`StaticText "`) : len(next)-1])
 				if len(inner) == 1 && isKrydsordAnswerLetter(inner[0]) {
 					ch = inner[0]
 				}
@@ -4111,7 +3801,7 @@ func clickOrdknudeVirtualKey(ctx context.Context, br *browser.Client, ch rune) e
 		return nil
 	}
 	var rect struct {
-		Ok             bool
+		Ok                       bool
 		Left, Top, Width, Height float64
 	}
 	if json.Unmarshal([]byte(raw), &rect) != nil || !rect.Ok {
@@ -4202,7 +3892,7 @@ func clickOrdknudeEnter(ctx context.Context, br *browser.Client) error {
 	})()`
 	raw, _ := br.Eval(ctx, js)
 	var rect struct {
-		Ok bool
+		Ok                       bool
 		Left, Top, Width, Height float64
 	}
 	if json.Unmarshal([]byte(raw), &rect) == nil && rect.Ok {
@@ -4210,7 +3900,7 @@ func clickOrdknudeEnter(ctx context.Context, br *browser.Client) error {
 		// Bottom-row (RETUR) centre is at kbStart + 2*rowH + rowH/2 ≈ 0.91.
 		kbY := rect.Top + rect.Height*0.75
 		rowH := rect.Height * 0.24 / 3
-		x := rect.Left + rect.Width * 0.82
+		x := rect.Left + rect.Width*0.82
 		y := kbY + 2*rowH + rowH*0.5
 		br.MouseClick(ctx, int(x), int(y))
 		time.Sleep(50 * time.Millisecond)
@@ -4490,8 +4180,8 @@ func filterOrdknudeCandidates(cands []klublotto.WordCandidate, st klublotto.Ordk
 //
 // The result screen snapshot contains:
 //
-//	- paragraph: "Det rigtige svar var:"
-//	- paragraph: gummi
+//   - paragraph: "Det rigtige svar var:"
+//   - paragraph: gummi
 //
 // For a win it contains "Tillykke" and the answer word in the board.
 func extractOrdknudeAnswerFromSnap(snap string) string {
@@ -5231,7 +4921,7 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 			}
 			fmt.Printf("       | %-4s %s%s\n", id, answers[id], tag)
 		}
-		grid, conflicts := buildKrydsordGridFromSlotAnswers(data, slots, answers)
+		grid, conflicts := klublotto.BuildKrydsordGridFromSlotAnswers(data, slots, answers)
 		check := klublotto.ValidateKrydsordAnswerGrid(data, grid)
 		if check.OK && check.FilledN == check.AnswerN && len(conflicts) == 0 {
 			if attempt > 1 {
@@ -5249,7 +4939,7 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 				for id, ans := range knownAnswers {
 					repaired[id] = ans // dictionary answers stay authoritative
 				}
-				g2, c2 := buildKrydsordGridFromSlotAnswers(data, slots, repaired)
+				g2, c2 := klublotto.BuildKrydsordGridFromSlotAnswers(data, slots, repaired)
 				chk2 := klublotto.ValidateKrydsordAnswerGrid(data, g2)
 				if chk2.OK && chk2.FilledN == chk2.AnswerN && len(c2) == 0 {
 					fmt.Printf("       [assemble] resolved by targeted conflict repair (after attempt %d)\n", attempt)
@@ -5282,102 +4972,13 @@ func gridOneLineKrydsord(g []string) string {
 	return s
 }
 
-// krydsordMatchesPattern reports whether word fits pat rune-wise ('.' = wildcard).
-func krydsordMatchesPattern(word, pat string) bool {
-	wr, pr := []rune(word), []rune(pat)
-	if len(wr) != len(pr) {
-		return false
-	}
-	for i := range pr {
-		if pr[i] != '.' && pr[i] != wr[i] {
-			return false
-		}
-	}
-	return true
-}
-
-// krydsordConflictSlots returns the slots involved in any crossing disagreement
-// (for a fully-filled answer set) and, for each, the pattern its CROSSINGS demand
-// ('.' where unconstrained or where the crossings themselves disagree). A slot that
-// disagrees with several crossings (like an outvoted 2-letter across) shows up with
-// a mostly- or fully-determined pattern — exactly the hint needed to refit it.
-func krydsordConflictSlots(slots []klublotto.KrydsordSlot, answers map[string]string) (involved []string, patternByID map[string]string) {
-	type ref struct {
-		id  string
-		pos int
-	}
-	cellRefs := map[[2]int][]ref{}
-	byID := map[string]klublotto.KrydsordSlot{}
-	for _, s := range slots {
-		byID[s.ID] = s
-		for k, cell := range s.Cells {
-			key := [2]int{cell.Row, cell.Col}
-			cellRefs[key] = append(cellRefs[key], ref{s.ID, k})
-		}
-	}
-	letterAt := func(id string, pos int) (rune, bool) {
-		a := []rune(klublotto.NormalizeDanishLetters(answers[id]))
-		if len(a) != byID[id].Length || pos < 0 || pos >= len(a) {
-			return 0, false
-		}
-		return a[pos], true
-	}
-	inv := map[string]bool{}
-	for _, refs := range cellRefs {
-		letters := map[string]rune{}
-		for _, r := range refs {
-			if ch, ok := letterAt(r.id, r.pos); ok {
-				letters[r.id] = ch
-			}
-		}
-		distinct := map[rune]bool{}
-		for _, ch := range letters {
-			distinct[ch] = true
-		}
-		if len(distinct) > 1 {
-			for id := range letters {
-				inv[id] = true
-			}
-		}
-	}
-	patternByID = map[string]string{}
-	for id := range inv {
-		s := byID[id]
-		pat := make([]rune, s.Length)
-		for k, cell := range s.Cells {
-			pat[k] = '.'
-			var want rune
-			ok, bad := false, false
-			for _, r := range cellRefs[[2]int{cell.Row, cell.Col}] {
-				if r.id == id {
-					continue
-				}
-				if ch, has := letterAt(r.id, r.pos); has {
-					if !ok {
-						want, ok = ch, true
-					} else if want != ch {
-						bad = true
-					}
-				}
-			}
-			if ok && !bad {
-				pat[k] = want
-			}
-		}
-		patternByID[id] = string(pat)
-		involved = append(involved, id)
-	}
-	sort.Strings(involved)
-	return involved, patternByID
-}
-
 // repairKrydsordConflictsLLM asks the model to correct ONLY the slots involved in
 // crossing conflicts, given the exact letters each one's crossings demand. This is
 // a small, fast prompt (a handful of slots) instead of re-emitting the whole grid.
 // Returns a full answers map (a copy with the corrected slots overwritten) and
 // whether the call produced any change.
 func repairKrydsordConflictsLLM(ctx context.Context, p llm.JSONGenerator, slots []klublotto.KrydsordSlot, cluesByID map[string]klublotto.KrydsordClue, perSlot map[string][]klublotto.WordCandidate, answers map[string]string) (map[string]string, bool) {
-	involved, patternByID := krydsordConflictSlots(slots, answers)
+	involved, patternByID := klublotto.KrydsordConflictSlots(slots, answers)
 	if len(involved) == 0 {
 		return nil, false
 	}
@@ -5397,7 +4998,7 @@ func repairKrydsordConflictsLLM(ctx context.Context, p llm.JSONGenerator, slots 
 		var cands []string
 		for _, c := range perSlot[id] {
 			cand := klublotto.NormalizeDanishLetters(c.Answer)
-			if len([]rune(cand)) == s.Length && krydsordMatchesPattern(cand, patternByID[id]) {
+			if len([]rune(cand)) == s.Length && klublotto.KrydsordMatchesPattern(cand, patternByID[id]) {
 				cands = append(cands, cand)
 			}
 		}
