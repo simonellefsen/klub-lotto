@@ -60,11 +60,12 @@ where it can't be tested.
 6. **Split `wordgames.go`** into `ordknude_state.go` / `ordkloever_state.go` /
    `wordcommon.go` (there's already a confusingly-separate `ordknude.go`). _(not started)_
 
-### P3 — Provider layer (medium effort, isolated)
-7. **Collapse the 4 OpenAI-compatible providers** into one config-driven
-   `OpenAICompatible{Name, BaseURL, Model}`; openai/xai/zai/openrouter become 4
-   constructors over it.
-8. **Centralize provider resolution.** `wordProvider`'s keyword/slug/zai routing
+### P3 — Provider layer (medium effort, isolated) — IN PROGRESS
+7. ✅ **Collapse the OpenAI-compatible providers.** openai/xai/zai → one
+   `OpenAICompatible` (`internal/llm/oaicompat.go`); NewOpenAI/NewXAI/NewZAI are
+   thin constructors over it (+first `internal/llm` tests). OpenRouter kept
+   separate (model-id validation).
+8. ⬜ **Centralize provider resolution.** `wordProvider`'s keyword/slug/zai routing
    and the inline `NewGemini(..., "gemini-2.5-pro")` vision construction (repeated
    in 3 run functions) should live in one `internal/llm` registry — adding a
    provider becomes one edit, not three.
