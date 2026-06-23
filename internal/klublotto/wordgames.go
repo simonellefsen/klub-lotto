@@ -681,7 +681,14 @@ func openParentGame(ctx context.Context, br *browser.Client, url string) error {
 	if err := br.Open(ctx, url); err != nil {
 		return err
 	}
-	_ = br.WaitForLoad(ctx, "networkidle")
+	// danskespil keeps tracker/analytics connections open, so "networkidle" can
+	// block for ~30s before the game is interactable — a very noticeable stall on
+	// the welcome screen. Cap the wait so we enter the game promptly; it still
+	// returns early when the page genuinely settles, and the downstream snapshot /
+	// keyboard-readiness retries handle anything not yet painted.
+	waitCtx, cancel := context.WithTimeout(ctx, 6*time.Second)
+	_ = br.WaitForLoad(waitCtx, "networkidle")
+	cancel()
 	time.Sleep(1200 * time.Millisecond)
 	return nil
 }
