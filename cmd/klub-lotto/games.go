@@ -713,7 +713,7 @@ func runOrdknude(ctx context.Context, args []string) error {
 				finalShot := filepath.Join(cfg.DataDir, "ordknude-result-"+time.Now().UTC().Format("20060102-150405")+".png")
 				_ = br.Screenshot(ctx, finalShot)
 				fmt.Printf("\n🎉 SOLVED! Ordknuden answer: %s (attempt %d/6)\n\n", currentAnswer, currentAttempt)
-				notes := ordknudeGuessNotes(mergeGuessWords(lastGoodHistory, triedThisRun), lastGoodHistory, currentAnswer)
+				notes := klublotto.OrdknudeGuessNotes(klublotto.MergeGuessWords(lastGoodHistory, triedThisRun), lastGoodHistory, currentAnswer)
 				if notes == "" {
 					notes = "Auto-solved by repeated real LLM-guided guesses on parent page."
 				}
@@ -788,7 +788,7 @@ func runOrdknude(ctx context.Context, args []string) error {
 		// Notes: the colour-coded guess sequence (scored against the real answer),
 		// plus a loss tag when we didn't solve it. Falls back to the plain message.
 		notes := msg + ". Screenshot: `" + shot + "`."
-		if seq := ordknudeGuessNotes(mergeGuessWords(lastGoodHistory, triedThisRun), lastGoodHistory, recordedAnswer); seq != "" {
+		if seq := klublotto.OrdknudeGuessNotes(klublotto.MergeGuessWords(lastGoodHistory, triedThisRun), lastGoodHistory, recordedAnswer); seq != "" {
 			if st.Solved {
 				notes = seq
 			} else if correctAnswer != "" {
@@ -4280,107 +4280,6 @@ func colourCodeOrdKloeverLetters(probed []string, revealSrc string) string {
 		out = append(out, string(r)+mark)
 	}
 	return strings.Join(out, " ")
-}
-
-// ordknudeGuessNotes builds the daily-ledger "Notes" cell for a finished
-// Ordknuden round: the ordered guess sequence with each tile colour-coded
-// (🟩 correct, 🟨 present, 🟥 absent). answer is the actual solution (the winning
-// word on a win, the revealed correct word on a loss); marks not present in the
-// extracted history are reconstructed by scoring each guess against it.
-func ordknudeGuessNotes(tried []string, history []klublotto.OrdknudeGuess, answer string) string {
-	marksByWord := map[string][]string{}
-	for _, h := range history {
-		marksByWord[klublotto.NormalizeDanishLetters(h.Word)] = h.Marks
-	}
-	answer = klublotto.NormalizeDanishLetters(answer)
-	var parts []string
-	for i, w := range tried {
-		w = klublotto.NormalizeDanishLetters(w)
-		marks := marksByWord[w]
-		if len(marks) != 5 {
-			marks = scoreOrdknudeGuess(w, answer)
-		}
-		sq := ordknudeMarkSquares(marks)
-		if sq == "" && answer != "" && w == answer {
-			sq = "🟩🟩🟩🟩🟩" // winning guess — re-extract may not have caught it
-		}
-		parts = append(parts, fmt.Sprintf("%d. %s %s", i+1, w, sq))
-	}
-	if len(parts) == 0 {
-		return ""
-	}
-	return "Gæt: " + strings.Join(parts, " · ")
-}
-
-// scoreOrdknudeGuess marks a 5-letter guess against the known answer using
-// Wordle rules: exact matches are "correct", remaining letters that exist
-// elsewhere (each answer letter consumed once) are "present", the rest "absent".
-func scoreOrdknudeGuess(guess, answer string) []string {
-	g := []rune(klublotto.NormalizeDanishLetters(guess))
-	a := []rune(klublotto.NormalizeDanishLetters(answer))
-	if len(g) != 5 || len(a) != 5 {
-		return nil
-	}
-	marks := make([]string, 5)
-	used := make([]bool, 5)
-	for i := 0; i < 5; i++ {
-		if g[i] == a[i] {
-			marks[i] = "correct"
-			used[i] = true
-		}
-	}
-	for i := 0; i < 5; i++ {
-		if marks[i] != "" {
-			continue
-		}
-		marks[i] = "absent"
-		for j := 0; j < 5; j++ {
-			if !used[j] && g[i] == a[j] {
-				marks[i] = "present"
-				used[j] = true
-				break
-			}
-		}
-	}
-	return marks
-}
-
-// mergeGuessWords returns the ordered, de-duplicated guess list: the board
-// history first (oldest→newest), then any words submitted this run that the
-// win/loss overlay wiped from the extracted history (e.g. the final guess).
-func mergeGuessWords(history []klublotto.OrdknudeGuess, tried []string) []string {
-	var out []string
-	seen := map[string]bool{}
-	add := func(w string) {
-		w = klublotto.NormalizeDanishLetters(w)
-		if w == "" || seen[w] {
-			return
-		}
-		seen[w] = true
-		out = append(out, w)
-	}
-	for _, h := range history {
-		add(h.Word)
-	}
-	for _, w := range tried {
-		add(w)
-	}
-	return out
-}
-
-func ordknudeMarkSquares(marks []string) string {
-	var b strings.Builder
-	for _, m := range marks {
-		switch m {
-		case "correct":
-			b.WriteString("🟩")
-		case "present":
-			b.WriteString("🟨")
-		case "absent":
-			b.WriteString("🟥")
-		}
-	}
-	return b.String()
 }
 
 func ordKloeverPrompt(st klublotto.OrdKloeverState) string {
