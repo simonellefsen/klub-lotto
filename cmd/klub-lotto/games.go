@@ -660,13 +660,13 @@ func runOrdknude(ctx context.Context, args []string) error {
 			}
 			cancel()
 
-			outLow := strings.ToLower(outcome)
-			if strings.Contains(outLow, "tillykke") ||
-				strings.Contains(outLow, "super imponerende") || // win screen: "Super imponerende!"
-				strings.Contains(outLow, "du fandt frem til") || // win screen: "Du fandt frem til dagens ord"
-				strings.Contains(outLow, "ord-haj") { // win screen: "Du er en sand ord-haj!"
-				// NOTE: bare "vundet" intentionally omitted — page nav permanently contains "vundet eller tabt".
-				// NOTE: "dagens første lod" intentionally omitted — appears after ANY game earns the lod.
+			// Win detection: the banner ("Super imponerende! … ord-haj!") lands in
+			// the Danske Spil PARENT body text, which the re-extract captured in
+			// st.Raw. Check both the submit outcome AND st.Raw — the parent
+			// accessibility snapshot can come back empty during the win transition
+			// (seen as a 0-byte ordknude-submit-snap.txt), so outcome alone is not
+			// reliable; st.Raw is where the banner actually shows up.
+			if klublotto.IsOrdknudeWinText(outcome) || klublotto.IsOrdknudeWinText(st.Raw) {
 				st.Solved = true
 			}
 			// The winning guess flips the board to the win overlay INSIDE the
@@ -2846,6 +2846,17 @@ func runOrdKloeverProbe(ctx context.Context, cfg *config.Config, br *browser.Cli
 		// when the vision board read came back blank.
 		if wonAtSubmit || klublotto.IsOrdKloeverWinText(st.Raw) {
 			st.Solved = true
+		}
+		// Defensive: the win banner ("Flot præstation! Du løste ordkløver med
+		// stil!") renders in the Danske Spil PARENT body, but extraction can
+		// overwrite st.Raw with the vision JSON (empty board on a win screen).
+		// Read the parent body directly as the authoritative solved signal.
+		if !st.Solved {
+			_ = br.Frame(context.Background(), "") // ensure top frame
+			if body, _ := br.Eval(ctx, `document.body ? document.body.innerText : ""`); klublotto.IsOrdKloeverWinText(body) {
+				fmt.Println("   win banner detected in parent page text — marking Ordkløver solved")
+				st.Solved = true
+			}
 		}
 		// After a wrong phrase guess the board MUST be identical to before — Wheel of
 		// Fortune only reveals new positions via letter probes, never via wrong phrase

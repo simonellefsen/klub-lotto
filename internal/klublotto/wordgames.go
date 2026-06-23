@@ -511,6 +511,33 @@ func IsOrdKloeverWinText(s string) bool {
 	return false
 }
 
+// IsOrdknudeWinText reports whether the page text carries the Ordknuden win
+// banner ("Super imponerende! Du fandt frem til dagens ord. Du er en sand
+// ord-haj!"). These phrases appear in the Danske Spil *parent* page body
+// (document.body.innerText) once the puzzle is solved, while the board itself
+// is wiped to a 0-guess overlay — so this banner, not the empty board, is the
+// reliable solved signal.
+//
+// Deliberately excludes bare "vundet" (the account nav permanently reads
+// "vundet eller tabt") and "dagens første lod" (awarded after ANY game earns
+// the lod), both of which would false-positive on every page load.
+func IsOrdknudeWinText(s string) bool {
+	low := strings.ToLower(s)
+	for _, banner := range []string{
+		"super imponerende",
+		"fandt frem til dagens ord",
+		"du fandt frem til",
+		"ord-haj",
+		"tillykke",
+		"du vandt",
+	} {
+		if strings.Contains(low, banner) {
+			return true
+		}
+	}
+	return false
+}
+
 // IsDanskeSpilErrorScreen reports whether the page text is danskespil's generic
 // crash/error screen ("Der skete en fejl. Prøv igen. Hvis fejlen fortsætter
 // bedes du kontakte vores Kundecenter ..."), which sometimes replaces a game
@@ -684,6 +711,16 @@ func ExtractOrdKloeverState(ctx context.Context, br *browser.Client, ac llm.Visi
 			st = v
 			raw, _ := br.Eval(ctx, `document.body ? document.body.innerText : ""`)
 			st.Raw = raw
+			// A win banner in the parent body ("Flot præstation! Du løste ordkløver
+			// med stil!") is the authoritative solved signal. On a win the board /
+			// category vision read comes back empty — identical to the launcher — so
+			// we MUST check this BEFORE the empty-fields branch below, which would
+			// otherwise re-click SPIL ORDKLØVER and re-vision, overwriting st (and
+			// wiping st.Raw) so the win is lost.
+			if IsOrdKloeverWinText(raw) {
+				st.Solved = true
+				return st, nil
+			}
 			// If vision saw welcome/not-started (empty fields), try to start then re-vision.
 			// Parent start may not reach inside iframe, so also do explicit frame+click for the launcher button.
 			if st.Category == "" && st.Hint == "" && st.Shape == "" && st.Board == "" {
@@ -2175,6 +2212,9 @@ func ExtractOrdknudeState(ctx context.Context, br *browser.Client, ac llm.Vision
 		"lige ved og næsten",     // loss: "Close but no cigar"
 		"tillykke",               // win: "Congratulations"
 		"du vandt",               // win: "You won"
+		"super imponerende",      // win banner: "Super imponerende!"
+		"fandt frem til dagens ord", // win banner: "Du fandt frem til dagens ord"
+		"ord-haj",                // win banner: "Du er en sand ord-haj!"
 		"besvaret",               // already answered today
 		"allerede besvaret",
 		"du har allerede",
@@ -2183,7 +2223,10 @@ func ExtractOrdknudeState(ctx context.Context, br *browser.Client, ac llm.Vision
 	for _, phrase := range endPhrases {
 		if strings.Contains(lowerRaw, phrase) {
 			st.Remaining = 0
-			if strings.Contains(lowerRaw, "tillykke") || strings.Contains(lowerRaw, "du vandt") {
+			// The board is wiped to a 0-guess overlay on a win, so rely on the
+			// banner text (not "tillykke"/"du vandt" alone — Ordknuden's real win
+			// copy is "Super imponerende! … ord-haj!").
+			if IsOrdknudeWinText(raw) {
 				st.Solved = true
 				st.Answer = findFiveLetterAnswer(raw)
 			}
