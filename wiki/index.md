@@ -5,6 +5,7 @@ _Auto-regenerated. Hand edits in this file will be overwritten._
 ## Schema
 
 - [AGENTS.md](AGENTS.md) — wiki conventions and workflows
+- [roadmap.md](roadmap.md) — engineering roadmap: consolidation, refactor, per-game/overall improvements
 
 ## Games (entities)
 

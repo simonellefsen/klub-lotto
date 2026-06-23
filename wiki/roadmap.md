@@ -1,0 +1,105 @@
+---
+kind: engineering-roadmap
+date: 2026-06-23
+tags: [klublotto, roadmap, refactor, tech-debt]
+---
+
+# Klub Lotto — Consolidation & Improvement Roadmap
+
+A point-in-time review (2026-06-23) of the codebase with a prioritized plan for
+consolidation, refactoring, and per-game/overall improvements. The code works and
+the domain logic is sound; the issues are structural and concentrated in two
+files.
+
+## The shape of the codebase today
+
+| Signal | Value | Meaning |
+|---|---|---|
+| `cmd/klub-lotto/games.go` | **5,459 lines, package `main`, 0 tests** | 4 games + ~85 helpers in one untestable file |
+| `internal/klublotto/wordgames.go` | **3,355 lines** | ordknude + ordkløver + shared, intermixed |
+| `WaitForLoad(ctx, "networkidle")` uncapped | **24 sites** | only the 3 open paths are capped; submit/extract flows still risk the ~30s stall |
+| `time.Sleep(...)` | **127** | fragile fixed delays instead of condition polling |
+| `kl-game__iframe` string literals | **31** | every game re-implements frame entry; no constant |
+| OpenAI-compatible providers | **4 near-identical files** | openai/xai/zai/openrouter differ only by URL + name |
+| Tests in `cmd`, `llm`, `store`, `wiki`, `browser` | **0** | all logic-heavy, all untested |
+| CI / `make test` | **none** | verification is manual |
+
+The **2026-06-23 blok port is the model to copy**: pure logic (perception/solver)
+in `internal/klublotto`, thin driver in `cmd`, with a parity test. Most of
+`games.go` violates that — submit/prompt/parse/CSP logic lives in `package main`
+where it can't be tested.
+
+## Consolidation & refactor plan (prioritized)
+
+### P1 — Cross-cutting reliability (low risk, high daily value)
+1. **Cap every `networkidle` wait.** Add `browser.WaitSettled(ctx)` (the 6s-capped
+   pattern already used in the open paths) and replace all 24 sites. Kills the
+   stall everywhere, not just on open.
+2. **One iframe helper + constant.** `klublotto.GameIframe =
+   "iframe.kl-game__iframe"` plus `enterGameFrame`/`leaveFrame`. Collapses 31
+   literals and the per-game frame dance.
+3. **Consolidate screen detection.** Move `ordknudeSolvedViaIframe` out of `cmd`
+   and put all win/loss/error-screen detectors in one
+   `internal/klublotto/screens.go` next to `IsOrdknudeWinText` /
+   `IsOrdKloeverWinText` / `IsDanskeSpilErrorScreen`. (`ordknudeSolvedViaIframe`
+   is now partly redundant with the `st.Raw` fix — keep as a fallback, in one
+   place.)
+
+### P2 — Break up the giants (medium risk, do incrementally, game-by-game)
+4. **Split `games.go` per game**: `games_sudoku.go`, `games_ordknude.go`,
+   `games_ordkloever.go`, `games_krydsord.go`, `games_common.go`. Mechanical, one
+   game at a time, build stays green.
+5. **Push pure logic into `internal/klublotto` and test it** as you split: prompt
+   builders, `ordknudeGuessNotes`/`colourCode*`, `filterOrdknudeCandidates`, and
+   the krydsord CSP/validation/parse cluster (`buildKrydsordCSP`,
+   `parseKrydsordAnswers`, `validateKrydsordSolution`, `krydsordConflictSlots`).
+   Deterministic, currently 0%-covered.
+6. **Split `wordgames.go`** into `ordknude_state.go` / `ordkloever_state.go` /
+   `wordcommon.go` (there's already a confusingly-separate `ordknude.go`).
+
+### P3 — Provider layer (medium effort, isolated)
+7. **Collapse the 4 OpenAI-compatible providers** into one config-driven
+   `OpenAICompatible{Name, BaseURL, Model}`; openai/xai/zai/openrouter become 4
+   constructors over it.
+8. **Centralize provider resolution.** `wordProvider`'s keyword/slug/zai routing
+   and the inline `NewGemini(..., "gemini-2.5-pro")` vision construction (repeated
+   in 3 run functions) should live in one `internal/llm` registry — adding a
+   provider becomes one edit, not three.
+
+## Per-game roadmap
+
+- **Sudoku** — simplest, deterministic, healthy. Just needs tests for
+  cell-selector/extraction; otherwise leave it.
+- **Ordknude** — win detection solid (2026-06-23). Logic testable once moved down.
+  Good shape.
+- **Ordkløver** — the most brittle: heavy vision dependence, the 12-attempt probe
+  loop, tiered models, the error-screen recovery. Biggest robustness upside from
+  **DOM-first reading** (lean on `extractKloeverKeyboardViaDOM`/`ordKloeverBoardJS`,
+  vision as fallback) and skipping the wasted vision call on the launcher screen.
+- **Krydsord** — most code, mostly pure (graph→CSP→LLM). High test ROI on the
+  CSP/validation. Vision deconstruction is the fragile part; the learned-dictionary
+  compounding (solved 2026-06-23 with no manual hints) is the real win — keep
+  feeding it.
+- **Blok** — clean, just ported; **live validation pending**. Future upside: beam
+  search beyond the greedy single-trio lookahead for higher scores.
+- **Quiz** — simple, login timing fixed (2026-06-22). One disabled test in
+  `quiz_test.go` (`t.Skip`, snapshot drift) — fix and re-enable.
+
+## Overall / infrastructure
+
+- **`make test` + a tiny GitHub Actions CI** (build + vet + test). Nothing guards
+  regressions today; given how many subtle fixes landed this week, this is the
+  highest-leverage single addition.
+- **Structured logging** behind a small logger instead of raw `fmt.Println`
+  (artifacts are already persisted well; this just makes them greppable).
+- **Don't over-abstract into a `Game` interface.** The games differ enough
+  (deterministic sudoku vs. vision/LLM word games vs. pixel blok) that a forced
+  common framework would hurt more than help. Share *helpers*, not a *framework*.
+
+## Suggested sequence
+
+Start with **P1 (1→2→3)** — low risk, improves every daily run immediately, and
+`WaitSettled`/the iframe helper are prerequisites that make the P2 split cleaner.
+Land **`make test` + CI** alongside P1. Then do **P2 one game at a time**, writing
+tests as logic moves down. Save **P3** for the next time the provider layer is
+touched.
