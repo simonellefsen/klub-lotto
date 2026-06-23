@@ -31,19 +31,18 @@ where it can't be tested.
 
 ## Consolidation & refactor plan (prioritized)
 
-### P1 — Cross-cutting reliability (low risk, high daily value)
-1. **Cap every `networkidle` wait.** Add `browser.WaitSettled(ctx)` (the 6s-capped
-   pattern already used in the open paths) and replace all 24 sites. Kills the
-   stall everywhere, not just on open.
-2. **One iframe helper + constant.** `klublotto.GameIframe =
-   "iframe.kl-game__iframe"` plus `enterGameFrame`/`leaveFrame`. Collapses 31
-   literals and the per-game frame dance.
-3. **Consolidate screen detection.** Move `ordknudeSolvedViaIframe` out of `cmd`
-   and put all win/loss/error-screen detectors in one
-   `internal/klublotto/screens.go` next to `IsOrdknudeWinText` /
-   `IsOrdKloeverWinText` / `IsDanskeSpilErrorScreen`. (`ordknudeSolvedViaIframe`
-   is now partly redundant with the `st.Raw` fix — keep as a fallback, in one
-   place.)
+### P1 — Cross-cutting reliability (low risk, high daily value) — ✅ DONE 2026-06-23
+1. ✅ **Cap every `networkidle` wait.** `browser.WaitSettled(ctx)` (6s cap) now
+   backs all 27 sites, not just the open paths.
+2. ✅ **One iframe helper + constant.** `klublotto.GameIframe` +
+   `EnterGameFrame`/`LeaveFrame`; all Go-level frame entries/exits + fallback
+   lists route through them.
+3. ✅ **Consolidate screen detection.** `internal/klublotto/screens.go` now holds
+   `IsOrdknudeWinText` / `IsOrdKloeverWinText` / `IsDanskeSpilErrorScreen` and the
+   relocated `OrdknudeSolvedViaIframe` (moved out of `cmd`). Tests in
+   `screens_test.go`.
+- ✅ **`make test` / `make check` + GitHub Actions CI** (build + vet + test on
+  push/PR).
 
 ### P2 — Break up the giants (medium risk, do incrementally, game-by-game)
 4. **Split `games.go` per game**: `games_sudoku.go`, `games_ordknude.go`,
