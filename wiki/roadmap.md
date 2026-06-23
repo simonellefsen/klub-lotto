@@ -65,10 +65,20 @@ where it can't be tested.
    `OpenAICompatible` (`internal/llm/oaicompat.go`); NewOpenAI/NewXAI/NewZAI are
    thin constructors over it (+first `internal/llm` tests). OpenRouter kept
    separate (model-id validation).
-8. ⬜ **Centralize provider resolution.** `wordProvider`'s keyword/slug/zai routing
-   and the inline `NewGemini(..., "gemini-2.5-pro")` vision construction (repeated
-   in 3 run functions) should live in one `internal/llm` registry — adding a
-   provider becomes one edit, not three.
+8. ✅ **Centralize provider resolution.** The word-provider routing now lives in
+   `internal/llm/resolve.go` as `Resolve(name, Keys)` — config-decoupled and
+   unit-tested (all keyword/slug routes, missing-key errors, unknown name).
+   `wordProvider` is a thin wrapper mapping config → `llm.Keys`. (The per-game
+   *vision* providers genuinely differ, so they're left as-is — a registry there
+   would be over-engineering.)
+
+## Status (2026-06-23)
+
+P1 ✅ · P2.4 (per-game split) ✅ · P2.5 (pure-logic extraction) ✅ for the
+high-value clusters · P3 ✅. **Deferred:** P2.6 (splitting `wordgames.go`) — it's
+already in the `klublotto` package, so the split is cosmetic with real
+mis-classification risk; low priority. `cmd/klub-lotto` is now one
+`games_common.go` + one `games_<game>.go` per game.
 
 ## Per-game roadmap
 
