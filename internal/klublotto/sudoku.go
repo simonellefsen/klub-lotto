@@ -38,7 +38,7 @@ func EnterSudokuGameContext(ctx context.Context, br *browser.Client) (inFrame bo
 		}
 		if hasFrame() {
 			entered := false
-			for _, sel := range []string{"iframe.kl-game__iframe", "iframe[src*='sudoku']"} {
+			for _, sel := range []string{GameIframe, "iframe[src*='sudoku']"} {
 				if e := br.Frame(ctx, sel); e == nil {
 					entered = true
 					break
@@ -51,7 +51,7 @@ func EnterSudokuGameContext(ctx context.Context, br *browser.Client) (inFrame bo
 						return true, nil
 					}
 					if time.Now().After(fdeadline) {
-						_ = br.Frame(context.Background(), "")
+						LeaveFrame(br)
 						return false, fmt.Errorf("sudoku grid did not render inside the game iframe")
 					}
 					time.Sleep(1 * time.Second)
@@ -178,7 +178,7 @@ func ExtractSudokuGivens(ctx context.Context, br *browser.Client) (SudokuGrid, s
 		return SudokuGrid{}, parentURL, err
 	}
 	if inFrame {
-		defer func() { _ = br.Frame(context.Background(), "") }()
+		defer LeaveFrame(br)
 	}
 
 	raw, err := br.Eval(ctx, sudokuExtractJS)

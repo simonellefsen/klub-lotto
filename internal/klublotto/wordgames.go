@@ -729,15 +729,15 @@ func ExtractOrdKloeverState(ctx context.Context, br *browser.Client, ac llm.Visi
 			if st.Category == "" && st.Hint == "" && st.Shape == "" && st.Board == "" {
 				_ = startWordGameIfPresent(ctx, br, "SPIL ORDKLØVER", "SPIL ORDKLOEVER", "Spil Ordkløver", "Spil Ordkløver")
 				// Frame-based start (reliable for immerspiele content).
-				if ferr := br.Frame(ctx, "iframe.kl-game__iframe"); ferr == nil {
-					defer func() { _ = br.Frame(context.Background(), "") }()
+				if ferr := EnterGameFrame(ctx, br); ferr == nil {
+					defer LeaveFrame(br)
 					isnap, _ := br.SnapshotInteractive(ctx)
 					if ref := FindRefByName(isnap, []string{"SPIL ORDKLØVER", "Spil Ordkløver", "spil ordkloever"}); ref != "" {
 						_ = br.Click(ctx, ref)
 						time.Sleep(1500 * time.Millisecond)
 					}
 				} else {
-					_ = br.Frame(context.Background(), "")
+					LeaveFrame(br)
 				}
 				if v2, ok2 := extractOrdKloeverViaVision(ctx, br, ac, fallbackVP); ok2 {
 					st = v2
@@ -1282,10 +1282,10 @@ const ordKloeverKeyboardJS = `(() => {
 // all already-tried letters (correct=green AND incorrect=dark) as a
 // space-separated uppercase string.  Returns "" on any error.
 func extractKloeverKeyboardViaDOM(ctx context.Context, br *browser.Client) (correct, incorrect string) {
-	if err := br.Frame(ctx, "iframe.kl-game__iframe"); err != nil {
+	if err := EnterGameFrame(ctx, br); err != nil {
 		return "", ""
 	}
-	defer func() { _ = br.Frame(context.Background(), "") }()
+	defer LeaveFrame(br)
 
 	raw, err := br.Eval(ctx, ordKloeverKeyboardJS)
 	if err != nil {
@@ -1845,7 +1845,7 @@ func extractOrdknudeWordsFromFrame(ctx context.Context, br *browser.Client) ([]s
 			sels = append(sels, iframeURL[:idx])
 		}
 	}
-	sels = append(sels, "iframe.kl-game__iframe", "iframe[src*='ordknuden']", "iframe[src*='ordknude']", "iframe")
+	sels = append(sels, GameIframe, "iframe[src*='ordknuden']", "iframe[src*='ordknude']", "iframe")
 
 	var frameErr error
 	for _, sel := range sels {
@@ -1857,7 +1857,7 @@ func extractOrdknudeWordsFromFrame(ctx context.Context, br *browser.Client) ([]s
 	if frameErr != nil {
 		return nil, fmt.Errorf("could not switch to game iframe: %w", frameErr)
 	}
-	defer func() { _ = br.Frame(context.Background(), "") }()
+	defer LeaveFrame(br)
 
 	// Click through the welcome screen if present.
 	welcomeSnap, _ := br.SnapshotInteractive(ctx)
@@ -2025,7 +2025,7 @@ func extractOrdknudeLettersFromSnap(snap string) []string {
 // the board can't be read or doesn't line up with the known words — in which case
 // the caller falls back to vision. Leaves the frame on main.
 func getColorMarksViaDOM(ctx context.Context, br *browser.Client, words []string) [][]string {
-	if err := br.Frame(ctx, "iframe.kl-game__iframe"); err != nil {
+	if err := EnterGameFrame(ctx, br); err != nil {
 		return nil
 	}
 	defer func() { _ = br.Frame(ctx, "main") }()

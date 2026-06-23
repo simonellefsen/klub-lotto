@@ -110,7 +110,7 @@ func ExtractKrydsordData(ctx context.Context, br *browser.Client) (KrydsordData,
 // raw envelope JSON and whether the frame switch + eval succeeded.
 func fetchKrydsordAPIInFrame(ctx context.Context, br *browser.Client) (string, bool) {
 	entered := false
-	for _, sel := range []string{"iframe.kl-game__iframe", "iframe[src*='krydsord']"} {
+	for _, sel := range []string{GameIframe, "iframe[src*='krydsord']"} {
 		if br.Frame(ctx, sel) == nil {
 			// Confirm we're actually inside the game doc (not the parent fallback).
 			n, _ := br.Eval(ctx, `String(document.querySelectorAll('.cell').length)`)
@@ -121,11 +121,11 @@ func fetchKrydsordAPIInFrame(ctx context.Context, br *browser.Client) (string, b
 		}
 	}
 	if !entered {
-		_ = br.Frame(context.Background(), "")
+		LeaveFrame(br)
 		return "", false
 	}
 	raw, err := br.Eval(ctx, krydsordFetchJS)
-	_ = br.Frame(context.Background(), "")
+	LeaveFrame(br)
 	if err != nil {
 		return "", false
 	}

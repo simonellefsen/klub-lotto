@@ -2852,7 +2852,7 @@ func runOrdKloeverProbe(ctx context.Context, cfg *config.Config, br *browser.Cli
 		// overwrite st.Raw with the vision JSON (empty board on a win screen).
 		// Read the parent body directly as the authoritative solved signal.
 		if !st.Solved {
-			_ = br.Frame(context.Background(), "") // ensure top frame
+			klublotto.LeaveFrame(br) // ensure top frame
 			if body, _ := br.Eval(ctx, `document.body ? document.body.innerText : ""`); klublotto.IsOrdKloeverWinText(body) {
 				fmt.Println("   win banner detected in parent page text — marking Ordkløver solved")
 				st.Solved = true
@@ -3312,7 +3312,7 @@ func submitSudoku(ctx context.Context, br *browser.Client, givens, solved klublo
 		return err
 	}
 	if inFrame {
-		defer func() { _ = br.Frame(context.Background(), "") }()
+		defer klublotto.LeaveFrame(br)
 	}
 
 	// Tag each number-pad button with a stable per-digit attribute. Filled cells
@@ -3463,7 +3463,7 @@ func submitOrdKloeverLetter(ctx context.Context, br *browser.Client, letter stri
 
 	// Use frame context to reliably click the on-screen virtual keyboard buttons.
 	fmt.Println("       switching to ordkloever iframe frame context for letter input...")
-	frameErr := br.Frame(ctx, "iframe.kl-game__iframe")
+	frameErr := klublotto.EnterGameFrame(ctx, br)
 	if frameErr != nil {
 		frameErr = br.Frame(ctx, "iframe[src*='ordkloever']")
 	}
@@ -3472,7 +3472,7 @@ func submitOrdKloeverLetter(ctx context.Context, br *browser.Client, letter stri
 	}
 	if frameErr == nil {
 		defer func() {
-			_ = br.Frame(context.Background(), "")
+			klublotto.LeaveFrame(br)
 			// Scroll the game iframe back into view after frame reset to stop page jumping.
 			_, _ = br.Eval(ctx, `(() => {
   const ifr = document.querySelector('iframe.kl-game__iframe, iframe[src*="ordkloever"], iframe[src*="clover"]');
@@ -3569,9 +3569,9 @@ func submitOrdKloeverLetters(ctx context.Context, br *browser.Client, letters []
 	// The Ordkløver game is embedded from Immer Spiele (cross-origin), so
 	// SnapshotInteractiveWithFrames on the parent does not expose its buttons.
 	inFrame := false
-	if ferr := br.Frame(ctx, "iframe.kl-game__iframe"); ferr == nil {
+	if ferr := klublotto.EnterGameFrame(ctx, br); ferr == nil {
 		inFrame = true
-		defer func() { _ = br.Frame(context.Background(), "") }()
+		defer klublotto.LeaveFrame(br)
 	} else {
 		fmt.Printf("       [warn] could not switch to kl-game__iframe: %v; falling back to parent context\n", ferr)
 	}
@@ -3682,9 +3682,9 @@ func submitOrdKloever(ctx context.Context, br *browser.Client, answer string) er
 
 	// Switch into the iframe frame context (cross-origin Immer Spiele embed).
 	inFrame := false
-	if ferr := br.Frame(ctx, "iframe.kl-game__iframe"); ferr == nil {
+	if ferr := klublotto.EnterGameFrame(ctx, br); ferr == nil {
 		inFrame = true
-		defer func() { _ = br.Frame(context.Background(), "") }()
+		defer klublotto.LeaveFrame(br)
 	}
 
 	snapFn := func() string {
@@ -3741,7 +3741,7 @@ func submitOrdKloever(ctx context.Context, br *browser.Client, answer string) er
 	time.Sleep(2 * time.Second)
 	// Switch back to parent before reading result.
 	if inFrame {
-		_ = br.Frame(context.Background(), "")
+		klublotto.LeaveFrame(br)
 		inFrame = false
 	}
 	resultSnap, _ := br.Snapshot(ctx)
@@ -3769,7 +3769,7 @@ func submitOrdKloever(ctx context.Context, br *browser.Client, answer string) er
 // (which correctly reflects a win or the true remaining attempts) instead of a
 // blank board scraped off the error screen.
 func recoverFromOrdKloeverError(ctx context.Context, br *browser.Client) {
-	_ = br.Frame(context.Background(), "") // leave any (now-stale) game iframe
+	klublotto.LeaveFrame(br) // leave any (now-stale) game iframe
 	for i := 0; i < 3; i++ {
 		if err := br.Open(ctx, klublotto.OrdKloeverURL); err == nil {
 			br.WaitSettled(ctx)
@@ -4257,15 +4257,15 @@ func startGameIfNeeded(ctx context.Context, br *browser.Client, names ...string)
 
 	// Fallback: try frame-based access (required for cross-origin iframes such as
 	// the Ordkløver/Immer Spiele embed where parent snapshots never expose buttons).
-	if ferr := br.Frame(ctx, "iframe.kl-game__iframe"); ferr == nil {
-		defer func() { _ = br.Frame(context.Background(), "") }()
+	if ferr := klublotto.EnterGameFrame(ctx, br); ferr == nil {
+		defer klublotto.LeaveFrame(br)
 		isnap, _ := br.SnapshotInteractive(ctx)
 		if ref := klublotto.FindRefByName(isnap, names); ref != "" {
 			_ = br.Click(ctx, ref)
 			time.Sleep(1200 * time.Millisecond)
 		}
 	} else {
-		_ = br.Frame(context.Background(), "")
+		klublotto.LeaveFrame(br)
 	}
 	return nil
 }
@@ -4502,7 +4502,7 @@ func filterOrdknudeCandidates(cands []klublotto.WordCandidate, st klublotto.Ordk
 // agent-browser can eval inside OOPIFs).
 func ordknudeSolvedViaIframe(ctx context.Context, br *browser.Client) bool {
 	entered := false
-	for _, sel := range []string{"iframe.kl-game__iframe", "iframe[src*='ordknuden']", "iframe[src*='ordknude']", "iframe"} {
+	for _, sel := range []string{klublotto.GameIframe, "iframe[src*='ordknuden']", "iframe[src*='ordknude']", "iframe"} {
 		if br.Frame(ctx, sel) == nil {
 			entered = true
 			break
@@ -4511,7 +4511,7 @@ func ordknudeSolvedViaIframe(ctx context.Context, br *browser.Client) bool {
 	if !entered {
 		return false
 	}
-	defer func() { _ = br.Frame(context.Background(), "") }()
+	defer klublotto.LeaveFrame(br)
 	txt, _ := br.Eval(ctx, `String(document.body ? (document.body.innerText || document.body.textContent || '') : '')`)
 	low := strings.ToLower(txt)
 	return strings.Contains(low, "imponerende") ||
@@ -4869,7 +4869,7 @@ func dailyGamePageURL(slug string) string {
 // which has no .cell). On success the caller must switch back with br.Frame("").
 func enterKrydsordGameFrame(ctx context.Context, br *browser.Client) error {
 	selectors := []string{
-		"iframe.kl-game__iframe",
+		klublotto.GameIframe,
 		"iframe[src*='krydsord']",
 		"iframe[src*='kryds']",
 	}
@@ -4936,7 +4936,7 @@ func submitKrydsord(ctx context.Context, br *browser.Client, data klublotto.Kryd
 	if err := enterKrydsordGameFrame(ctx, br); err != nil {
 		return fmt.Errorf("enter krydsord game iframe: %w", err)
 	}
-	defer func() { _ = br.Frame(context.Background(), "") }()
+	defer klublotto.LeaveFrame(br)
 
 	// Collect every answer cell's center (frame-viewport coords), sorted row-major.
 	cellsRaw, _ := br.Eval(ctx, `JSON.stringify((()=>{const cs=Array.from(document.querySelectorAll(".cell"));const p=cs.map(c=>{const r=c.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2,t:parseFloat(c.style.top)||r.y,l:parseFloat(c.style.left)||r.x};});p.sort((a,b)=>Math.abs(a.t-b.t)>5?a.t-b.t:a.l-b.l);return p.map(o=>({x:Math.round(o.x),y:Math.round(o.y)}));})())`)
@@ -4999,7 +4999,7 @@ func submitKrydsord(ctx context.Context, br *browser.Client, data klublotto.Kryd
 	}
 	// Fallback: some confirmations ("løste dagens krydsord") surface on the parent
 	// page, so switch back to main and check there before declaring failure.
-	_ = br.Frame(context.Background(), "")
+	klublotto.LeaveFrame(br)
 	if ok, detail := waitForKrydsordSuccess(ctx, br); ok {
 		fmt.Println("       success detected (on parent page):", detail)
 		return nil

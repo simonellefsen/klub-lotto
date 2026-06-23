@@ -38,4 +38,9 @@ const (
 
 	// BlokURL is the parent Danske Spil page for Blok for Blok.
 	BlokURL = "https://danskespil.dk/klublotto/dagens-blok-for-blok"
+
+	// GameIframe is the CSS selector for the embedded immerspiele game iframe —
+	// the cross-origin OOPIF every Klub Lotto game runs inside. Centralised here
+	// so a class rename is a one-line change. See EnterGameFrame / LeaveFrame.
+	GameIframe = "iframe.kl-game__iframe"
 )

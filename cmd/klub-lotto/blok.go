@@ -94,7 +94,7 @@ func (d *blokDriver) eval(ctx context.Context, js string) string {
 // (re)embed; an in-frame resize event restores it to full size. Harmless when
 // not collapsed. Leaves the frame on main.
 func (d *blokDriver) resizeFix(ctx context.Context) {
-	d.op(ctx, func(c context.Context) error { return d.br.Frame(c, "iframe.kl-game__iframe") })
+	d.op(ctx, func(c context.Context) error { return klublotto.EnterGameFrame(c, d.br) })
 	d.eval(ctx, `(function(){window.dispatchEvent(new Event("resize"));return 1;})()`)
 	d.op(ctx, func(c context.Context) error { return d.br.Frame(c, "main") })
 }
@@ -116,7 +116,7 @@ func (d *blokDriver) mouseReleaseSafe(ctx context.Context) {
 }
 
 func (d *blokDriver) startGame(ctx context.Context) {
-	d.op(ctx, func(c context.Context) error { return d.br.Frame(c, "iframe.kl-game__iframe") })
+	d.op(ctx, func(c context.Context) error { return klublotto.EnterGameFrame(c, d.br) })
 	out := d.eval(ctx, `(function(){var els=[...document.querySelectorAll("div,button,span")]`+
 		`.filter(e=>/start spil/i.test(e.textContent)&&e.offsetParent);`+
 		`if(els.length){els[els.length-1].click();return "started";}`+
@@ -152,7 +152,7 @@ func (d *blokDriver) drag(ctx context.Context, px, py, qx, qy int) {
 // read is exact and immune to the stale-canvas problem. ok=false for a value
 // that couldn't be read (e.g. the win/game-over screen replaced the board).
 func (d *blokDriver) readScores(ctx context.Context) (cur, best int, ok bool) {
-	d.op(ctx, func(c context.Context) error { return d.br.Frame(c, "iframe.kl-game__iframe") })
+	d.op(ctx, func(c context.Context) error { return klublotto.EnterGameFrame(c, d.br) })
 	out := d.eval(ctx, `(function(){function n(s){var e=document.querySelector(s);`+
 		`if(!e)return "";return (e.textContent||"").replace(/[^0-9]/g,"");}`+
 		`return n(".game-current-score-value")+"|"+n(".game-best-score-value");})()`)
