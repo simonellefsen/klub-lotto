@@ -301,3 +301,11 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-23 03:20 UTC] ingest | quiz | Hvilken komponist skrev musikken til 'Peer Gynt'-suiten? | outcome=submitted
 
+## [2026-06-23 03:23 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-23 03:33 UTC] ingest | ordkløver | Category: `Person`; answer pattern `6 / 8` | outcome=submitted
+
+## [2026-06-23 03:41 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
+## [2026-06-23 03:48 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+

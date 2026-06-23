@@ -14,6 +14,9 @@
   "ANONYM": [
     "NN"
   ],
+  "ANTI": [
+    "IMOD"
+  ],
   "ARVEENHED": [
     "GEN"
   ],
@@ -57,11 +60,18 @@
     "AN"
   ],
   "BLOMST": [
-    "ROSE"
+    "ROSE",
+    "ORKIDE"
+  ],
+  "BLOMSTEN": [
+    "ROSEN"
   ],
   "BLOMSTRE": [
     "GRO",
     "DRÆ"
+  ],
+  "BLÆNDENDE": [
+    "GENIAL"
   ],
   "BRINT": [
     "H"
@@ -114,13 +124,20 @@
     "ULV",
     "ABE",
     "EGERN",
-    "BUK"
+    "BUK",
+    "PUMA"
   ],
   "DØRSLAG": [
     "SI"
   ],
+  "EJER": [
+    "HAR"
+  ],
   "ENGELSKTITEL": [
     "SIR"
+  ],
+  "ENILONDON": [
+    "ONE"
   ],
   "ETAGE": [
     "SAL"
@@ -203,6 +220,12 @@
   "FRANKRIG": [
     "F"
   ],
+  "FRED": [
+    "RO"
+  ],
+  "FREMRAGENDE": [
+    "YPPERLIGT"
+  ],
   "FRISERES": [
     "REDES"
   ],
@@ -243,6 +266,12 @@
   "GUDINDE": [
     "ATE"
   ],
+  "GÆRER": [
+    "ULMER"
+  ],
+  "HEGN": [
+    "GÆRDE"
+  ],
   "HIMMELSYN": [
     "UFO"
   ],
@@ -264,8 +293,14 @@
   "IDET": [
     "DA"
   ],
+  "IFORHOLDTIL": [
+    "END"
+  ],
   "ILT": [
     "O"
+  ],
+  "IMAGE": [
+    "RY"
   ],
   "INSEKT": [
     "BI"
@@ -289,6 +324,9 @@
     "PLADS",
     "HVERV"
   ],
+  "JÆVN": [
+    "EGAL"
+  ],
   "KAMMERTONEN": [
     "A"
   ],
@@ -300,6 +338,9 @@
   ],
   "KILO": [
     "K"
+  ],
+  "KLARE": [
+    "TÅLE"
   ],
   "KLASSE": [
     "KL"
@@ -313,6 +354,9 @@
   "KNOB": [
     "KN"
   ],
+  "KORRIGERE": [
+    "RETTE"
+  ],
   "KORT": [
     "ES"
   ],
@@ -324,6 +368,9 @@
   ],
   "KRAFTIG": [
     "FED"
+  ],
+  "KROMOSOM": [
+    "Y"
   ],
   "KRONER": [
     "KR"
@@ -345,6 +392,12 @@
   ],
   "LED": [
     "KNO"
+  ],
+  "LEGITIMATION": [
+    "ID"
+  ],
+  "LILLE": [
+    "LL"
   ],
   "LITER": [
     "L"
@@ -370,6 +423,9 @@
   "MI": [
     "E"
   ],
+  "MONTERET": [
+    "ISAT"
+  ],
   "MUSIKGENRE": [
     "FOLK",
     "ROCK",
@@ -388,8 +444,14 @@
   "NIT": [
     "N"
   ],
+  "NOPRET": [
+    "RU"
+  ],
   "OARS": [
     "ÅRER"
+  ],
+  "OFTE": [
+    "TIT"
   ],
   "OMSLAG": [
     "BLE"
@@ -420,12 +482,18 @@
   "PEP": [
     "GO"
   ],
+  "PERIODE": [
+    "ÅRTI"
+  ],
   "PINE": [
     "NAGE"
   ],
   "PLADE": [
     "LP",
     "EP"
+  ],
+  "PLAGE": [
+    "GENERE"
   ],
   "PLANTEDEL": [
     "AKS",
@@ -440,8 +508,14 @@
   "PRIS": [
     "ROS"
   ],
+  "PRODUKTIVE": [
+    "YDEDYGTIGE"
+  ],
   "PROPPET": [
     "FYLDT"
+  ],
+  "PÅDETTESTED": [
+    "HER"
   ],
   "RAMMER": [
     "KARME"
@@ -505,6 +579,9 @@
   "SKILTETEKST": [
     "P"
   ],
+  "SKRIVER": [
+    "PEN"
+  ],
   "SKRÆMME": [
     "TRUE"
   ],
@@ -537,6 +614,9 @@
   ],
   "SPORTSUDSTYR": [
     "SKATEBOARD"
+  ],
+  "SPÆDBARN": [
+    "BABY"
   ],
   "STEDNAVN": [
     "ORØ"
@@ -602,6 +682,9 @@
   ],
   "TEGN": [
     "NODE"
+  ],
+  "TEMA": [
+    "EMNE"
   ],
   "TIDLIGERE": [
     "EKS",
@@ -698,6 +781,9 @@
   "[IMG]ACEOFDIAMONDS": [
     "ES"
   ],
+  "[IMG]APPLE": [
+    "ÆBLE"
+  ],
   "[IMG]BEES": [
     "BIER"
   ],
@@ -722,8 +808,14 @@
   "[IMG]CUPOFTEA": [
     "TEKOP"
   ],
+  "[IMG]DUCK": [
+    "AND"
+  ],
   "[IMG]GRAPES": [
     "DRUER"
+  ],
+  "[IMG]GRILL": [
+    "GRILL"
   ],
   "[IMG]ICECREAMCONE": [
     "IS"
