@@ -197,6 +197,24 @@ func (c *Client) Press(ctx context.Context, key string) error {
 	return err
 }
 
+// MouseMove moves the pointer to absolute page coordinates without pressing.
+func (c *Client) MouseMove(ctx context.Context, x, y int) error {
+	_, err := c.run(ctx, "mouse", "move", strconv.Itoa(x), strconv.Itoa(y))
+	return err
+}
+
+// MouseDown presses the (left) mouse button at the current pointer position.
+func (c *Client) MouseDown(ctx context.Context) error {
+	_, err := c.run(ctx, "mouse", "down")
+	return err
+}
+
+// MouseUp releases the (left) mouse button at the current pointer position.
+func (c *Client) MouseUp(ctx context.Context) error {
+	_, err := c.run(ctx, "mouse", "up")
+	return err
+}
+
 // MouseClick clicks absolute page coordinates using real mouse events.
 // This is useful for canvas/custom widgets where CSS selectors are unstable.
 func (c *Client) MouseClick(ctx context.Context, x, y int) error {

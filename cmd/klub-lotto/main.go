@@ -67,6 +67,8 @@ func main() {
 		err = runOrdknude(ctx, args)
 	case "krydsord":
 		err = runKrydsord(ctx, args)
+	case "blok":
+		err = runBlok(ctx, args)
 	case "wiki":
 		err = runWiki(ctx, args)
 	case "ledger":
@@ -97,6 +99,7 @@ Usage:
   klub-lotto ordknude  [--headless] [--dry-run] [--submit] [--answer WORD] [--provider gemini|openai|xai|anthropic|openrouter]  (real play: guesses permanent, no do-overs)
   klub-lotto krydsord  [--headless] [--dry-run] [--submit] [--provider ...] [--grid <file>]
                    (note: bare krydsord does real solve+submit by design per spec; --dry-run guards submit; differs from sudoku siblings)
+  klub-lotto blok      [--headless] [--goal N] [--max-steps N]  play Dagens Blok for Blok (pixel perception + lookahead solver; plays to game-over by default)
   klub-lotto wiki ingest --file <path>
   klub-lotto wiki import-db --dsn <postgres-url> [--wiki <dir>]
   klub-lotto wiki query "<question>"

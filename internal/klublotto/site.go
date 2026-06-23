@@ -35,4 +35,7 @@ const (
 
 	// KrydsordURL is the parent Danske Spil page for the daily crossword.
 	KrydsordURL = "https://danskespil.dk/klublotto/dagens-krydsord"
+
+	// BlokURL is the parent Danske Spil page for Blok for Blok.
+	BlokURL = "https://danskespil.dk/klublotto/dagens-blok-for-blok"
 )
