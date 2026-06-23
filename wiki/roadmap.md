@@ -44,17 +44,21 @@ where it can't be tested.
 - ✅ **`make test` / `make check` + GitHub Actions CI** (build + vet + test on
   push/PR).
 
-### P2 — Break up the giants (medium risk, do incrementally, game-by-game)
+### P2 — Break up the giants (medium risk, do incrementally, game-by-game) — IN PROGRESS
 4. **Split `games.go` per game**: `games_sudoku.go`, `games_ordknude.go`,
    `games_ordkloever.go`, `games_krydsord.go`, `games_common.go`. Mechanical, one
-   game at a time, build stays green.
-5. **Push pure logic into `internal/klublotto` and test it** as you split: prompt
-   builders, `ordknudeGuessNotes`/`colourCode*`, `filterOrdknudeCandidates`, and
-   the krydsord CSP/validation/parse cluster (`buildKrydsordCSP`,
-   `parseKrydsordAnswers`, `validateKrydsordSolution`, `krydsordConflictSlots`).
-   Deterministic, currently 0%-covered.
+   game at a time, build stays green. _(not started)_
+5. **Push pure logic into `internal/klublotto` and test it** as you split:
+   - ✅ krydsord CSP/validation cluster → `krydsord_csp.go` (+tests): BuildKrydsordCSP,
+     RenderKrydsordBoard, BuildKrydsordGrid*, CrossingCount, ParseKrydsordAnswers,
+     ValidateKrydsordSolution, KrydsordMatchesPattern, KrydsordConflictSlots.
+   - ✅ ordknude Wordle-scoring/notes → `ordknude_notes.go` (+tests): ScoreOrdknudeGuess,
+     OrdknudeMarkSquares, MergeGuessWords, OrdknudeGuessNotes.
+   - ⬜ remaining: `filterOrdknudeCandidates`, ordknude/ordkløver prompt builders,
+     `colourCodeOrdKloeverLetters`, sudoku cell-selector helpers.
+   `games.go` is down from 5,459 → 4,933 lines so far.
 6. **Split `wordgames.go`** into `ordknude_state.go` / `ordkloever_state.go` /
-   `wordcommon.go` (there's already a confusingly-separate `ordknude.go`).
+   `wordcommon.go` (there's already a confusingly-separate `ordknude.go`). _(not started)_
 
 ### P3 — Provider layer (medium effort, isolated)
 7. **Collapse the 4 OpenAI-compatible providers** into one config-driven
