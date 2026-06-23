@@ -35,12 +35,14 @@ ORDKLOEVER_REASON := $(or $(FINAL_PROVIDER),$(final_provider),$(ORDKLOEVER_FINAL
 ORDKNUDE_MODEL := $(or $(PROVIDER),$(provider),$(WORD_PROVIDER),$(ORDKNUDE_PROVIDER),openai/gpt-5.5)
 ORDKNUDE_PROVIDER_FLAG := --provider "$(ORDKNUDE_MODEL)"
 
-.PHONY: help build doctor login quiz quiz-dry sudoku sudoku-dry ordkloever ordkloever-dry ordkloever-extract ordkloever-probe ordknude ordknude-dry ordknude-extract krydsord krydsord-dry krydsord-graph krydsord-solve krydsord-solve-dry blok wiki-query wiki-lint sync clean reset \
+.PHONY: help build vet test check doctor login quiz quiz-dry sudoku sudoku-dry ordkloever ordkloever-dry ordkloever-extract ordkloever-probe ordknude ordknude-dry ordknude-extract krydsord krydsord-dry krydsord-graph krydsord-solve krydsord-solve-dry blok wiki-query wiki-lint sync clean reset \
         image deploy k8s-up k8s-down k8s-logs port-forward db-shell ui-url tidy \
         db-up db-down db-import db-port-forward
 
 help:
 	@echo "make build       — build the CLI into ./bin/klub-lotto"
+	@echo "make test        — run all Go unit tests (offline; no browser)"
+	@echo "make check       — build + go vet + go test (run before committing)"
 	@echo "make doctor      — sanity-check config, providers, agent-browser"
 	@echo "make login       — interactive login (headed; saves session)"
 	@echo "make quiz        — solve today's Quiz (headed), commit wiki, push"
@@ -82,6 +84,16 @@ $(BIN): $(shell find . -name '*.go' -not -path './bin/*')
 	go build -o $(BIN) ./cmd/klub-lotto
 
 build: $(BIN)
+
+# Fast offline checks — no browser, no network. Mirrors CI.
+vet:
+	go vet ./...
+
+test:
+	go test ./...
+
+# Build + vet + test in one shot. Run before committing.
+check: build vet test
 
 doctor: $(BIN)
 	$(BIN) doctor
