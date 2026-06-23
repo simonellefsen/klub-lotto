@@ -294,7 +294,7 @@ func runOrdKloever(ctx context.Context, args []string) error {
 	if st.Attempts >= 12 || st.Solved || strings.Contains(lowRaw, "besvaret") || strings.Contains(lowRaw, "allerede besvaret") || strings.Contains(lowRaw, "du har allerede besvaret") {
 		shot := filepath.Join(cfg.DataDir, "ordkloever-result-"+time.Now().UTC().Format("20060102-150405")+".png")
 		_ = br.Screenshot(ctx, shot)
-		return upsertDailyGame(ctx, cfg, "Ordkløver", ordKloeverPrompt(st), "SOLVED", true, true, "Already besvaret / finished on page. Screenshot: `"+shot+"`.")
+		return upsertDailyGame(ctx, cfg, "Ordkløver", klublotto.OrdKloeverPrompt(st), "SOLVED", true, true, "Already besvaret / finished on page. Screenshot: `"+shot+"`.")
 	}
 
 	// Final-attempt provider (11/12 mode) — resolved + validated up front.
@@ -307,7 +307,7 @@ func runOrdKloever(ctx context.Context, args []string) error {
 		}
 		shot := filepath.Join(cfg.DataDir, "ordkloever-result-"+time.Now().UTC().Format("20060102-150405")+".png")
 		_ = br.Screenshot(ctx, shot)
-		return upsertDailyGame(ctx, cfg, "Ordkløver", ordKloeverPrompt(st), answer, true, true, "Already solved on page. Screenshot: `"+shot+"`.")
+		return upsertDailyGame(ctx, cfg, "Ordkløver", klublotto.OrdKloeverPrompt(st), answer, true, true, "Already solved on page. Screenshot: `"+shot+"`.")
 	}
 	if answer == "" {
 		if *probeLetters {
@@ -362,7 +362,7 @@ func runOrdKloever(ctx context.Context, args []string) error {
 	}
 	shot := filepath.Join(cfg.DataDir, "ordkloever-result-"+time.Now().UTC().Format("20060102-150405")+".png")
 	_ = br.Screenshot(ctx, shot)
-	return upsertDailyGame(ctx, cfg, "Ordkløver", ordKloeverPrompt(st), answer, true, true, "Submitted through parent page. Screenshot: `"+shot+"`.")
+	return upsertDailyGame(ctx, cfg, "Ordkløver", klublotto.OrdKloeverPrompt(st), answer, true, true, "Submitted through parent page. Screenshot: `"+shot+"`.")
 }
 
 func runOrdknude(ctx context.Context, args []string) error {
@@ -2591,7 +2591,7 @@ func runOrdKloeverProbe(ctx context.Context, cfg *config.Config, br *browser.Cli
 			if shape == "" {
 				shape = preShape
 			}
-			notes := ordKloeverNotes(shape, revealSrc, probedThisRun, label)
+			notes := klublotto.OrdKloeverNotes(shape, revealSrc, probedThisRun, label)
 			modelLabel := wordModelLabel(cfg, provider)
 			if finalProvider != "" {
 				if fl := wordModelLabel(cfg, finalProvider); fl != modelLabel {
@@ -2599,7 +2599,7 @@ func runOrdKloeverProbe(ctx context.Context, cfg *config.Config, br *browser.Cli
 				}
 			}
 			notes = appendModelNote(notes, modelLabel)
-			_ = upsertDailyGame(ctx, cfg, "Ordkløver", ordKloeverPrompt(st), phrase, true, solved, notes)
+			_ = upsertDailyGame(ctx, cfg, "Ordkløver", klublotto.OrdKloeverPrompt(st), phrase, true, solved, notes)
 			return true, nil
 		}
 		fmt.Println("   Guess was wrong; continuing...")
@@ -4194,70 +4194,6 @@ func ordknudeWordFromSnapLine(line string) string {
 
 func gridOneLine(g klublotto.SudokuGrid) string {
 	return strings.ReplaceAll(klublotto.FormatSudokuGrid(g), "\n", " / ")
-}
-
-// ordKloeverNotes builds the daily-ledger "Notes" cell for a finished Ordkløver
-// round: the colour-coded letter-probe sequence (🟩 = letter is in the answer,
-// 🟥 = miss), the answer shape, and how the round was finished. revealSrc is the
-// string we colour letters against — the solved answer when solved, otherwise the
-// revealed board.
-func ordKloeverNotes(shape, revealSrc string, probed []string, label string) string {
-	var parts []string
-	if seq := colourCodeOrdKloeverLetters(probed, revealSrc); seq != "" {
-		parts = append(parts, "Bogstavgæt: "+seq)
-	}
-	if shape != "" {
-		parts = append(parts, "Mønster: "+shape)
-	}
-	if label != "" {
-		parts = append(parts, label)
-	}
-	return strings.Join(parts, " · ")
-}
-
-// colourCodeOrdKloeverLetters returns the probed letters in order, de-duplicated,
-// each tagged 🟩 if it appears in revealSrc (a hit) or 🟥 if not (a miss).
-func colourCodeOrdKloeverLetters(probed []string, revealSrc string) string {
-	hit := map[rune]bool{}
-	for _, r := range []rune(klublotto.NormalizeDanishLetters(revealSrc)) {
-		hit[r] = true
-	}
-	seen := map[rune]bool{}
-	var out []string
-	for _, l := range probed {
-		l = klublotto.NormalizeDanishLetters(l)
-		if l == "" {
-			continue
-		}
-		r := []rune(l)[0]
-		if seen[r] {
-			continue
-		}
-		seen[r] = true
-		mark := "🟥"
-		if hit[r] {
-			mark = "🟩"
-		}
-		out = append(out, string(r)+mark)
-	}
-	return strings.Join(out, " ")
-}
-
-func ordKloeverPrompt(st klublotto.OrdKloeverState) string {
-	parts := []string{}
-	if st.Category != "" {
-		parts = append(parts, "Category: `"+st.Category+"`")
-	}
-	if st.Hint != "" {
-		parts = append(parts, "hint: `"+st.Hint+"`")
-	}
-	if st.Shape != "" {
-		parts = append(parts, "answer pattern `"+st.Shape+"`")
-	}
-	if st.VisualShape != "" && st.VisualShape != st.Shape {
-		parts = append(parts, "visual layout `"+st.VisualShape+"`")
-	}
-	return strings.Join(parts, "; ")
 }
 
 func countKrydsordSlots(slots []klublotto.KrydsordSlot, direction string) int {
