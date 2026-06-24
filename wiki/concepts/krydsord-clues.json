@@ -31,6 +31,9 @@
     "FÅR",
     "BØN"
   ],
+  "BEHAGELIGE": [
+    "RARE"
+  ],
   "BEHOLDER": [
     "TANK",
     "VASE",
@@ -123,9 +126,10 @@
     "TYR",
     "ULV",
     "ABE",
-    "EGERN",
     "BUK",
-    "PUMA"
+    "PUMA",
+    "EGERN",
+    "RENER"
   ],
   "DØRSLAG": [
     "SI"
@@ -180,6 +184,9 @@
   "EXIT": [
     "UD"
   ],
+  "FANTASI": [
+    "DRØM"
+  ],
   "FARTØJ": [
     "LUFTBALLON"
   ],
@@ -190,14 +197,23 @@
   "FASHION": [
     "MODE"
   ],
+  "FESTSAL": [
+    "AULA"
+  ],
   "FILMFIGUR": [
     "ET"
   ],
   "FINDES": [
     "ER"
   ],
+  "FINTITEL": [
+    "ÆRESDOKTOR"
+  ],
   "FIRMA": [
     "VIRKSOMHED"
+  ],
+  "FJENDE": [
+    "ÆRKERIVAL"
   ],
   "FLAMMER": [
     "ILD"
@@ -216,6 +232,12 @@
   ],
   "FORLYSTELSE": [
     "RUTSJEBANE"
+  ],
+  "FORMER": [
+    "DANNER"
+  ],
+  "FORMÅR": [
+    "KAN"
   ],
   "FRANKRIG": [
     "F"
@@ -237,11 +259,17 @@
   "FUGL": [
     "ØRN"
   ],
+  "FUGLE": [
+    "ØRNE"
+  ],
   "FURER": [
     "RILLER"
   ],
   "FØDEN": [
     "MADEN"
+  ],
+  "GAMMEL": [
+    "GL"
   ],
   "GAMMELDAGS": [
     "YT"
@@ -266,8 +294,14 @@
   "GUDINDE": [
     "ATE"
   ],
+  "GÅDE": [
+    "ENIGMA"
+  ],
   "GÆRER": [
     "ULMER"
+  ],
+  "GÆTTE": [
+    "GISNE"
   ],
   "HEGN": [
     "GÆRDE"
@@ -286,6 +320,9 @@
   ],
   "HOVEDSTAD": [
     "OSLO"
+  ],
+  "HUGGET": [
+    "RANET"
   ],
   "IDAG": [
     "DD"
@@ -316,6 +353,9 @@
     "SAX",
     "SÆKKEPIBE"
   ],
+  "JAG": [
+    "VE"
+  ],
   "JEG": [
     "EGO"
   ],
@@ -323,6 +363,9 @@
     "MALER",
     "PLADS",
     "HVERV"
+  ],
+  "JUDODRAGT": [
+    "GI"
   ],
   "JÆVN": [
     "EGAL"
@@ -353,6 +396,9 @@
   ],
   "KNOB": [
     "KN"
+  ],
+  "KNOLD": [
+    "TUE"
   ],
   "KORRIGERE": [
     "RETTE"
@@ -463,6 +509,9 @@
   "OPFØRER": [
     "TER"
   ],
+  "OPTEGNELSE": [
+    "NOTE"
+  ],
   "PALADS": [
     "SLOT"
   ],
@@ -479,6 +528,9 @@
   "PASTASTYKKE": [
     "NUDEL"
   ],
+  "PAVE": [
+    "LEO"
+  ],
   "PEP": [
     "GO"
   ],
@@ -487,6 +539,9 @@
   ],
   "PINE": [
     "NAGE"
+  ],
+  "PINT": [
+    "NAGET"
   ],
   "PLADE": [
     "LP",
@@ -537,6 +592,9 @@
   "REX": [
     "R"
   ],
+  "ROYALFORKORTELSE": [
+    "KGL"
+  ],
   "RUM": [
     "LO"
   ],
@@ -561,6 +619,13 @@
   "SIKKERT": [
     "NOK"
   ],
+  "SINGLE": [
+    "ALENE",
+    "ENLIG"
+  ],
+  "SJÆLDENHEDER": [
+    "RARITETER"
+  ],
   "SKABER": [
     "TER"
   ],
@@ -584,6 +649,9 @@
   ],
   "SKRÆMME": [
     "TRUE"
+  ],
+  "SLÆGT": [
+    "ÆT"
   ],
   "SMALL": [
     "S"
@@ -624,6 +692,9 @@
   "STEDORD": [
     "DE",
     "I"
+  ],
+  "STOLTHED": [
+    "ÆRE"
   ],
   "STRAKS": [
     "NU"
@@ -716,6 +787,9 @@
   "TROLDMANDSUDSTYR": [
     "TRYLLESTAV"
   ],
+  "TRÅD": [
+    "SENE"
+  ],
   "TRÅDE": [
     "SENER"
   ],
@@ -757,6 +831,20 @@
   "VEJVISER": [
     "GPS"
   ],
+  "VERDENSHJØRNE": [
+    "N",
+    "S",
+    "V",
+    "Ø",
+    "NV",
+    "SV",
+    "NØ",
+    "SØ",
+    "SYD",
+    "ØST",
+    "NORD",
+    "VEST"
+  ],
   "VEST": [
     "V"
   ],
@@ -780,6 +868,12 @@
   ],
   "[IMG]ACEOFDIAMONDS": [
     "ES"
+  ],
+  "[IMG]ACORN": [
+    "AGERN"
+  ],
+  "[IMG]ANCHOR": [
+    "ANKER"
   ],
   "[IMG]APPLE": [
     "ÆBLE"
@@ -838,8 +932,14 @@
   "[IMG]PIGEON": [
     "DUE"
   ],
+  "[IMG]RAINDROPS": [
+    "REGN"
+  ],
   "[IMG]RUNES": [
     "RUNER"
+  ],
+  "[IMG]SNAIL": [
+    "SNEGL"
   ],
   "[IMG]STITCHES": [
     "AR"

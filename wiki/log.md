@@ -311,3 +311,17 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-24 03:35 UTC] ingest | quiz | Hvad er den største ø i Det Sydfynske Øhav? | outcome=submitted
 
+## [2026-06-24 03:38 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-24 03:39 UTC] ingest | ordkløver |  | outcome=submitted
+
+## [2026-06-24 03:40 UTC] ingest | ordkløver |  | outcome=submitted
+
+## [2026-06-24 03:42 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
+## [2026-06-24 04:06 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+
+## [2026-06-24 04:20 UTC] ingest | ordkløver | Category: `Sted`; answer pattern `11` | outcome=submitted
+
+## [2026-06-24 05:20 UTC] ingest | ordkløver | Category: `Sted`; answer pattern `11` | outcome=submitted
+
