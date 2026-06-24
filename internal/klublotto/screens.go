@@ -13,21 +13,28 @@ import (
 // (Danish, multi-phrasing) text matching so the run loops can decide what to do.
 
 // IsOrdKloeverWinText reports whether a page's text contains one of Danske
-// Spil's Ordkløver success banners. The game uses several phrasings (e.g.
-// "Flot præstation", "Super imponerende!", "Du har knækket koden") rather than
-// a single fixed string, so we match all known variants. Kept deliberately
-// specific (multi-word phrases) to avoid false positives from marketing copy.
+// Spil's Ordkløver success banners. The win screen reads "Flot præstation! Du
+// løste ordkløver med stil!", but several phrasings exist, so we match all known
+// variants.
+//
+// Deliberately EXCLUDES broad phrases that also appear in the permanent page
+// chrome and would false-positive on a fresh board:
+//   - "du har vundet" / "du vandt" — the account promo "Har du styr på, hvor
+//     meget du har vundet eller tabt?" is always present.
+//   - "dagens lod" / "dagens første lod" — awarded/advertised for ANY game.
+//   - "belønning" — generic marketing copy.
+//
+// (This is the same trap IsOrdknudeWinText was hardened against.)
 func IsOrdKloeverWinText(s string) bool {
 	low := strings.ToLower(s)
 	for _, banner := range []string{
 		"flot præstation", "flot praestation",
-		"super imponerende", "imponerende",
+		"løste ordkløver", "loeste ordkloever", // "Du løste ordkløver med stil!"
+		"super imponerende",
 		"knækket koden", "knaekket koden",
 		"godt klaret", "godt gået", "godt gaet",
-		"du har vundet", "du vandt",
+		"du klarede det",
 		"tillykke",
-		"dagens lod", "dagens første lod", "dagens forste lod",
-		"belønning", "beloenning",
 	} {
 		if strings.Contains(low, banner) {
 			return true

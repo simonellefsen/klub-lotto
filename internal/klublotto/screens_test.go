@@ -13,6 +13,15 @@ func TestIsOrdKloeverWinText(t *testing.T) {
 	if IsOrdKloeverWinText("Velkommen\nKan du gætte dagens gåde?\nSPIL ORDKLØVER") {
 		t.Fatal("IsOrdKloeverWinText() = true for the welcome/launcher screen")
 	}
+	// The permanent account-overview promo (always in the page body when the
+	// account menu is open) must NOT read as a win — it contains "du har vundet".
+	if IsOrdKloeverWinText("Har du styr på, hvor meget du har vundet eller tabt? Find dit spiloverblik her.") {
+		t.Fatal("IsOrdKloeverWinText() = true for the 'vundet eller tabt' account promo")
+	}
+	// "Dagens lod" / "belønning" marketing copy must not trip it either.
+	if IsOrdKloeverWinText("Optjen dagens lod og få en belønning!") {
+		t.Fatal("IsOrdKloeverWinText() = true for generic lod/belønning marketing copy")
+	}
 }
 
 func TestIsOrdknudeWinText(t *testing.T) {
