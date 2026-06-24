@@ -3220,6 +3220,46 @@ func FindRefByChildText(snap, text string) string {
 	return ""
 }
 
+// clickByVisibleTextInFrame clicks — inside the game iframe — the most specific
+// visible element whose lowercased textContent contains any of names. Returns
+// true if it clicked. This is the robust launcher-click path: unlike
+// FindRefByName (which matches an element's accessible *name* exactly), it finds
+// labels that live in a child text node and tolerates special characters (JS
+// toLowerCase folds Ø→ø natively), which is why it succeeds on "SPIL ORDKLØVER".
+func clickByVisibleTextInFrame(ctx context.Context, br *browser.Client, names ...string) bool {
+	low := make([]string, 0, len(names))
+	for _, n := range names {
+		if s := strings.TrimSpace(strings.ToLower(n)); s != "" {
+			low = append(low, s)
+		}
+	}
+	if len(low) == 0 {
+		return false
+	}
+	namesJSON, err := json.Marshal(low)
+	if err != nil {
+		return false
+	}
+	if EnterGameFrame(ctx, br) != nil {
+		return false
+	}
+	defer LeaveFrame(br)
+	js := `(function(names){var els=[...document.querySelectorAll("button,div,span,a")].filter(function(e){` +
+		`if(!e.offsetParent)return false;var t=(e.textContent||"").toLowerCase();` +
+		`return names.some(function(n){return t.indexOf(n)>=0;});});` +
+		`if(els.length){els[els.length-1].click();return "clicked";}return "";})(` + string(namesJSON) + `)`
+	out, _ := br.Eval(ctx, js)
+	return strings.Contains(out, "clicked")
+}
+
+// StartOrdKloeverIfLauncher dismisses the Ordkløver "SPIL ORDKLØVER" welcome
+// screen if it is showing, so the caller can enter the game before the first
+// (expensive) vision read — a vision pass on the launcher is ~15s wasted and the
+// re-vision after it doubles that. No-op when the game is already in play.
+func StartOrdKloeverIfLauncher(ctx context.Context, br *browser.Client) error {
+	return startWordGameIfPresent(ctx, br, "SPIL ORDKLØVER", "SPIL ORDKLOEVER", "Spil Ordkløver")
+}
+
 func startWordGameIfPresent(ctx context.Context, br *browser.Client, names ...string) error {
 	// Use frames-inclusive snapshot so "SPIL ORDKLØVER" etc. inside the game iframe
 	// are visible in the parent tree (as the user snapshot with -F demonstrated).
@@ -3234,6 +3274,14 @@ func startWordGameIfPresent(ctx context.Context, br *browser.Client, names ...st
 		if err := br.Click(ctx, ref); err != nil {
 			return err
 		}
+		br.WaitSettled(ctx)
+		time.Sleep(1200 * time.Millisecond)
+	} else if clickByVisibleTextInFrame(ctx, br, names...) {
+		// Ref-by-name missed it — the launcher label is a child text node (and/or
+		// carries a special char like Ø that the accessible name doesn't expose).
+		// A textContent click inside the game iframe is the robust fallback (this
+		// is exactly why ordknude/blok, whose labels match by name/text, worked
+		// while ordkløver's "SPIL ORDKLØVER" did not).
 		br.WaitSettled(ctx)
 		time.Sleep(1200 * time.Millisecond)
 	}

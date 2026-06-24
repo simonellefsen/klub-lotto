@@ -119,6 +119,16 @@ func runOrdKloever(ctx context.Context, args []string) error {
 	}
 	fmt.Println("       at:", curURL)
 
+	// Click through the "SPIL ORDKLØVER" welcome screen up front (robust
+	// text-content click — handles the Ø and the child-text label) so the first
+	// vision read below sees the real board, not the launcher. No-op if already
+	// in play. Without this, vision runs once on the launcher (~15s wasted) and
+	// again after clicking through.
+	fmt.Println("       entering game (dismissing launcher if shown)...")
+	startCtx, startCancel := context.WithTimeout(ctx, 20*time.Second)
+	_ = klublotto.StartOrdKloeverIfLauncher(startCtx, br)
+	startCancel()
+
 	fmt.Println("[2/4] extracting state...")
 	extractCtx, cancel := context.WithTimeout(ctx, ordKloeverExtractTimeout)
 	st, err := klublotto.ExtractOrdKloeverState(extractCtx, br, ac, visionFallback)
