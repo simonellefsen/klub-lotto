@@ -309,3 +309,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-23 03:48 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
 
+## [2026-06-24 03:35 UTC] ingest | quiz | Hvad er den største ø i Det Sydfynske Øhav? | outcome=submitted
+
