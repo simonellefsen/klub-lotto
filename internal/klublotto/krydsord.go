@@ -76,8 +76,20 @@ func OpenKrydsord(ctx context.Context, br *browser.Client) error {
 
 func ExtractKrydsordData(ctx context.Context, br *browser.Client) (KrydsordData, error) {
 	var data KrydsordData
-	iframe, _ := br.Eval(ctx, `(() => Array.from(document.querySelectorAll('iframe')).map(f => f.src).find(s => /iframes\.krydsord\.dk/i.test(s)) || '')()`)
-	iframeSrc := unwrapAgentBrowserString(iframe)
+
+	// The parent page open is now navigation-capped (OpenSettled), so the embedded
+	// krydsord OOPIF may not be attached/rendered yet on the first look. Poll for the
+	// iframe element before giving up — otherwise we'd fall straight to the standalone
+	// URL fallback (which shows the red spinner).
+	findIframeSrc := func() string {
+		raw, _ := br.Eval(ctx, `(() => Array.from(document.querySelectorAll('iframe')).map(f => f.src).find(s => /iframes\.krydsord\.dk/i.test(s)) || '')()`)
+		return unwrapAgentBrowserString(raw)
+	}
+	iframeSrc := findIframeSrc()
+	for srcDeadline := time.Now().Add(15 * time.Second); iframeSrc == "" && time.Now().Before(srcDeadline) && ctx.Err() == nil; {
+		time.Sleep(700 * time.Millisecond)
+		iframeSrc = findIframeSrc()
+	}
 	if iframeSrc == "" {
 		return data, fmt.Errorf("could not find Krydsord iframe on parent page")
 	}
@@ -85,11 +97,18 @@ func ExtractKrydsordData(ctx context.Context, br *browser.Client) (KrydsordData,
 	// Run the same-origin API fetch INSIDE the embedded OOPIF (agent-browser can now
 	// enter it). This avoids navigating the top tab to the standalone iframe URL,
 	// which carries a single-use launcher token and just hangs on the red spinner.
-	// If the in-frame fetch doesn't yield a usable payload (older daemon, frame not
-	// yet attached, vendor quirk), fall back to the legacy navigate-and-fetch path.
-	raw, inFrameOK := fetchKrydsordAPIInFrame(ctx, br)
-	if d, err := parseKrydsordEnvelope(raw, iframeSrc); inFrameOK && err == nil {
-		return d, nil
+	// Retry while the OOPIF attaches + the grid renders (the navigation-capped open
+	// can return before either is ready); only if it stays unusable do we fall back
+	// to the legacy navigate-and-fetch path.
+	for fetchDeadline := time.Now().Add(20 * time.Second); ; {
+		raw, inFrameOK := fetchKrydsordAPIInFrame(ctx, br)
+		if d, err := parseKrydsordEnvelope(raw, iframeSrc); inFrameOK && err == nil {
+			return d, nil
+		}
+		if time.Now().After(fetchDeadline) || ctx.Err() != nil {
+			break
+		}
+		time.Sleep(800 * time.Millisecond)
 	}
 
 	// Fallback: navigate the top-level tab to the iframe URL and fetch there.
