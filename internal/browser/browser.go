@@ -127,6 +127,29 @@ func (c *Client) Open(ctx context.Context, url string) error {
 	return err
 }
 
+// openSettleTimeout caps how long OpenSettled blocks on a navigation.
+const openSettleTimeout = 8 * time.Second
+
+// OpenSettled navigates to url but caps how long it blocks waiting for the page
+// to finish loading. danskespil keeps tracker/analytics connections open, so a
+// plain Open (which waits for the page to settle) can block 15-30s even though
+// the page is visually ready and interactable within a few seconds. A timeout
+// here is non-fatal: the navigation continues in the browser daemon and the
+// downstream snapshot / readiness retries handle the rest. It returns an error
+// only for a genuine open failure (not the cap) or a parent-ctx cancellation.
+func (c *Client) OpenSettled(ctx context.Context, url string) error {
+	openCtx, cancel := context.WithTimeout(ctx, openSettleTimeout)
+	defer cancel()
+	err := c.Open(openCtx, url)
+	if ctx.Err() != nil {
+		return ctx.Err() // parent cancelled (e.g. Ctrl-C) — propagate
+	}
+	if err != nil && openCtx.Err() == nil {
+		return err // genuine open failure, not our cap firing
+	}
+	return nil
+}
+
 // Close shuts down the browser for this session.
 func (c *Client) Close(ctx context.Context) error {
 	_, err := c.run(ctx, "close")

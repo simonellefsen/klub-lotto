@@ -40,10 +40,11 @@ type QuizResult struct {
 // OpenQuiz navigates to the quiz page. Falls back to discovering the URL
 // from the "Vælg spil" menu if the direct path no longer exists.
 func OpenQuiz(ctx context.Context, br *browser.Client) error {
-	if err := br.Open(ctx, QuizURL); err != nil {
+	// OpenSettled caps the navigation wait (danskespil's trackers keep the page
+	// from settling for 15-30s); it's interactable well before that.
+	if err := br.OpenSettled(ctx, QuizURL); err != nil {
 		return err
 	}
-	br.WaitSettled(ctx)
 	// If we landed on a 404 or the marketing page, fall back to menu nav.
 	cur, _ := br.URL(ctx)
 	if !strings.Contains(cur, "quiz") {

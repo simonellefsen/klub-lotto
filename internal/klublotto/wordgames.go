@@ -614,13 +614,13 @@ func OpenOrdknude(ctx context.Context, br *browser.Client) error {
 }
 
 func openParentGame(ctx context.Context, br *browser.Client, url string) error {
-	if err := br.Open(ctx, url); err != nil {
+	// OpenSettled caps the navigation wait — danskespil keeps tracker connections
+	// open, so a plain Open blocks 15-30s on the welcome screen even though it's
+	// interactable in a few seconds. Downstream snapshot / keyboard-readiness
+	// retries handle anything not yet painted.
+	if err := br.OpenSettled(ctx, url); err != nil {
 		return err
 	}
-	// WaitSettled caps the networkidle wait (danskespil keeps tracker connections
-	// open, which would otherwise stall ~30s on the welcome screen); downstream
-	// snapshot / keyboard-readiness retries handle anything not yet painted.
-	br.WaitSettled(ctx)
 	time.Sleep(1200 * time.Millisecond)
 	return nil
 }

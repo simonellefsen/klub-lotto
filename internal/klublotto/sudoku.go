@@ -156,13 +156,12 @@ func sudokuAllowed(g SudokuGrid, row, col, n int) bool {
 }
 
 func OpenSudoku(ctx context.Context, br *browser.Client) error {
-	if err := br.Open(ctx, SudokuURL); err != nil {
+	// OpenSettled caps the navigation wait (danskespil keeps tracker connections
+	// open, which would otherwise stall ~15-30s); EnterSudokuGameContext retries
+	// until the iframe is ready.
+	if err := br.OpenSettled(ctx, SudokuURL); err != nil {
 		return err
 	}
-	// WaitSettled caps the networkidle wait (danskespil keeps tracker connections
-	// open, which would otherwise stall ~30s); EnterSudokuGameContext retries
-	// until the iframe is ready.
-	br.WaitSettled(ctx)
 	time.Sleep(1200 * time.Millisecond)
 	return nil
 }

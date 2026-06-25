@@ -28,20 +28,18 @@ func Login(ctx context.Context, br *browser.Client, username, password string) e
 	// Step 1: visit Klub Lotto home so an existing session cookie can be
 	// picked up. If the snapshot shows we are already authenticated we
 	// don't go to the login form at all.
-	if err := br.Open(ctx, KlubLottoURL); err != nil {
+	if err := br.OpenSettled(ctx, KlubLottoURL); err != nil {
 		return fmt.Errorf("open klublotto: %w", err)
 	}
-	br.WaitSettled(ctx)
 
 	if loggedIn, _ := IsLoggedIn(ctx, br); loggedIn {
 		return nil
 	}
 
 	// Step 2: navigate to the login form.
-	if err := br.Open(ctx, LoginURL); err != nil {
+	if err := br.OpenSettled(ctx, LoginURL); err != nil {
 		return fmt.Errorf("open login: %w", err)
 	}
-	br.WaitSettled(ctx)
 
 	// Step 3: cookie/consent banner often blocks the form on first run.
 	// We try a few common accept buttons; failures are non-fatal.
