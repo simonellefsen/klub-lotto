@@ -325,3 +325,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-24 05:20 UTC] ingest | ordkløver | Category: `Sted`; answer pattern `11` | outcome=submitted
 
+## [2026-06-25 04:03 UTC] ingest | quiz | Hvor mange arme har en søstjerne typisk? | outcome=submitted
+
