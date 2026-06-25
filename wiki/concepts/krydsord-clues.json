@@ -101,6 +101,9 @@
   "CYKELDEL": [
     "PEDAL"
   ],
+  "DES": [
+    "JO"
+  ],
   "DESSERT": [
     "IS"
   ],
@@ -127,6 +130,7 @@
     "ULV",
     "ABE",
     "BUK",
+    "ABER",
     "PUMA",
     "EGERN",
     "RENER"
@@ -212,6 +216,9 @@
   "FIRMA": [
     "VIRKSOMHED"
   ],
+  "FISKEGARN": [
+    "NOT"
+  ],
   "FJENDE": [
     "ÆRKERIVAL"
   ],
@@ -273,6 +280,9 @@
   ],
   "GAMMELDAGS": [
     "YT"
+  ],
+  "GANG": [
+    "STI"
   ],
   "GLKARAKTR": [
     "UG"
@@ -477,12 +487,15 @@
     "ROCK",
     "SOUL"
   ],
-  "MÅLER": [
-    "UR"
-  ],
   "MÆRKE": [
     "AR",
     "LOGO"
+  ],
+  "MØNT": [
+    "TIER"
+  ],
+  "MÅLER": [
+    "UR"
   ],
   "NEDBØR": [
     "SNE"
