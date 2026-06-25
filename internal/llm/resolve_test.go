@@ -86,3 +86,31 @@ func TestResolveUnknown(t *testing.T) {
 		t.Fatalf("Resolve(bogus) error = %v, want 'unknown word provider'", err)
 	}
 }
+
+// TestResolveOpenRouterReasoning verifies the reasoning-effort bound is applied
+// to both OpenRouter routing paths (the "openrouter" keyword and a "/" slug),
+// and left empty when not configured. The effort caps a thinking model's
+// internal reasoning so it can't run past the per-call timeout.
+func TestResolveOpenRouterReasoning(t *testing.T) {
+	k := fullKeys()
+	k.OpenRouterReasoning = "medium"
+	for _, name := range []string{"openrouter", "google/gemini-3.1-pro"} {
+		p, err := Resolve(name, k)
+		if err != nil {
+			t.Fatalf("Resolve(%q) error: %v", name, err)
+		}
+		or, ok := p.(*OpenRouter)
+		if !ok {
+			t.Fatalf("Resolve(%q) = %T, want *OpenRouter", name, p)
+		}
+		if or.ReasoningEffort != "medium" {
+			t.Errorf("Resolve(%q).ReasoningEffort = %q, want %q", name, or.ReasoningEffort, "medium")
+		}
+	}
+
+	// Unset → no reasoning bound (provider default).
+	p, _ := Resolve("openrouter", fullKeys())
+	if or := p.(*OpenRouter); or.ReasoningEffort != "" {
+		t.Errorf("ReasoningEffort = %q, want empty when unconfigured", or.ReasoningEffort)
+	}
+}

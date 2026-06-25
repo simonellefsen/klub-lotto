@@ -9,15 +9,16 @@ import (
 // caller populates it from config, so the llm package stays free of any config
 // dependency and Resolve is unit-testable without it.
 type Keys struct {
-	Gemini          string
-	OpenAI          string
-	OpenAIModel     string // default model for the "openai" keyword ("" → NewOpenAI default)
-	XAI             string
-	Anthropic       string
-	OpenRouter      string
-	OpenRouterModel string // default model for the "openrouter" keyword
-	ZAI             string
-	ZAIModel        string // default model for the "zai" keyword ("" → NewZAI default)
+	Gemini              string
+	OpenAI              string
+	OpenAIModel         string // default model for the "openai" keyword ("" → NewOpenAI default)
+	XAI                 string
+	Anthropic           string
+	OpenRouter          string
+	OpenRouterModel     string // default model for the "openrouter" keyword
+	OpenRouterReasoning string // reasoning effort for OpenRouter thinking models (high|medium|low)
+	ZAI                 string
+	ZAIModel            string // default model for the "zai" keyword ("" → NewZAI default)
 }
 
 // Resolve maps a word-provider name to a JSONGenerator, pulling the matching key
@@ -58,7 +59,7 @@ func Resolve(name string, keys Keys) (JSONGenerator, error) {
 		if keys.OpenRouter == "" {
 			return nil, fmt.Errorf("OPENROUTER_API_KEY is required for OpenRouter model %q", name)
 		}
-		return NewOpenRouter(keys.OpenRouter, name), nil
+		return newOpenRouterWithReasoning(keys.OpenRouter, name, keys.OpenRouterReasoning), nil
 	}
 
 	switch strings.ToLower(name) {
@@ -86,8 +87,16 @@ func Resolve(name string, keys Keys) (JSONGenerator, error) {
 		if keys.OpenRouter == "" {
 			return nil, fmt.Errorf("OPENROUTER_API_KEY is required for word provider openrouter")
 		}
-		return NewOpenRouter(keys.OpenRouter, keys.OpenRouterModel), nil
+		return newOpenRouterWithReasoning(keys.OpenRouter, keys.OpenRouterModel, keys.OpenRouterReasoning), nil
 	default:
 		return nil, fmt.Errorf("unknown word provider %q — use a keyword (gemini|openai|xai|anthropic|openrouter|zai) or a model slug (zai:glm-5.2, or a full OpenRouter slug e.g. google/gemini-3.1-pro-preview)", name)
 	}
+}
+
+// newOpenRouterWithReasoning builds an OpenRouter provider with an optional
+// reasoning-effort bound so thinking models don't reason past the call timeout.
+func newOpenRouterWithReasoning(apiKey, model, reasoning string) *OpenRouter {
+	o := NewOpenRouter(apiKey, model)
+	o.ReasoningEffort = strings.TrimSpace(reasoning)
+	return o
 }

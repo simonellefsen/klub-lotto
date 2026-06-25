@@ -193,15 +193,16 @@ func wordProvider(cfg *config.Config, override string) (llm.JSONGenerator, error
 // providerKeys maps the config's API keys + default models into llm.Keys.
 func providerKeys(cfg *config.Config) llm.Keys {
 	return llm.Keys{
-		Gemini:          cfg.GeminiKey,
-		OpenAI:          cfg.OpenAIKey,
-		OpenAIModel:     cfg.OpenAIModel,
-		XAI:             cfg.XAIKey,
-		Anthropic:       cfg.AnthropicKey,
-		OpenRouter:      cfg.OpenRouterKey,
-		OpenRouterModel: cfg.OpenRouterModel,
-		ZAI:             cfg.ZAIKey,
-		ZAIModel:        cfg.ZAIModel,
+		Gemini:              cfg.GeminiKey,
+		OpenAI:              cfg.OpenAIKey,
+		OpenAIModel:         cfg.OpenAIModel,
+		XAI:                 cfg.XAIKey,
+		Anthropic:           cfg.AnthropicKey,
+		OpenRouter:          cfg.OpenRouterKey,
+		OpenRouterModel:     cfg.OpenRouterModel,
+		OpenRouterReasoning: cfg.OpenRouterReasoning,
+		ZAI:                 cfg.ZAIKey,
+		ZAIModel:            cfg.ZAIModel,
 	}
 }
 

@@ -327,3 +327,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-25 04:03 UTC] ingest | quiz | Hvor mange arme har en søstjerne typisk? | outcome=submitted
 
+## [2026-06-25 04:14 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+

@@ -23,16 +23,17 @@ type Config struct {
 	GeminiKey string
 
 	// Extended provider keys (used by ordknude and future commands)
-	AnthropicKey     string
-	OpenRouterKey    string
-	ZAIKey           string // Z.AI (Zhipu) — OpenAI-compatible GLM models; cheaper than OpenRouter fused models
-	ZAIModel         string // Z.AI model slug, default glm-5.2
-	OpenAIModel      string
-	OpenRouterModel  string
-	OpenRouterVisionModel string // optional second vision model for cross-check (e.g. google/gemini-flash-1.5 via OpenRouter)
-	WordProvider              string
-	OrdknudeProvider          string
-	OrdKloeverFinalProvider   string // LLM used only for the very last attempt (11/12); typically a smarter model
+	AnthropicKey            string
+	OpenRouterKey           string
+	ZAIKey                  string // Z.AI (Zhipu) — OpenAI-compatible GLM models; cheaper than OpenRouter fused models
+	ZAIModel                string // Z.AI model slug, default glm-5.2
+	OpenAIModel             string
+	OpenRouterModel         string
+	OpenRouterReasoning     string // reasoning effort for OpenRouter thinking models (high|medium|low); default medium so gemini-pro answers in web-UI time instead of thinking unbounded
+	OpenRouterVisionModel   string // optional second vision model for cross-check (e.g. google/gemini-flash-1.5 via OpenRouter)
+	WordProvider            string
+	OrdknudeProvider        string
+	OrdKloeverFinalProvider string // LLM used only for the very last attempt (11/12); typically a smarter model
 
 	// Browser preferences — exposed so commands can override per-run.
 	BrowserSessionName string // --session passed to agent-browser
@@ -85,25 +86,35 @@ func Load(repoRoot string) (*Config, error) {
 		zaiModel = "glm-5.2"
 	}
 
+	// Bound the thinking budget for OpenRouter reasoning models. Without this,
+	// gemini-pro-latest reasons unbounded on the open-ended ordkløver decision
+	// prompt and blows the per-call timeout (the same prompt answers in <30s in
+	// the Gemini web UI, which uses a bounded budget). "medium" matches that.
+	openRouterReasoning := get("OPENROUTER_REASONING_EFFORT")
+	if openRouterReasoning == "" {
+		openRouterReasoning = "medium"
+	}
+
 	return &Config{
-		DanskespilUsername: get("DANSKESPIL_USERNAME"),
-		DanskespilPassword: get("DANSKESPIL_PASSWORD"),
-		OpenAIKey:          get("OPENAI_API_KEY"),
-		XAIKey:             get("XAI_API_KEY"),
-		GeminiKey:          get("GEMINI_API_KEY"),
-		AnthropicKey:       get("ANTHROPIC_API_KEY"),
-		OpenRouterKey:      get("OPENROUTER_API_KEY"),
-		ZAIKey:             get("ZAI_API_KEY"),
-		ZAIModel:           zaiModel,
-		OpenAIModel:        get("OPENAI_MODEL"),
-		OpenRouterModel:    get("OPENROUTER_MODEL"),
-		OpenRouterVisionModel: get("OPENROUTER_VISION_MODEL"),
+		DanskespilUsername:      get("DANSKESPIL_USERNAME"),
+		DanskespilPassword:      get("DANSKESPIL_PASSWORD"),
+		OpenAIKey:               get("OPENAI_API_KEY"),
+		XAIKey:                  get("XAI_API_KEY"),
+		GeminiKey:               get("GEMINI_API_KEY"),
+		AnthropicKey:            get("ANTHROPIC_API_KEY"),
+		OpenRouterKey:           get("OPENROUTER_API_KEY"),
+		ZAIKey:                  get("ZAI_API_KEY"),
+		ZAIModel:                zaiModel,
+		OpenAIModel:             get("OPENAI_MODEL"),
+		OpenRouterModel:         get("OPENROUTER_MODEL"),
+		OpenRouterReasoning:     openRouterReasoning,
+		OpenRouterVisionModel:   get("OPENROUTER_VISION_MODEL"),
 		WordProvider:            wordProvider,
 		OrdknudeProvider:        get("ORDKNUDE_PROVIDER"),
 		OrdKloeverFinalProvider: get("ORDKLOEVER_FINAL_PROVIDER"),
-		BrowserSessionName: session,
-		Headed:             strings.EqualFold(get("KLUBLOTTO_HEADED"), "true"),
-		DataDir:            dataDir,
+		BrowserSessionName:      session,
+		Headed:                  strings.EqualFold(get("KLUBLOTTO_HEADED"), "true"),
+		DataDir:                 dataDir,
 	}, nil
 }
 

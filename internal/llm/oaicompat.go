@@ -128,6 +128,14 @@ type openAIRequest struct {
 	ResponseFormat *openAIRespFormat `json:"response_format,omitempty"`
 	Temperature    float64           `json:"temperature"`
 	MaxTokens      int               `json:"max_tokens,omitempty"`
+	Reasoning      *openAIReasoning  `json:"reasoning,omitempty"`
+}
+
+// openAIReasoning is OpenRouter's unified reasoning control. Setting effort
+// caps a thinking model's internal reasoning so it returns in bounded time
+// instead of reasoning until the request times out.
+type openAIReasoning struct {
+	Effort string `json:"effort,omitempty"` // high | medium | low
 }
 
 type openAIMessage struct {

@@ -20,6 +20,11 @@ type OpenRouter struct {
 	// reasoning models on long tasks so internal reasoning doesn't consume the
 	// whole budget and leave the actual answer (content) empty.
 	MaxTokens int
+	// ReasoningEffort bounds a thinking model's internal reasoning (high|medium|low).
+	// "" leaves it at the provider default (which, for gemini-pro-latest, can be an
+	// unbounded budget that overruns long-prompt timeouts). "medium" matches the
+	// Gemini web UI's response time.
+	ReasoningEffort string
 }
 
 func NewOpenRouter(apiKey, model string) *OpenRouter {
@@ -130,6 +135,9 @@ func (o *OpenRouter) GenerateJSON(ctx context.Context, prompt string, temperatur
 		},
 		Temperature: temperature,
 		MaxTokens:   o.MaxTokens,
+	}
+	if o.ReasoningEffort != "" {
+		body.Reasoning = &openAIReasoning{Effort: o.ReasoningEffort}
 	}
 	raw, err := postJSON(ctx, o.HTTP, o.URL, o.APIKey, body)
 	if err != nil {

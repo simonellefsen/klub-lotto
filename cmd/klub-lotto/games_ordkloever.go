@@ -665,7 +665,10 @@ Regler for dit svar:
 			}
 			fmt.Printf("   [decision retry %d/3]: %v\n", attempt+1, lastErr)
 		}
-		modelCtx, cancel := context.WithTimeout(ctx, 300*time.Second)
+		// Bounded-reasoning gemini-pro answers this prompt in well under a minute
+		// (the web UI does it in <30s). 120s leaves headroom for a slow round while
+		// still failing fast on a stalled provider instead of burning 300s×3.
+		modelCtx, cancel := context.WithTimeout(ctx, 120*time.Second)
 		raw, callErr := p.GenerateJSON(modelCtx, prompt, 0.2)
 		cancel()
 		if callErr != nil {
