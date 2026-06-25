@@ -335,3 +335,11 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-25 22:13 UTC] ingest | quiz | Hvilken spiller overtog rekorden for flest scorede point i N… | outcome=submitted
 
+## [2026-06-25 22:24 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-25 22:30 UTC] ingest | ordkløver | Category: `Udtryk`; answer pattern `5+7` | outcome=submitted
+
+## [2026-06-25 22:30 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
+## [2026-06-25 22:42 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+

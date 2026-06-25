@@ -62,6 +62,9 @@
   "BIORD": [
     "AN"
   ],
+  "BJÆFFE": [
+    "GØ"
+  ],
   "BLOMST": [
     "ROSE",
     "ORKIDE"
@@ -75,6 +78,9 @@
   ],
   "BLÆNDENDE": [
     "GENIAL"
+  ],
+  "BRANCHE": [
+    "IT"
   ],
   "BRINT": [
     "H"
@@ -100,6 +106,9 @@
   ],
   "CYKELDEL": [
     "PEDAL"
+  ],
+  "DA": [
+    "IDET"
   ],
   "DES": [
     "JO"
@@ -246,6 +255,9 @@
   "FORMÅR": [
     "KAN"
   ],
+  "FORRÅDTE": [
+    "SVEG"
+  ],
   "FRANKRIG": [
     "F"
   ],
@@ -284,6 +296,9 @@
   "GANG": [
     "STI"
   ],
+  "GEMME": [
+    "BEVARE"
+  ],
   "GLKARAKTR": [
     "UG"
   ],
@@ -301,6 +316,9 @@
   "GRÆSMARK": [
     "ENG"
   ],
+  "GUD": [
+    "AS"
+  ],
   "GUDINDE": [
     "ATE"
   ],
@@ -312,6 +330,9 @@
   ],
   "GÆTTE": [
     "GISNE"
+  ],
+  "HAV": [
+    "UTAL"
   ],
   "HEGN": [
     "GÆRDE"
@@ -334,6 +355,9 @@
   "HUGGET": [
     "RANET"
   ],
+  "HYREN": [
+    "ÅRSLØNNEN"
+  ],
   "IDAG": [
     "DD"
   ],
@@ -342,6 +366,9 @@
   ],
   "IFORHOLDTIL": [
     "END"
+  ],
+  "ILDSTED": [
+    "ESSE"
   ],
   "ILT": [
     "O"
@@ -373,6 +400,9 @@
     "MALER",
     "PLADS",
     "HVERV"
+  ],
+  "JOULE": [
+    "J"
   ],
   "JUDODRAGT": [
     "GI"
@@ -434,17 +464,38 @@
   "KUN": [
     "BARE"
   ],
+  "KURS": [
+    "N",
+    "S",
+    "V",
+    "Ø",
+    "NV",
+    "SV",
+    "NØ",
+    "SØ",
+    "SYD",
+    "ØST",
+    "NORD",
+    "VEST",
+    "RUTE"
+  ],
   "KURSIST": [
     "ELEV"
   ],
   "KVIKT": [
     "RAPT"
   ],
+  "KYLEDE": [
+    "SMED"
+  ],
   "KÆRTEGNE": [
     "AE"
   ],
   "LARGE": [
     "L"
+  ],
+  "LAVER": [
+    "GØR"
   ],
   "LED": [
     "KNO"
@@ -479,6 +530,9 @@
   "MI": [
     "E"
   ],
+  "MONETER": [
+    "PENGE"
+  ],
   "MONTERET": [
     "ISAT"
   ],
@@ -487,6 +541,9 @@
     "ROCK",
     "SOUL"
   ],
+  "MÅLER": [
+    "UR"
+  ],
   "MÆRKE": [
     "AR",
     "LOGO"
@@ -494,17 +551,23 @@
   "MØNT": [
     "TIER"
   ],
-  "MÅLER": [
-    "UR"
-  ],
   "NEDBØR": [
     "SNE"
+  ],
+  "NEWTON": [
+    "N"
   ],
   "NIT": [
     "N"
   ],
   "NOPRET": [
     "RU"
+  ],
+  "NORGE": [
+    "N"
+  ],
+  "NYVASKET": [
+    "REN"
   ],
   "OARS": [
     "ÅRER"
@@ -569,6 +632,9 @@
     "FRØ",
     "LØG",
     "ROD"
+  ],
+  "POLERE": [
+    "PUDSE"
   ],
   "POPGRUPPE": [
     "ABBA"
@@ -657,6 +723,9 @@
   "SKILTETEKST": [
     "P"
   ],
+  "SKIVE": [
+    "DVD"
+  ],
   "SKRIVER": [
     "PEN"
   ],
@@ -669,8 +738,14 @@
   "SMALL": [
     "S"
   ],
+  "SMELTE": [
+    "TØ"
+  ],
   "SMYKKESTEN": [
     "OPAL"
+  ],
+  "SNAKKESALIG": [
+    "ÅBENMUNDET"
   ],
   "SOLGUD": [
     "RA"
@@ -731,6 +806,9 @@
     "NM",
     "VM"
   ],
+  "SVIMMEL": [
+    "ØR"
+  ],
   "SVINGOM": [
     "DANS"
   ],
@@ -786,7 +864,13 @@
   ],
   "TONE": [
     "FA",
-    "RE"
+    "RE",
+    "MI",
+    "DO",
+    "LA"
+  ],
+  "TONEN": [
+    "EET"
   ],
   "TOV": [
     "REB"
@@ -811,6 +895,10 @@
     "AHORN",
     "ESP"
   ],
+  "TRÆER": [
+    "ASPE",
+    "ESPE"
+  ],
   "TRÆET": [
     "ESPEN"
   ],
@@ -831,6 +919,12 @@
   ],
   "VANDHUL": [
     "SØ"
+  ],
+  "VANDLØB": [
+    "ÅER"
+  ],
+  "VANHELD": [
+    "UTUR"
   ],
   "VEG": [
     "SLAP"
@@ -891,6 +985,9 @@
   "[IMG]APPLE": [
     "ÆBLE"
   ],
+  "[IMG]BADMINTONRACKET": [
+    "NET"
+  ],
   "[IMG]BEES": [
     "BIER"
   ],
@@ -939,6 +1036,9 @@
   "[IMG]NESTWITHEGGS": [
     "REDE"
   ],
+  "[IMG]PALMTREE": [
+    "PALME"
+  ],
   "[IMG]PAPERCLIPS": [
     "CLIPS"
   ],
@@ -948,6 +1048,9 @@
   "[IMG]RAINDROPS": [
     "REGN"
   ],
+  "[IMG]ROSES": [
+    "ROSER"
+  ],
   "[IMG]RUNES": [
     "RUNER"
   ],
@@ -956,6 +1059,9 @@
   ],
   "[IMG]STITCHES": [
     "AR"
+  ],
+  "[IMG]SWEATER": [
+    "TRØJE"
   ],
   "[IMG]TELEVISION": [
     "TV"
