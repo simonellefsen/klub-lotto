@@ -10,6 +10,7 @@ import (
 // dependency and Resolve is unit-testable without it.
 type Keys struct {
 	Gemini              string
+	GeminiModel         string // default model for the "gemini" keyword ("" → gemini-2.5-pro)
 	OpenAI              string
 	OpenAIModel         string // default model for the "openai" keyword ("" → NewOpenAI default)
 	XAI                 string
@@ -25,6 +26,8 @@ type Keys struct {
 // from keys. Accepted names:
 //
 //   - a keyword: gemini | openai | xai (grok) | anthropic (claude) | openrouter
+//   - a native Gemini slug: "gemini" or "gemini:<model>" (e.g. "gemini:gemini-pro-latest")
+//     — uses GEMINI_API_KEY directly (your own Google account), NOT OpenRouter
 //   - a Z.AI slug: "zai", "zai:<model>", "zai/<model>", "glm" or a bare "glm-…"
 //   - a full OpenRouter slug containing "/" (e.g. "google/gemini-3.1-pro-preview")
 //
@@ -53,6 +56,24 @@ func Resolve(name string, keys Keys) (JSONGenerator, error) {
 		return NewZAI(keys.ZAI, model), nil
 	}
 
+	// Native Gemini (Google Generative Language API) via your own GEMINI_API_KEY.
+	// "gemini" → the default/configured model; "gemini:<model>" picks one, e.g.
+	// "gemini:gemini-pro-latest" for the rolling latest Pro on your account. Checked
+	// before the '/' OpenRouter routing so it never leaks to OpenRouter.
+	if low := strings.ToLower(name); low == "gemini" || strings.HasPrefix(low, "gemini:") {
+		if keys.Gemini == "" {
+			return nil, fmt.Errorf("GEMINI_API_KEY is required for word provider gemini")
+		}
+		model := keys.GeminiModel
+		if i := strings.IndexByte(name, ':'); i >= 0 { // gemini:gemini-pro-latest
+			model = strings.TrimSpace(name[i+1:])
+		}
+		if model == "" {
+			model = "gemini-2.5-pro"
+		}
+		return NewGemini(keys.Gemini, model), nil
+	}
+
 	// A '/' means an OpenRouter model slug (e.g. "meta-llama/llama-3.3-70b-instruct").
 	// Route it straight to OpenRouter without requiring the keyword "openrouter".
 	if strings.Contains(name, "/") {
@@ -63,11 +84,6 @@ func Resolve(name string, keys Keys) (JSONGenerator, error) {
 	}
 
 	switch strings.ToLower(name) {
-	case "gemini":
-		if keys.Gemini == "" {
-			return nil, fmt.Errorf("GEMINI_API_KEY is required for word provider gemini")
-		}
-		return NewGemini(keys.Gemini, "gemini-2.5-pro"), nil
 	case "openai":
 		if keys.OpenAI == "" {
 			return nil, fmt.Errorf("OPENAI_API_KEY is required for word provider openai")

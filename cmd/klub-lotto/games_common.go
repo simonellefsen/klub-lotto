@@ -194,6 +194,7 @@ func wordProvider(cfg *config.Config, override string) (llm.JSONGenerator, error
 func providerKeys(cfg *config.Config) llm.Keys {
 	return llm.Keys{
 		Gemini:              cfg.GeminiKey,
+		GeminiModel:         cfg.GeminiModel,
 		OpenAI:              cfg.OpenAIKey,
 		OpenAIModel:         cfg.OpenAIModel,
 		XAI:                 cfg.XAIKey,

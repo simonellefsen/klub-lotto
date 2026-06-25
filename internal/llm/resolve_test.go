@@ -26,18 +26,20 @@ func TestResolveRouting(t *testing.T) {
 		wantName   string // exact Name(), or "" to only check prefix
 		wantPrefix string
 	}{
-		{"", "gemini:gemini-2.5-pro", ""},          // default
+		{"", "gemini:gemini-2.5-pro", ""}, // default
 		{"gemini", "gemini:gemini-2.5-pro", ""},
-		{"openai", "openai:gpt-x", ""},             // uses OpenAIModel
+		{"gemini:gemini-pro-latest", "gemini:gemini-pro-latest", ""}, // native account, model override
+		{"gemini:gemini-3-pro-preview", "gemini:gemini-3-pro-preview", ""},
+		{"openai", "openai:gpt-x", ""}, // uses OpenAIModel
 		{"xai", "xai:grok-4-fast", ""},
 		{"grok", "xai:grok-4-fast", ""},
 		{"openrouter", "openrouter:or/default", ""}, // uses OpenRouterModel
 		{"anthropic", "", "anthropic:"},
 		{"claude", "", "anthropic:"},
-		{"zai", "zai:glm-5.2", ""},                 // default ZAIModel
-		{"zai:glm-9", "zai:glm-9", ""},             // slug override
+		{"zai", "zai:glm-5.2", ""},     // default ZAIModel
+		{"zai:glm-9", "zai:glm-9", ""}, // slug override
 		{"zai/glm-9", "zai:glm-9", ""},
-		{"glm-6", "zai:glm-6", ""},                 // bare glm- slug
+		{"glm-6", "zai:glm-6", ""}, // bare glm- slug
 		{"zhipu", "zai:glm-5.2", ""},
 		{"google/gemini-3.1-pro", "openrouter:google/gemini-3.1-pro", ""}, // '/' slug → openrouter
 	}
@@ -54,6 +56,25 @@ func TestResolveRouting(t *testing.T) {
 		if c.wantPrefix != "" && !strings.HasPrefix(got, c.wantPrefix) {
 			t.Errorf("Resolve(%q).Name() = %q, want prefix %q", c.name, got, c.wantPrefix)
 		}
+	}
+}
+
+// TestResolveGeminiModelDefault checks that the "gemini" keyword honours a
+// configured default model (GEMINI_MODEL) while "gemini:<model>" still overrides it.
+func TestResolveGeminiModelDefault(t *testing.T) {
+	k := fullKeys()
+	k.GeminiModel = "gemini-pro-latest"
+	p, err := Resolve("gemini", k)
+	if err != nil {
+		t.Fatalf("Resolve(gemini): %v", err)
+	}
+	if got := p.Name(); got != "gemini:gemini-pro-latest" {
+		t.Errorf("Resolve(gemini) with GeminiModel set = %q, want gemini:gemini-pro-latest", got)
+	}
+	// Explicit slug overrides the configured default.
+	p2, _ := Resolve("gemini:gemini-2.5-flash", k)
+	if got := p2.Name(); got != "gemini:gemini-2.5-flash" {
+		t.Errorf("Resolve(gemini:gemini-2.5-flash) = %q, want gemini:gemini-2.5-flash", got)
 	}
 }
 

@@ -18,9 +18,10 @@ type Config struct {
 	DanskespilUsername string
 	DanskespilPassword string
 
-	OpenAIKey string
-	XAIKey    string
-	GeminiKey string
+	OpenAIKey   string
+	XAIKey      string
+	GeminiKey   string
+	GeminiModel string // default model for the native "gemini" provider (e.g. gemini-pro-latest); "" → gemini-2.5-pro
 
 	// Extended provider keys (used by ordknude and future commands)
 	AnthropicKey            string
@@ -101,6 +102,7 @@ func Load(repoRoot string) (*Config, error) {
 		OpenAIKey:               get("OPENAI_API_KEY"),
 		XAIKey:                  get("XAI_API_KEY"),
 		GeminiKey:               get("GEMINI_API_KEY"),
+		GeminiModel:             get("GEMINI_MODEL"),
 		AnthropicKey:            get("ANTHROPIC_API_KEY"),
 		OpenRouterKey:           get("OPENROUTER_API_KEY"),
 		ZAIKey:                  get("ZAI_API_KEY"),
