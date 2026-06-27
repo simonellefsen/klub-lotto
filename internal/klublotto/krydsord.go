@@ -510,6 +510,59 @@ func SaveKrydsordArtifacts(dataDir string, data KrydsordData, slots []KrydsordSl
 	return art, nil
 }
 
+// krydsordClueCache is the on-disk shape for cached vision clue extraction. The
+// crossword id is stored alongside the clues as a sanity check so a stale or
+// mismatched file is never reused for a different puzzle.
+type krydsordClueCache struct {
+	CrosswordID string         `json:"crossword_id"`
+	Clues       []KrydsordClue `json:"clues"`
+}
+
+// KrydsordClueCachePath is the stable path for a puzzle's cached vision clues,
+// keyed by crossword id so each day's puzzle has its own file.
+func KrydsordClueCachePath(dataDir, crosswordID string) string {
+	id := crosswordID
+	if id == "" {
+		id = "unknown"
+	}
+	return filepath.Join(dataDir, "krydsord-clues-cache-"+id+".json")
+}
+
+// SaveKrydsordClueCache persists the vision-extracted clues so a later run on the
+// SAME puzzle (e.g. after an assembly retry) can skip the slow vision OCR. A
+// blank crossword id is not cached (it can't be safely matched on reload).
+func SaveKrydsordClueCache(dataDir, crosswordID string, clues []KrydsordClue) error {
+	if strings.TrimSpace(crosswordID) == "" || len(clues) == 0 {
+		return nil
+	}
+	if err := os.MkdirAll(dataDir, 0o755); err != nil {
+		return err
+	}
+	b, err := json.MarshalIndent(krydsordClueCache{CrosswordID: crosswordID, Clues: clues}, "", "  ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(KrydsordClueCachePath(dataDir, crosswordID), b, 0o644)
+}
+
+// LoadKrydsordClueCache returns the cached clues for a puzzle, and ok=false when
+// there is no cache, it can't be read/parsed, or the stored crossword id does
+// not match (guarding against a stale or wrong-puzzle file).
+func LoadKrydsordClueCache(dataDir, crosswordID string) ([]KrydsordClue, bool) {
+	if strings.TrimSpace(crosswordID) == "" {
+		return nil, false
+	}
+	b, err := os.ReadFile(KrydsordClueCachePath(dataDir, crosswordID))
+	if err != nil {
+		return nil, false
+	}
+	var cache krydsordClueCache
+	if err := json.Unmarshal(b, &cache); err != nil || cache.CrosswordID != crosswordID || len(cache.Clues) == 0 {
+		return nil, false
+	}
+	return cache.Clues, true
+}
+
 func krydsordRows(s string, width, height int) [][]rune {
 	cells := []rune(s)
 	rows := make([][]rune, height)

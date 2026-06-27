@@ -6,6 +6,38 @@ import (
 	"testing"
 )
 
+func TestKrydsordClueCacheRoundTrip(t *testing.T) {
+	dir := t.TempDir()
+	clues := []KrydsordClue{
+		{SlotID: "A1", Direction: "across", Clue: "ÆGTE", Length: 9},
+		{SlotID: "D6", Direction: "down", Clue: "teddy bear", Length: 5, IsImage: true},
+	}
+	if err := SaveKrydsordClueCache(dir, "21269", clues); err != nil {
+		t.Fatalf("SaveKrydsordClueCache: %v", err)
+	}
+	got, ok := LoadKrydsordClueCache(dir, "21269")
+	if !ok {
+		t.Fatal("LoadKrydsordClueCache: ok=false, want cached hit")
+	}
+	if !reflect.DeepEqual(got, clues) {
+		t.Fatalf("round-trip mismatch:\n got=%+v\nwant=%+v", got, clues)
+	}
+
+	// A different puzzle id must not reuse this cache (each file is id-scoped, and
+	// the stored id is re-checked on load).
+	if _, ok := LoadKrydsordClueCache(dir, "99999"); ok {
+		t.Fatal("LoadKrydsordClueCache(other id) = ok, want miss")
+	}
+
+	// A blank crossword id is never cached (can't be matched on reload).
+	if err := SaveKrydsordClueCache(dir, "", clues); err != nil {
+		t.Fatalf("SaveKrydsordClueCache(blank): %v", err)
+	}
+	if _, ok := LoadKrydsordClueCache(dir, ""); ok {
+		t.Fatal("LoadKrydsordClueCache(blank) = ok, want miss")
+	}
+}
+
 func TestKrydsordMaskAndSlots(t *testing.T) {
 	mask := strings.Join([]string{
 		"..........",

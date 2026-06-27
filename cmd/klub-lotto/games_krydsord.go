@@ -160,10 +160,12 @@ func runKrydsord(ctx context.Context, args []string) error {
 		// Same provider selection as the graph step, so OPENROUTER_VISION_MODEL
 		// overrides the default (e.g. OPENROUTER_VISION_MODEL=~google/gemini-pro-latest).
 		ac, _ := krydsordVisionProvider(cfg)
-		if n, ok := ac.(interface{ Name() string }); ok {
-			fmt.Printf("       vision model: %s\n", n.Name())
-		}
-		if ac == nil {
+		// Reuse a previous run's vision clues for this exact puzzle (keyed by
+		// crossword id) so a restart — e.g. after the assembler times out — skips the
+		// slow OCR and jumps straight to [3.6/4]. Delete the cache file to force a
+		// fresh read.
+		cachedClues, cluesCached := klublotto.LoadKrydsordClueCache(cfg.DataDir, data.CrosswordID)
+		if ac == nil && !cluesCached {
 			fmt.Println("       WARNING: no vision API key (GEMINI_API_KEY or ANTHROPIC_API_KEY); vision-based clue OCR unavailable.")
 			if !*dryRun {
 				return fmt.Errorf("GEMINI_API_KEY or ANTHROPIC_API_KEY is required for real `krydsord` solve+submit (use --dry-run to extract only, or --grid <file> to validate/supply a grid)")
@@ -172,18 +174,31 @@ func runKrydsord(ctx context.Context, args []string) error {
 			// solvedGrid stays [], later code will print dry note. --grid branch above already handled debug case.
 		} else {
 			var clues []klublotto.KrydsordClue
-			var verr error
-			clues, verr = klublotto.ExtractKrydsordClues(ctx, data, imgBytes, ac)
-			if verr != nil {
-				// Do not hard-fail the whole run on vision problems (common with haiku or truncated responses on complex boards).
-				// Log warning, ensure the raw is saved for post-mortem, and continue with whatever partial/empty clues we got.
-				// The mask is always authoritative for the assembler.
-				fmt.Printf("       WARNING: vision clue extraction had issues (%v). Raw saved to krydsord-vision-raw.txt. Will continue with %d clues (assembler uses mask + crossings primarily).\n", verr, len(clues))
-			}
-			// Copy the /tmp debug raw (written by Extract) into the normal artifacts dir for this run
-			// so it sits next to krydsord-board-*.jpg etc. Easy to retrieve even in k8s.
-			if b, rerr := os.ReadFile(filepath.Join(os.TempDir(), "krydsord-vision-raw.txt")); rerr == nil && len(b) > 0 {
-				_ = os.WriteFile(filepath.Join(cfg.DataDir, "krydsord-vision-raw.txt"), b, 0o644)
+			if cluesCached {
+				clues = cachedClues
+				fmt.Printf("       reusing %d cached clues for crossword %s — skipping vision OCR (delete %s to force a fresh read)\n",
+					len(clues), data.CrosswordID, klublotto.KrydsordClueCachePath(cfg.DataDir, data.CrosswordID))
+			} else {
+				if n, ok := ac.(interface{ Name() string }); ok {
+					fmt.Printf("       vision model: %s\n", n.Name())
+				}
+				var verr error
+				clues, verr = klublotto.ExtractKrydsordClues(ctx, data, imgBytes, ac)
+				if verr != nil {
+					// Do not hard-fail the whole run on vision problems (common with haiku or truncated responses on complex boards).
+					// Log warning, ensure the raw is saved for post-mortem, and continue with whatever partial/empty clues we got.
+					// The mask is always authoritative for the assembler.
+					fmt.Printf("       WARNING: vision clue extraction had issues (%v). Raw saved to krydsord-vision-raw.txt. Will continue with %d clues (assembler uses mask + crossings primarily).\n", verr, len(clues))
+				}
+				// Copy the /tmp debug raw (written by Extract) into the normal artifacts dir for this run
+				// so it sits next to krydsord-board-*.jpg etc. Easy to retrieve even in k8s.
+				if b, rerr := os.ReadFile(filepath.Join(os.TempDir(), "krydsord-vision-raw.txt")); rerr == nil && len(b) > 0 {
+					_ = os.WriteFile(filepath.Join(cfg.DataDir, "krydsord-vision-raw.txt"), b, 0o644)
+				}
+				// Cache the clues so a restart on this same puzzle reuses them.
+				if err := klublotto.SaveKrydsordClueCache(cfg.DataDir, data.CrosswordID, clues); err == nil && len(clues) > 0 {
+					fmt.Printf("       cached %d clues to %s for reuse on restart\n", len(clues), klublotto.KrydsordClueCachePath(cfg.DataDir, data.CrosswordID))
+				}
 			}
 			fmt.Printf("       %d clues extracted\n", len(clues))
 			for _, cl := range clues {
