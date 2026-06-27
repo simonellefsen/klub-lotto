@@ -839,11 +839,17 @@ func clickOrdknudeEnter(ctx context.Context, br *browser.Client) error {
 }
 
 func printOrdknudeState(st klublotto.OrdknudeState) {
-	fmt.Println("┌─────────────────────────────────────┐")
-	fmt.Printf("│  Ordknuden — %d guesses, %d remaining  │\n", len(st.History), st.Remaining)
-	fmt.Println("├─────────────────────────────────────┤")
+	// Size the box from the title so the right border stays aligned regardless of
+	// the guess/remaining digit counts. (Guess rows below are intentionally left
+	// open on the right — their emoji widths can't be column-aligned in a terminal.)
+	title := fmt.Sprintf("Ordknuden — %d guesses, %d remaining", len(st.History), st.Remaining)
+	inner := len([]rune(title)) + 4 // two-space margin on each side
+	bar := strings.Repeat("─", inner)
+	fmt.Printf("┌%s┐\n", bar)
+	fmt.Printf("│  %s  │\n", title)
+	fmt.Printf("├%s┤\n", bar)
 	if len(st.History) == 0 {
-		fmt.Println("│  (no guesses yet)                   │")
+		fmt.Printf("│  %-*s│\n", inner-2, "(no guesses yet)")
 	} else {
 		for i, h := range st.History {
 			emojis := make([]string, len(h.Marks))
@@ -865,7 +871,7 @@ func printOrdknudeState(st klublotto.OrdknudeState) {
 			fmt.Printf("│  %d. %s  %s\n", i+1, h.Word, strings.Join(emojis, ""))
 		}
 		// Summarise what we know
-		fmt.Println("├─────────────────────────────────────┤")
+		fmt.Printf("├%s┤\n", bar)
 		knownCorrect := map[int]rune{}
 		mustHave := map[rune]bool{}
 		mustNot := map[rune]bool{}
@@ -922,10 +928,7 @@ func printOrdknudeState(st klublotto.OrdknudeState) {
 			}
 		}
 	}
-	fmt.Println("└─────────────────────────────────────┘")
-	if st.Solved {
-		fmt.Println("✅ SOLVED:", st.Answer)
-	}
+	fmt.Printf("└%s┘\n", bar)
 }
 
 // extractOrdknudeAnswerFromSnap parses the agent-browser accessibility snapshot
