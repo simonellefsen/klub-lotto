@@ -165,6 +165,12 @@ func runKrydsord(ctx context.Context, args []string) error {
 		// slow OCR and jumps straight to [3.6/4]. Delete the cache file to force a
 		// fresh read.
 		cachedClues, cluesCached := klublotto.LoadKrydsordClueCache(cfg.DataDir, data.CrosswordID)
+		if cluesCached {
+			if !promptYesNo(fmt.Sprintf("       Found cached vision clues for crossword %s (%d clues). Use the cache and skip vision OCR?", data.CrosswordID, len(cachedClues)), true) {
+				fmt.Println("       re-reading clues via vision (the cache will be overwritten)...")
+				cluesCached, cachedClues = false, nil
+			}
+		}
 		if ac == nil && !cluesCached {
 			fmt.Println("       WARNING: no vision API key (GEMINI_API_KEY or ANTHROPIC_API_KEY); vision-based clue OCR unavailable.")
 			if !*dryRun {

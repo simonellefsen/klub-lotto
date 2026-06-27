@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -204,6 +205,33 @@ func providerKeys(cfg *config.Config) llm.Keys {
 		OpenRouterReasoning: cfg.OpenRouterReasoning,
 		ZAI:                 cfg.ZAIKey,
 		ZAIModel:            cfg.ZAIModel,
+	}
+}
+
+// promptYesNo asks a yes/no question on the terminal and returns the answer.
+// When stdin is not an interactive TTY (k8s, CI, piped input) it returns
+// defaultYes WITHOUT prompting, so non-interactive runs never block. Empty input
+// accepts the default; anything other than y/yes/n/no also falls back to it.
+func promptYesNo(question string, defaultYes bool) bool {
+	if stat, err := os.Stdin.Stat(); err != nil || (stat.Mode()&os.ModeCharDevice) == 0 {
+		return defaultYes // not a TTY — don't block
+	}
+	suffix := "[Y/n]"
+	if !defaultYes {
+		suffix = "[y/N]"
+	}
+	fmt.Printf("%s %s ", question, suffix)
+	line, err := bufio.NewReader(os.Stdin).ReadString('\n')
+	if err != nil {
+		return defaultYes
+	}
+	switch strings.ToLower(strings.TrimSpace(line)) {
+	case "y", "yes":
+		return true
+	case "n", "no":
+		return false
+	default:
+		return defaultYes
 	}
 }
 
