@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/simonellefsen/klub-lotto/internal/browser"
+	"github.com/simonellefsen/klub-lotto/internal/config"
 	"github.com/simonellefsen/klub-lotto/internal/klublotto"
 )
 
@@ -62,7 +63,35 @@ func runBlok(ctx context.Context, args []string) error {
 	} else {
 		fmt.Printf("[3/3] playing to game-over for max score (shots in %s)\n", d.shotDir)
 	}
-	return d.play(ctx, goal, *maxStepsFlag)
+	res, err := d.play(ctx, goal, *maxStepsFlag)
+	if err != nil {
+		return err
+	}
+	return logBlokScore(ctx, cfg, res)
+}
+
+// blokDailyThreshold is the score that earns the daily lod in Blok for Blok.
+const blokDailyThreshold = 200
+
+// logBlokScore records the final Blok score in the daily ledger, mirroring how
+// the other games upsert their result. The lod is awarded at blokDailyThreshold,
+// so we mark it registered once the best score passes it.
+func logBlokScore(ctx context.Context, cfg *config.Config, res blokResult) error {
+	passed := res.best >= blokDailyThreshold
+	recPath := filepath.Join(cfg.DataDir, "blok-scores.csv")
+
+	answer := fmt.Sprintf("Score %d · high score %d", res.current, res.best)
+	lod := fmt.Sprintf("daily lod earned (passed %d)", blokDailyThreshold)
+	if !passed {
+		lod = fmt.Sprintf("did not reach the %d-point daily lod", blokDailyThreshold)
+	}
+	notes := fmt.Sprintf("Played to game-over with the native Go solver; %s. Day's final score %d (high score %d) over %d placements. Per-move score record: `%s`.",
+		lod, res.current, res.best, res.placed, recPath)
+
+	fmt.Printf("       ledger: %s — %s\n", answer, lod)
+	return upsertDailyGame(ctx, cfg, "Blok for Blok",
+		fmt.Sprintf("Reach %d points (1010!-style block puzzle)", blokDailyThreshold),
+		answer, res.scored, passed, notes)
 }
 
 // blokDriver bundles the browser session + screenshot dir and the small set of
@@ -294,11 +323,24 @@ func pieceCells(s [][]int) int {
 	return n
 }
 
-func (d *blokDriver) play(ctx context.Context, goal, maxSteps int) error {
+// blokResult is the final state of a play loop, surfaced so runBlok can log the
+// score to the daily ledger. current/best are the last live scores read off the
+// iframe before the game-over screen replaced the board; scored is false if we
+// never managed to read a score (e.g. immediate game-over).
+type blokResult struct {
+	current int
+	best    int
+	steps   int
+	placed  int
+	scored  bool
+}
+
+func (d *blokDriver) play(ctx context.Context, goal, maxSteps int) (blokResult, error) {
+	var res blokResult
 	recPath := filepath.Join(d.shotDir, "blok-scores.csv")
 	rec, err := os.Create(recPath)
 	if err != nil {
-		return err
+		return res, err
 	}
 	defer rec.Close()
 	fmt.Fprintln(rec, "step,piece,row,col,current_score,best_score,placed_cells,board_filled")
@@ -322,7 +364,8 @@ func (d *blokDriver) play(ctx context.Context, goal, maxSteps int) error {
 	for steps < maxSteps {
 		select {
 		case <-ctx.Done():
-			return ctx.Err()
+			res.steps, res.placed = steps, placed
+			return res, ctx.Err()
 		default:
 		}
 		steps++
@@ -331,7 +374,8 @@ func (d *blokDriver) play(ctx context.Context, goal, maxSteps int) error {
 			d.shot(ctx, "blok_final.png")
 			fmt.Printf("[%d] board gone — likely game over (win/game-over screen). placed~%d. See blok_final.png\n", steps, placed)
 			fmt.Printf("score record written to %s\n", recPath)
-			return nil
+			res.steps, res.placed = steps, placed
+			return res, nil
 		}
 		sig := blokKey(read.board, read.pieces)
 		if sig != lastSig { // board/tray changed → fresh trio context
@@ -382,6 +426,7 @@ func (d *blokDriver) play(ctx context.Context, goal, maxSteps int) error {
 		curS, bestS := "", ""
 		if scoreOK {
 			curS, bestS = strconv.Itoa(cur), strconv.Itoa(best)
+			res.current, res.best, res.scored = cur, best, true
 		}
 		fmt.Fprintf(rec, "%d,%dx%d,%d,%d,%s,%s,%d,%d\n",
 			steps, piece.H, piece.W, mv.R, mv.C, curS, bestS, placed, blokCells(board2))
@@ -405,7 +450,8 @@ func (d *blokDriver) play(ctx context.Context, goal, maxSteps int) error {
 	d.shot(ctx, "blok_final.png")
 	fmt.Printf("score record written to %s\n", recPath)
 	fmt.Printf("DONE: ~%d cells placed in %d steps\n", placed, steps)
-	return nil
+	res.steps, res.placed = steps, placed
+	return res, nil
 }
 
 func orQ(s string) string {
