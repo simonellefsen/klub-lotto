@@ -5,6 +5,9 @@
   "1500": [
     "MD"
   ],
+  "50": [
+    "L"
+  ],
   "ANGER": [
     "RUELSE"
   ],
@@ -42,6 +45,9 @@
   "BEMÆRK": [
     "NB"
   ],
+  "BESKÆFTIGELSE": [
+    "YRKE"
+  ],
   "BESVÆR": [
     "BØVL"
   ],
@@ -57,7 +63,11 @@
     "FOTO"
   ],
   "BINDEMIDDEL": [
-    "REB"
+    "KIT",
+    "LIM",
+    "MEL",
+    "REB",
+    "TOV"
   ],
   "BIORD": [
     "AN"
@@ -66,6 +76,7 @@
     "GØ"
   ],
   "BLOMST": [
+    "IRIS",
     "ROSE",
     "ORKIDE"
   ],
@@ -216,6 +227,9 @@
   "FILMFIGUR": [
     "ET"
   ],
+  "FILMSELSKAB": [
+    "ASA"
+  ],
   "FINDES": [
     "ER"
   ],
@@ -271,6 +285,7 @@
     "REDES"
   ],
   "FRUGT": [
+    "DRUE",
     "ÆBLE",
     "AGERN",
     "MELON"
@@ -331,11 +346,23 @@
   "GÆTTE": [
     "GISNE"
   ],
+  "HANK": [
+    "ØRE"
+  ],
   "HAV": [
     "UTAL"
   ],
   "HEGN": [
     "GÆRDE"
+  ],
+  "HEJSEVÆRK": [
+    "KRAN"
+  ],
+  "HELT": [
+    "IDOL"
+  ],
+  "HILSEN": [
+    "DAV"
   ],
   "HIMMELSYN": [
     "UFO"
@@ -343,8 +370,14 @@
   "HJEM": [
     "BO"
   ],
+  "HJERNEKURVE": [
+    "EEG"
+  ],
   "HOLDERMEGETAF": [
     "ELSKER"
+  ],
+  "HOLDTTÆT": [
+    "TIET"
   ],
   "HORISONTALE": [
     "VANDRETTE"
@@ -407,6 +440,9 @@
   "JUDODRAGT": [
     "GI"
   ],
+  "JUDODRAGTEN": [
+    "GIEN"
+  ],
   "JÆVN": [
     "EGAL"
   ],
@@ -421,6 +457,10 @@
   ],
   "KILO": [
     "K"
+  ],
+  "KIOSK": [
+    "BUTIK",
+    "ISBOD"
   ],
   "KLARE": [
     "TÅLE"
@@ -448,6 +488,9 @@
   ],
   "KORTBOG": [
     "ATLAS"
+  ],
+  "KOSTBAR": [
+    "DYR"
   ],
   "KRADSE": [
     "KLØ"
@@ -521,6 +564,9 @@
   "MAGASIN": [
     "BLAD"
   ],
+  "MANGE": [
+    "ADSKILLIGE"
+  ],
   "MASSERE": [
     "ÆLTE"
   ],
@@ -536,6 +582,12 @@
   "MONTERET": [
     "ISAT"
   ],
+  "MORAL": [
+    "ETIK"
+  ],
+  "MOTORSKIB": [
+    "MS"
+  ],
   "MUSIKGENRE": [
     "FOLK",
     "ROCK",
@@ -543,6 +595,9 @@
   ],
   "MÅLER": [
     "UR"
+  ],
+  "MÅLFORK": [
+    "KM"
   ],
   "MÆRKE": [
     "AR",
@@ -642,6 +697,9 @@
   "PRIS": [
     "ROS"
   ],
+  "PRIVATE": [
+    "EGNE"
+  ],
   "PRODUKTIVE": [
     "YDEDYGTIGE"
   ],
@@ -666,7 +724,8 @@
     "SØ",
     "OP",
     "UD",
-    "UDAD"
+    "UDAD",
+    "NEDAD"
   ],
   "REX": [
     "R"
@@ -685,6 +744,9 @@
   ],
   "RYTMISKE": [
     "TAKTFASTE"
+  ],
+  "RÆKKE": [
+    "KØ"
   ],
   "RØG": [
     "OS"
@@ -771,6 +833,9 @@
   "SPORTSUDSTYR": [
     "SKATEBOARD"
   ],
+  "SPROG": [
+    "IRSK"
+  ],
   "SPÆDBARN": [
     "BABY"
   ],
@@ -796,6 +861,9 @@
   "STÆDIG": [
     "UFORSONLIG"
   ],
+  "STÆNGERNE": [
+    "BENENE"
+  ],
   "STÆR": [
     "BEO",
     "DYR"
@@ -811,6 +879,9 @@
   ],
   "SVINGOM": [
     "DANS"
+  ],
+  "SYD": [
+    "S"
   ],
   "SÆLSOM": [
     "APARTE"
@@ -852,6 +923,9 @@
     "EKS",
     "FØR",
     "SEN"
+  ],
+  "TILSÆTTER": [
+    "IRØRER"
   ],
   "TJAVS": [
     "LOK"
@@ -1003,6 +1077,9 @@
   "[IMG]CHAIRS": [
     "STOLE"
   ],
+  "[IMG]CINNAMONROLL": [
+    "REB"
+  ],
   "[IMG]CLOVER": [
     "KLØVER"
   ],
@@ -1057,11 +1134,17 @@
   "[IMG]SNAIL": [
     "SNEGL"
   ],
+  "[IMG]SOCKS": [
+    "SOKKER"
+  ],
   "[IMG]STITCHES": [
     "AR"
   ],
   "[IMG]SWEATER": [
     "TRØJE"
+  ],
+  "[IMG]TEDDYBEAR": [
+    "BAMSE"
   ],
   "[IMG]TELEVISION": [
     "TV"
@@ -1074,6 +1157,9 @@
   ],
   "ÆDELSTEN": [
     "JUVEL"
+  ],
+  "ÆGTE": [
+    "AUTENTISK"
   ],
   "ØDELAGT": [
     "ITU"

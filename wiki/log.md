@@ -345,3 +345,11 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-27 04:00 UTC] ingest | quiz | Hvilken film indeholder det berømte citat 'Jeg ser døde me… | outcome=submitted
 
+## [2026-06-27 04:04 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-27 04:22 UTC] ingest | ordkløver | Category: `Ekstravagant indretning`; answer pattern `3 / 4 /… | outcome=submitted
+
+## [2026-06-27 04:23 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
+## [2026-06-27 04:54 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+
