@@ -824,14 +824,32 @@ func ExtractOrdKloeverState(ctx context.Context, br *browser.Client, ac llm.Visi
 	if (st.Category == "" || st.Shape == "" || st.Board == "") && (strings.Contains(st.Raw, `"CATEGORY"`) || strings.Contains(st.Raw, `"SHAPE"`) || strings.Contains(st.Raw, `"BOARD"`)) {
 		var j map[string]interface{}
 		if json.Unmarshal([]byte(st.Raw), &j) == nil {
-			if v, ok := j["CATEGORY"].(string); ok && v != "" && !strings.EqualFold(v, "Not visible") { st.Category = v }
-			if v, ok := j["HINT"].(string); ok && v != "" && !strings.EqualFold(v, "Not visible") { st.Hint = v }
-			if v, ok := j["SHAPE"].(string); ok && v != "" && !strings.EqualFold(v, "Unknown") { st.Shape = v; if st.VisualShape == "" { st.VisualShape = v } }
-			if v, ok := j["BOARD"].(string); ok && v != "" { st.Board = v; if st.VisualBoard == "" { st.VisualBoard = v } }
-			if v, ok := j["GUESSED"].(string); ok && v != "" { st.GuessedLetters = CleanGuessedLetters(v) }
+			if v, ok := j["CATEGORY"].(string); ok && v != "" && !strings.EqualFold(v, "Not visible") {
+				st.Category = v
+			}
+			if v, ok := j["HINT"].(string); ok && v != "" && !strings.EqualFold(v, "Not visible") {
+				st.Hint = v
+			}
+			if v, ok := j["SHAPE"].(string); ok && v != "" && !strings.EqualFold(v, "Unknown") {
+				st.Shape = v
+				if st.VisualShape == "" {
+					st.VisualShape = v
+				}
+			}
+			if v, ok := j["BOARD"].(string); ok && v != "" {
+				st.Board = v
+				if st.VisualBoard == "" {
+					st.VisualBoard = v
+				}
+			}
+			if v, ok := j["GUESSED"].(string); ok && v != "" {
+				st.GuessedLetters = CleanGuessedLetters(v)
+			}
 			if v, ok := j["ATTEMPTS"].(string); ok && st.Attempts == 0 {
 				if idx := strings.Index(v, "/"); idx > 0 {
-					if n, _ := strconv.Atoi(strings.TrimSpace(v[:idx])); n > 0 { st.Attempts = n }
+					if n, _ := strconv.Atoi(strings.TrimSpace(v[:idx])); n > 0 {
+						st.Attempts = n
+					}
 				}
 			}
 		}
@@ -912,7 +930,9 @@ func extractOrdKloeverViaVision(ctx context.Context, br *browser.Client, ac llm.
 				crop := image.Rect(rinfo.Left, rinfo.Top, rinfo.Left+rinfo.Width, rinfo.Top+rinfo.Height)
 				crop = crop.Intersect(bounds)
 				if !crop.Empty() {
-					if sub, ok := full.(interface{ SubImage(image.Rectangle) image.Image }); ok {
+					if sub, ok := full.(interface {
+						SubImage(image.Rectangle) image.Image
+					}); ok {
 						croppedImg := sub.SubImage(crop)
 						var buf bytes.Buffer
 						if png.Encode(&buf, croppedImg) == nil {
@@ -1171,12 +1191,12 @@ If the game is finished or already answered: set attempts.used equal to attempts
 // Must be run via br.Frame("iframe.kl-game__iframe") to avoid cross-origin block.
 //
 // Classification priority:
-//   1. CSS class names (correct / wrong / absent / incorrect / used / disabled)
-//   2. data-state / data-status attribute
-//   3. Computed background colour:
-//        green  (g > 120 && g > r+50 && g > b+30) → correct (found in word)
-//        dark   (r+g+b < 150)                     → incorrect (not in word)
-//   4. disabled / aria-disabled attribute
+//  1. CSS class names (correct / wrong / absent / incorrect / used / disabled)
+//  2. data-state / data-status attribute
+//  3. Computed background colour:
+//     green  (g > 120 && g > r+50 && g > b+30) → correct (found in word)
+//     dark   (r+g+b < 150)                     → incorrect (not in word)
+//  4. disabled / aria-disabled attribute
 //
 // Returns JSON: {"correct":["E","R",…],"incorrect":["N",…]}
 const ordKloeverKeyboardJS = `(() => {
@@ -1491,7 +1511,9 @@ func extractBoardViaVision(ctx context.Context, br *browser.Client, ac llm.Visio
 				crop := image.Rect(rinfo.Left, rinfo.Top, rinfo.Left+rinfo.Width, rinfo.Top+rinfo.Height)
 				crop = crop.Intersect(bounds)
 				if !crop.Empty() {
-					if sub, ok := full.(interface{ SubImage(image.Rectangle) image.Image }); ok {
+					if sub, ok := full.(interface {
+						SubImage(image.Rectangle) image.Image
+					}); ok {
 						croppedImg := sub.SubImage(crop)
 						var buf bytes.Buffer
 						if png.Encode(&buf, croppedImg) == nil {
@@ -1523,7 +1545,9 @@ func extractBoardViaVision(ctx context.Context, br *browser.Client, ac llm.Visio
 				cy1 := b.Min.Y + int(float64(h)*0.88)
 				c2 := image.Rect(cx0, cy0, cx1, cy1).Intersect(b)
 				if !c2.Empty() {
-					if sub2, ok := full2.(interface{ SubImage(image.Rectangle) image.Image }); ok {
+					if sub2, ok := full2.(interface {
+						SubImage(image.Rectangle) image.Image
+					}); ok {
 						cimg := sub2.SubImage(c2)
 						var buf2 bytes.Buffer
 						if png.Encode(&buf2, cimg) == nil {
@@ -1759,7 +1783,7 @@ func buildOrdknudeStateFromWords(ctx context.Context, br *browser.Client, ac llm
 // The Ordknude game renders all board letters as a single text node in the
 // accessibility tree:
 //
-//	- text: s p a l t d r ø n e d r o n e …
+//   - text: s p a l t d r ø n e d r o n e …
 //
 // We split by space, group in chunks of 5, and return the submitted words.
 // Color marks are NOT available here — they require a separate vision call.
@@ -1833,13 +1857,13 @@ func extractOrdknudeWordsFromFrame(ctx context.Context, br *browser.Client) ([]s
 //  2. Individual StaticText nodes directly under the Iframe element — the
 //     format produced by the parent-page snapshot (snapshot / snapshot -F):
 //
-//	- Iframe [ref=eXX]
-//	  - StaticText "Ø"   ← first letter of first guess
-//	  - StaticText "R"
-//	  …
-//	  - StaticText "E"   ← last letter of last guess
-//	  - generic          ← keyboard; stop here
-//	    - button "Q" …
+//     - Iframe [ref=eXX]
+//     - StaticText "Ø"   ← first letter of first guess
+//     - StaticText "R"
+//     …
+//     - StaticText "E"   ← last letter of last guess
+//     - generic          ← keyboard; stop here
+//     - button "Q" …
 //
 // This function handles both formats so existing call sites keep working.
 func parseWordsFromSnapTextNode(snap string) []string {
@@ -2147,17 +2171,17 @@ func ExtractOrdknudeState(ctx context.Context, br *browser.Client, ac llm.Vision
 	st.Raw = raw
 	lowerRaw := strings.ToLower(raw)
 	endPhrases := []string{
-		"det rigtige svar var",   // loss screen: "The correct answer was: gummi"
-		"lige ved og næsten",     // loss: "Close but no cigar"
-		"tillykke",               // win: "Congratulations"
-		"du vandt",               // win: "You won"
-		"super imponerende",      // win banner: "Super imponerende!"
+		"det rigtige svar var",      // loss screen: "The correct answer was: gummi"
+		"lige ved og næsten",        // loss: "Close but no cigar"
+		"tillykke",                  // win: "Congratulations"
+		"du vandt",                  // win: "You won"
+		"super imponerende",         // win banner: "Super imponerende!"
 		"fandt frem til dagens ord", // win banner: "Du fandt frem til dagens ord"
-		"ord-haj",                // win banner: "Du er en sand ord-haj!"
-		"besvaret",               // already answered today
+		"ord-haj",                   // win banner: "Du er en sand ord-haj!"
+		"besvaret",                  // already answered today
 		"allerede besvaret",
 		"du har allerede",
-		"dagens første lod",      // lod awarded = completed
+		"dagens første lod", // lod awarded = completed
 	}
 	for _, phrase := range endPhrases {
 		if strings.Contains(lowerRaw, phrase) {
@@ -2489,10 +2513,10 @@ func BuildOrdknudePrompt(st OrdknudeState, rejected []string) string {
 		// Derive explicit constraints from history so the LLM doesn't have to.
 		// correctAt[pos] = letter (1-indexed), presentForbidden[letter] = set of forbidden positions,
 		// mustInclude = set of letters that must appear, absentLetters = letters not in word.
-		correctAt := map[int]rune{}               // pos → letter
-		presentForbidden := map[rune][]int{}       // letter → positions where it's forbidden (present/absent)
-		mustInclude := map[rune]bool{}             // letters known to be in the word
-		absentLetters := map[rune]bool{}           // letters not in word at all
+		correctAt := map[int]rune{}          // pos → letter
+		presentForbidden := map[rune][]int{} // letter → positions where it's forbidden (present/absent)
+		mustInclude := map[rune]bool{}       // letters known to be in the word
+		absentLetters := map[rune]bool{}     // letters not in word at all
 
 		for _, h := range st.History {
 			runes := []rune(h.Word)
@@ -2585,8 +2609,8 @@ func BuildOrdknudePrompt(st OrdknudeState, rejected []string) string {
 	if len(rejected) > 0 {
 		fmt.Fprintf(&b, "Afviste ord (må ikke foreslås): %s\n", strings.Join(rejected, ", "))
 	}
-	b.WriteString("\nForeslå 3-6 forskellige kandidater der overholder ALLE regler ovenfor. Prioritér ord der tester nye bogstaver og respekterer gule positioner.\n")
-	b.WriteString("VIGTIGT: Hvis GULE begrænsninger er i konflikt med GRØNNE (dvs. et gult bogstav ikke har nogen ledig plads fordi alle andre pladser er låst af grønne), ignorér da de umulige GULE begrænsninger og foreslå ord der matcher alle GRØNNE pladser og udelukker GRÅ bogstaver. Notér konflikten i rationale. Returnér ALTID mindst 3 kandidater — tom liste er ikke tilladt.\n")
+	b.WriteString("\nForeslå 1-4 forskellige kandidater der overholder ALLE regler ovenfor. Prioritér ord der tester nye bogstaver og respekterer gule positioner.\n")
+	b.WriteString("VIGTIGT: Hvis GULE begrænsninger er i konflikt med GRØNNE (dvs. et gult bogstav ikke har nogen ledig plads fordi alle andre pladser er låst af grønne), ignorér da de umulige GULE begrænsninger og foreslå ord der matcher alle GRØNNE pladser og udelukker GRÅ bogstaver. Notér konflikten i rationale. Returnér ALTID mindst 1 kandidat — tom liste er ikke tilladt.\n")
 	return b.String()
 }
 
@@ -3191,8 +3215,8 @@ func FindRefByName(snap string, names []string) string {
 // FindRefByChildText finds a ref for an element whose immediate child is a
 // StaticText node with the given text. This handles the pattern:
 //
-//	- generic [ref=eXX] clickable [cursor:pointer]
-//	  - StaticText "5"
+//   - generic [ref=eXX] clickable [cursor:pointer]
+//   - StaticText "5"
 //
 // which the newer agent-browser emits for iframe buttons that don't have
 // their own accessible name but contain visible text.
