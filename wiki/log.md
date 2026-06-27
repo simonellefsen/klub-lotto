@@ -343,3 +343,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-25 22:42 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
 
+## [2026-06-27 04:00 UTC] ingest | quiz | Hvilken film indeholder det berømte citat 'Jeg ser døde me… | outcome=submitted
+
