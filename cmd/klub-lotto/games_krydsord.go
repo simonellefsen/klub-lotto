@@ -431,8 +431,8 @@ func runKrydsord(ctx context.Context, args []string) error {
 			}
 		}
 	}
-	notes := appendModelNote("Solved via clues OCR + LLM candidates + consistent grid. Saved via vendor API + Tjek løsning. Screenshot: `"+shot+"`.", krydsordModel)
-	return upsertDailyGame(ctx, cfg, "Krydsord", "Danish clues-in-squares crossword", gridOneLineKrydsord(solvedGrid), true, true, notes)
+	notes := appendModelNote("Solved via clues OCR + LLM candidates + consistent grid. Saved via vendor API + Tjek løsning.", krydsordModel)
+	return upsertDailyGame(ctx, cfg, "Krydsord", "Danish clues-in-squares crossword", krydsordAnswerBoard(solvedGrid), true, true, notes)
 }
 
 // krydsordDeconstructPrompt asks a vision model to read a Scandinavian
@@ -839,8 +839,8 @@ func solveKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, 
 		if err := dict.Save(dictPath); err == nil && added > 0 {
 			fmt.Printf("   [learn] recorded %d verified clue→answer entries to %s\n", added, dictPath)
 		}
-		return upsertDailyGame(ctx, cfg, "Krydsord", "Danish clues-in-squares crossword", gridOneLineKrydsord(grid), true, true,
-			fmt.Sprintf("Solved via two-stage graph→CSP→LLM (%s). Screenshot: `%s`.", solveSource, shot))
+		return upsertDailyGame(ctx, cfg, "Krydsord", "Danish clues-in-squares crossword", krydsordAnswerBoard(grid), true, true,
+			fmt.Sprintf("Solved via two-stage graph→CSP→LLM (%s).", solveSource))
 	}
 	return nil
 }
@@ -1393,12 +1393,90 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 	return nil, fmt.Errorf("krydsord assembly failed after %d attempts: %w", maxAttempts, lastErr)
 }
 
-func gridOneLineKrydsord(g []string) string {
-	s := strings.Join(g, " / ")
-	if len(s) > 120 {
-		s = s[:117] + "..."
+// krydsordAnswerBoard renders the solved grid as a compact, monospaced board for
+// the daily ledger: a header of column numbers, a separator, then each row
+// labelled A, B, C… The all-blocked outer frame (the vendor's 1-indexed border
+// row/column) is cropped away by clipping to the bounding box of letter cells, so
+// the meaningless leading "."-only row and column drop out; interior blocked
+// cells stay as ".". Each line is wrapped in backticks and joined with <br> so it
+// renders as aligned monospace inside a Markdown table cell. The column separator
+// is "│" (U+2502, box drawing) — NOT an ASCII "|", which would split the cell.
+func krydsordAnswerBoard(g []string) string {
+	rows := make([][]rune, len(g))
+	width := 0
+	for i, r := range g {
+		rows[i] = []rune(r)
+		if len(rows[i]) > width {
+			width = len(rows[i])
+		}
 	}
-	return s
+	cellAt := func(r, c int) rune {
+		if r < 0 || r >= len(rows) || c < 0 || c >= len(rows[r]) {
+			return '.'
+		}
+		return rows[r][c]
+	}
+	isLetter := func(ch rune) bool { return ch != '.' && ch != ' ' && ch != 0 }
+
+	// Clip to the bounding box of letter cells (drops fully-blocked edges).
+	minR, maxR, minC, maxC := len(rows), -1, width, -1
+	for r := range rows {
+		for c := 0; c < width; c++ {
+			if isLetter(cellAt(r, c)) {
+				if r < minR {
+					minR = r
+				}
+				if r > maxR {
+					maxR = r
+				}
+				if c < minC {
+					minC = c
+				}
+				if c > maxC {
+					maxC = c
+				}
+			}
+		}
+	}
+	if maxR < 0 { // no letters at all — fall back to a plain join
+		return strings.Join(g, " / ")
+	}
+	cropW := maxC - minC + 1
+
+	var lines []string
+	var hdr strings.Builder
+	hdr.WriteString("* │ ")
+	for c := 0; c < cropW; c++ {
+		hdr.WriteByte(byte('0' + (c+1)%10))
+	}
+	lines = append(lines, hdr.String())
+	lines = append(lines, strings.Repeat("-", 4+cropW))
+	for r := minR; r <= maxR; r++ {
+		var sb strings.Builder
+		sb.WriteString(krydsordRowLabel(r - minR))
+		sb.WriteString(" │ ")
+		for c := minC; c <= maxC; c++ {
+			ch := cellAt(r, c)
+			if !isLetter(ch) {
+				ch = '.'
+			}
+			sb.WriteRune(ch)
+		}
+		lines = append(lines, sb.String())
+	}
+	for i, ln := range lines {
+		lines[i] = "`" + ln + "`"
+	}
+	return strings.Join(lines, "<br>")
+}
+
+// krydsordRowLabel maps a 0-based row index to A, B, C… (puzzles are far smaller
+// than 26 rows; beyond that it falls back to the 1-based number).
+func krydsordRowLabel(i int) string {
+	if i >= 0 && i < 26 {
+		return string(rune('A' + i))
+	}
+	return fmt.Sprintf("%d", i+1)
 }
 
 // repairKrydsordConflictsLLM asks the model to correct ONLY the slots involved in

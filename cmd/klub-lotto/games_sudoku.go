@@ -76,7 +76,7 @@ func runSudoku(ctx context.Context, args []string) error {
 	}
 	shot := filepath.Join(cfg.DataDir, "sudoku-result-"+time.Now().UTC().Format("20060102-150405")+".png")
 	_ = br.Screenshot(ctx, shot)
-	return upsertDailyGame(ctx, cfg, "Sudoku", "9x9 Sudoku", gridOneLine(solved), true, true, "Solved with deterministic local compute. Screenshot: `"+shot+"`.")
+	return upsertDailyGame(ctx, cfg, "Sudoku", "9x9 Sudoku", gridOneLine(solved), true, true, "Solved with deterministic local compute.")
 }
 
 func submitSudoku(ctx context.Context, br *browser.Client, givens, solved klublotto.SudokuGrid) error {
