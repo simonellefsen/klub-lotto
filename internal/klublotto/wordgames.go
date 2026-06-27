@@ -2191,7 +2191,7 @@ func ExtractOrdknudeState(ctx context.Context, br *browser.Client, ac llm.Vision
 			// copy is "Super imponerende! … ord-haj!").
 			if IsOrdknudeWinText(raw) {
 				st.Solved = true
-				st.Answer = findFiveLetterAnswer(raw)
+				st.Answer = findLossScreenAnswer(raw)
 			}
 			// Try to get the history from the frame even on end screen (may fail gracefully).
 			if frameWords, err := extractOrdknudeWordsFromFrame(ctx, br); err == nil && len(frameWords) > 0 {
@@ -2275,7 +2275,7 @@ func ExtractOrdknudeState(ctx context.Context, br *browser.Client, ac llm.Vision
 			raw, _ := br.Eval(ctx, `document.body ? document.body.innerText : ""`)
 			st.Raw = raw
 			if st.Solved {
-				st.Answer = findFiveLetterAnswer(raw)
+				st.Answer = findLossScreenAnswer(raw)
 			}
 			lowerRaw := strings.ToLower(raw)
 			if strings.Contains(lowerRaw, "besvaret") || strings.Contains(lowerRaw, "allerede besvaret") || strings.Contains(lowerRaw, "du har allerede") {
@@ -2332,7 +2332,7 @@ func ExtractOrdknudeState(ctx context.Context, br *browser.Client, ac llm.Vision
 	}
 	st.Remaining = 6 - len(st.History)
 	if st.Solved {
-		st.Answer = findFiveLetterAnswer(raw)
+		st.Answer = findLossScreenAnswer(raw)
 	}
 
 	// No iframe navigation in this path; ensure we are on parent.
@@ -3333,27 +3333,26 @@ func firstCapture(s, expr string) string {
 	return strings.TrimSpace(m[1])
 }
 
-func findFiveLetterAnswer(raw string) string {
-	// First try: look explicitly for "Det rigtige svar var" followed by the answer.
+// findLossScreenAnswer returns the answer Ordknuden reveals ONLY on the loss
+// screen — "Det rigtige svar var: <ord>". A win never shows the answer on the
+// page, so this returns "" there and the caller must fall back to the player's
+// last correct guess. We deliberately do NOT scan the page for any 5-letter run:
+// that "fallback" matched unrelated tokens in win-banner/chrome text (e.g.
+// "IATIO") and produced a bogus answer.
+func findLossScreenAnswer(raw string) string {
 	lower := strings.ToLower(raw)
-	if idx := strings.Index(lower, "det rigtige svar var"); idx >= 0 {
-		rest := strings.TrimLeft(raw[idx+len("det rigtige svar var"):], " :\n\r\t\"")
-		fields := strings.Fields(rest)
-		if len(fields) > 0 {
-			word := NormalizeDanishLetters(fields[0])
-			if len([]rune(word)) >= 3 {
-				return word
-			}
-		}
+	idx := strings.Index(lower, "det rigtige svar var")
+	if idx < 0 {
+		return ""
 	}
-	// Fallback: scan for any 5-letter Danish word (upper or lower case).
-	re := regexp.MustCompile(`(?i)[A-ZÆØÅ]{5}`)
-	matches := re.FindAllString(raw, -1)
-	for i := len(matches) - 1; i >= 0; i-- {
-		word := NormalizeDanishLetters(matches[i])
-		if IsDanishFiveLetterWord(word) {
-			return word
-		}
+	rest := strings.TrimLeft(raw[idx+len("det rigtige svar var"):], " :\n\r\t\"")
+	fields := strings.Fields(rest)
+	if len(fields) == 0 {
+		return ""
 	}
-	return ""
+	word := NormalizeDanishLetters(fields[0])
+	if len([]rune(word)) < 3 {
+		return ""
+	}
+	return word
 }

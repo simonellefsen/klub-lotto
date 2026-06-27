@@ -15,6 +15,20 @@ func TestNormalizeDanishPhraseKeepsDanishLetters(t *testing.T) {
 	}
 }
 
+func TestFindLossScreenAnswer(t *testing.T) {
+	// Loss screen reveals the answer after the explicit marker.
+	loss := "Lige ved og næsten! Det rigtige svar var: GUMMI. Prøv igen i morgen."
+	if got := findLossScreenAnswer(loss); got != "GUMMI" {
+		t.Fatalf("findLossScreenAnswer(loss) = %q, want GUMMI", got)
+	}
+	// Win banner never carries the answer — must return "" (not a junk 5-letter
+	// run scraped from chrome text like "...imponerende...").
+	win := "Super imponerende! Du fandt frem til dagens ord. Du er en sand ord-haj!"
+	if got := findLossScreenAnswer(win); got != "" {
+		t.Fatalf("findLossScreenAnswer(win) = %q, want empty", got)
+	}
+}
+
 func TestIsDanishFiveLetterWord(t *testing.T) {
 	for _, word := range []string{"SALÆR", "BLÅÅL", "ABCDE"} {
 		if !IsDanishFiveLetterWord(word) {
