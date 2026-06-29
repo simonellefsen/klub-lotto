@@ -88,9 +88,18 @@ func runOrdKloever(ctx context.Context, args []string) error {
 	// Secondary cross-check is disabled — it failed too often and added latency.
 	var ac llm.VisionProvider
 	switch {
-	case cfg.OpenRouterKey != "" && cfg.OpenRouterVisionModel != "":
-		ac = llm.NewOpenRouterVision(cfg.OpenRouterKey, cfg.OpenRouterVisionModel)
-		fmt.Printf("   [vision] primary: openrouter:%s\n", cfg.OpenRouterVisionModel)
+	case strings.TrimSpace(cfg.OpenRouterVisionModel) != "":
+		// Route the configured vision model by its slug syntax (gemini[:model] →
+		// native Gemini, anthropic[:model] → native Anthropic, author/model →
+		// OpenRouter) instead of always assuming an OpenRouter slug.
+		vp, verr := llm.ResolveVision(strings.TrimSpace(cfg.OpenRouterVisionModel), providerKeys(cfg))
+		if verr != nil {
+			return verr
+		}
+		ac = vp
+		if n, ok := ac.(interface{ Name() string }); ok {
+			fmt.Printf("   [vision] primary: %s\n", n.Name())
+		}
 	case cfg.GeminiKey != "":
 		ac = llm.NewGemini(cfg.GeminiKey, "gemini-2.5-pro")
 		fmt.Println("   [vision] primary: gemini:gemini-2.5-pro")

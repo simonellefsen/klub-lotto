@@ -101,6 +101,43 @@ func TestResolveMissingKeys(t *testing.T) {
 	}
 }
 
+func TestResolveVisionRouting(t *testing.T) {
+	k := fullKeys()
+
+	// "gemini:<model>" → native Gemini vision (the bug: previously routed to
+	// OpenRouter and rejected as an invalid model id).
+	vp, err := ResolveVision("gemini:gemini-pro-latest", k)
+	if err != nil {
+		t.Fatalf("ResolveVision(gemini:...): %v", err)
+	}
+	g, ok := vp.(*Gemini)
+	if !ok {
+		t.Fatalf("gemini slug → %T, want *Gemini", vp)
+	}
+	if g.Model != "gemini-pro-latest" {
+		t.Errorf("Gemini.Model = %q, want gemini-pro-latest", g.Model)
+	}
+
+	// An "author/model" slug still routes to OpenRouter vision.
+	if vp, err := ResolveVision("openai/gpt-5.5", k); err != nil {
+		t.Fatalf("ResolveVision(slug): %v", err)
+	} else if _, ok := vp.(*OpenRouterVision); !ok {
+		t.Fatalf("slug → %T, want *OpenRouterVision", vp)
+	}
+
+	// "claude" → native Anthropic vision.
+	if vp, err := ResolveVision("claude", k); err != nil {
+		t.Fatalf("ResolveVision(claude): %v", err)
+	} else if _, ok := vp.(*Anthropic); !ok {
+		t.Fatalf("claude → %T, want *Anthropic", vp)
+	}
+
+	// Missing key for the routed provider is a clear error, not a silent fallback.
+	if _, err := ResolveVision("gemini:x", Keys{}); err == nil || !strings.Contains(err.Error(), "GEMINI_API_KEY") {
+		t.Fatalf("ResolveVision(gemini, no key) err = %v, want GEMINI_API_KEY", err)
+	}
+}
+
 func TestResolveUnknown(t *testing.T) {
 	_, err := Resolve("totally-bogus", fullKeys())
 	if err == nil || !strings.Contains(err.Error(), "unknown word provider") {

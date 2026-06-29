@@ -488,9 +488,15 @@ Return ONLY a JSON object, no prose, in exactly this shape:
 // (e.g. OPENROUTER_VISION_MODEL=~google/gemini-pro-latest or openai/gpt-5.4).
 // The caller logs the chosen model.
 func krydsordVisionProvider(cfg *config.Config) (llm.VisionProvider, error) {
+	// An explicit vision model (VISION_MODEL / OPENROUTER_VISION_MODEL) is routed by
+	// its slug syntax: "gemini[:model]" → native Gemini, "anthropic[:model]" → native
+	// Anthropic, and an "author/model" slug → OpenRouter. This is what lets
+	// VISION_MODEL=gemini:gemini-pro-latest hit Google directly instead of being
+	// shoved into OpenRouter as an invalid model id.
+	if m := strings.TrimSpace(cfg.OpenRouterVisionModel); m != "" {
+		return llm.ResolveVision(m, providerKeys(cfg))
+	}
 	switch {
-	case cfg.OpenRouterKey != "" && cfg.OpenRouterVisionModel != "":
-		return llm.NewOpenRouterVision(cfg.OpenRouterKey, cfg.OpenRouterVisionModel), nil
 	case cfg.GeminiKey != "":
 		return llm.NewGemini(cfg.GeminiKey, "gemini-2.5-pro"), nil
 	case cfg.AnthropicKey != "":

@@ -109,6 +109,54 @@ func Resolve(name string, keys Keys) (JSONGenerator, error) {
 	}
 }
 
+// ResolveVision maps a vision-model name to a VisionProvider, mirroring Resolve's
+// routing on the image path so the same slug syntax works for VISION models:
+//
+//   - "gemini" or "gemini:<model>"        → native Gemini vision (GEMINI_API_KEY)
+//   - "anthropic"/"claude"[:<model>]      → native Anthropic vision
+//   - anything containing "/" (e.g. "openai/gpt-5.5", "~google/gemini-pro-latest",
+//     "google/gemini-2.5-pro")            → OpenRouter vision
+//
+// Without this, a "gemini:<model>" vision slug was passed straight to OpenRouter
+// and rejected ("gemini:gemini-3.5-pro is not a valid model ID").
+func ResolveVision(name string, keys Keys) (VisionProvider, error) {
+	name = strings.TrimSpace(name)
+	if name == "" {
+		return nil, fmt.Errorf("empty vision model")
+	}
+	low := strings.ToLower(name)
+	switch {
+	case low == "gemini" || strings.HasPrefix(low, "gemini:"):
+		if keys.Gemini == "" {
+			return nil, fmt.Errorf("GEMINI_API_KEY is required for vision model %q", name)
+		}
+		model := keys.GeminiModel
+		if i := strings.IndexByte(name, ':'); i >= 0 {
+			model = strings.TrimSpace(name[i+1:])
+		}
+		if model == "" {
+			model = "gemini-2.5-pro"
+		}
+		return NewGemini(keys.Gemini, model), nil
+	case low == "anthropic" || low == "claude" || strings.HasPrefix(low, "anthropic:") || strings.HasPrefix(low, "claude:"):
+		if keys.Anthropic == "" {
+			return nil, fmt.Errorf("ANTHROPIC_API_KEY is required for vision model %q", name)
+		}
+		model := ""
+		if i := strings.IndexByte(name, ':'); i >= 0 {
+			model = strings.TrimSpace(name[i+1:])
+		}
+		return NewAnthropic(keys.Anthropic, model), nil
+	case strings.Contains(name, "/"):
+		if keys.OpenRouter == "" {
+			return nil, fmt.Errorf("OPENROUTER_API_KEY is required for OpenRouter vision model %q", name)
+		}
+		return NewOpenRouterVision(keys.OpenRouter, name), nil
+	default:
+		return nil, fmt.Errorf("unknown vision model %q — use gemini[:model], anthropic[:model], or an OpenRouter slug (e.g. openai/gpt-5.5)", name)
+	}
+}
+
 // newOpenRouterWithReasoning builds an OpenRouter provider with an optional
 // reasoning-effort bound so thinking models don't reason past the call timeout.
 func newOpenRouterWithReasoning(apiKey, model, reasoning string) *OpenRouter {
