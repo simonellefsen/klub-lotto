@@ -325,7 +325,12 @@ func runOrdknude(ctx context.Context, args []string) error {
 			if newSt, e := klublotto.ExtractOrdknudeState(extractCtx, br, ac); e == nil {
 				st = newSt
 				_ = saveDebug(cfg.DataDir, "ordknude-state.txt", st.Raw)
-				printOrdknudeState(st)
+				// The win/loss overlay wipes the board to an empty state; don't print
+				// the misleading "0 guesses / (no guesses yet)" box in that case — the
+				// end-game summary below shows the real guess sequence and outcome.
+				if !(len(st.History) == 0 && st.Remaining == 0 && len(triedThisRun) > 0) {
+					printOrdknudeState(st)
+				}
 			} else {
 				fmt.Printf("warning: re-extract after guess failed: %v\n", e)
 			}
@@ -449,10 +454,19 @@ func runOrdknude(ctx context.Context, args []string) error {
 		if recordedAnswer == "" {
 			recordedAnswer = lastSubmittedAnswer // last guess attempted
 		}
-		// Notes: the colour-coded guess sequence (scored against the real answer),
-		// plus a loss tag when we didn't solve it. Falls back to the plain message.
+		// Reconstruct the full colour-coded guess sequence (scored against the real
+		// answer). The win/loss overlay wipes the live board, so this is rebuilt from
+		// the snapshotted history + this run's guesses — the authoritative record.
+		seq := klublotto.OrdknudeGuessNotes(klublotto.MergeGuessWords(lastGoodHistory, triedThisRun), lastGoodHistory, recordedAnswer)
+		if seq != "" {
+			// Echo it to the console so the on-screen output matches the ❌/🎉 summary
+			// (the live state box was cleared by the game-over overlay).
+			fmt.Println("  ", seq)
+		}
+		// Notes: the guess sequence plus a loss tag when we didn't solve it. Falls
+		// back to the plain message.
 		notes := msg + ". Screenshot: `" + shot + "`."
-		if seq := klublotto.OrdknudeGuessNotes(klublotto.MergeGuessWords(lastGoodHistory, triedThisRun), lastGoodHistory, recordedAnswer); seq != "" {
+		if seq != "" {
 			if st.Solved {
 				notes = seq
 			} else if correctAnswer != "" {
