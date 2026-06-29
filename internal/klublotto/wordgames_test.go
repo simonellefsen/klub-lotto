@@ -27,6 +27,13 @@ func TestFindLossScreenAnswer(t *testing.T) {
 	if got := findLossScreenAnswer(win); got != "" {
 		t.Fatalf("findLossScreenAnswer(win) = %q, want empty", got)
 	}
+
+	// Real loss screen body text (æ word), via the exported wrapper. The answer
+	// is on the line after the marker and must normalise to upper-case Danish.
+	body := "Du kæmpede bravt\nDet rigtige svar var:\nænder\nOp med humøret, det var et hæderligt forsøg."
+	if got := OrdknudeLossAnswer(body); got != "ÆNDER" {
+		t.Fatalf("OrdknudeLossAnswer(loss body) = %q, want ÆNDER", got)
+	}
 }
 
 func TestIsDanishFiveLetterWord(t *testing.T) {

@@ -408,12 +408,23 @@ func runOrdknude(ctx context.Context, args []string) error {
 
 		correctAnswer := st.Answer // may be set if solved
 		if correctAnswer == "" {
-			// Try to read "Det rigtige svar var: <answer>" from the result page.
-			if resultSnap, snapErr := br.Snapshot(ctx); snapErr == nil {
-				correctAnswer = extractOrdknudeAnswerFromSnap(resultSnap)
-				if correctAnswer != "" {
-					fmt.Printf("   correct answer was: %s\n", correctAnswer)
+			// On a loss the page shows "Det rigtige svar var: <ord>". Read it from
+			// the PARENT body text (most reliable; the accessibility snapshot can come
+			// back empty during the game-over transition — that 0-byte submit-snap is
+			// exactly why the correct word was previously missed). Try the last
+			// extraction's body (st.Raw), then re-read the live body with retries, then
+			// fall back to the snapshot.
+			correctAnswer = klublotto.OrdknudeLossAnswer(st.Raw)
+			if correctAnswer == "" {
+				correctAnswer = readOrdknudeLossAnswer(ctx, br)
+			}
+			if correctAnswer == "" {
+				if resultSnap, snapErr := br.Snapshot(ctx); snapErr == nil {
+					correctAnswer = extractOrdknudeAnswerFromSnap(resultSnap)
 				}
+			}
+			if correctAnswer != "" {
+				fmt.Printf("   correct answer was: %s\n", correctAnswer)
 			}
 		}
 
@@ -940,6 +951,25 @@ func printOrdknudeState(st klublotto.OrdknudeState) {
 //   - paragraph: gummi
 //
 // For a win it contains "Tillykke" and the answer word in the board.
+// readOrdknudeLossAnswer reads the loss screen's revealed answer from the live
+// parent body text, retrying a few times because the game-over screen can take a
+// moment to render after the final guess. Returns "" if it never appears (e.g. a
+// win, or the screen was reset).
+func readOrdknudeLossAnswer(ctx context.Context, br *browser.Client) string {
+	for i := 0; i < 5; i++ {
+		body, _ := br.Eval(ctx, `document.body ? document.body.innerText : ""`)
+		if ans := klublotto.OrdknudeLossAnswer(body); ans != "" {
+			return ans
+		}
+		select {
+		case <-ctx.Done():
+			return ""
+		case <-time.After(700 * time.Millisecond):
+		}
+	}
+	return ""
+}
+
 func extractOrdknudeAnswerFromSnap(snap string) string {
 	lines := strings.Split(snap, "\n")
 	for i, line := range lines {

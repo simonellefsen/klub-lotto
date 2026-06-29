@@ -3356,3 +3356,10 @@ func findLossScreenAnswer(raw string) string {
 	}
 	return word
 }
+
+// OrdknudeLossAnswer reads the answer revealed on the Ordknuden loss screen
+// ("Det rigtige svar var: <ord>") from the page body innerText, returning "" when
+// it isn't present (e.g. on a win or before the screen has rendered). Reading the
+// body text is more reliable than the accessibility snapshot, which can come back
+// empty during the game-over transition.
+func OrdknudeLossAnswer(bodyText string) string { return findLossScreenAnswer(bodyText) }
