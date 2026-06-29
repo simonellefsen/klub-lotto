@@ -11,6 +11,9 @@
   "ANGER": [
     "RUELSE"
   ],
+  "ANKERPLADS": [
+    "RED"
+  ],
   "ANNO": [
     "A"
   ],
@@ -19,6 +22,9 @@
   ],
   "ANTI": [
     "IMOD"
+  ],
+  "APPEL": [
+    "BØN"
   ],
   "ARVEENHED": [
     "GEN"
@@ -41,6 +47,9 @@
     "TANK",
     "VASE",
     "DÅSE"
+  ],
+  "BELGIEN": [
+    "B"
   ],
   "BEMÆRK": [
     "NB"
@@ -89,6 +98,9 @@
   ],
   "BLÆNDENDE": [
     "GENIAL"
+  ],
+  "BOR": [
+    "B"
   ],
   "BRANCHE": [
     "IT"
@@ -144,16 +156,21 @@
     "SO",
     "RÅ",
     "DÅ",
+    "ABE",
+    "ARA",
+    "BUK",
     "FÅR",
+    "GED",
+    "GNU",
+    "KEA",
     "RÆV",
     "TYR",
     "ULV",
-    "ABE",
-    "BUK",
     "ABER",
     "PUMA",
     "EGERN",
-    "RENER"
+    "RENER",
+    "ÆSEL"
   ],
   "DØRSLAG": [
     "SI"
@@ -211,6 +228,9 @@
   "FANTASI": [
     "DRØM"
   ],
+  "FARER": [
+    "DRØNER"
+  ],
   "FARTØJ": [
     "LUFTBALLON"
   ],
@@ -247,6 +267,9 @@
   ],
   "FLAMMER": [
     "ILD"
+  ],
+  "FORBLØFFE": [
+    "UNDRE"
   ],
   "FORBUND": [
     "EU"
@@ -352,6 +375,9 @@
   "HAV": [
     "UTAL"
   ],
+  "HEDEN": [
+    "VARMEN"
+  ],
   "HEGN": [
     "GÆRDE"
   ],
@@ -362,7 +388,8 @@
     "IDOL"
   ],
   "HILSEN": [
-    "DAV"
+    "DAV",
+    "HONNØR"
   ],
   "HIMMELSYN": [
     "UFO"
@@ -378,6 +405,9 @@
   ],
   "HOLDTTÆT": [
     "TIET"
+  ],
+  "HOLME": [
+    "ØER"
   ],
   "HORISONTALE": [
     "VANDRETTE"
@@ -396,6 +426,9 @@
   ],
   "IDET": [
     "DA"
+  ],
+  "IDETFRI": [
+    "UDE"
   ],
   "IFORHOLDTIL": [
     "END"
@@ -480,6 +513,9 @@
   "KNOLD": [
     "TUE"
   ],
+  "KORN": [
+    "RUG"
+  ],
   "KORRIGERE": [
     "RETTE"
   ],
@@ -503,6 +539,9 @@
   ],
   "KRONER": [
     "KR"
+  ],
+  "KRYDDERURT": [
+    "BASILIKUM"
   ],
   "KUN": [
     "BARE"
@@ -531,8 +570,14 @@
   "KYLEDE": [
     "SMED"
   ],
+  "KÆMPEDE": [
+    "STRED"
+  ],
   "KÆRTEGNE": [
     "AE"
+  ],
+  "KÆRTEGNER": [
+    "AER"
   ],
   "LARGE": [
     "L"
@@ -557,6 +602,12 @@
   ],
   "LYS": [
     "KERTE"
+  ],
+  "LÆRESTED": [
+    "DTU"
+  ],
+  "LÆSEPENGE": [
+    "SU"
   ],
   "LØFTE": [
     "ED"
@@ -608,6 +659,9 @@
   ],
   "NEDBØR": [
     "SNE"
+  ],
+  "NEMME": [
+    "LETTE"
   ],
   "NEWTON": [
     "N"
@@ -662,11 +716,15 @@
   "PAVE": [
     "LEO"
   ],
+  "PCUDSTYR": [
+    "MUS"
+  ],
   "PEP": [
     "GO"
   ],
   "PERIODE": [
-    "ÅRTI"
+    "ÅRTI",
+    "ÅR"
   ],
   "PINE": [
     "NAGE"
@@ -680,6 +738,9 @@
   ],
   "PLAGE": [
     "GENERE"
+  ],
+  "PLANTE": [
+    "BLÅBÆRBUSK"
   ],
   "PLANTEDEL": [
     "AKS",
@@ -716,6 +777,9 @@
     "LOMMEKNIV",
     "LE",
     "FIL"
+  ],
+  "REST": [
+    "LEVN"
   ],
   "RETNING": [
     "NV",
@@ -843,8 +907,20 @@
     "ORØ"
   ],
   "STEDORD": [
+    "I",
     "DE",
-    "I"
+    "DU",
+    "VI",
+    "DEN",
+    "DER",
+    "DET",
+    "DIN",
+    "HAN",
+    "HUN",
+    "JEG",
+    "MIN",
+    "SIT",
+    "SOM"
   ],
   "STOLTHED": [
     "ÆRE"
@@ -955,6 +1031,9 @@
   "TRICK": [
     "KNEB"
   ],
+  "TRISTE": [
+    "KEDE"
+  ],
   "TROLDMANDSUDSTYR": [
     "TRYLLESTAV"
   ],
@@ -976,6 +1055,9 @@
   "TRÆET": [
     "ESPEN"
   ],
+  "TRÆNE": [
+    "ØVE"
+  ],
   "TYSKLAND": [
     "D"
   ],
@@ -985,8 +1067,14 @@
   "UDBRUD": [
     "AV"
   ],
+  "UNDERTRYKKE": [
+    "KUE"
+  ],
   "URAN": [
     "U"
+  ],
+  "VAKLE": [
+    "NØLE"
   ],
   "VALUTA": [
     "EURO"
@@ -1068,6 +1156,9 @@
   "[IMG]BEETLE": [
     "BILLE"
   ],
+  "[IMG]BRICKWALL": [
+    "MUR"
+  ],
   "[IMG]CAMERA": [
     "KAMERA"
   ],
@@ -1092,6 +1183,9 @@
   "[IMG]DUCK": [
     "AND"
   ],
+  "[IMG]FENCE": [
+    "HEGN"
+  ],
   "[IMG]GRAPES": [
     "DRUER"
   ],
@@ -1100,6 +1194,9 @@
   ],
   "[IMG]ICECREAMCONE": [
     "IS"
+  ],
+  "[IMG]LEAVES": [
+    "BLADE"
   ],
   "[IMG]LIGHTNINGBOLT": [
     "LYN"
@@ -1121,6 +1218,9 @@
   ],
   "[IMG]PIGEON": [
     "DUE"
+  ],
+  "[IMG]PLAYINGCARDS": [
+    "ESSER"
   ],
   "[IMG]RAINDROPS": [
     "REGN"

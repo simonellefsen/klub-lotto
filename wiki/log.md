@@ -357,3 +357,15 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-28 04:41 UTC] ingest | quiz | Hvad hedder den skakbrik, der udelukkende bevæger sig diago… | outcome=submitted
 
+## [2026-06-28 04:47 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
+
+## [2026-06-28 04:50 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-28 04:56 UTC] ingest | ordkløver | Category: `Den danske sangskat`; answer pattern `3 / 2 / 3 /… | outcome=submitted
+
+## [2026-06-28 05:11 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+
+## [2026-06-29 04:38 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
+## [2026-06-29 04:38 UTC] ingest | quiz | I hvilken by holder den italienske fodboldklub Juventus til? | outcome=submitted
+
