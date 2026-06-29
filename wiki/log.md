@@ -369,3 +369,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-29 04:38 UTC] ingest | quiz | I hvilken by holder den italienske fodboldklub Juventus til? | outcome=submitted
 
+## [2026-06-29 04:42 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
