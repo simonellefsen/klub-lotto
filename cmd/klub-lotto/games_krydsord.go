@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -342,6 +343,11 @@ func runKrydsord(ctx context.Context, args []string) error {
 	if err != nil {
 		snap, _ := br.Snapshot(ctx)
 		_ = saveDebug(cfg.DataDir, "krydsord-submit-fail.txt", snap)
+		if errors.Is(err, errKrydsordNotSolved) {
+			// Wrong solution rejected by the vendor — record the loss and exit cleanly
+			// (like an Ordknuden loss) instead of a hard error.
+			return recordKrydsordFailure(ctx, cfg, solvedGrid, wordModelLabel(cfg, *providerFlag), "Tofaset clues OCR + LLM-kandidater + konsistent gitter.")
+		}
 		return err
 	}
 	shot := filepath.Join(cfg.DataDir, "krydsord-result-"+time.Now().UTC().Format("20060102-150405")+".png")
@@ -826,6 +832,9 @@ func solveKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, 
 		shot := filepath.Join(cfg.DataDir, "krydsord-result-"+time.Now().UTC().Format("20060102-150405")+".png")
 		_ = br.Screenshot(ctx, shot)
 		if serr != nil {
+			if errors.Is(serr, errKrydsordNotSolved) {
+				return recordKrydsordFailure(ctx, cfg, grid, wordModelLabel(cfg, provider), "Tofaset graph→CSP→LLM ("+solveSource+").")
+			}
 			return fmt.Errorf("submit: %w", serr)
 		}
 		fmt.Println("\n🎉 Krydsord submitted and confirmed correct!")
@@ -982,6 +991,26 @@ func enterKrydsordGameFrame(ctx context.Context, br *browser.Client) error {
 	return fmt.Errorf("krydsord board cells never rendered inside the game iframe")
 }
 
+// errKrydsordNotSolved is returned by submitKrydsord when the grid was filled and
+// submitted but Danske Spil rejected it ("Opgaven er ikke løst korrekt") — i.e. a
+// genuine wrong-solution failure, as opposed to a technical/timeout error. Callers
+// use errors.Is to record a not-solved ledger row and exit cleanly instead of
+// hard-failing.
+var errKrydsordNotSolved = errors.New("krydsord submitted but not solved correctly")
+
+// recordKrydsordFailure logs a not-solved Krydsord attempt to the daily ledger
+// (registered=no) and prints a clear failure line. The Danish failure screen
+// reveals no correct solution, so we record the grid we submitted plus a loss tag.
+func recordKrydsordFailure(ctx context.Context, cfg *config.Config, grid []string, model, source string) error {
+	fmt.Println("\n❌ Krydsord not solved — Danske Spil rejected the submitted grid (ikke løst korrekt).")
+	note := "Ikke løst — indsendt gitter blev afvist (ikke løst korrekt)."
+	if strings.TrimSpace(source) != "" {
+		note += " " + source
+	}
+	note = appendModelNote(note, model)
+	return upsertDailyGame(ctx, cfg, "Krydsord", "Danish clues-in-squares crossword", krydsordAnswerBoard(grid), true, false, note)
+}
+
 func submitKrydsord(ctx context.Context, br *browser.Client, data klublotto.KrydsordData, solvedGrid []string) error {
 	if len(solvedGrid) == 0 {
 		return fmt.Errorf("no solved grid to submit")
@@ -1089,6 +1118,9 @@ func submitKrydsord(ctx context.Context, br *browser.Client, data klublotto.Kryd
 	if ok, detail := waitForKrydsordSuccess(ctx, br); ok {
 		fmt.Println("       success detected (in game frame):", detail)
 		return nil
+	} else if strings.Contains(detail, "ikke løst korrekt") {
+		// The game's own rejection overlay — definitively a wrong solution.
+		return fmt.Errorf("%w: %s", errKrydsordNotSolved, detail)
 	}
 	// Fallback: some confirmations ("løste dagens krydsord") surface on the parent
 	// page, so switch back to main and check there before declaring failure.
@@ -1096,6 +1128,8 @@ func submitKrydsord(ctx context.Context, br *browser.Client, data klublotto.Kryd
 	if ok, detail := waitForKrydsordSuccess(ctx, br); ok {
 		fmt.Println("       success detected (on parent page):", detail)
 		return nil
+	} else if strings.Contains(detail, "ikke løst korrekt") {
+		return fmt.Errorf("%w: %s", errKrydsordNotSolved, detail)
 	} else {
 		return fmt.Errorf("Krydsord not confirmed solved: %s", detail)
 	}

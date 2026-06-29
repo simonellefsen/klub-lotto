@@ -1,9 +1,25 @@
 package main
 
 import (
+	"errors"
+	"fmt"
 	"strings"
 	"testing"
 )
+
+func TestErrKrydsordNotSolvedWrap(t *testing.T) {
+	// The genuine rejection overlay wraps the sentinel → caller records a loss.
+	rejected := fmt.Errorf("%w: %s", errKrydsordNotSolved, "ikke løst korrekt (prøv igen)")
+	if !errors.Is(rejected, errKrydsordNotSolved) {
+		t.Fatal("rejection error should match errKrydsordNotSolved via errors.Is")
+	}
+	// A timeout / technical "not confirmed" error must NOT be treated as a loss —
+	// it should still surface as a hard error so real breakage is visible.
+	technical := fmt.Errorf("Krydsord not confirmed solved: %s", "no success banner (board likely not filled or solution wrong)")
+	if errors.Is(technical, errKrydsordNotSolved) {
+		t.Fatal("a generic not-confirmed error must NOT match errKrydsordNotSolved")
+	}
+}
 
 func TestKrydsordAnswerBoard(t *testing.T) {
 	grid := []string{
