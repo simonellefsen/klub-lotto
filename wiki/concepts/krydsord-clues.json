@@ -1,4 +1,7 @@
 {
+  "100": [
+    "C"
+  ],
   "1050": [
     "ML"
   ],
@@ -22,6 +25,9 @@
   ],
   "ANTI": [
     "IMOD"
+  ],
+  "APPARAT": [
+    "TV"
   ],
   "APPEL": [
     "BØN"
@@ -115,14 +121,23 @@
   "BUD": [
     "KURER"
   ],
+  "BUGT": [
+    "NOR"
+  ],
   "BULDER": [
     "TORDEN"
   ],
   "BØJE": [
     "EKSE"
   ],
+  "BØLGE": [
+    "SØ"
+  ],
   "BØN": [
     "AVE"
+  ],
+  "BØRN": [
+    "UNGER"
   ],
   "CIRKUSSCENE": [
     "ARENA"
@@ -146,7 +161,8 @@
   ],
   "DRIK": [
     "TE",
-    "ØL"
+    "ØL",
+    "CAPPUCCINO"
   ],
   "DRØM": [
     "UTOPI"
@@ -164,6 +180,7 @@
     "GNU",
     "KEA",
     "RÆV",
+    "SÆL",
     "TYR",
     "ULV",
     "ABER",
@@ -174,6 +191,9 @@
   ],
   "DØRSLAG": [
     "SI"
+  ],
+  "EFTERSKRIFT": [
+    "PS"
   ],
   "EJER": [
     "HAR"
@@ -225,6 +245,9 @@
   "EXIT": [
     "UD"
   ],
+  "FAGPERSON": [
+    "CYKELSMED"
+  ],
   "FANTASI": [
     "DRØM"
   ],
@@ -235,17 +258,22 @@
     "LUFTBALLON"
   ],
   "FARVE": [
+    "PINK",
     "ROSA",
     "ORANGE"
   ],
   "FASHION": [
     "MODE"
   ],
+  "FEDTSTOF": [
+    "OLIE"
+  ],
   "FESTSAL": [
     "AULA"
   ],
   "FILMFIGUR": [
-    "ET"
+    "ET",
+    "SHREK"
   ],
   "FILMSELSKAB": [
     "ASA"
@@ -417,6 +445,9 @@
   ],
   "HUGGET": [
     "RANET"
+  ],
+  "HUNDSE": [
+    "HERSE"
   ],
   "HYREN": [
     "ÅRSLØNNEN"
@@ -627,6 +658,9 @@
   "MI": [
     "E"
   ],
+  "MILLIMETER": [
+    "MM"
+  ],
   "MONETER": [
     "PENGE"
   ],
@@ -749,6 +783,9 @@
     "LØG",
     "ROD"
   ],
+  "POKAL": [
+    "CUP"
+  ],
   "POLERE": [
     "PUDSE"
   ],
@@ -790,6 +827,9 @@
     "UD",
     "UDAD",
     "NEDAD"
+  ],
+  "REV": [
+    "ATOL"
   ],
   "REX": [
     "R"
@@ -846,6 +886,9 @@
     "KØL",
     "ROR"
   ],
+  "SKILT": [
+    "DELT"
+  ],
   "SKILTETEKST": [
     "P"
   ],
@@ -857,6 +900,15 @@
   ],
   "SKRÆMME": [
     "TRUE"
+  ],
+  "SKRØBELIGE": [
+    "SKØRE"
+  ],
+  "SKØR": [
+    "TOSSET"
+  ],
+  "SLAGERE": [
+    "HITS"
   ],
   "SLÆGT": [
     "ÆT"
@@ -872,6 +924,9 @@
   ],
   "SNAKKESALIG": [
     "ÅBENMUNDET"
+  ],
+  "SNEDIG": [
+    "SNU"
   ],
   "SOLGUD": [
     "RA"
@@ -968,6 +1023,9 @@
   "SØDEMIDDEL": [
     "ROESUKKER"
   ],
+  "TALENT": [
+    "EVNE"
+  ],
   "TALORD": [
     "EN",
     "TO",
@@ -1022,6 +1080,9 @@
   "TONEN": [
     "EET"
   ],
+  "TOP": [
+    "ELITE"
+  ],
   "TOV": [
     "REB"
   ],
@@ -1066,6 +1127,9 @@
   ],
   "UDBRUD": [
     "AV"
+  ],
+  "UDVALG": [
+    "NÆVN"
   ],
   "UNDERTRYKKE": [
     "KUE"
@@ -1168,11 +1232,17 @@
   "[IMG]CHAIRS": [
     "STOLE"
   ],
+  "[IMG]CHICKEN": [
+    "HØNE"
+  ],
   "[IMG]CINNAMONROLL": [
     "REB"
   ],
   "[IMG]CLOVER": [
     "KLØVER"
+  ],
+  "[IMG]COFFEECUP": [
+    "KOP"
   ],
   "[IMG]CUPCAKE": [
     "KAGE"
@@ -1221,6 +1291,9 @@
   ],
   "[IMG]PLAYINGCARDS": [
     "ESSER"
+  ],
+  "[IMG]POWERPLUG": [
+    "STIK"
   ],
   "[IMG]RAINDROPS": [
     "REGN"

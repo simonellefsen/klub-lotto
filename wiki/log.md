@@ -371,3 +371,11 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-29 04:42 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
 
+## [2026-06-29 04:53 UTC] ingest | ordkløver | Category: `Set i Silvan`; answer pattern `11` | outcome=submitted
+
+## [2026-06-29 04:57 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
+
+## [2026-06-29 05:28 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+
+## [2026-06-30 04:09 UTC] ingest | quiz | I hvilken by afholdes sommer-OL i 2028? | outcome=submitted
+
