@@ -379,3 +379,13 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-30 04:09 UTC] ingest | quiz | I hvilken by afholdes sommer-OL i 2028? | outcome=submitted
 
+## [2026-06-30 04:09 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
+## [2026-06-30 04:12 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-06-30 04:17 UTC] ingest | ordkløver | Category: `Mad & drikke`; answer pattern `9` | outcome=submitted
+
+## [2026-06-30 04:25 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
+
+## [2026-06-30 04:59 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+

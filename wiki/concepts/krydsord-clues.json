@@ -11,6 +11,9 @@
   "50": [
     "L"
   ],
+  "ALTSÅ": [
+    "ERGO"
+  ],
   "ANGER": [
     "RUELSE"
   ],
@@ -35,11 +38,18 @@
   "ARVEENHED": [
     "GEN"
   ],
+  "BABYUDSTYR": [
+    "BLE",
+    "SUT"
+  ],
   "BALJE": [
     "KAR"
   ],
   "BALLADE": [
     "URO"
+  ],
+  "BATTERITYPE": [
+    "AA"
   ],
   "BEDE": [
     "ROE",
@@ -60,11 +70,17 @@
   "BEMÆRK": [
     "NB"
   ],
+  "BESKED": [
+    "SMS"
+  ],
   "BESKÆFTIGELSE": [
     "YRKE"
   ],
   "BESVÆR": [
     "BØVL"
+  ],
+  "BIBELFORK": [
+    "NT"
   ],
   "BIJOB": [
     "BEN",
@@ -248,6 +264,9 @@
   "FAGPERSON": [
     "CYKELSMED"
   ],
+  "FANTASERER": [
+    "DAGDRØMMER"
+  ],
   "FANTASI": [
     "DRØM"
   ],
@@ -368,11 +387,17 @@
   "GLKARAKTR": [
     "UG"
   ],
+  "GODMODIG": [
+    "MILD"
+  ],
   "GRIBE": [
     "TY"
   ],
   "GRINE": [
     "LE"
+  ],
+  "GRUNDE": [
+    "ÅRSAGER"
   ],
   "GRÆSKTEGN": [
     "MY",
@@ -490,6 +515,9 @@
   "JAG": [
     "VE"
   ],
+  "JAKKEDELE": [
+    "ÆRMER"
+  ],
   "JEG": [
     "EGO"
   ],
@@ -551,7 +579,8 @@
     "RETTE"
   ],
   "KORT": [
-    "ES"
+    "ES",
+    "TREERE"
   ],
   "KORTBOG": [
     "ATLAS"
@@ -616,8 +645,14 @@
   "LAVER": [
     "GØR"
   ],
+  "LAVNING": [
+    "DAL"
+  ],
   "LED": [
     "KNO"
+  ],
+  "LEGEMSDEL": [
+    "BEN"
   ],
   "LEGITIMATION": [
     "ID"
@@ -654,6 +689,9 @@
   ],
   "MEDIEHUS": [
     "DR"
+  ],
+  "METER": [
+    "M"
   ],
   "MI": [
     "E"
@@ -706,11 +744,21 @@
   "NOPRET": [
     "RU"
   ],
+  "NORDISKGUD": [
+    "AS"
+  ],
   "NORGE": [
     "N"
   ],
+  "NY": [
+    "NEO"
+  ],
   "NYVASKET": [
     "REN"
+  ],
+  "NÆSTE": [
+    "RI",
+    "SY"
   ],
   "OARS": [
     "ÅRER"
@@ -813,7 +861,9 @@
   "REDSKAB": [
     "LOMMEKNIV",
     "LE",
-    "FIL"
+    "FIL",
+    "DÅSEÅBNER",
+    "FORK"
   ],
   "REST": [
     "LEVN"
@@ -868,6 +918,9 @@
     "ALENE",
     "ENLIG"
   ],
+  "SINGULARIS": [
+    "ENTAL"
+  ],
   "SJÆLDENHEDER": [
     "RARITETER"
   ],
@@ -910,6 +963,9 @@
   "SLAGERE": [
     "HITS"
   ],
+  "SLANGE": [
+    "SNOG"
+  ],
   "SLÆGT": [
     "ÆT"
   ],
@@ -943,11 +999,20 @@
   "SPEKULERE": [
     "RUGE"
   ],
+  "SPEKULERER": [
+    "RUGER"
+  ],
+  "SPIDS": [
+    "OD"
+  ],
   "SPISEKORT": [
     "MENU"
   ],
   "SPORTSSTÆVNE": [
     "OL"
+  ],
+  "SPORTSSUPPORTER": [
+    "ROLIGAN"
   ],
   "SPORTSUDSTYR": [
     "SKATEBOARD"
@@ -1106,8 +1171,10 @@
   ],
   "TRÆ": [
     "EG",
-    "AHORN",
-    "ESP"
+    "EL",
+    "ÆR",
+    "ESP",
+    "AHORN"
   ],
   "TRÆER": [
     "ASPE",
@@ -1220,6 +1287,9 @@
   "[IMG]BEETLE": [
     "BILLE"
   ],
+  "[IMG]BLACKBIRD": [
+    "SOLSORT"
+  ],
   "[IMG]BRICKWALL": [
     "MUR"
   ],
@@ -1250,6 +1320,9 @@
   "[IMG]CUPOFTEA": [
     "TEKOP"
   ],
+  "[IMG]DANISHFLAG": [
+    "FLAG"
+  ],
   "[IMG]DUCK": [
     "AND"
   ],
@@ -1279,6 +1352,9 @@
   ],
   "[IMG]NESTWITHEGGS": [
     "REDE"
+  ],
+  "[IMG]PADDLE": [
+    "ÅRE"
   ],
   "[IMG]PALMTREE": [
     "PALME"
