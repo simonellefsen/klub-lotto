@@ -1,10 +1,36 @@
 package klublotto
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
 	"testing"
 )
+
+func TestIsTransientVisionError(t *testing.T) {
+	transient := []string{
+		"openrouter-vision: api error: Internal Server Error", // the reported fluke
+		"openrouter-vision: http 503: Service Unavailable",
+		"rate limit exceeded",
+		"http 429: Too Many Requests",
+		"unexpected EOF",
+	}
+	for _, msg := range transient {
+		if !isTransientVisionError(fmt.Errorf("%s", msg)) {
+			t.Errorf("isTransientVisionError(%q) = false, want true", msg)
+		}
+	}
+	permanent := []string{
+		"openrouter-vision: http 400: model is not a valid model ID",
+		"openrouter-vision: http 401: invalid api key",
+		"no board image bytes for vision",
+	}
+	for _, msg := range permanent {
+		if isTransientVisionError(fmt.Errorf("%s", msg)) {
+			t.Errorf("isTransientVisionError(%q) = true, want false", msg)
+		}
+	}
+}
 
 func TestKrydsordClueCacheRoundTrip(t *testing.T) {
 	dir := t.TempDir()

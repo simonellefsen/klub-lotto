@@ -620,6 +620,28 @@ const krydsordFetchJS = `(async () => {
 // Parse is tolerant and attempts to recover a JSON array even if the model output is
 // truncated or wrapped.
 // Caller (runKrydsord) must supply non-nil ac for real solves; --dry-run/--grid bypass.
+// isTransientVisionError reports whether a vision API error looks transient
+// (server-side 5xx, rate limit, gateway/connection blip) and is worth retrying —
+// as opposed to a permanent error (invalid model, auth) where retrying is futile.
+func isTransientVisionError(err error) bool {
+	if err == nil {
+		return false
+	}
+	s := strings.ToLower(err.Error())
+	for _, m := range []string{
+		"internal server error", "service unavailable", "bad gateway",
+		"gateway timeout", "temporarily unavailable", "overloaded",
+		"rate limit", "too many requests",
+		" 429", " 500", " 502", " 503", " 504",
+		"connection reset", "connection refused", "unexpected eof", "timeout",
+	} {
+		if strings.Contains(s, m) {
+			return true
+		}
+	}
+	return false
+}
+
 func ExtractKrydsordClues(ctx context.Context, data KrydsordData, imgBytes []byte, ac llm.VisionProvider) ([]KrydsordClue, error) {
 	if ac == nil {
 		return nil, fmt.Errorf("ANTHROPIC_API_KEY required for Krydsord clue OCR via vision")
@@ -711,7 +733,31 @@ CLUE row=11 col=5 dir=across clue="KOSTUME"
 
 Output ONLY the CLUE lines (one per clue cell or split part). If you identify ~35-40 clues, output exactly that many lines and stop. No other text.`, mask)
 
-	text, callErr := ac.ExtractFromImage(ctx, imgBytes, "image/jpeg", prompt)
+	// Retry transient upstream failures (e.g. OpenRouter "Internal Server Error" /
+	// 5xx / rate limits): a single hiccup on this one call would otherwise drop us to
+	// 0 clues and fail the whole run. Permanent errors (bad model, auth) are not
+	// retried.
+	var text string
+	var callErr error
+	for attempt := 1; attempt <= 3; attempt++ {
+		text, callErr = ac.ExtractFromImage(ctx, imgBytes, "image/jpeg", prompt)
+		if callErr == nil {
+			break
+		}
+		if ctx.Err() != nil {
+			return nil, ctx.Err()
+		}
+		if !isTransientVisionError(callErr) || attempt == 3 {
+			break
+		}
+		wait := time.Duration(attempt) * 2 * time.Second
+		fmt.Printf("   [vision] transient error (%v) — retrying %d/3 in %s...\n", callErr, attempt+1, wait)
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case <-time.After(wait):
+		}
+	}
 	if text != "" {
 		// Always save the full raw response for debugging (operator can inspect why mapping was bad).
 		_ = os.WriteFile(filepath.Join(os.TempDir(), "krydsord-vision-raw.txt"), []byte(text), 0o644)
