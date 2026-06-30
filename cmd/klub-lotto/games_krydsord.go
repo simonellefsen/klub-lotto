@@ -22,6 +22,13 @@ import (
 	"github.com/simonellefsen/klub-lotto/internal/store"
 )
 
+// krydsordDictFixMaxLen is the longest learned-dictionary answer we trust enough
+// to PRE-FIX on the grid as a hard crossing constraint. At or below it (1-3
+// letters) a single learned answer is reliably unambiguous; above it, a single
+// learned answer is treated as a candidate only — the same clue can map to a
+// different long word, and fixing a wrong one poisons every crossing.
+const krydsordDictFixMaxLen = 3
+
 func runKrydsord(ctx context.Context, args []string) error {
 	fs := flag.NewFlagSet("krydsord", flag.ContinueOnError)
 	dryRun := fs.Bool("dry-run", false, "extract board/API artifacts + solve, but do not submit (note: bare 'krydsord' does real submit+credit by design; use this to guard; differs from sudoku/ord* siblings where bare is always dry)")
@@ -229,13 +236,17 @@ func runKrydsord(ctx context.Context, args []string) error {
 			slotCands := map[string][]klublotto.WordCandidate{}
 
 			// 1) Seed answers from our learned dictionary FIRST. A clue with a SINGLE
-			// valid answer of the right length is UNAMBIGUOUS, so it's treated as FIXED:
-			// pre-placed on the grid as a crossing constraint (e.g. URAN=U → A1 reads
-			// __U______, ILT=O → D1 _______O__). A clue with SEVERAL valid answers
-			// (e.g. STÆVNE → OL/EM/NM/VM championship abbreviations, or DIGT → ODE/RIM/
-			// ORD) is AMBIGUOUS — we seed all of them as candidates but must NOT force
-			// one, since only the crossings reveal which fits. These curated candidates
-			// also let us skip the LLM for those slots entirely (faster).
+			// valid answer of the right length AND that length ≤ krydsordDictFixMaxLen
+			// is treated as FIXED — pre-placed on the grid as a crossing constraint
+			// (e.g. URAN=U → A1 reads __U______, ILT=O → D1 _______O__). We only fix
+			// SHORT words because they're reliably unambiguous: 1-3 letter answers are
+			// almost always abbreviations / function words / fixed forms (ILT→O, ASA,
+			// SUT, SMS). A LONGER single match is NOT fixed — the same Danish clue can
+			// have a different long answer than the one we happened to learn (REDSKAB →
+			// LOMMEKNIV vs SAV vs …), and fixing a wrong long word poisons every
+			// crossing. Longer matches (and clues with several valid answers, e.g.
+			// STÆVNE → OL/EM/NM/VM) are seeded as candidates only; the crossings + LLM
+			// decide which fits. These curated candidates also skip the LLM per slot.
 			dictPath := filepath.Join(wikiRoot(), "concepts", "krydsord-clues.json")
 			dict := klublotto.LoadKrydsordDict(dictPath)
 			knownAnswers := map[string]string{}
@@ -258,8 +269,8 @@ func runKrydsord(ctx context.Context, args []string) error {
 					slotCands[cl.SlotID] = append(slotCands[cl.SlotID], klublotto.WordCandidate{Answer: ans, Confidence: "high", Rationale: "learned dictionary"})
 					seeded++
 				}
-				if len(matching) == 1 {
-					knownAnswers[cl.SlotID] = matching[0] // unambiguous → fix as a crossing constraint
+				if len(matching) == 1 && len([]rune(matching[0])) <= krydsordDictFixMaxLen {
+					knownAnswers[cl.SlotID] = matching[0] // short + unambiguous → fix as a crossing constraint
 				}
 			}
 			if seeded > 0 {
