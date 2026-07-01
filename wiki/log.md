@@ -389,3 +389,7 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-06-30 04:59 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
 
+## [2026-07-01 04:36 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
+## [2026-07-01 04:37 UTC] ingest | quiz | I hvilket land finder man Galápagos-øerne? | outcome=submitted
+
