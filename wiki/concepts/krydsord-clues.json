@@ -106,6 +106,9 @@
   "BJÆFFE": [
     "GØ"
   ],
+  "BLAD": [
+    "AVIS"
+  ],
   "BLOMST": [
     "IRIS",
     "ROSE",
@@ -120,6 +123,9 @@
   ],
   "BLÆNDENDE": [
     "GENIAL"
+  ],
+  "BOLIG": [
+    "TELT"
   ],
   "BOR": [
     "B"
@@ -164,6 +170,9 @@
   "DA": [
     "IDET"
   ],
+  "DEJLIGT": [
+    "RART"
+  ],
   "DES": [
     "JO"
   ],
@@ -174,6 +183,9 @@
     "ODE",
     "RIM",
     "ORD"
+  ],
+  "DIGTER": [
+    "POET"
   ],
   "DRIK": [
     "TE",
@@ -203,7 +215,8 @@
     "PUMA",
     "EGERN",
     "RENER",
-    "ÆSEL"
+    "ÆSEL",
+    "LOS"
   ],
   "DØRSLAG": [
     "SI"
@@ -297,11 +310,17 @@
   "FILMSELSKAB": [
     "ASA"
   ],
+  "FILTER": [
+    "SI"
+  ],
   "FINDES": [
     "ER"
   ],
   "FINTITEL": [
     "ÆRESDOKTOR"
+  ],
+  "FIRE": [
+    "IV"
   ],
   "FIRMA": [
     "VIRKSOMHED"
@@ -338,6 +357,9 @@
   ],
   "FORMÅR": [
     "KAN"
+  ],
+  "FORNAVN": [
+    "EVA"
   ],
   "FORRÅDTE": [
     "SVEG"
@@ -383,6 +405,9 @@
   ],
   "GEMME": [
     "BEVARE"
+  ],
+  "GIKOP": [
+    "STEG"
   ],
   "GLKARAKTR": [
     "UG"
@@ -572,6 +597,9 @@
   "KNOLD": [
     "TUE"
   ],
+  "KNÆGT": [
+    "DRENG"
+  ],
   "KORN": [
     "RUG"
   ],
@@ -657,6 +685,9 @@
   "LEGITIMATION": [
     "ID"
   ],
+  "LEVER": [
+    "BOR"
+  ],
   "LILLE": [
     "LL"
   ],
@@ -702,6 +733,9 @@
   "MONETER": [
     "PENGE"
   ],
+  "MONOTONT": [
+    "ENSFORMIGT"
+  ],
   "MONTERET": [
     "ISAT"
   ],
@@ -710,6 +744,9 @@
   ],
   "MOTORSKIB": [
     "MS"
+  ],
+  "MUSEUM": [
+    "LOUVRE"
   ],
   "MUSIKGENRE": [
     "FOLK",
@@ -728,6 +765,9 @@
   ],
   "MØNT": [
     "TIER"
+  ],
+  "MØNTENHED": [
+    "PESO"
   ],
   "NEDBØR": [
     "SNE"
@@ -945,6 +985,9 @@
   "SKILTETEKST": [
     "P"
   ],
+  "SKIMTER": [
+    "ANER"
+  ],
   "SKIVE": [
     "DVD"
   ],
@@ -978,6 +1021,9 @@
   "SMYKKESTEN": [
     "OPAL"
   ],
+  "SMØREMIDDEL": [
+    "OLIE"
+  ],
   "SNAKKESALIG": [
     "ÅBENMUNDET"
   ],
@@ -1004,6 +1050,9 @@
   ],
   "SPIDS": [
     "OD"
+  ],
+  "SPIRER": [
+    "GROR"
   ],
   "SPISEKORT": [
     "MENU"
@@ -1041,6 +1090,9 @@
     "MIN",
     "SIT",
     "SOM"
+  ],
+  "STEMME": [
+    "BAS"
   ],
   "STOLTHED": [
     "ÆRE"
@@ -1112,8 +1164,14 @@
   "TARA": [
     "T"
   ],
+  "TARIF": [
+    "SATS"
+  ],
   "TEGN": [
     "NODE"
+  ],
+  "TEGNET": [
+    "NODEN"
   ],
   "TEMA": [
     "EMNE"
@@ -1122,6 +1180,9 @@
     "EKS",
     "FØR",
     "SEN"
+  ],
+  "TIDSRUM": [
+    "EPOKE"
   ],
   "TILSÆTTER": [
     "IRØRER"
@@ -1147,6 +1208,9 @@
   ],
   "TOP": [
     "ELITE"
+  ],
+  "TOPTEAM": [
+    "ELITEHOLD"
   ],
   "TOV": [
     "REB"
@@ -1257,6 +1321,9 @@
   "VÆKST": [
     "TRÆ"
   ],
+  "VÆRKE": [
+    "MURRE"
+  ],
   "VÆSEN": [
     "FE"
   ],
@@ -1289,6 +1356,9 @@
   ],
   "[IMG]BLACKBIRD": [
     "SOLSORT"
+  ],
+  "[IMG]BLACKDIEWITHONEPIP": [
+    "ENER"
   ],
   "[IMG]BRICKWALL": [
     "MUR"
@@ -1392,11 +1462,20 @@
   "[IMG]SWEATER": [
     "TRØJE"
   ],
+  "[IMG]TEABAG": [
+    "TEBREV"
+  ],
   "[IMG]TEDDYBEAR": [
     "BAMSE"
   ],
   "[IMG]TELEVISION": [
     "TV"
+  ],
+  "[IMG]TURNIP": [
+    "ROE"
+  ],
+  "[IMG]VEST": [
+    "VEST"
   ],
   "[IMG]WINEGLASS": [
     "VIN"

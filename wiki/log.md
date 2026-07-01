@@ -393,3 +393,11 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-01 04:37 UTC] ingest | quiz | I hvilket land finder man Galápagos-øerne? | outcome=submitted
 
+## [2026-07-01 04:40 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-07-01 04:45 UTC] ingest | ordkløver | Category: `Inden for hjemmets fire vægge`; answer pattern `… | outcome=submitted
+
+## [2026-07-01 04:57 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
+
+## [2026-07-01 05:04 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+
