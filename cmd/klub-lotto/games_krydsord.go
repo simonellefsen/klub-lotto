@@ -1053,7 +1053,6 @@ func submitKrydsord(ctx context.Context, br *browser.Client, data klublotto.Kryd
 		return fmt.Errorf("open parent for krydsord submit: %w", err)
 	}
 	br.WaitSettled(ctx)
-	time.Sleep(1200 * time.Millisecond)
 
 	// The board is a cross-origin OOPIF whose answer cells are bare clickable divs
 	// with no accessibility role — they never appear in the snapshot (interactive
@@ -1062,13 +1061,28 @@ func submitKrydsord(ctx context.Context, br *browser.Client, data klublotto.Kryd
 	// game's document-level keydown handler accepts the typed letter. So we fill by
 	// coordinate. Read the iframe's viewport offset from the PARENT first (a
 	// cross-origin iframe's rect is only visible from the parent).
+	//
+	// On a slow danskespil day the iframe isn't attached/laid out within a fixed
+	// delay — reading its rect then returned {x:-1} and aborted the submit. Poll for
+	// a valid, laid-out rect (mirrors the extraction-side iframe readiness).
 	var ifr struct {
 		X float64 `json:"x"`
 		Y float64 `json:"y"`
 	}
-	ifrRaw, _ := br.Eval(ctx, `JSON.stringify((()=>{const f=document.querySelector("iframe.kl-game__iframe");if(!f)return{x:-1,y:-1};const r=f.getBoundingClientRect();return{x:r.x,y:r.y};})())`)
-	if json.Unmarshal([]byte(ifrRaw), &ifr) != nil || ifr.X < 0 {
-		return fmt.Errorf("krydsord game iframe not found on parent page (raw=%s)", ifrRaw)
+	rectDeadline := time.Now().Add(30 * time.Second)
+	for {
+		ifrRaw, _ := br.Eval(ctx, `JSON.stringify((()=>{const f=document.querySelector("iframe.kl-game__iframe");if(!f)return{x:-1,y:-1,w:0,h:0};const r=f.getBoundingClientRect();return{x:r.x,y:r.y,w:r.width,h:r.height};})())`)
+		var probe struct {
+			X, Y, W, H float64
+		}
+		if json.Unmarshal([]byte(ifrRaw), &probe) == nil && probe.X >= 0 && probe.W > 0 && probe.H > 0 {
+			ifr.X, ifr.Y = probe.X, probe.Y
+			break
+		}
+		if time.Now().After(rectDeadline) || ctx.Err() != nil {
+			return fmt.Errorf("krydsord game iframe not found on parent page within budget (last raw=%s)", ifrRaw)
+		}
+		time.Sleep(800 * time.Millisecond)
 	}
 
 	// Switch into the OOPIF and confirm the grid rendered.
