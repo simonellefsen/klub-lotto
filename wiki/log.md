@@ -401,3 +401,9 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-01 05:04 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
 
+## [2026-07-02 04:29 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
+## [2026-07-02 04:39 UTC] ingest | quiz | Hvilket organ i menneskekroppen producerer hormonet insulin? | outcome=dry-run
+
+## [2026-07-02 04:44 UTC] ingest | quiz | Hvilket organ i menneskekroppen producerer hormonet insulin? | outcome=submitted
+
