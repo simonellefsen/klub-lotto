@@ -175,12 +175,13 @@ func runQuiz(ctx context.Context, args []string) error {
 		fmt.Println("       after login:", curURL)
 	}
 
-	// The logged-in header (balance) hydrates asynchronously after the page loads,
-	// so snapshotting immediately can catch the logged-out chrome and trip a false
-	// "login required". Wait for the page to settle (balance rendered or quiz UI up).
-	readyCtx, readyCancel := context.WithTimeout(ctx, 15*time.Second)
+	// Wait for the quiz CONTENT (question + options, signalled by "AFGIV SVAR") to
+	// render before snapshotting. danskespil can be slow — the page shows a spinner
+	// with the logged-in header already up — so give it a generous budget; a too-
+	// short wait made us snapshot the spinner and extract 0 options.
+	readyCtx, readyCancel := context.WithTimeout(ctx, 45*time.Second)
 	if !klublotto.WaitForQuizReady(readyCtx, br) {
-		fmt.Println("       (page not fully settled after wait; snapshotting anyway)")
+		fmt.Println("       (quiz content not detected after wait; snapshotting anyway)")
 	}
 	readyCancel()
 

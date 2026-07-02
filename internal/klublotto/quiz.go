@@ -176,12 +176,13 @@ func IsLoginRequired(pageURL, snap string) bool {
 		strings.Contains(low, `link "opret konto"`)
 }
 
-// WaitForQuizReady polls until the Klub Lotto page has hydrated its logged-in
-// header (the "Saldo … kr." balance) or rendered the quiz answer UI, so the
-// snapshot used for login detection isn't taken mid-hydration. The header fetches
-// account state asynchronously after load, so a too-early snapshot shows only the
-// logged-out chrome ("Log ind"/"Opret konto", no balance) and trips a false
-// login-required. Best-effort: returns true once ready, or false when ctx expires.
+// WaitForQuizReady polls until the quiz answer UI has rendered — detected by the
+// "AFGIV SVAR" (submit answer) button, which is present exactly when the question
+// and options are up. This gates the snapshot so we don't read a still-loading
+// page: on a slow danskespil day the logged-in header (balance) renders while the
+// quiz body is still a spinner, so keying on the balance would fire early and make
+// us extract 0 options. Best-effort: returns true once ready, or false when ctx
+// expires (the caller then snapshots anyway, letting login/answered detection run).
 func WaitForQuizReady(ctx context.Context, br *browser.Client) bool {
 	for {
 		select {
@@ -192,11 +193,14 @@ func WaitForQuizReady(ctx context.Context, br *browser.Client) bool {
 		raw, err := br.Eval(ctx, `document.body ? document.body.innerText : ""`)
 		if err == nil {
 			low := strings.ToLower(raw)
-			// Ready when the logged-in balance has rendered, or the quiz itself is
-			// up. "kr." without a "log ind" affordance also means the header settled.
-			if strings.Contains(low, "afgiv svar") ||
-				strings.Contains(low, "saldo") ||
-				(strings.Contains(low, "kr.") && !strings.Contains(low, "log ind")) {
+			// Ready only when the quiz CONTENT has rendered — the "AFGIV SVAR" (submit
+			// answer) button appears exactly when the question + options are up. Do NOT
+			// treat the header balance ("kr."/"saldo") as ready: on a slow day
+			// danskespil renders the logged-in header while the quiz body is still a
+			// spinner, so a balance-based check fires early and we snapshot the spinner
+			// (→ "0 options"). The answered-quiz result screen has no "afgiv svar"; the
+			// caller's timeout fallback (snapshot anyway) still handles that case.
+			if strings.Contains(low, "afgiv svar") {
 				return true
 			}
 		}
@@ -450,7 +454,9 @@ func SubmitQuizOption(ctx context.Context, br *browser.Client, optionText string
 			if err != nil {
 				return fmt.Errorf("JS click option %q: %w", optionText, err)
 			}
-			var result struct{ OK bool `json:"ok"` }
+			var result struct {
+				OK bool `json:"ok"`
+			}
 			json.Unmarshal([]byte(raw), &result)
 			if !result.OK {
 				return fmt.Errorf("option %q not found via any method", optionText)
