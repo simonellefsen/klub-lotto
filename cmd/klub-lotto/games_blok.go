@@ -144,14 +144,49 @@ func (d *blokDriver) mouseReleaseSafe(ctx context.Context) {
 	time.Sleep(300 * time.Millisecond)
 }
 
+// startGame drives the blok open→(blank load)→welcome→Start spil→board flow. The
+// game iframe loads blank for several seconds; clicking "Start spil" before it
+// renders finds no button, and the play loop then mistakes the blank board for a
+// game-over at 0 points. So we poll the frame each step: "welcome" (Start spil
+// button up) → click it; "board" (canvas + score live) → done; "loading" → wait.
 func (d *blokDriver) startGame(ctx context.Context) {
-	d.op(ctx, func(c context.Context) error { return klublotto.EnterGameFrame(c, d.br) })
-	out := d.eval(ctx, `(function(){var els=[...document.querySelectorAll("div,button,span")]`+
-		`.filter(e=>/start spil/i.test(e.textContent)&&e.offsetParent);`+
-		`if(els.length){els[els.length-1].click();return "started";}`+
-		`return "no start button (already in play?)";})()`)
-	fmt.Println("       " + strings.Trim(strings.TrimSpace(out), `"`))
-	time.Sleep(1500 * time.Millisecond)
+	classify := func() string {
+		d.op(ctx, func(c context.Context) error { return klublotto.EnterGameFrame(c, d.br) })
+		s := d.eval(ctx, `(function(){
+			var startBtn=[...document.querySelectorAll("div,button,span")].some(e=>/start spil/i.test(e.textContent||"")&&e.offsetParent);
+			if(startBtn) return "welcome";
+			var canvas=document.querySelectorAll("canvas").length;
+			var score=document.querySelector(".game-current-score-value")!=null;
+			if(canvas>0||score) return "board";
+			return "loading";
+		})()`)
+		return strings.Trim(strings.TrimSpace(s), `"`)
+	}
+	deadline := time.Now().Add(60 * time.Second)
+	last := ""
+	clicks := 0
+	for time.Now().Before(deadline) {
+		if ctx.Err() != nil {
+			break
+		}
+		st := classify()
+		if st != last {
+			fmt.Println("       game state: " + st)
+			last = st
+		}
+		if st == "board" {
+			break
+		}
+		if st == "welcome" && clicks < 3 {
+			d.eval(ctx, `(function(){var els=[...document.querySelectorAll("div,button,span")].filter(e=>/start spil/i.test(e.textContent)&&e.offsetParent);if(els.length){els[els.length-1].click();return "clicked";}return "no btn";})()`)
+			clicks++
+			time.Sleep(1500 * time.Millisecond)
+			continue
+		}
+		d.op(ctx, func(c context.Context) error { return d.br.Frame(c, "main") })
+		time.Sleep(800 * time.Millisecond)
+	}
+	// Restore the collapsed canvas and return to the main frame (as before).
 	d.eval(ctx, `(function(){window.dispatchEvent(new Event("resize"));return 1})()`)
 	d.op(ctx, func(c context.Context) error { return d.br.Frame(c, "main") })
 	time.Sleep(time.Second)
@@ -372,9 +407,15 @@ func (d *blokDriver) play(ctx context.Context, goal, maxSteps int) (blokResult, 
 		read, ok := d.readSettled(ctx, 6)
 		if !ok {
 			d.shot(ctx, "blok_final.png")
+			res.steps, res.placed = steps, placed
+			if placed == 0 {
+				// "Board gone" before we've placed anything is not a real game-over —
+				// the board never became readable (slow load / start didn't take). Fail
+				// loudly instead of logging a bogus 0-point "game over".
+				return res, fmt.Errorf("blok board never became readable (0 pieces placed) — game did not start; see blok_final.png")
+			}
 			fmt.Printf("[%d] board gone — likely game over (win/game-over screen). placed~%d. See blok_final.png\n", steps, placed)
 			fmt.Printf("score record written to %s\n", recPath)
-			res.steps, res.placed = steps, placed
 			return res, nil
 		}
 		sig := blokKey(read.board, read.pieces)
