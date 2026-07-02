@@ -407,3 +407,11 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-02 04:44 UTC] ingest | quiz | Hvilket organ i menneskekroppen producerer hormonet insulin? | outcome=submitted
 
+## [2026-07-02 05:19 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-07-02 05:27 UTC] ingest | ordkløver | Category: `Det offentlige Danmark`; answer pattern `3 / 4 / … | outcome=submitted
+
+## [2026-07-02 05:28 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
+
+## [2026-07-02 05:29 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
+

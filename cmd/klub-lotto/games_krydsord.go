@@ -369,6 +369,15 @@ func runKrydsord(ctx context.Context, args []string) error {
 	// learned dictionary for future puzzles. Each slot's verified answer is read
 	// straight from the solved grid; dict.Add de-dupes and accumulates alternatives
 	// (so STÆVNE gains EM alongside OL, BLOMSTRE gains today's answer, etc.).
+	//
+	// The --grid path doesn't vision-extract clues (solveClues is empty), so fall
+	// back to this puzzle's cached clues so a supplied-grid submit still learns.
+	if len(solveClues) == 0 {
+		if cached, ok := klublotto.LoadKrydsordClueCache(cfg.DataDir, data.CrosswordID); ok {
+			solveClues = cached
+			fmt.Printf("       [learn] using %d cached clues for crossword %s\n", len(cached), data.CrosswordID)
+		}
+	}
 	if len(solveClues) > 0 {
 		dictPath := filepath.Join(wikiRoot(), "concepts", "krydsord-clues.json")
 		dict := klublotto.LoadKrydsordDict(dictPath)

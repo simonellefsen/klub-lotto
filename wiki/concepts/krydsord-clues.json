@@ -2,6 +2,9 @@
   "100": [
     "C"
   ],
+  "101": [
+    "CI"
+  ],
   "1050": [
     "ML"
   ],
@@ -10,6 +13,9 @@
   ],
   "50": [
     "L"
+  ],
+  "500": [
+    "D"
   ],
   "ALTSÅ": [
     "ERGO"
@@ -47,6 +53,9 @@
   ],
   "BALLADE": [
     "URO"
+  ],
+  "BANDEORD": [
+    "EDER"
   ],
   "BATTERITYPE": [
     "AA"
@@ -124,6 +133,9 @@
   "BLÆNDENDE": [
     "GENIAL"
   ],
+  "BLÆST": [
+    "SUS"
+  ],
   "BOLIG": [
     "TELT"
   ],
@@ -132,6 +144,9 @@
   ],
   "BRANCHE": [
     "IT"
+  ],
+  "BRINGER": [
+    "LEVERER"
   ],
   "BRINT": [
     "H"
@@ -148,6 +163,9 @@
   ],
   "BULDER": [
     "TORDEN"
+  ],
+  "BÆR": [
+    "RIBS"
   ],
   "BØJE": [
     "EKSE"
@@ -216,7 +234,8 @@
     "EGERN",
     "RENER",
     "ÆSEL",
-    "LOS"
+    "LOS",
+    "GRIS"
   ],
   "DØRSLAG": [
     "SI"
@@ -294,11 +313,17 @@
     "ROSA",
     "ORANGE"
   ],
+  "FARVELØS": [
+    "BLEG"
+  ],
   "FASHION": [
     "MODE"
   ],
   "FEDTSTOF": [
     "OLIE"
+  ],
+  "FEDTSTOFFET": [
+    "OLIEN"
   ],
   "FESTSAL": [
     "AULA"
@@ -386,13 +411,20 @@
     "ØRN"
   ],
   "FUGLE": [
-    "ØRNE"
+    "ØRNE",
+    "STÆRE"
   ],
   "FURER": [
     "RILLER"
   ],
+  "FYR": [
+    "KARL"
+  ],
   "FØDEN": [
     "MADEN"
+  ],
+  "FØRØ": [
+    "Æ"
   ],
   "GAMMEL": [
     "GL"
@@ -414,6 +446,9 @@
   ],
   "GODMODIG": [
     "MILD"
+  ],
+  "GODT": [
+    "VEL"
   ],
   "GRIBE": [
     "TY"
@@ -487,11 +522,15 @@
   "HOLME": [
     "ØER"
   ],
+  "HOLMEN": [
+    "ØEN"
+  ],
   "HORISONTALE": [
     "VANDRETTE"
   ],
   "HOVEDSTAD": [
-    "OSLO"
+    "OSLO",
+    "NUUK"
   ],
   "HUGGET": [
     "RANET"
@@ -501,6 +540,9 @@
   ],
   "HYREN": [
     "ÅRSLØNNEN"
+  ],
+  "HYRET": [
+    "ANSAT"
   ],
   "IDAG": [
     "DD"
@@ -522,6 +564,9 @@
   ],
   "IMAGE": [
     "RY"
+  ],
+  "INDHAK": [
+    "SLIDS"
   ],
   "INSEKT": [
     "BI"
@@ -584,6 +629,9 @@
   ],
   "KLASSE": [
     "KL"
+  ],
+  "KLOG": [
+    "FORSTANDIG"
   ],
   "KLUDE": [
     "LASER"
@@ -700,6 +748,9 @@
   "LYS": [
     "KERTE"
   ],
+  "LÆNKER": [
+    "KÆDER"
+  ],
   "LÆRESTED": [
     "DTU"
   ],
@@ -815,6 +866,9 @@
   ],
   "OPFØRER": [
     "TER"
+  ],
+  "OPHÆNG": [
+    "URO"
   ],
   "OPTEGNELSE": [
     "NOTE"
@@ -989,7 +1043,8 @@
     "ANER"
   ],
   "SKIVE": [
-    "DVD"
+    "DVD",
+    "CD"
   ],
   "SKRIVER": [
     "PEN"
@@ -1103,6 +1158,9 @@
   "STRUDS": [
     "EMU"
   ],
+  "STRYGE": [
+    "AE"
+  ],
   "STUEN": [
     "ST"
   ],
@@ -1139,6 +1197,9 @@
   ],
   "SØDEMIDDEL": [
     "ROESUKKER"
+  ],
+  "TAGEFEJLAF": [
+    "FORVEKSLE"
   ],
   "TALENT": [
     "EVNE"
@@ -1363,6 +1424,9 @@
   "[IMG]BRICKWALL": [
     "MUR"
   ],
+  "[IMG]CACTUS": [
+    "KAKTUS"
+  ],
   "[IMG]CAMERA": [
     "KAMERA"
   ],
@@ -1393,14 +1457,23 @@
   "[IMG]DANISHFLAG": [
     "FLAG"
   ],
+  "[IMG]DIE": [
+    "ENER"
+  ],
   "[IMG]DUCK": [
     "AND"
   ],
   "[IMG]FENCE": [
     "HEGN"
   ],
+  "[IMG]FISHINGHOOK": [
+    "KROG"
+  ],
   "[IMG]GRAPES": [
     "DRUER"
+  ],
+  "[IMG]GRASS": [
+    "GRÆS"
   ],
   "[IMG]GRILL": [
     "GRILL"
