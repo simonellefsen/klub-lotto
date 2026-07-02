@@ -128,6 +128,15 @@ func runOrdKloever(ctx context.Context, args []string) error {
 	}
 	fmt.Println("       at:", curURL)
 
+	// Wait for the game UI (launcher/keyboard/board) to render before interacting —
+	// on a slow danskespil day the game iframe is still a spinner, and both the
+	// launcher click and the vision read would otherwise run against an empty page.
+	readyCtx, readyCancel := context.WithTimeout(ctx, 45*time.Second)
+	if !klublotto.WaitForWordGameReady(readyCtx, br, "SPIL ORDKLØVER", "SPIL ORDKLOEVER") {
+		fmt.Println("       (game content not detected after wait; continuing anyway)")
+	}
+	readyCancel()
+
 	// Click through the "SPIL ORDKLØVER" welcome screen up front (robust
 	// text-content click — handles the Ø and the child-text label) so the first
 	// vision read below sees the real board, not the launcher. No-op if already

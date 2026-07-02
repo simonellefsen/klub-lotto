@@ -62,6 +62,14 @@ func runOrdknude(ctx context.Context, args []string) error {
 	fmt.Println("       at:", curURL)
 
 	fmt.Println("[2/4] extracting state...")
+	// Wait for the game UI (keyboard/tiles/welcome) to render before extracting —
+	// on a slow danskespil day the game iframe is still a spinner ("empty page"),
+	// which would otherwise read as an empty board.
+	readyCtx, readyCancel := context.WithTimeout(ctx, 45*time.Second)
+	if !klublotto.WaitForWordGameReady(readyCtx, br, "SPIL ORDKNUDEN", "Spil Ordknuden") {
+		fmt.Println("       (game content not detected after wait; extracting anyway)")
+	}
+	readyCancel()
 	extractCtx, cancel := context.WithTimeout(ctx, 45*time.Second)
 	st, err := klublotto.ExtractOrdknudeState(extractCtx, br, ac)
 	cancel()

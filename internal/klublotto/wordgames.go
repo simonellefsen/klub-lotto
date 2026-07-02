@@ -2358,6 +2358,67 @@ func isImmerspieleURL(u string) bool {
 // keyboard keys like Y when the game was already running, causing spurious
 // input. Using FindRefByName ensures we only click when there is actually a
 // welcome screen to dismiss.
+// WaitForWordGameReady polls until a word game's board UI has rendered inside its
+// cross-origin game OOPIF — the on-screen keyboard (≥5 buttons) or letter tiles,
+// or a matching welcome/start button. This gates extraction so it does NOT run
+// against a still-loading spinner: an empty iframe page reads as "no board
+// letters" and yields a bogus empty state. On a fresh game the board is
+// legitimately empty, so we key on the game UI (keyboard/tiles/welcome), never on
+// guessed letters. Best-effort: returns true once ready, false when ctx expires
+// (the caller then extracts anyway).
+func WaitForWordGameReady(ctx context.Context, br *browser.Client, welcome ...string) bool {
+	ready := func() bool {
+		entered := false
+		for _, sel := range []string{GameIframe, "iframe[src*='ord']", "iframe"} {
+			if br.Frame(ctx, sel) == nil {
+				entered = true
+				break
+			}
+		}
+		if !entered {
+			return false
+		}
+		defer LeaveFrame(br)
+		// Return a STRING ("tiles|keys|text"): br.Eval only surfaces string results.
+		raw, _ := br.Eval(ctx, `(() => {
+			const tiles = document.querySelectorAll('[class*="tile"],[class*="cell"]').length;
+			const keys = document.querySelectorAll('button,[role="button"]').length;
+			return tiles + '|' + keys + '|' + (document.body ? (document.body.innerText || '') : '');
+		})()`)
+		parts := strings.SplitN(strings.TrimSpace(raw), "|", 3)
+		if len(parts) < 3 {
+			return false
+		}
+		tiles, _ := strconv.Atoi(strings.TrimSpace(parts[0]))
+		keys, _ := strconv.Atoi(strings.TrimSpace(parts[1]))
+		if tiles >= 5 || keys >= 5 {
+			return true
+		}
+		low := strings.ToLower(parts[2])
+		for _, w := range welcome {
+			if w != "" && strings.Contains(low, strings.ToLower(w)) {
+				return true
+			}
+		}
+		return false
+	}
+	for {
+		select {
+		case <-ctx.Done():
+			return false
+		default:
+		}
+		if ready() {
+			return true
+		}
+		select {
+		case <-ctx.Done():
+			return false
+		case <-time.After(600 * time.Millisecond):
+		}
+	}
+}
+
 func ensureOrdknudeGameStarted(ctx context.Context, br *browser.Client) error {
 	snap, err := br.SnapshotInteractiveWithFrames(ctx)
 	if err != nil {
