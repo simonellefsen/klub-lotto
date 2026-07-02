@@ -649,6 +649,7 @@
     "DRENG"
   ],
   "KORN": [
+    "BYG",
     "RUG"
   ],
   "KORRIGERE": [
@@ -668,7 +669,8 @@
     "KLØ"
   ],
   "KRAFTIG": [
-    "FED"
+    "FED",
+    "TYK"
   ],
   "KROMOSOM": [
     "Y"
@@ -752,7 +754,8 @@
     "KÆDER"
   ],
   "LÆRESTED": [
-    "DTU"
+    "DTU",
+    "SDU"
   ],
   "LÆSEPENGE": [
     "SU"
