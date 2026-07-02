@@ -2358,63 +2358,95 @@ func isImmerspieleURL(u string) bool {
 // keyboard keys like Y when the game was already running, causing spurious
 // input. Using FindRefByName ensures we only click when there is actually a
 // welcome screen to dismiss.
-// WaitForWordGameReady polls until a word game's board UI has rendered inside its
-// cross-origin game OOPIF — the on-screen keyboard (≥5 buttons) or letter tiles,
-// or a matching welcome/start button. This gates extraction so it does NOT run
-// against a still-loading spinner: an empty iframe page reads as "no board
-// letters" and yields a bogus empty state. On a fresh game the board is
-// legitimately empty, so we key on the game UI (keyboard/tiles/welcome), never on
-// guessed letters. Best-effort: returns true once ready, false when ctx expires
-// (the caller then extracts anyway).
-func WaitForWordGameReady(ctx context.Context, br *browser.Client, welcome ...string) bool {
-	ready := func() bool {
-		entered := false
-		for _, sel := range []string{GameIframe, "iframe[src*='ord']", "iframe"} {
-			if br.Frame(ctx, sel) == nil {
-				entered = true
-				break
-			}
+// wordGameFrameState classifies the embedded word-game OOPIF into one of:
+//
+//	"board"   — the on-screen letter keyboard has rendered; ready to read/type
+//	"welcome" — the launcher/welcome screen is up; must click to enter the game
+//	"loading" — spinner / the game iframe isn't attached or populated yet
+//
+// It keys the "board" state on the KEYBOARD's single-character letter keys (the
+// Q…Å / A…Ø / Z…M rows), which only exist once the game is actually in play —
+// this is what distinguishes a real ready board from the welcome screen (0 letter
+// keys) and from the spinner. It uses ONLY the specific game-iframe selectors,
+// never a bare "iframe": during the ~10s spinner the game frame isn't attached,
+// and a bare selector matches a tracker/consent frame whose buttons falsely read
+// as "ready".
+func wordGameFrameState(ctx context.Context, br *browser.Client, welcomeNames []string) string {
+	entered := false
+	for _, sel := range []string{GameIframe, "iframe[src*='ordknude']", "iframe[src*='ordknuden']", "iframe[src*='ordkloever']", "iframe[src*='ordklover']", "iframe[src*='clover']"} {
+		if br.Frame(ctx, sel) == nil {
+			entered = true
+			break
 		}
-		if !entered {
-			return false
-		}
-		defer LeaveFrame(br)
-		// Return a STRING ("tiles|keys|text"): br.Eval only surfaces string results.
-		raw, _ := br.Eval(ctx, `(() => {
-			const tiles = document.querySelectorAll('[class*="tile"],[class*="cell"]').length;
-			const keys = document.querySelectorAll('button,[role="button"]').length;
-			return tiles + '|' + keys + '|' + (document.body ? (document.body.innerText || '') : '');
-		})()`)
-		parts := strings.SplitN(strings.TrimSpace(raw), "|", 3)
-		if len(parts) < 3 {
-			return false
-		}
-		tiles, _ := strconv.Atoi(strings.TrimSpace(parts[0]))
-		keys, _ := strconv.Atoi(strings.TrimSpace(parts[1]))
-		if tiles >= 5 || keys >= 5 {
-			return true
-		}
-		low := strings.ToLower(parts[2])
-		for _, w := range welcome {
-			if w != "" && strings.Contains(low, strings.ToLower(w)) {
-				return true
-			}
-		}
-		return false
 	}
+	if !entered {
+		return "loading"
+	}
+	defer LeaveFrame(br)
+	// Return "<letterKeyCount>|<bodyText>" — br.Eval only surfaces string results.
+	raw, _ := br.Eval(ctx, `(() => {
+		const letterKeys = Array.from(document.querySelectorAll('button,[role="button"]'))
+			.filter(b => (((b.textContent || b.getAttribute('aria-label') || '').trim()).length === 1)).length;
+		const t = document.body ? (document.body.innerText || '') : '';
+		return letterKeys + '|' + t;
+	})()`)
+	parts := strings.SplitN(raw, "|", 2)
+	if len(parts) < 2 {
+		return "loading"
+	}
+	if letterKeys, _ := strconv.Atoi(strings.TrimSpace(parts[0])); letterKeys >= 20 {
+		return "board"
+	}
+	low := strings.ToLower(parts[1])
+	for _, n := range welcomeNames {
+		if n != "" && strings.Contains(low, strings.ToLower(n)) {
+			return "welcome"
+		}
+	}
+	if strings.Contains(low, "kan du gætte dagens ord") { // ordknude welcome subtitle
+		return "welcome"
+	}
+	return "loading"
+}
+
+// EnterWordGame drives the full open→spinner→welcome→enter→board flow to a ready
+// state: it waits past the loading spinner for the game frame, clicks the
+// welcome/launcher button (welcomeNames) whenever the launcher is shown, and
+// returns nil only once the on-screen keyboard has rendered (board ready) — so
+// downstream state extraction and letter typing never race the spinner or the
+// welcome→board transition. On a fresh game the board is legitimately empty, so
+// readiness keys on the game UI, never on guessed letters. Returns an error if the
+// board never appears within the budget (caller may still try, best-effort).
+func EnterWordGame(ctx context.Context, br *browser.Client, welcomeNames ...string) error {
+	deadline := time.Now().Add(75 * time.Second)
+	lastState, clicks := "", 0
 	for {
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
+		state := wordGameFrameState(ctx, br, welcomeNames)
+		if state != lastState {
+			fmt.Printf("   [enter] game state: %s\n", state)
+			lastState = state
+		}
+		switch state {
+		case "board":
+			return nil
+		case "welcome":
+			// Click the launcher (frames-inclusive + Ø-tolerant); re-poll for the
+			// board. Cap clicks so a stuck launcher doesn't spin forever.
+			if clicks < 5 {
+				_ = startWordGameIfPresent(ctx, br, welcomeNames...)
+				clicks++
+			}
+		}
+		if time.Now().After(deadline) {
+			return fmt.Errorf("word game did not reach the board within budget (last state: %s)", state)
+		}
 		select {
 		case <-ctx.Done():
-			return false
-		default:
-		}
-		if ready() {
-			return true
-		}
-		select {
-		case <-ctx.Done():
-			return false
-		case <-time.After(600 * time.Millisecond):
+			return ctx.Err()
+		case <-time.After(800 * time.Millisecond):
 		}
 	}
 }
