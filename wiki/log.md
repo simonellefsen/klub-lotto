@@ -419,3 +419,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-03 03:21 UTC] ingest | quiz | Hvilken ø kaldes ofte 'Solskinsøen'? | outcome=submitted
 
+## [2026-07-03 03:26 UTC] ingest | ordkløver | Category: `Sted`; answer pattern `3 / 3 / 6` | outcome=submitted
+
