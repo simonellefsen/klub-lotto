@@ -1438,9 +1438,22 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 		// 75 cells is slow and the model tends to regress; instead ask it to fix ONLY
 		// the conflicting slots, telling it the exact letters their crossings demand.
 		if check.FilledN == check.AnswerN && len(conflicts) > 0 && len(conflicts) <= 8 {
+			// A dict answer that participates in a crossing conflict is likely WRONG
+			// for this puzzle — e.g. an ambiguous short clue (FUGL→ØRN) whose only
+			// learned answer isn't today's. Stop trusting it: drop it from knownAnswers
+			// so neither the repair below nor any later whole-grid attempt re-forces it,
+			// letting the model pick an answer that actually fits the crossings.
+			if involved, _ := klublotto.KrydsordConflictSlots(slots, answers); len(involved) > 0 {
+				for _, id := range involved {
+					if ans, ok := knownAnswers[id]; ok {
+						fmt.Printf("       [assemble] dropping dict answer %s=%s — it conflicts with the crossings (untrusted for this puzzle)\n", id, ans)
+						delete(knownAnswers, id)
+					}
+				}
+			}
 			if repaired, ok := repairKrydsordConflictsLLM(ctx, p, slots, cluesByID, perSlot, answers); ok {
 				for id, ans := range knownAnswers {
-					repaired[id] = ans // dictionary answers stay authoritative
+					repaired[id] = ans // remaining trusted dict answers stay authoritative
 				}
 				g2, c2 := klublotto.BuildKrydsordGridFromSlotAnswers(data, slots, repaired)
 				chk2 := klublotto.ValidateKrydsordAnswerGrid(data, g2)
