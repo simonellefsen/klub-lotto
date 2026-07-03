@@ -421,3 +421,11 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-03 03:26 UTC] ingest | ordkløver | Category: `Sted`; answer pattern `3 / 3 / 6` | outcome=submitted
 
+## [2026-07-03 03:42 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-07-03 03:53 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
+
+## [2026-07-03 04:01 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+
+## [2026-07-03 04:07 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+

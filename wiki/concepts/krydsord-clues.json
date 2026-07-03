@@ -17,6 +17,9 @@
   "500": [
     "D"
   ],
+  "506": [
+    "DVI"
+  ],
   "ALTSÅ": [
     "ERGO"
   ],
@@ -246,6 +249,9 @@
   "EJER": [
     "HAR"
   ],
+  "ENFOLDIG": [
+    "GODTROENDE"
+  ],
   "ENGELSKTITEL": [
     "SIR"
   ],
@@ -311,7 +317,8 @@
   "FARVE": [
     "PINK",
     "ROSA",
-    "ORANGE"
+    "ORANGE",
+    "BLÅ"
   ],
   "FARVELØS": [
     "BLEG"
@@ -401,6 +408,9 @@
   "FRISERES": [
     "REDES"
   ],
+  "FRISKT": [
+    "NYT"
+  ],
   "FRUGT": [
     "DRUE",
     "ÆBLE",
@@ -408,7 +418,13 @@
     "MELON"
   ],
   "FUGL": [
-    "ØRN"
+    "ARA",
+    "DUE",
+    "EMU",
+    "GÅS",
+    "KEA",
+    "ØRN",
+    "MEJSE"
   ],
   "FUGLE": [
     "ØRNE",
@@ -437,6 +453,9 @@
   ],
   "GEMME": [
     "BEVARE"
+  ],
+  "GIDE": [
+    "ORKE"
   ],
   "GIKOP": [
     "STEG"
@@ -542,7 +561,14 @@
     "ÅRSLØNNEN"
   ],
   "HYRET": [
-    "ANSAT"
+    "ANSAT",
+    "ENGAGERET"
+  ],
+  "HÅNDARBEJDE": [
+    "SYTØJ"
+  ],
+  "HÆNDT": [
+    "SKET"
   ],
   "IDAG": [
     "DD"
@@ -665,6 +691,9 @@
   "KOSTBAR": [
     "DYR"
   ],
+  "KOSTBARE": [
+    "DYRE"
+  ],
   "KRADSE": [
     "KLØ"
   ],
@@ -750,6 +779,9 @@
   "LYS": [
     "KERTE"
   ],
+  "LÆDER": [
+    "SKIND"
+  ],
   "LÆNKER": [
     "KÆDER"
   ],
@@ -774,6 +806,9 @@
   ],
   "MEDIEHUS": [
     "DR"
+  ],
+  "MESTERKOK": [
+    "GASTRONOM"
   ],
   "METER": [
     "M"
@@ -812,6 +847,9 @@
   ],
   "MÅLFORK": [
     "KM"
+  ],
+  "MÅNEFASE": [
+    "NY"
   ],
   "MÆRKE": [
     "AR",
@@ -962,6 +1000,12 @@
     "DÅSEÅBNER",
     "FORK"
   ],
+  "REJSE": [
+    "ODYSSE"
+  ],
+  "RENSEMIDDEL": [
+    "SÆBE"
+  ],
   "REST": [
     "LEVN"
   ],
@@ -1034,7 +1078,8 @@
     "BOV",
     "DÆK",
     "KØL",
-    "ROR"
+    "ROR",
+    "STÆVN"
   ],
   "SKILT": [
     "DELT"
@@ -1088,6 +1133,9 @@
   "SNEDIG": [
     "SNU"
   ],
+  "SNYLTE": [
+    "NASSE"
+  ],
   "SOLGUD": [
     "RA"
   ],
@@ -1115,6 +1163,9 @@
   "SPISEKORT": [
     "MENU"
   ],
+  "SPORTSGREN": [
+    "TENNIS"
+  ],
   "SPORTSSTÆVNE": [
     "OL"
   ],
@@ -1129,6 +1180,9 @@
   ],
   "SPÆDBARN": [
     "BABY"
+  ],
+  "STAKKELS": [
+    "ARME"
   ],
   "STEDNAVN": [
     "ORØ"
@@ -1320,6 +1374,9 @@
   "TÆRE": [
     "ÆTSE"
   ],
+  "TÆTTE": [
+    "NÆRE"
+  ],
   "UDBRUD": [
     "AV"
   ],
@@ -1356,8 +1413,14 @@
   "VEJDEL": [
     "BANE"
   ],
+  "VEJRMELDER": [
+    "DMI"
+  ],
   "VEJVISER": [
     "GPS"
+  ],
+  "VELHAVENDE": [
+    "RIG"
   ],
   "VERDENSHJØRNE": [
     "N",
@@ -1455,7 +1518,8 @@
     "KAGE"
   ],
   "[IMG]CUPOFTEA": [
-    "TEKOP"
+    "TEKOP",
+    "TE"
   ],
   "[IMG]DANISHFLAG": [
     "FLAG"
@@ -1529,6 +1593,9 @@
   "[IMG]SNAIL": [
     "SNEGL"
   ],
+  "[IMG]SNOWGLOBE": [
+    "ÆGGEUR"
+  ],
   "[IMG]SOCKS": [
     "SOKKER"
   ],
@@ -1567,6 +1634,9 @@
   ],
   "ØDELAGT": [
     "ITU"
+  ],
+  "ØJESTYKKE": [
+    "ETUDE"
   ],
   "ØJNE": [
     "SE"
