@@ -100,12 +100,20 @@ func submitSudoku(ctx context.Context, br *browser.Client, givens, solved klublo
 		return fmt.Errorf("tag sudoku number buttons: %w", err)
 	}
 
+	// On a slow danskespil day a "bm-container-loader" spinner overlay still covers
+	// the grid when we start filling, so a cell click lands on the loader instead
+	// ("covered by <div.bm-container-loader>"). Wait for it to clear before filling.
+	if err := waitSudokuLoaderClear(ctx, br); err != nil {
+		return err
+	}
+
 	// The game's decorative .shadow overlays (top/right/bottom/left/center) sit
 	// over the grid edges and intercept clicks, so agent-browser refuses to click
 	// a covered cell ("covered by <div.shadow.right>"). Disable their pointer
-	// events so every cell click lands on the cell.
-	if _, err := br.Eval(ctx, `(() => { document.querySelectorAll('.shadow').forEach(s=>{s.style.pointerEvents='none';}); return 'ok'; })()`); err != nil {
-		return fmt.Errorf("neutralize sudoku shadow overlays: %w", err)
+	// events — and the loader's, as a belt-and-suspenders against a late re-show —
+	// so every cell click lands on the cell.
+	if _, err := br.Eval(ctx, `(() => { document.querySelectorAll('.shadow, .bm-container-loader').forEach(s=>{s.style.pointerEvents='none';}); return 'ok'; })()`); err != nil {
+		return fmt.Errorf("neutralize sudoku overlays: %w", err)
 	}
 
 	// Fill: click each empty cell by its unique class, then its number button.
@@ -142,6 +150,34 @@ func submitSudoku(ctx context.Context, br *browser.Client, givens, solved klublo
 		return nil
 	}
 	return fmt.Errorf("filled %d cells but did not detect a success confirmation", filled)
+}
+
+// waitSudokuLoaderClear polls until the ".bm-container-loader" spinner overlay is
+// gone or no longer covering the grid (display:none / hidden / zero-size / opacity
+// 0), so cell clicks land on the cells instead of the loader. On timeout it forces
+// the loader out of the click path (pointer-events:none) as a last resort — the
+// board is already read at this point, so the cells exist beneath it.
+func waitSudokuLoaderClear(ctx context.Context, br *browser.Client) error {
+	deadline := time.Now().Add(45 * time.Second)
+	for {
+		raw, _ := br.Eval(ctx, `(() => {
+			const l = document.querySelector('.bm-container-loader');
+			if (!l) return 'clear';
+			const s = getComputedStyle(l);
+			const r = l.getBoundingClientRect();
+			if (s.display === 'none' || s.visibility === 'hidden' || Number(s.opacity) === 0 || r.width === 0 || r.height === 0) return 'clear';
+			return 'covering';
+		})()`)
+		if strings.TrimSpace(raw) == "clear" {
+			return nil
+		}
+		if time.Now().After(deadline) || ctx.Err() != nil {
+			// Last resort: take the loader out of the click path so the fill can proceed.
+			_, _ = br.Eval(ctx, `(() => { document.querySelectorAll('.bm-container-loader').forEach(l=>{l.style.pointerEvents='none';}); return 'ok'; })()`)
+			return nil
+		}
+		time.Sleep(600 * time.Millisecond)
+	}
 }
 
 func waitForSudokuSuccess(ctx context.Context, br *browser.Client) (bool, string) {
