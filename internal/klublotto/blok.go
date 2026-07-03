@@ -69,8 +69,8 @@ type BlokGeom struct {
 // BlokPiece is one tray piece: its filled-cell shape plus a pickup point in CSS
 // viewport coordinates (image pixels / 2 for the retina screenshot).
 type BlokPiece struct {
-	Shape       [][]int
-	H, W, Cells int
+	Shape        [][]int
+	H, W, Cells  int
 	PickX, PickY int
 }
 
@@ -430,8 +430,9 @@ func BlokApply(b [8][8]int, s [][]int, r, c int) ([8][8]int, int) {
 	return g, len(fr) + len(fc)
 }
 
-// blokQuality rewards open space and heavily penalises dead 1x1 holes (no piece
-// is a single cell) and tight single-neighbour gaps.
+// blokQuality rewards open space, heavily penalises dead 1x1 holes (no piece is a
+// single cell) and tight single-neighbour gaps, and lightly rewards near-complete
+// rows/cols so fills consolidate toward clearable lines instead of scattering.
 func blokQuality(b [8][8]int) int {
 	empty, dead, tight := 0, 0, 0
 	dirs := [4][2]int{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}
@@ -455,7 +456,28 @@ func blokQuality(b [8][8]int) int {
 			}
 		}
 	}
-	return empty - 45*dead - 4*tight
+	// Line-completion pressure: reward rows/cols that are one or two cells from
+	// clearing (6-7 of 8 filled), so the solver concentrates fills into completable
+	// lines rather than smearing them across the board (which is what leads to a
+	// boxed-in game-over). Kept small — a near-full line is worth at most +4, far
+	// below the 120/line clear reward and the 45/dead-hole penalty, so it only
+	// breaks ties among boards the other terms rate similarly; it never lures the
+	// solver into leaving a line uncleared when it could clear it.
+	near := 0
+	for i := 0; i < 8; i++ {
+		rf, cf := 0, 0
+		for j := 0; j < 8; j++ {
+			rf += b[i][j]
+			cf += b[j][i]
+		}
+		if rf == 6 || rf == 7 {
+			near += rf - 5 // 6→+1, 7→+2
+		}
+		if cf == 6 || cf == 7 {
+			near += cf - 5
+		}
+	}
+	return empty - 45*dead - 4*tight + 2*near
 }
 
 // BlokPlan does the full-trio lookahead: it tries every ordering/placement of
