@@ -165,3 +165,24 @@ func TestBlokPlanPrefersLineClear(t *testing.T) {
 		t.Fatalf("top move = piece%d@(%d,%d), want piece0@(0,6)", top.Pi, top.R, top.C)
 	}
 }
+
+func TestBlokPlanRewardsCombo(t *testing.T) {
+	// Rows 0 and 7 each need their last two cells; two 1x2 pieces each complete one
+	// row → two SEPARATE clearing placements = a combo. Both rows then clear, so the
+	// board ends empty. Expected top score: 2 lines × 120 (survival proxy) + 10 combo
+	// bonus for the 2nd clearing placement + quality(empty board)=64.
+	var b [8][8]int
+	for c := 0; c < 6; c++ {
+		b[0][c] = 1
+		b[7][c] = 1
+	}
+	shapes := [][][]int{{{1, 1}}, {{1, 1}}}
+	ranked := BlokPlan(b, shapes)
+	if len(ranked) == 0 {
+		t.Fatal("no moves planned")
+	}
+	want := 2*120 + 10 + 64
+	if ranked[0].Score != want {
+		t.Fatalf("top score = %d, want %d (double clear + combo bonus)", ranked[0].Score, want)
+	}
+}

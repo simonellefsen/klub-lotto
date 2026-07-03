@@ -480,18 +480,29 @@ func blokQuality(b [8][8]int) int {
 	return empty - 45*dead - 4*tight + 2*near
 }
 
-// BlokPlan does the full-trio lookahead: it tries every ordering/placement of
-// the remaining pieces and ranks each possible FIRST move by the best score
-// reachable through the whole trio (120*lines_cleared + end-of-trio quality).
-// Returns moves best-first, matching the Python tie-break (descending score,
-// then descending (pi,r,c)).
+// BlokPlan does the full-trio lookahead: it tries every ordering/placement of the
+// remaining pieces and ranks each possible FIRST move by the best score reachable
+// through the whole trio.
+//
+// Scoring model (from the game's rules): +1 point per cell placed, so SURVIVING
+// longer (more placements) is the dominant point source — hence the openness /
+// dead-hole terms in blokQuality. A line clear itself frees space (survival) and,
+// crucially, chained clears pay an escalating COMBO bonus: the 1st clear starts
+// the chain, the 2nd is +10, the 3rd +20, … So we (a) keep the 120/line survival
+// proxy for clearing, and (b) add the real combo bonus for each clearing placement
+// beyond the first in the trio, nudging the solver to SPREAD clears across pieces
+// (a combo) rather than dumping them in one placement. Returns moves best-first,
+// tie-broken descending (score, pi, r, c).
 func BlokPlan(board [8][8]int, shapes [][][]int) []BlokScoredMove {
 	type key struct{ Pi, R, C int }
 	results := map[key]int{}
-	var rec func(bd [8][8]int, rem []int, first *key, cl int)
-	rec = func(bd [8][8]int, rem []int, first *key, cl int) {
+	// cl = total lines cleared in the trio (survival proxy); clears = number of
+	// PLACEMENTS that cleared ≥1 line (the combo length); combo = accumulated combo
+	// bonus so far (10 for the 2nd clearing placement, 20 for the 3rd, …).
+	var rec func(bd [8][8]int, rem []int, first *key, cl, clears, combo int)
+	rec = func(bd [8][8]int, rem []int, first *key, cl, clears, combo int) {
 		if first != nil {
-			sc := cl*120 + blokQuality(bd)
+			sc := cl*120 + combo + blokQuality(bd)
 			if old, ok := results[*first]; !ok || sc > old {
 				results[*first] = sc
 			}
@@ -506,10 +517,15 @@ func BlokPlan(board [8][8]int, shapes [][][]int) []BlokScoredMove {
 					mv := key{pi, rc[0], rc[1]}
 					f = &mv
 				}
+				nClears, nCombo := clears, combo
+				if n > 0 {
+					nCombo += 10 * clears // 1st clearing placement +0, 2nd +10, 3rd +20…
+					nClears++
+				}
 				rest := make([]int, 0, len(rem)-1)
 				rest = append(rest, rem[:k]...)
 				rest = append(rest, rem[k+1:]...)
-				rec(nb, rest, f, cl+n)
+				rec(nb, rest, f, cl+n, nClears, nCombo)
 			}
 		}
 	}
@@ -517,7 +533,7 @@ func BlokPlan(board [8][8]int, shapes [][][]int) []BlokScoredMove {
 	for i := range rem {
 		rem[i] = i
 	}
-	rec(board, rem, nil, 0)
+	rec(board, rem, nil, 0, 0, 0)
 
 	out := make([]BlokScoredMove, 0, len(results))
 	for mv, sc := range results {
