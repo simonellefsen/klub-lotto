@@ -6,6 +6,24 @@ import (
 	"testing"
 )
 
+func TestClassifyQuizResult(t *testing.T) {
+	// The real win screen text.
+	win := "Et sandt geni!\nFantastisk! Det er quiz'me godt gået!\n(Du har allerede optjent dagens lod)"
+	if got := ClassifyQuizResult(win); got != "correct" {
+		t.Fatalf("ClassifyQuizResult(win) = %q, want correct", got)
+	}
+	// A loss screen revealing the correct answer.
+	loss := "Øv!\nDesværre, det var ikke rigtigt. Det rigtige svar var Bornholm."
+	if got := ClassifyQuizResult(loss); got != "wrong" {
+		t.Fatalf("ClassifyQuizResult(loss) = %q, want wrong", got)
+	}
+	// The pre-answer question page must NOT classify as a result (keep waiting).
+	pending := "Dagens Quiz\nHvilken ø kaldes ofte 'Solskinsøen'?\nLangeland\nBornholm\nSamsø\nAFGIV SVAR"
+	if got := ClassifyQuizResult(pending); got != "" {
+		t.Fatalf("ClassifyQuizResult(pending) = %q, want empty (keep waiting)", got)
+	}
+}
+
 func TestExtractRoundFromFullSnapshotText(t *testing.T) {
 	t.Skip("temporarily disabled — snapshot format has drifted after extraction logic changes; re-enable when fixed")
 

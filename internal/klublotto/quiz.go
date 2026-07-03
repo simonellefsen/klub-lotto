@@ -212,6 +212,57 @@ func WaitForQuizReady(ctx context.Context, br *browser.Client) bool {
 	}
 }
 
+// WaitForQuizResult waits for the post-answer result screen to render — it can be
+// a spinner for several seconds on a slow day — and reports whether our answer was
+// correct. Returns:
+//
+//	"correct" — the win banner ("Et sandt geni!" / "quiz'me godt gået")
+//	"wrong"   — a loss screen (reveals the correct answer / "desværre" / "øv!")
+//	"unknown" — neither appeared before ctx expired (result not confirmed)
+//
+// Win markers are distinctive so they never match the pre-answer question page;
+// loss markers are kept conservative so we never falsely report a correct answer
+// as wrong (an unrecognised loss screen falls through to "unknown").
+func WaitForQuizResult(ctx context.Context, br *browser.Client) string {
+	for {
+		select {
+		case <-ctx.Done():
+			return "unknown"
+		default:
+		}
+		if raw, err := br.Eval(ctx, `document.body ? document.body.innerText : ""`); err == nil {
+			if r := ClassifyQuizResult(raw); r != "" {
+				return r
+			}
+		}
+		select {
+		case <-ctx.Done():
+			return "unknown"
+		case <-time.After(600 * time.Millisecond):
+		}
+	}
+}
+
+// ClassifyQuizResult classifies the quiz result-screen body text as "correct",
+// "wrong", or "" (not a result screen yet — keep waiting). Win markers are
+// distinctive so they never match the pre-answer question page; loss markers are
+// conservative so an unrecognised loss screen falls through to "" (→ "unknown")
+// rather than being falsely reported as wrong.
+func ClassifyQuizResult(bodyText string) string {
+	low := strings.ToLower(bodyText)
+	for _, m := range []string{"et sandt geni", "quiz'me godt", "quiz’me godt", "godt gået", "godt gaet", "fantastisk"} {
+		if strings.Contains(low, m) {
+			return "correct"
+		}
+	}
+	for _, m := range []string{"det rigtige svar", "desværre", "desvaerre", "ærgerlig", "aergerlig", "bedre held", "øv!", "forkert svar"} {
+		if strings.Contains(low, m) {
+			return "wrong"
+		}
+	}
+	return ""
+}
+
 // ExtractRoundFromScreenshot takes a screenshot of the current quiz page and
 // uses Claude vision to read the question and answer options. This is more
 // robust than DOM/iframe parsing because it works regardless of rendering

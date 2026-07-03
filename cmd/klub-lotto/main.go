@@ -267,27 +267,42 @@ func runQuiz(ctx context.Context, args []string) error {
 	if *dryRun {
 		submit = false
 	}
+	outcome := "dry-run"
+	result := "" // "correct" | "wrong" | "unknown" (submit only)
 	if submit {
 		fmt.Println("[6/6] submitting answer...")
 		if err := klublotto.SubmitQuizOption(ctx, br, chosenText); err != nil {
 			_, _ = writeQuizSource(cfg, round, votes, chosen, false, "error: submit failed", curURL)
 			return fmt.Errorf("submit choice: %w", err)
 		}
-		time.Sleep(1500 * time.Millisecond)
+		// Wait for the result screen to CONFIRM the answer. It can be a spinner for
+		// several seconds on a slow day, so poll generously (don't just exit after a
+		// fixed sleep).
+		fmt.Println("       waiting for result screen to confirm...")
+		resultCtx, resultCancel := context.WithTimeout(ctx, 40*time.Second)
+		result = klublotto.WaitForQuizResult(resultCtx, br)
+		resultCancel()
+		switch result {
+		case "correct":
+			fmt.Println("       ✅ Correct — result screen confirmed the win ('Et sandt geni!').")
+			outcome = "correct"
+		case "wrong":
+			fmt.Println("       ❌ Wrong — the quiz marked our answer incorrect.")
+			outcome = "wrong"
+		default:
+			fmt.Println("       ⚠️  result not confirmed on screen within 40s — recording as submitted (unconfirmed).")
+			outcome = "submitted"
+		}
 	} else {
 		fmt.Println("[6/6] dry run — not clicking.")
 	}
 
-	outcome := "submitted"
-	if !submit {
-		outcome = "dry-run"
-	}
 	source, err := writeQuizSource(cfg, round, votes, chosen, submit, outcome, curURL)
 	if err != nil {
 		return err
 	}
 	fmt.Println("Wiki source page written:", source)
-	if err := upsertDailyQuiz(cfg, round.Prompt, chosenText, submit, submit, source); err != nil {
+	if err := upsertDailyQuiz(cfg, round.Prompt, chosenText, submit, submit, source, result); err != nil {
 		return err
 	}
 	return nil
@@ -347,7 +362,7 @@ func writeQuizSource(cfg *config.Config, round klublotto.QuizRound, votes []llm.
 	return rel, nil
 }
 
-func upsertDailyQuiz(cfg *config.Config, prompt, answer string, submitted, registered bool, sourceRel string) error {
+func upsertDailyQuiz(cfg *config.Config, prompt, answer string, submitted, registered bool, sourceRel, result string) error {
 	loc, err := time.LoadLocation("Europe/Copenhagen")
 	if err != nil {
 		loc = time.Local
@@ -362,8 +377,18 @@ func upsertDailyQuiz(cfg *config.Config, prompt, answer string, submitted, regis
 	if raw, err := os.ReadFile(path); err == nil {
 		body = string(raw)
 	}
-	row := fmt.Sprintf("| Quiz | %s | %s | %s | %s | Source: [%s](../sources/%s). |\n",
-		mdCell(prompt), mdCell(answer), yesNo(submitted), yesNo(registered), filepath.Base(sourceRel), filepath.Base(sourceRel))
+	// Prefix the notes with the confirmed result from the post-answer screen.
+	resultNote := ""
+	switch result {
+	case "correct":
+		resultNote = "✅ Correct (confirmed on result screen). "
+	case "wrong":
+		resultNote = "❌ Wrong (confirmed on result screen). "
+	case "unknown":
+		resultNote = "Result not confirmed on screen. "
+	}
+	row := fmt.Sprintf("| Quiz | %s | %s | %s | %s | %sSource: [%s](../sources/%s). |\n",
+		mdCell(prompt), mdCell(answer), yesNo(submitted), yesNo(registered), resultNote, filepath.Base(sourceRel), filepath.Base(sourceRel))
 	if body == "" || !strings.Contains(body, "| Game |") {
 		body = fmt.Sprintf("---\nkind: daily-ledger\ndate: %s\ntags: [klublotto, daily-ledger, answers]\nupdated: %s\n---\n\n# Klub Lotto Daily Ledger — %s\n\n## Answers\n\n| Game | Prompt / clue | Answer | Submitted through parent page | Registered on overview | Notes |\n|---|---|---|---:|---:|---|\n%s",
 			now.Format("2006-01-02"), now.UTC().Format(time.RFC3339), now.Format("2006-01-02"), row)
