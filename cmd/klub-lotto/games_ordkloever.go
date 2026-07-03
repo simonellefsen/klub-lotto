@@ -961,6 +961,13 @@ func runOrdKloeverProbe(ctx context.Context, cfg *config.Config, br *browser.Cli
 			}
 			notes = appendModelNote(notes, modelLabel)
 			_ = upsertDailyGame(ctx, cfg, "Ordkløver", klublotto.OrdKloeverPrompt(st), phrase, true, solved, notes)
+			// Clean final summary (like Ordknuden's 🎉 line) so the run doesn't end on
+			// the verbose vision dump.
+			if solved {
+				fmt.Printf("\n🎉 SOLVED! Ordkløver: %s\n\n", phrase)
+			} else {
+				fmt.Printf("\n❌ Not solved after %d/12 attempts. Last guess: %s\n\n", st.Attempts, phrase)
+			}
 			return true, nil
 		}
 		fmt.Println("   Guess was wrong; continuing...")
