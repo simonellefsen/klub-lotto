@@ -361,6 +361,20 @@ func runOrdknude(ctx context.Context, args []string) error {
 				fmt.Println("   win screen detected inside game iframe — marking as solved")
 				st.Solved = true
 			}
+			// The result overlay can spin for 5-10s before "Super imponerende!" (win)
+			// or "Det rigtige svar var" (loss) renders. When our guess wiped the board
+			// (game ended: empty board after we've made guesses) but the banner hasn't
+			// shown yet, POLL for it — otherwise a correct FINAL guess reads as a miss,
+			// wasting the remaining attempts on further guesses and mis-attributing the
+			// answer. A normal wrong guess keeps the board (history > 0), so it never
+			// enters this wait.
+			if !st.Solved && len(st.History) == 0 && len(triedThisRun) > 0 {
+				fmt.Println("   board cleared after guess — waiting for the result screen (it can spin ~5-10s)...")
+				if waitForOrdknudeWinBanner(ctx, br, 20*time.Second) {
+					fmt.Println("   win screen confirmed — marking as solved")
+					st.Solved = true
+				}
+			}
 
 			// Extra guarantee we are on the parent (embedded) before the next LLM call or submit.
 			// The extract above tries to restore, but we force it here too to avoid flicker-related
@@ -974,6 +988,35 @@ func printOrdknudeState(st klublotto.OrdknudeState) {
 //   - paragraph: gummi
 //
 // For a win it contains "Tillykke" and the answer word in the board.
+// waitForOrdknudeWinBanner polls the parent body + game iframe for the Ordknuden
+// win banner ("Super imponerende! … ord-haj!"), which can lag several seconds
+// behind a submitted guess while the result screen spins. Returns true once the
+// win is confirmed; returns false on timeout or if a loss screen ("Det rigtige
+// svar var: …") renders instead (game ended without a win).
+func waitForOrdknudeWinBanner(ctx context.Context, br *browser.Client, timeout time.Duration) bool {
+	deadline := time.Now().Add(timeout)
+	for {
+		body, _ := br.Eval(ctx, `document.body ? document.body.innerText : ""`)
+		if klublotto.IsOrdknudeWinText(body) {
+			return true
+		}
+		if klublotto.OrdknudeSolvedViaIframe(ctx, br) {
+			return true
+		}
+		if klublotto.OrdknudeLossAnswer(body) != "" {
+			return false // loss screen — game over, not a win
+		}
+		if time.Now().After(deadline) || ctx.Err() != nil {
+			return false
+		}
+		select {
+		case <-ctx.Done():
+			return false
+		case <-time.After(700 * time.Millisecond):
+		}
+	}
+}
+
 // readOrdknudeLossAnswer reads the loss screen's revealed answer from the live
 // parent body text, retrying a few times because the game-over screen can take a
 // moment to render after the final guess. Returns "" if it never appears (e.g. a
