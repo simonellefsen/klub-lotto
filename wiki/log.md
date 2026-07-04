@@ -433,3 +433,9 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-04 04:21 UTC] ingest | quiz | Hvad hedder hovedstaden i Hviderusland? | outcome=submitted
 
+## [2026-07-04 04:23 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-07-04 04:25 UTC] ingest | ordkløver | Category: `Mad & drikke`; answer pattern `10` | outcome=submitted
+
+## [2026-07-04 04:33 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
+
