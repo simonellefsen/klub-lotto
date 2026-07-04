@@ -485,24 +485,31 @@ func blokQuality(b [8][8]int) int {
 // through the whole trio.
 //
 // Scoring model (from the game's rules): +1 point per cell placed, so SURVIVING
-// longer (more placements) is the dominant point source — hence the openness /
-// dead-hole terms in blokQuality. A line clear itself frees space (survival) and,
-// crucially, chained clears pay an escalating COMBO bonus: the 1st clear starts
-// the chain, the 2nd is +10, the 3rd +20, … So we (a) keep the 120/line survival
-// proxy for clearing, and (b) add the real combo bonus for each clearing placement
-// beyond the first in the trio, nudging the solver to SPREAD clears across pieces
-// (a combo) rather than dumping them in one placement. Returns moves best-first,
-// tie-broken descending (score, pi, r, c).
+// is the dominant point source — and, critically, failing to place a trio piece is
+// GAME OVER. So the score is dominated by how many of the trio's pieces the branch
+// manages to PLACE (survivalWeight): a first move that clears a line but then
+// strands the 3x3 (fatal) must rank below one that places all three, even if the
+// fatal line scores more clears. Under that, we keep the 120/line survival proxy
+// for clearing (frees space for future trios) and the real COMBO bonus for chained
+// clears (1st starts the chain, 2nd +10, 3rd +20, …), which nudges the solver to
+// SPREAD clears across pieces. Returns moves best-first, tie-broken descending
+// (score, pi, r, c).
 func BlokPlan(board [8][8]int, shapes [][][]int) []BlokScoredMove {
 	type key struct{ Pi, R, C int }
 	results := map[key]int{}
+	nShapes := len(shapes)
+	// survivalWeight must dominate every other term so placing one more piece always
+	// wins: max reachable cl*120 + combo + quality is well under 2000, so 10000/piece
+	// makes "place all 3" strictly beat any "place 2 with big clears" (fatal) line.
+	const survivalWeight = 10000
 	// cl = total lines cleared in the trio (survival proxy); clears = number of
 	// PLACEMENTS that cleared ≥1 line (the combo length); combo = accumulated combo
 	// bonus so far (10 for the 2nd clearing placement, 20 for the 3rd, …).
 	var rec func(bd [8][8]int, rem []int, first *key, cl, clears, combo int)
 	rec = func(bd [8][8]int, rem []int, first *key, cl, clears, combo int) {
 		if first != nil {
-			sc := cl*120 + combo + blokQuality(bd)
+			placed := nShapes - len(rem)
+			sc := placed*survivalWeight + cl*120 + combo + blokQuality(bd)
 			if old, ok := results[*first]; !ok || sc > old {
 				results[*first] = sc
 			}

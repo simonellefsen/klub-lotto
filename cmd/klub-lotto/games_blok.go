@@ -85,7 +85,7 @@ func logBlokScore(ctx context.Context, cfg *config.Config, res blokResult) error
 	if !passed {
 		lod = fmt.Sprintf("did not reach the %d-point daily lod", blokDailyThreshold)
 	}
-	notes := fmt.Sprintf("Played to game-over with the native Go solver; %s. Day's final score %d (high score %d) over %d placements. Per-move score record: `%s`.",
+	notes := fmt.Sprintf("Played to game-over with the native Go solver; %s. Day's final score %d (high score %d) over %d cells placed. Per-move score record: `%s`.",
 		lod, res.current, res.best, res.placed, recPath)
 
 	fmt.Printf("       ledger: %s — %s\n", answer, lod)

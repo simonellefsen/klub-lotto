@@ -181,8 +181,9 @@ func TestBlokPlanRewardsCombo(t *testing.T) {
 	if len(ranked) == 0 {
 		t.Fatal("no moves planned")
 	}
-	want := 2*120 + 10 + 64
+	// 2 pieces placed (survival) + 2 lines × 120 + 10 combo + quality(empty board)=64.
+	want := 2*10000 + 2*120 + 10 + 64
 	if ranked[0].Score != want {
-		t.Fatalf("top score = %d, want %d (double clear + combo bonus)", ranked[0].Score, want)
+		t.Fatalf("top score = %d, want %d (survival + double clear + combo bonus)", ranked[0].Score, want)
 	}
 }
