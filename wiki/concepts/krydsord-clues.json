@@ -238,7 +238,8 @@
     "RENER",
     "ÆSEL",
     "LOS",
-    "GRIS"
+    "GRIS",
+    "ILDERE"
   ],
   "DØRSLAG": [
     "SI"
@@ -356,6 +357,12 @@
   ],
   "FIRMA": [
     "VIRKSOMHED"
+  ],
+  "FISK": [
+    "ÅL"
+  ],
+  "FISKE": [
+    "MEDE"
   ],
   "FISKEGARN": [
     "NOT"
@@ -477,6 +484,9 @@
   "GODT": [
     "VEL"
   ],
+  "GRAM": [
+    "G"
+  ],
   "GRIBE": [
     "TY"
   ],
@@ -515,6 +525,9 @@
   "HAV": [
     "UTAL"
   ],
+  "HAVGUD": [
+    "ÆGIR"
+  ],
   "HEDEN": [
     "VARMEN"
   ],
@@ -539,6 +552,9 @@
   ],
   "HJERNEKURVE": [
     "EEG"
+  ],
+  "HJERTELØSE": [
+    "ONDE"
   ],
   "HOLDERMEGETAF": [
     "ELSKER"
@@ -601,6 +617,12 @@
   ],
   "INDHAK": [
     "SLIDS"
+  ],
+  "INDHENTER": [
+    "NÅR"
+  ],
+  "INDTAGE": [
+    "ÆDE"
   ],
   "INSEKT": [
     "BI"
@@ -696,6 +718,9 @@
   "KORTBOG": [
     "ATLAS"
   ],
+  "KORTKULØR": [
+    "KLØR"
+  ],
   "KOSTBAR": [
     "DYR"
   ],
@@ -754,6 +779,9 @@
   "KÆRTEGNER": [
     "AER"
   ],
+  "KØKKENUDSTYR": [
+    "HÅNDMIKSER"
+  ],
   "LARGE": [
     "L"
   ],
@@ -780,6 +808,9 @@
   ],
   "LITER": [
     "L"
+  ],
+  "LUKKET": [
+    "NEDLAGT"
   ],
   "LUNS": [
     "BID"
@@ -814,6 +845,9 @@
   ],
   "MEDIEHUS": [
     "DR"
+  ],
+  "MENUPUNKT": [
+    "RET"
   ],
   "MESTERKOK": [
     "GASTRONOM"
@@ -868,6 +902,9 @@
   ],
   "MØNTENHED": [
     "PESO"
+  ],
+  "MØNTER": [
+    "TIERE"
   ],
   "NEDBØR": [
     "SNE"
@@ -1057,6 +1094,9 @@
   "RØNTGEN": [
     "R"
   ],
+  "SAL": [
+    "ETAGE"
+  ],
   "SAMT": [
     "OG"
   ],
@@ -1111,6 +1151,9 @@
   "SKRØBELIGE": [
     "SKØRE"
   ],
+  "SKØN": [
+    "HERLIG"
+  ],
   "SKØR": [
     "TOSSET"
   ],
@@ -1131,6 +1174,9 @@
   ],
   "SMYKKESTEN": [
     "OPAL"
+  ],
+  "SMYKKET": [
+    "HALSKÆDEN"
   ],
   "SMØREMIDDEL": [
     "OLIE"
@@ -1288,6 +1334,9 @@
     "NITTEN",
     "TRETTEN"
   ],
+  "TANKE": [
+    "IDE"
+  ],
   "TARA": [
     "T"
   ],
@@ -1380,6 +1429,9 @@
   "TYSKLAND": [
     "D"
   ],
+  "TÅGE": [
+    "DIS"
+  ],
   "TÆRE": [
     "ÆTSE"
   ],
@@ -1410,8 +1462,14 @@
   "VANDLØB": [
     "ÅER"
   ],
+  "VANDLØBET": [
+    "ÅEN"
+  ],
   "VANHELD": [
     "UTUR"
+  ],
+  "VEDRØRENDE": [
+    "OM"
   ],
   "VEG": [
     "SLAP"
@@ -1447,6 +1505,15 @@
   ],
   "VEST": [
     "V"
+  ],
+  "VIA": [
+    "IGENNEM"
+  ],
+  "VIGEN": [
+    "NORET"
+  ],
+  "VITAMIN": [
+    "D"
   ],
   "VREDE": [
     "RASERI"
@@ -1496,6 +1563,9 @@
   "[IMG]BLACKDIEWITHONEPIP": [
     "ENER"
   ],
+  "[IMG]BOOKSHELF": [
+    "REOL"
+  ],
   "[IMG]BRICKWALL": [
     "MUR"
   ],
@@ -1522,6 +1592,9 @@
   ],
   "[IMG]COFFEECUP": [
     "KOP"
+  ],
+  "[IMG]COLANDER": [
+    "SI"
   ],
   "[IMG]CUPCAKE": [
     "KAGE"
@@ -1553,6 +1626,9 @@
   ],
   "[IMG]GRILL": [
     "GRILL"
+  ],
+  "[IMG]HAT": [
+    "HAT"
   ],
   "[IMG]ICECREAMCONE": [
     "IS"
