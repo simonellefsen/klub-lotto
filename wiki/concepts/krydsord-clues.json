@@ -391,7 +391,11 @@
     "KAN"
   ],
   "FORNAVN": [
-    "EVA"
+    "EVA",
+    "JAN",
+    "KIM",
+    "TOM",
+    "ÅSE"
   ],
   "FORRÅDTE": [
     "SVEG"
@@ -424,7 +428,11 @@
     "GÅS",
     "KEA",
     "ØRN",
-    "MEJSE"
+    "KRAGE",
+    "MEJSE",
+    "SPURV",
+    "STORK",
+    "SVANE"
   ],
   "FUGLE": [
     "ØRNE",
@@ -1185,7 +1193,8 @@
     "ARME"
   ],
   "STEDNAVN": [
-    "ORØ"
+    "ORØ",
+    "ÆRØ"
   ],
   "STEDORD": [
     "I",
