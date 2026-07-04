@@ -430,6 +430,18 @@ func BlokApply(b [8][8]int, s [][]int, r, c int) ([8][8]int, int) {
 	return g, len(fr) + len(fc)
 }
 
+// Tunable heuristic weights. These are the production defaults; the offline
+// simulator/harness (cmd/blok-sim) overrides them to A/B different settings so we
+// can tune the solver against thousands of games instead of the one live game/day.
+var (
+	BlokWSurvival = 10000 // per trio piece placed — dominates (never strand a piece)
+	BlokWClear    = 120   // per line cleared (survival proxy: frees space)
+	BlokWCombo    = 10    // combo unit: +10 for the 2nd clearing placement, +20 3rd…
+	BlokWDead     = 45    // penalty per dead 1x1 hole (unfillable)
+	BlokWTight    = 4     // penalty per tight single-neighbour empty cell
+	BlokWNear     = 2     // reward per near-complete-line unit (6/8→+1, 7/8→+2)
+)
+
 // blokQuality rewards open space, heavily penalises dead 1x1 holes (no piece is a
 // single cell) and tight single-neighbour gaps, and lightly rewards near-complete
 // rows/cols so fills consolidate toward clearable lines instead of scattering.
@@ -477,7 +489,7 @@ func blokQuality(b [8][8]int) int {
 			near += cf - 5
 		}
 	}
-	return empty - 45*dead - 4*tight + 2*near
+	return empty - BlokWDead*dead - BlokWTight*tight + BlokWNear*near
 }
 
 // BlokPlan does the full-trio lookahead: it tries every ordering/placement of the
@@ -498,18 +510,17 @@ func BlokPlan(board [8][8]int, shapes [][][]int) []BlokScoredMove {
 	type key struct{ Pi, R, C int }
 	results := map[key]int{}
 	nShapes := len(shapes)
-	// survivalWeight must dominate every other term so placing one more piece always
-	// wins: max reachable cl*120 + combo + quality is well under 2000, so 10000/piece
-	// makes "place all 3" strictly beat any "place 2 with big clears" (fatal) line.
-	const survivalWeight = 10000
+	// BlokWSurvival must dominate every other term so placing one more piece always
+	// wins: max reachable clear+combo+quality is well under it, so "place all 3"
+	// strictly beats any "place 2 with big clears" (fatal) line.
 	// cl = total lines cleared in the trio (survival proxy); clears = number of
 	// PLACEMENTS that cleared ≥1 line (the combo length); combo = accumulated combo
-	// bonus so far (10 for the 2nd clearing placement, 20 for the 3rd, …).
+	// bonus so far (BlokWCombo for the 2nd clearing placement, 2× for the 3rd, …).
 	var rec func(bd [8][8]int, rem []int, first *key, cl, clears, combo int)
 	rec = func(bd [8][8]int, rem []int, first *key, cl, clears, combo int) {
 		if first != nil {
 			placed := nShapes - len(rem)
-			sc := placed*survivalWeight + cl*120 + combo + blokQuality(bd)
+			sc := placed*BlokWSurvival + cl*BlokWClear + combo + blokQuality(bd)
 			if old, ok := results[*first]; !ok || sc > old {
 				results[*first] = sc
 			}
@@ -526,7 +537,7 @@ func BlokPlan(board [8][8]int, shapes [][][]int) []BlokScoredMove {
 				}
 				nClears, nCombo := clears, combo
 				if n > 0 {
-					nCombo += 10 * clears // 1st clearing placement +0, 2nd +10, 3rd +20…
+					nCombo += BlokWCombo * clears // 1st clearing placement +0, 2nd +10, 3rd +20…
 					nClears++
 				}
 				rest := make([]int, 0, len(rem)-1)
