@@ -64,6 +64,7 @@ help:
 	@echo "make blok        — play today's Blok for Blok to game-over, maximising score (native Go: pixel perception + lookahead solver). GOAL=<n> to stop early at a score (e.g. GOAL=200 to just earn the lod)"
 	@echo "make wiki-query Q='...'  — search the wiki via qmd (or grep)"
 	@echo "make sync        — commit wiki/doc changes and push to origin"
+	@echo "make park        — unload the danskespil tab (→ about:blank) when done for the day, keeping the session; stops the heavy page wedging Chrome overnight"
 	@echo "make reset       — close any agent-browser daemons (run if you can't see the window)"
 	@echo ""
 	@echo "k8s targets (docker-desktop)"
@@ -207,6 +208,17 @@ sync:
 reset:
 	-agent-browser close --all 2>/dev/null
 	@echo "agent-browser daemon(s) stopped. Re-run 'make login' or 'make quiz'."
+
+# Park the session on a blank page when you're done for the day. The danskespil
+# klub-lotto tab (live countdown timer + trackers + WebGL games) leaks and pegs a
+# renderer if left open overnight — especially across the midnight daily rollover —
+# leaving Chrome "unresponsive" by morning. Navigating to about:blank unloads that
+# page (freeing the renderer) while keeping the same Chrome/session alive so the
+# login persists for tomorrow. Run this after solving the day's puzzles.
+park:
+	@$(AGENT_BROWSER_BIN) --session $(AGENT_BROWSER_SESSION) open about:blank >/dev/null 2>&1 \
+	  && echo "parked: klublotto session tab → about:blank (session kept alive; heavy page unloaded)" \
+	  || echo "could not park (is the klublotto session running?)"
 
 clean:
 	rm -rf bin/ .klublotto/
