@@ -439,7 +439,7 @@ var (
 	BlokWCombo    = 10    // combo unit: +10 for the 2nd clearing placement, +20 3rd…
 	BlokWDead     = 45    // penalty per dead 1x1 hole (unfillable)
 	BlokWTight    = 4     // penalty per tight single-neighbour empty cell
-	BlokWNear     = 2     // reward per near-complete-line unit (6/8→+1, 7/8→+2)
+	BlokWNear     = 10    // reward per near-complete-line unit (6/8→+1, 7/8→+2); tuned via cmd/blok-sim
 )
 
 // blokQuality rewards open space, heavily penalises dead 1x1 holes (no piece is a
@@ -471,10 +471,11 @@ func blokQuality(b [8][8]int) int {
 	// Line-completion pressure: reward rows/cols that are one or two cells from
 	// clearing (6-7 of 8 filled), so the solver concentrates fills into completable
 	// lines rather than smearing them across the board (which is what leads to a
-	// boxed-in game-over). Kept small — a near-full line is worth at most +4, far
-	// below the 120/line clear reward and the 45/dead-hole penalty, so it only
-	// breaks ties among boards the other terms rate similarly; it never lures the
-	// solver into leaving a line uncleared when it could clear it.
+	// boxed-in game-over). This turned out to be one of the strongest levers — the
+	// offline sim (cmd/blok-sim) showed the mean score roughly doubling as BlokWNear
+	// went 2→10 across seeds — hence the healthy default weight. It still stays below
+	// the per-line clear reward, so it never lures the solver into leaving a line
+	// uncleared when it could clear it.
 	near := 0
 	for i := 0; i < 8; i++ {
 		rf, cf := 0, 0
