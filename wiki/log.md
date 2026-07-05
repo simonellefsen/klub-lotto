@@ -445,3 +445,11 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-05 06:20 UTC] ingest | quiz | Hvilken ørken ligger i det nordvestlige Indien og det østl… | outcome=submitted
 
+## [2026-07-05 06:23 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-07-05 06:29 UTC] ingest | ordkløver | Category: `Set hos bageren`; answer pattern `11 / 5` | outcome=submitted
+
+## [2026-07-05 06:36 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
+
+## [2026-07-05 06:43 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+
