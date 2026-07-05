@@ -441,3 +441,7 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-04 04:46 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
 
+## [2026-07-05 06:20 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
+## [2026-07-05 06:20 UTC] ingest | quiz | Hvilken ørken ligger i det nordvestlige Indien og det østl… | outcome=submitted
+
