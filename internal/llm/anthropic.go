@@ -43,14 +43,30 @@ func NewAnthropic(apiKey, model string) *Anthropic {
 
 func (a *Anthropic) Name() string { return "anthropic:" + a.Model }
 
+// anthropicCacheMinChars is the prompt size above which GenerateJSON marks the
+// prompt block with an ephemeral cache_control breakpoint. Prompt caching needs
+// ≥1024 tokens (≥2048 on Haiku) to activate; ~4k chars ≈ 1.2k tokens. Repeated
+// long prompts with a stable prefix (e.g. the Ordkløver decision rounds, the
+// krydsord assembler retries) then pay ~10% for the cached part on re-reads.
+// Below the threshold (or above it but never repeated) the marker is harmless.
+const anthropicCacheMinChars = 4096
+
 func (a *Anthropic) GenerateJSON(ctx context.Context, prompt string, temperature float64) (string, error) {
+	var content interface{} = prompt
+	if len(prompt) >= anthropicCacheMinChars {
+		content = []anthropicTextBlock{{
+			Type:         "text",
+			Text:         prompt,
+			CacheControl: &anthropicCacheControl{Type: "ephemeral"},
+		}}
+	}
 	body := anthropicRequest{
 		Model:       a.Model,
 		MaxTokens:   512,
 		System:      "Reply with JSON only. No markdown, no extra text.",
 		Temperature: temperature,
 		Messages: []anthropicMessage{
-			{Role: "user", Content: prompt},
+			{Role: "user", Content: content},
 		},
 	}
 	text, err := a.post(ctx, body)
@@ -70,9 +86,21 @@ type anthropicRequest struct {
 	Temperature float64 `json:"temperature"`
 }
 
+// anthropicMessage content is either a plain string or []anthropicTextBlock
+// (needed to attach cache_control to long prompts).
 type anthropicMessage struct {
-	Role    string `json:"role"`
-	Content string `json:"content"`
+	Role    string      `json:"role"`
+	Content interface{} `json:"content"`
+}
+
+type anthropicTextBlock struct {
+	Type         string                 `json:"type"`
+	Text         string                 `json:"text"`
+	CacheControl *anthropicCacheControl `json:"cache_control,omitempty"`
+}
+
+type anthropicCacheControl struct {
+	Type string `json:"type"`
 }
 
 type anthropicResponse struct {

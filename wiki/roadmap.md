@@ -117,3 +117,167 @@ Start with **P1 (1→2→3)** — low risk, improves every daily run immediately
 Land **`make test` + CI** alongside P1. Then do **P2 one game at a time**, writing
 tests as logic moves down. Save **P3** for the next time the provider layer is
 touched.
+
+---
+
+# Token-usage review — ordkløver / ordknude / krydsord (2026-07-05)
+
+A pass over every LLM prompt in the three word games, sizing where the tokens
+actually go and what to change. Costs are dominated by (a) **vision output
+tokens** the parser throws away, (b) **repeated static rule blocks** re-sent
+every round, and (c) **uncropped screenshots**.
+
+## Where the tokens go today
+
+| Game | Call | Frequency | In | Out | Waste |
+|---|---|---|---|---|---|
+| Ordkløver | vision board read (`extractOrdKloeverViaVision`) | every `reExtract`: initial + each probe round + each phrase guess ≈ **5–10×/game** | ~1,500-tok prompt + cropped image | verbose JSON | **schema demands `board.rows[].tiles[]` (~12 tok/tile) + `keyboard.keys[]` (29 objects) + `available_letters`, but the parser only reads `category`, `attempts.used`, `pattern_rows`, `tile_count`, `correct_letters`, `incorrect_letters` → ~60–80% of output tokens discarded** |
+| Ordkløver | decision (`askOrdKloeverDecision`) | each phase-2 round (≤10) ×3 retries | ~700-tok WoF rulebook + state + full candidate block, re-sent verbatim every round | small JSON | static rules re-billed every round; no caching-stable prefix (attempt counts interleaved into the rules) |
+| Ordkløver | probe letters (`askOrdKloeverProbeLetters`) | miss rounds (≤4) | ~400 tok | tiny | fine |
+| Ordknude | candidates (`BuildOrdknudePrompt`) | only when pool empty (pool reuse across guesses ✓) | ~600–900 tok | small | history triple-encoded (emoji row + `(absent,…)` text + derived constraints); only the derived constraints are operative |
+| Ordknude | color marks | DOM-first, vision fallback only ✓ | — | — | fallback screenshot is **uncropped full page** |
+| Krydsord | clue OCR (`ExtractKrydsordClues`) | 1×/puzzle, cached by crossword id ✓ | ~1,700-tok prompt (≈44 example CLUE lines) + board JPG | line format ✓ | example block is ~½ the prompt; ~10 examples would carry the same signal (mapping is deterministic Go anyway) |
+| Krydsord | batch candidates | 1 call ✓ | proportional to clues | small | fine |
+| Krydsord | assembler | ≤3 attempts, full basePrompt re-sent + 1 error line | 1,500–2,500 tok | answer JSON | retry re-bills the whole prompt; prefix is stable → prompt caching would cover it |
+| Krydsord | targeted conflict repair | rare | tiny ✓ | tiny ✓ | the model to copy |
+| Krydsord (manual graph path) | deconstruct + verify | 2 vision calls | **full-page uncropped PNG ×2** + graph | 40k max out | most expensive single calls in the repo; crop to the iframe rect |
+
+## Plan
+
+### Tokens-P1 — big wins, low risk — ✅ DONE 2026-07-05
+1. ✅ **Ordkløver vision schema diet.** Prompt now requests only
+   `{category, attempts:{used,total}, board:{pattern_rows, tile_count}, keyboard:{correct_letters, incorrect_letters}}`
+   — `board.rows`, `keyboard.keys`, `available_letters`, `full_pattern` dropped
+   (parser was already tolerant). Output tokens −60–80% per vision call, prompt
+   roughly halved.
+2. ✅ **Ordkløver DOM-first extraction.** New `extractOrdKloeverViaDOM` (board via
+   `ordKloeverBoardJS` in-frame, keyboard via `ordKloeverKeyboardJS`,
+   category/hint/attempts from the frame body text) is the PRIMARY path in
+   `ExtractOrdKloeverState`; a parent-body win check is hoisted to the top;
+   vision only runs when the DOM read is unusable (welcome/spinner/no category).
+   Typical game: 5–10 vision calls → ≤1. **Live-validation note:** watch the
+   `[dom-first]` log line — if category never parses from frame text, the vision
+   fallback silently carries the whole game again.
+3. ✅ **No re-extraction after a wrong phrase guess.** `submitAndCheck` now polls
+   the parent body (free Evals, ≤3×2s) for win/error-screen; a wrong guess
+   restores the pre-guess board + bumps attempts locally. Only the
+   danskespil error screen still triggers a real re-extract.
+
+### Tokens-P2 — medium — ✅ DONE 2026-07-05
+4. ✅ **Cache-stable prompt structure + prompt caching.** Decision prompt
+   restructured [static rules → per-game constants → per-round state];
+   `internal/llm/anthropic.go` GenerateJSON attaches an ephemeral
+   `cache_control` block for prompts ≥4k chars. Gemini/OpenAI/OpenRouter
+   implicit caching engages on the now-stable prefix. (Vision image/text block
+   ordering left unchanged — not worth the extraction-quality risk now that
+   vision is the rare path.)
+5. ✅ **Decision rulebook slimmed** ~700→~300 tok (5 rules → 4 terse ones, worked
+   examples dropped); candidate block capped at top 8.
+6. ✅ **Krydsord clue-OCR examples 44 → 11** (split-cell ×2, img=true ×2,
+   1-letter REX, abbreviation, hyphenated text kept).
+7. ✅ **Ordknude history de-duplicated:** one `WORD (m,m,m,m,m)` line per guess;
+   emoji row and the EKSEMPEL block dropped (derived constraints carry it).
+
+### Tokens-P3 — nice-to-have — ✅ DONE 2026-07-05
+8. ✅ Shared `CropToGameIframe` helper (klublotto); used by the krydsord
+   graph-path screenshot and the ordknude color-fallback (falls back to the
+   full page when the rect is unavailable).
+9. ✅ Full prompt echoes (`wordCandidates`, ordkløver vision, krydsord assembler)
+   now gated behind `KLUBLOTTO_DEBUG`; char count + saved-file path always shown.
+10. ✅ `ReasoningEffort=low` on probe-letters (fresh provider, mutated) and
+    krydsord conflict-repair (shared provider, cloned before mutation).
+
+**Expected impact:** ordkløver −70–85% (dominant), krydsord −20–30%, ordknude
+−15–20% of daily LLM spend.
+
+## Other findings (dispositioned)
+
+- **Dead code:** `internal/klublotto/ordknude.go` is `//go:build ignore` since
+  the API drift and duplicates `OrdknudeTile`/`OrdknudeGuess` definitions that
+  live on in `wordgames.go` — delete it (git history keeps it).
+- **Duplicates to consolidate:** `abs`/`absInt` (both in `klublotto`),
+  `isImmerspieleURL` (in `cmd` AND `internal`), and the vision-raw JSON salvage
+  block which exists twice (`ExtractOrdKloeverState` and again inline in
+  `runOrdKloever`, games_ordkloever.go ~159–227) — keep the library copy only.
+- **Stale timeout:** `wordCandidates` still allows 540s/attempt; with reasoning
+  effort now bounded (2026-07-01), 180s would fail onto the retry faster.
+- **P2.6 revisited:** `wordgames.go` is 3,459 lines; the prompt-builder edits in
+  P1/P2 above are a natural moment to split out `prompts.go` at least.
+
+---
+
+# Blok solver review — real payout model & chain-aware planning (2026-07-05)
+
+Reverse-engineered the REAL scoring from the per-step CSV (`.klublotto/
+blok-scores.csv`): `bonus = Δscore − Δcells` per placement isolates the clear
+payouts. Observed bonuses across one game: 0, 0, 10, 20, 30, 40, 50, 60, 70,
+80, 90, 100 — one step per CLEARING PLACEMENT, escalating monotonically, with
+1–2 non-clearing placements between steps, **spanning ~8 trios unbroken**.
+
+## Confirmed payout model (vs what we implement)
+
+| Rule (observed) | Simulator (`bloksim.go`) | Planner (`BlokPlan`) |
+|---|---|---|
+| k-th clearing placement of a chain pays **10×(k−2)** (first TWO clears pay 0) | pays 10×(k−1) — one step too generous | `BlokWCombo×clears` ≈ same off-by-one, within-trio only |
+| **Multi-line simultaneous clears pay NOTHING extra** (step 15: 2 lines → 40; step 18: row+col 15 cells → 50; step 29: 2 lines → 100) | ✅ correct (per placement) | ❌ values `cl×120` per LINE → indifferent between clearing 2 lines at once vs sequencing them, when sequencing pays ~double (two chain steps) |
+| **Chain persists across trios** (escalation ran unbroken through ~8 trios) | ✅ tracks `comboLen`/`sinceClear` across trios | ❌ every `BlokPlan` call starts at `clears=0, combo=0`; driver passes no chain state |
+| Chain-reset window: no reset observed with gaps ≤2; assumed "clear within 3 placements" | uses ≤3 | n/a |
+
+Live economics: today's 660 = 183 cell-points + ~477 chain bonuses (**~72% of
+score is chain**), and a live chain pays 100+ per clear late-game. The planner
+being blind to chain state is the single biggest scoring gap left.
+
+Baseline (current weights, current sim payout): `blok-sim -n 200 -seed 1` →
+mean 15,203 · median 6,623 · lod≥200 96%. (Will read lower after the payout
+fix — compare like-for-like only.)
+
+## Plan
+
+### Blok-P1 — model the real payout, make the planner chain-aware — ✅ DONE 2026-07-05
+1. ✅ **Fix the sim payout:** `BlokChain.Advance` (blok.go) is the single source
+   of truth — k-th clearing placement pays `10×max(0, k−2)`, per-placement
+   (multi-line pays no extra), chain dies after 4 non-clearing placements.
+   Sim, planner, and driver all use it. Pinned by `TestBlokChainAdvance`.
+2. ✅ **Chain-aware planning:** `BlokPlan(board, shapes, chain BlokChain)`
+   accumulates the REAL payout per clearing placement + a terminal
+   `BlokWChainState×Len` future-income value. New weights `BlokWChain=1`,
+   `BlokWChainState=30` (replace `BlokWCombo`). Sequencing verified by
+   `TestBlokPlanSequencesClearsOverDoubleClear` (1x2-then-2x2 beats the 2x2
+   double clear at chain=3).
+3. ✅ **Driver chain tracking:** expected clears via `BlokApply` on the pre-read
+   board; chain carried across trios; cross-checked against the observed score
+   delta each step (re-syncs `Len = bonus/10 + 2` when the game disagrees);
+   CSV gains `clears,chain_len,bonus_exp,bonus_obs` columns.
+
+**A/B validation (n=150, seed 1, corrected payout, paired seeds):**
+chain-blind mean 11,038 / median 3,789 → **chain-aware mean 19,457 / median
+6,288 (+76% / +66%)**, cells 422→469 (chain play survives LONGER — sequenced
+single-line clears keep the board flatter), lod 94→95%. A stronger pull
+(chain=3, state=60) was statistically identical — the light defaults are kept.
+Live validation: next `make blok` run.
+
+### Blok-P2 — survival beyond the trio + retune — NOT STARTED
+4. ⬜ **3x3-fit safety term:** end-of-trio boards where no 3×3 fits anywhere are
+   one bad draw from death (the classic boxed-in killer). Add
+   `BlokW3x3 × (no-3x3-fits ? 1 : 0)` penalty to `blokQuality` (cheap:
+   `blokValid` on the 3×3 is ≤36 positions).
+5. ⬜ **Retune all weights** against the corrected payout model with paired
+   seeds; add a `-compare` flag to blok-sim (two weight sets, same seeds, one
+   invocation, per-seed delta + sign test) instead of eyeballing two runs.
+6. ✅ **blok-sim harness polish:** `cells:` line (mean/median + bonus share of
+   score) now printed — landed as part of Blok-P1's A/B validation work above.
+
+### Blok-P3 — distribution realism — NOT STARTED
+7. ⬜ **Learn the real piece distribution:** log the full shape string (e.g.
+   `011/110`) per placement in blok-scores.csv (today only HxW bounding box);
+   aggregate across days; feed observed frequencies into `blokSimPieces`
+   (currently uniform over unique rotations, which over-weights 4-rotation
+   pieces 4× vs the 2x2/3x3 — likely why sim scores dwarf live scores).
+8. ⬜ **Auto-fit payout telemetry:** a tiny analyzer over accumulated CSVs that
+   re-fits (payout schedule, reset window) and flags any day the observed
+   bonuses contradict the model.
+
+**Expected impact:** chain sequencing + persistence directly targets the ~72%
+of score we currently leave to luck; sim will quantify, but 1.5–3× the live
+score is plausible. P1 items are pure-Go, fully testable offline before the
+next live run.

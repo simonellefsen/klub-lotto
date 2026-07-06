@@ -73,9 +73,11 @@ func wordCandidates(ctx context.Context, cfg *config.Config, providerName, promp
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("   [llm] provider: %s  prompt (%d chars):\n", p.Name(), len(prompt))
-	for _, line := range strings.Split(prompt, "\n") {
-		fmt.Printf("      | %s\n", line)
+	fmt.Printf("   [llm] provider: %s  prompt: %d chars\n", p.Name(), len(prompt))
+	if os.Getenv("KLUBLOTTO_DEBUG") != "" {
+		for _, line := range strings.Split(prompt, "\n") {
+			fmt.Printf("      | %s\n", line)
+		}
 	}
 	var lastErr error
 	for attempt := 0; attempt < 3; attempt++ {

@@ -644,6 +644,24 @@ func ExtractOrdKloeverState(ctx context.Context, br *browser.Client, ac llm.Visi
 
 	cur, _ := br.URL(ctx)
 
+	// Win banner first: it renders in the PARENT body and the board is wiped, so
+	// neither the DOM nor a vision read would see anything useful.
+	if raw0, _ := br.Eval(ctx, `document.body ? document.body.innerText : ""`); IsOrdKloeverWinText(raw0) {
+		st.Solved = true
+		st.Raw = raw0
+		return st, nil
+	}
+
+	// DOM-FIRST (token-free): read board + keyboard + category straight from the
+	// game OOPIF. Vision below only runs when this comes back unusable (welcome
+	// screen / spinner / unreadable frame).
+	if v, ok := extractOrdKloeverViaDOM(ctx, br); ok {
+		fmt.Printf("   [dom-first] board=%q shape=%s category=%q attempts=%d guessed=%q\n",
+			v.Board, v.Shape, v.Category, v.Attempts, v.GuessedLetters)
+		return v, nil
+	}
+	fmt.Println("   [dom-first] no usable DOM state — falling back to vision")
+
 	// Prefer vision crop from parent (no top-level iframe open) if ac available.
 	if ac != nil {
 		if v, ok := extractOrdKloeverViaVision(ctx, br, ac, fallbackVP); ok {
@@ -950,174 +968,59 @@ func extractOrdKloeverViaVision(ctx context.Context, br *browser.Client, ac llm.
 		_ = os.WriteFile(filepath.Join(".klublotto", "ordkloever-vision-input-"+ts+".png"), imgBytes, 0o644)
 	}
 
+	// Deliberately SLIM response schema: the parser only consumes category,
+	// attempts.used, pattern_rows, tile_count and the two keyboard letter lists,
+	// so we do not ask for per-tile board.rows or per-key keyboard.keys objects —
+	// those used to be ~60-80% of the (expensive) output tokens, all discarded.
 	prompt := `You are a computer vision extraction system.
 
 Analyze the attached screenshot of a Danish "Wheel of Fortune" style game.
+The solution may be a single word, multiple words, a name, a phrase or a
+sentence. Do NOT attempt to solve the puzzle.
 
-IMPORTANT:
-The solution may be:
-- a single word
-- multiple words
-- a person's name
-- a phrase
-- a sentence
-
-Do NOT attempt to solve the puzzle.
-
-Return ONLY valid JSON.
-
-Schema:
+Return ONLY valid JSON, exactly this schema (no extra fields):
 
 {
   "category": null,
-
-  "attempts": {
-    "used": null,
-    "total": null,
-    "remaining": null,
-    "raw_text": null
-  },
-
-  "board": {
-    "rows": [
-      {
-        "row_index": 0,
-        "tiles": [
-          {
-            "column": 0,
-            "revealed": false,
-            "letter": null
-          }
-        ]
-      }
-    ],
-
-    "tile_count": 0,
-
-    "pattern_rows": [],
-
-    "full_pattern": ""
-  },
-
-  "keyboard": {
-    "keys": [
-      {
-        "letter": "A",
-        "state": "correct"
-      }
-    ],
-
-    "correct_letters": [],
-    "incorrect_letters": [],
-    "available_letters": []
-  }
+  "attempts": {"used": null, "total": null},
+  "board": {"pattern_rows": [], "tile_count": 0},
+  "keyboard": {"correct_letters": [], "incorrect_letters": []}
 }
 
-BOARD EXTRACTION — board.rows (physical tile layout)
+BOARD — pattern_rows must be the LOGICAL phrase split into WORDS (one string
+entry per word), NOT the visual tile lines. Encode a hidden/blank tile as "_"
+and a revealed tile as its letter. Rules:
 
-board.rows captures the physical layout, one entry per visual line of tiles.
-Each visible tile position must be represented.
+1. MULTIPLE WORDS ON ONE LINE: a clear gap between two tile groups on the same
+   visual line separates two words — emit one entry per group. Look actively
+   for these gaps. Example line "B I N G    O G" -> "BING", "OG".
+2. WORD SPLIT ACROSS LINES WITH A DASH: a line ending in "-" that continues on
+   the next line is ONE word — concatenate and DROP the hyphen
+   ("LOKOMOTIV-" + "FØRER" -> "LOKOMOTIVFØRER").
+3. A hyphen BETWEEN two letters on the SAME line is a real character — keep it
+   ("TV-AVIS").
+4. Combine as needed: "VÆRKSTEDS-/MESTER HOS/BING OG GRØN-/DAHL" ->
+   "VÆRKSTEDSMESTER", "HOS", "BING", "OG", "GRØNDAHL".
 
-For each tile:
+Example: first line shows "_ I N _    O _" (two words), second line
+"_ R _ N D A _ L" (one word) -> "pattern_rows": ["_IN_", "O_", "_R_NDA_L"].
 
-- revealed=true if a letter is visible
-- revealed=false if blank
+tile_count = total letter/blank tiles across all words (sum of word lengths,
+excluding word gaps and any dropped line-wrap hyphen).
 
-For hidden tiles:
-    letter=null
-
-For revealed tiles:
-    letter=<visible letter>
-
-Character encoding (used by both board.rows tiles and pattern_rows below):
-represent a hidden/blank tile with "_" and a revealed tile with its letter.
-
-Example — one visual line of tiles encodes to a string:
-
-    B R _ _ _ T E   ->   "BR___TE"
-
-WORD SEGMENTATION — pattern_rows MUST be WORDS, not visual rows
-
-The board.rows / tiles above capture the PHYSICAL tile layout (one entry per
-visual line, with column positions). The fields pattern_rows and full_pattern
-are DIFFERENT: they capture the LOGICAL phrase split into its individual WORDS.
-A visual line is NOT necessarily one word — it may hold several words, and a
-single word may be split across two lines. Build pattern_rows with exactly ONE
-entry per word, using "_" for each blank tile and the visible letter for each
-revealed tile, by applying these rules:
-
-1. MULTIPLE WORDS ON ONE LINE: a clear gap between two groups of tiles on the
-   same visual line separates two different words. Emit one entry per group.
-   Look actively for these gaps — do not merge separate groups into one word.
-   Example line "B I N G    O G"  ->  "BING", "OG".
-
-2. WORD SPLIT ACROSS LINES WITH A DASH: when a line ends with a hyphen "-" and
-   the word continues on the next line (line wrapping), it is ONE word.
-   Concatenate the parts and DROP the hyphen.
-   Example:
-       LOKOMOTIV-
-       FØRER
-   -> one word "LOKOMOTIVFØRER".
-
-3. A hyphen "-" that sits BETWEEN two letters on the SAME line is a real
-   character of the word — keep it (e.g. "TV-AVIS").
-
-4. Combine the rules as needed. Example board:
-       VÆRKSTEDS-
-       MESTER HOS
-       BING OG GRØN-
-       DAHL
-   -> words: "VÆRKSTEDSMESTER", "HOS", "BING", "OG", "GRØNDAHL".
-
-The field full_pattern must be all words joined with a single space.
-
-tile_count is the total number of letter/blank tiles across all words (the sum
-of the word lengths) — it excludes word-separating gaps and any dropped
-line-wrap hyphen.
-
-Example: the board shows "_ I N _    O _" on the first line (two words) and
-"_ R _ N D A _ L" on the second line (one word) — three words total:
-
-{
-  "pattern_rows": [
-    "_IN_",
-    "O_",
-    "_R_NDA_L"
-  ],
-
-  "full_pattern": "_IN_ O_ _R_NDA_L"
-}
-
-KEYBOARD EXTRACTION – CRITICAL SECTION (Be Extremely Precise)
-
-The keyboard is in the dark red panel at the bottom. Analyze it row by row.
-
-There are THREE distinct visual states for keys:
-- GREEN background   → state="correct"   (bright green — clearly stands out)
-- DARK background    → state="incorrect" (noticeably darker than normal keys, almost black or very dark — clearly different from the standard dark red/burgundy)
-- NORMAL background  → state="available" (standard dark red/burgundy — the majority of keys)
-
-Instructions for keyboard analysis:
-1. Process the keyboard row by row from top to bottom.
-2. For EVERY single key, determine its state by comparing its background color to neighboring keys.
-3. Pay special attention to keys that look darker than the majority — these are the incorrect guesses.
-4. Do NOT assume a key is normal just because you don't immediately notice it — actively check each one.
-5. A key that is even slightly darker than its neighbors should be classified as "incorrect", not "available".
-
-Ignore non-letter keys:
-- GÆT
-- backspace
-- Gæt bogstav
-- Gæt gåde
-- Brug ledetråd
-
-Output one object per letter key.
+KEYBOARD — the dark red panel at the bottom. Classify EVERY letter key by its
+background vs its neighbours, row by row:
+- BRIGHT GREEN key -> put the letter in correct_letters
+- CLEARLY DARKER than the normal dark red/burgundy keys (almost black) -> put
+  it in incorrect_letters (check each key actively; even slightly darker than
+  its neighbours counts as incorrect)
+- normal background -> omit it
+Ignore non-letter keys (GÆT, backspace, Gæt bogstav, Gæt gåde, Brug ledetråd).
 
 EDGE CASES
-
-If no interactive game board is visible (launcher/welcome screen): return tile_count=0 and empty rows and pattern_rows.
-
-If the game is finished or already answered: set attempts.used equal to attempts.total (both 12).
+- Launcher/welcome screen (no interactive board): tile_count=0, empty
+  pattern_rows.
+- Game finished / already answered: set attempts.used = attempts.total = 12.
 `
 
 	// Helper: get a printable name from any vision provider (optional Name() method).
@@ -1129,10 +1032,11 @@ If the game is finished or already answered: set attempts.used equal to attempts
 		return fmt.Sprintf("%T", vp)
 	}
 
-	fmt.Printf("   [vision] model: %s\n", providerName(ac))
-	fmt.Printf("   [vision] prompt (%d chars):\n", len(prompt))
-	for _, l := range strings.Split(strings.TrimSpace(prompt), "\n") {
-		fmt.Printf("      | %s\n", l)
+	fmt.Printf("   [vision] model: %s  prompt: %d chars\n", providerName(ac), len(prompt))
+	if os.Getenv("KLUBLOTTO_DEBUG") != "" {
+		for _, l := range strings.Split(strings.TrimSpace(prompt), "\n") {
+			fmt.Printf("      | %s\n", l)
+		}
 	}
 
 	text, err := ac.ExtractFromImage(ctx, imgBytes, "image/png", prompt)
@@ -1232,6 +1136,70 @@ const ordKloeverKeyboardJS = `(() => {
   }
   return JSON.stringify({ correct, incorrect });
 })()`
+
+// extractOrdKloeverViaDOM reads the FULL Ordkløver state straight from the game
+// DOM inside the OOPIF: board tiles (ordKloeverBoardJS), keyboard state
+// (ordKloeverKeyboardJS) and category/hint/attempts from the frame body text.
+// This is the token-free primary extraction path — vision only runs when this
+// returns ok=false (welcome screen, spinner, win overlay, or an unreadable
+// frame), so a typical game goes from 5-10 vision calls to at most one.
+// Requires BOTH a non-trivial board and a category (the decision prompts are
+// useless without the category, so a category-less read falls back to vision).
+func extractOrdKloeverViaDOM(ctx context.Context, br *browser.Client) (OrdKloeverState, bool) {
+	var st OrdKloeverState
+	if EnterGameFrame(ctx, br) != nil {
+		LeaveFrame(br)
+		return st, false
+	}
+	boardRaw, _ := br.Eval(ctx, ordKloeverBoardJS)
+	frameText, _ := br.Eval(ctx, `document.body ? document.body.innerText : ""`)
+	kbRaw, _ := br.Eval(ctx, ordKloeverKeyboardJS)
+	LeaveFrame(br)
+
+	var board struct {
+		Shape       string `json:"shape"`
+		Board       string `json:"board"`
+		VisualShape string `json:"visualShape"`
+		VisualBoard string `json:"visualBoard"`
+		Guessed     string `json:"guessed"`
+	}
+	if json.Unmarshal([]byte(boardRaw), &board) != nil || strings.TrimSpace(board.Board) == "" {
+		return st, false
+	}
+	// The DOM board concatenates letters within a word group ("BONBON_LAN_");
+	// downstream prompts expect one space-separated token per position.
+	st.Board = spaceOutBoardPositions(board.Board)
+	if len(strings.Fields(strings.ReplaceAll(st.Board, "/", " "))) < 3 {
+		return st, false // too small to be a real board (launcher remnants)
+	}
+	st.Shape = strings.TrimSpace(board.Shape)
+	if st.Shape == "" {
+		st.Shape = BoardShapeFromString(st.Board)
+	}
+	st.VisualShape = strings.TrimSpace(board.VisualShape)
+	st.VisualBoard = strings.TrimSpace(board.VisualBoard)
+
+	st.Category = firstCapture(frameText, `(?im)\bKategori:?\s*([^\n]+)`)
+	st.Hint = firstCapture(frameText, `(?im)\b(?:Ledetråd|Hint):?\s*([^\n]+)`)
+	if a := firstCapture(frameText, `(?im)(\d+)\s*/\s*12`); a != "" {
+		_, _ = fmt.Sscanf(a, "%d", &st.Attempts)
+	}
+	if st.Category == "" {
+		return st, false
+	}
+
+	// Guessed letters: union of the board reader's own keyboard scan and the
+	// dedicated colour-classified read.
+	var kb struct {
+		Correct   []string `json:"correct"`
+		Incorrect []string `json:"incorrect"`
+	}
+	_ = json.Unmarshal([]byte(kbRaw), &kb)
+	kbAll := CleanGuessedLetters(strings.Join(append(kb.Correct, kb.Incorrect...), " "))
+	st.GuessedLetters = unionGuessedLetters(CleanGuessedLetters(board.Guessed), kbAll)
+	st.Raw = frameText
+	return st, true
+}
 
 // extractKloeverKeyboardViaDOM switches into the game iframe, reads every
 // keyboard button's state via colour/class/attribute heuristics, and returns
@@ -2052,11 +2020,9 @@ func getColorMarksViaDOM(ctx context.Context, br *browser.Client, words []string
 // vision model to classify the tile colors for the known guessed words.
 // Since the words are already known, Claude only needs to read the colors.
 func getColorMarksViaVision(ctx context.Context, br *browser.Client, ac llm.VisionProvider, words []string) ([][]string, error) {
-	shotPath := filepath.Join(os.TempDir(), "ordknude-colors-"+time.Now().UTC().Format("20060102-150405")+".png")
-	if err := br.Screenshot(ctx, shotPath); err != nil {
-		return nil, err
-	}
-	imgBytes, err := os.ReadFile(shotPath)
+	// Crop to the game iframe — the board+keyboard is all the model needs, and
+	// the parent-page chrome would only add image tokens.
+	imgBytes, err := CropToGameIframe(ctx, br, "iframe[src*='ordknude']")
 	if err != nil {
 		return nil, err
 	}
@@ -2576,31 +2542,18 @@ func BuildOrdknudePrompt(st OrdknudeState, rejected []string) string {
 	b.WriteString("- Returner præcis ÉT ord — ikke en liste, ikke flere kandidater. Vælg selv det bedste.\n\n")
 
 	b.WriteString("FARVE-REGLER (Wordle):\n")
-	b.WriteString("- 🟩 correct (grøn):  bogstavet er KORREKT og på den RIGTIGE PLADS. Det SKAL stå der i alle fremtidige gæt.\n")
-	b.WriteString("- 🟨 present (gul):   bogstavet ER i ordet, men på en FORKERT PLADS. Placer det et andet sted — aldrig på de pladser det har fået gult eller grå.\n")
-	b.WriteString("- ⬛ absent (grå):    bogstavet ER IKKE i ordet. Brug det aldrig igen.\n\n")
-	b.WriteString("EKSEMPEL:\n")
-	b.WriteString("  TALER → ⬛⬛🟨⬛🟩   (T,A fravær; E gul på plads 3 — skal flyttes; R fravær; L grøn på plads 5)\n")
-	b.WriteString("  DÅRLIGT næste gæt: GILET (E stadig på plads 3 — overtræder gul-reglen)\n")
-	b.WriteString("  GODT næste gæt:    KNÆLE (E på plads 4, L på plads 5 ✓)\n\n")
+	b.WriteString("- correct (grøn):  bogstavet er KORREKT og på den RIGTIGE PLADS. Det SKAL stå der i alle fremtidige gæt.\n")
+	b.WriteString("- present (gul):   bogstavet ER i ordet, men på en FORKERT PLADS. Placer det et andet sted — aldrig på de pladser det har fået gult eller grå.\n")
+	b.WriteString("- absent (grå):    bogstavet ER IKKE i ordet. Brug det aldrig igen.\n\n")
 
 	if len(st.History) == 0 {
 		b.WriteString("Ingen accepterede gæt endnu — start med et godt 5-bogstavs dansk ord med varierede bogstaver.\n")
 	} else {
+		// One compact encoding per guess; the derived constraints below are the
+		// operative part (the emoji row + prose triple-encoding is token waste).
 		b.WriteString("Tidligere gæt (position 1-5, 1=venstre):\n")
 		for i, h := range st.History {
-			emojis := make([]string, len(h.Marks))
-			for j, m := range h.Marks {
-				switch m {
-				case "correct":
-					emojis[j] = "🟩"
-				case "present":
-					emojis[j] = "🟨"
-				default:
-					emojis[j] = "⬛"
-				}
-			}
-			fmt.Fprintf(&b, "%d. %s  %s  (%s)\n", i+1, h.Word, strings.Join(emojis, ""), strings.Join(h.Marks, ","))
+			fmt.Fprintf(&b, "%d. %s  (%s)\n", i+1, h.Word, strings.Join(h.Marks, ","))
 		}
 
 		// Derive explicit constraints from history so the LLM doesn't have to.
@@ -3456,3 +3409,59 @@ func findLossScreenAnswer(raw string) string {
 // body text is more reliable than the accessibility snapshot, which can come back
 // empty during the game-over transition.
 func OrdknudeLossAnswer(bodyText string) string { return findLossScreenAnswer(bodyText) }
+
+// CropToGameIframe screenshots the current page and returns PNG bytes cropped to
+// the embedded game iframe's rect (device-pixel-ratio aware) — image tokens are
+// the bulk of a vision call, and the parent-page chrome around the game is pure
+// waste. extraSel is an additional iframe selector to try besides the shared
+// GameIframe. Falls back to the FULL screenshot bytes when the rect can't be
+// determined, so callers never lose a read to a failed crop.
+func CropToGameIframe(ctx context.Context, br *browser.Client, extraSel string) ([]byte, error) {
+	shotPath := filepath.Join(os.TempDir(), "game-crop-"+time.Now().UTC().Format("20060102-150405.000")+".png")
+	if err := br.Screenshot(ctx, shotPath); err != nil {
+		return nil, err
+	}
+	imgBytes, err := os.ReadFile(shotPath)
+	if err != nil {
+		return nil, err
+	}
+	sel := GameIframe
+	if extraSel != "" {
+		sel = extraSel + ", " + GameIframe
+	}
+	rectJS := fmt.Sprintf(`(() => {
+	  const dpr = window.devicePixelRatio || 1;
+	  const ifr = document.querySelector(%q);
+	  if (!ifr) return '';
+	  const r = ifr.getBoundingClientRect();
+	  if (r.width < 50 || r.height < 50) return '';
+	  return JSON.stringify({left: Math.round(r.left*dpr), top: Math.round(r.top*dpr), width: Math.round(r.width*dpr), height: Math.round(r.height*dpr)});
+	})()`, sel)
+	rawRect, _ := br.Eval(ctx, rectJS)
+	var rinfo struct{ Left, Top, Width, Height int }
+	if json.Unmarshal([]byte(rawRect), &rinfo) != nil || rinfo.Width <= 0 || rinfo.Height <= 0 {
+		return imgBytes, nil // rect unavailable — full screenshot
+	}
+	f, err := os.Open(shotPath)
+	if err != nil {
+		return imgBytes, nil
+	}
+	full, err := png.Decode(f)
+	f.Close()
+	if err != nil {
+		return imgBytes, nil
+	}
+	crop := image.Rect(rinfo.Left, rinfo.Top, rinfo.Left+rinfo.Width, rinfo.Top+rinfo.Height).Intersect(full.Bounds())
+	if crop.Empty() {
+		return imgBytes, nil
+	}
+	if sub, ok := full.(interface {
+		SubImage(image.Rectangle) image.Image
+	}); ok {
+		var buf bytes.Buffer
+		if png.Encode(&buf, sub.SubImage(crop)) == nil {
+			return buf.Bytes(), nil
+		}
+	}
+	return imgBytes, nil
+}

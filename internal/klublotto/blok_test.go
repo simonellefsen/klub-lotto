@@ -156,7 +156,7 @@ func TestBlokPlanPrefersLineClear(t *testing.T) {
 		b[0][c] = 1
 	}
 	shapes := [][][]int{{{1, 1}}}
-	ranked := BlokPlan(b, shapes)
+	ranked := BlokPlan(b, shapes, BlokChain{})
 	if len(ranked) == 0 {
 		t.Fatal("no moves planned")
 	}
@@ -166,24 +166,89 @@ func TestBlokPlanPrefersLineClear(t *testing.T) {
 	}
 }
 
-func TestBlokPlanRewardsCombo(t *testing.T) {
-	// Rows 0 and 7 each need their last two cells; two 1x2 pieces each complete one
-	// row → two SEPARATE clearing placements = a combo. Both rows then clear, so the
-	// board ends empty. Expected top score: 2 lines × 120 (survival proxy) + 10 combo
-	// bonus for the 2nd clearing placement + quality(empty board)=64.
+func TestBlokChainAdvance(t *testing.T) {
+	// Payout schedule fitted from the 2026-07-05 live trace: the k-th clearing
+	// placement pays 10×(k−2), the first two pay 0; the chain survives gaps of
+	// ≤3 non-clearing placements and dies on the 4th.
+	var ch BlokChain
+	wantPay := []int{0, 0, 10, 20, 30}
+	for k, want := range wantPay {
+		var pay int
+		ch, pay = ch.Advance(true)
+		if pay != want || ch.Len != k+1 {
+			t.Fatalf("clear #%d: pay=%d len=%d, want pay=%d len=%d", k+1, pay, ch.Len, want, k+1)
+		}
+	}
+	// Three non-clears keep the chain alive; the next clear extends it.
+	for i := 0; i < 3; i++ {
+		ch, _ = ch.Advance(false)
+	}
+	if ch.Len != 5 {
+		t.Fatalf("chain died too early: len=%d after 3 non-clears", ch.Len)
+	}
+	ch, pay := ch.Advance(true)
+	if pay != 40 || ch.Len != 6 {
+		t.Fatalf("clear #6 after gap: pay=%d len=%d, want 40/6", pay, ch.Len)
+	}
+	// Four non-clears kill it; the next clear restarts at len 1, pay 0.
+	for i := 0; i < 4; i++ {
+		ch, _ = ch.Advance(false)
+	}
+	if ch.Len != 0 {
+		t.Fatalf("chain should be dead after 4 non-clears, len=%d", ch.Len)
+	}
+	ch, pay = ch.Advance(true)
+	if pay != 0 || ch.Len != 1 {
+		t.Fatalf("restart clear: pay=%d len=%d, want 0/1", pay, ch.Len)
+	}
+}
+
+func TestBlokPlanRewardsChainedClears(t *testing.T) {
+	// Rows 0 and 7 each need their last two cells; two 1x2 pieces each complete
+	// one row → two SEPARATE clearing placements. From a cold chain both pay 0
+	// real bonus (clears #1 and #2), but the branch ends with a LIVE chain of 2.
+	// Expected top score: survival + 2 lines × 120 + 2×BlokWChainState +
+	// quality(empty board)=64.
 	var b [8][8]int
 	for c := 0; c < 6; c++ {
 		b[0][c] = 1
 		b[7][c] = 1
 	}
 	shapes := [][][]int{{{1, 1}}, {{1, 1}}}
-	ranked := BlokPlan(b, shapes)
+	ranked := BlokPlan(b, shapes, BlokChain{})
 	if len(ranked) == 0 {
 		t.Fatal("no moves planned")
 	}
-	// 2 pieces placed (survival) + 2 lines × 120 + 10 combo + quality(empty board)=64.
-	want := 2*10000 + 2*120 + 10 + 64
+	want := 2*10000 + 2*120 + 2*BlokWChainState + 64
 	if ranked[0].Score != want {
-		t.Fatalf("top score = %d, want %d (survival + double clear + combo bonus)", ranked[0].Score, want)
+		t.Fatalf("top score = %d, want %d (survival + clears + live-chain state)", ranked[0].Score, want)
+	}
+}
+
+func TestBlokPlanSequencesClearsOverDoubleClear(t *testing.T) {
+	// Rows 0 and 1 are both one 2-cell gap from clearing at cols 6-7. Tray: a 2x2
+	// (fills both gaps at once → ONE clearing placement, one chain step) and a
+	// 1x2 (row 0 alone, then the 2x2 finishes row 1 → TWO clearing placements).
+	// The game pays NOTHING extra for a multi-line clear, so with a live chain of
+	// 3 the real payout makes sequencing strictly better:
+	//   double clear: pay 10×(4−2)=20, chain ends at 4
+	//   sequenced:    pays 20 + 30 = 50, chain ends at 5
+	// The top-ranked FIRST move must be the 1x2 at (0,6), not the 2x2 double clear.
+	var b [8][8]int
+	for c := 0; c < 6; c++ {
+		b[0][c] = 1
+		b[1][c] = 1
+	}
+	shapes := [][][]int{
+		{{1, 1}, {1, 1}}, // piece0: 2x2
+		{{1, 1}},         // piece1: 1x2
+	}
+	ranked := BlokPlan(b, shapes, BlokChain{Len: 3, SinceClear: 0})
+	if len(ranked) == 0 {
+		t.Fatal("no moves planned")
+	}
+	top := ranked[0]
+	if top.Pi != 1 || top.R != 0 || top.C != 6 {
+		t.Fatalf("top move = piece%d@(%d,%d), want piece1 (1x2) @(0,6) — sequenced clears must beat the double clear", top.Pi, top.R, top.C)
 	}
 }

@@ -538,19 +538,22 @@ func krydsordGraphJSON(ctx context.Context, cfg *config.Config, br *browser.Clie
 	if n, ok := ac.(interface{ Name() string }); ok {
 		fmt.Printf("   [graph] vision model: %s\n", n.Name())
 	}
-	// Give the embedded board a moment to finish rendering, then screenshot the
-	// parent page (the crossword the player sees) — no iframe navigation.
+	// Give the embedded board a moment to finish rendering, then screenshot —
+	// CROPPED to the game iframe: the board is all the model needs, and the
+	// parent-page chrome would only add image tokens (falls back to the full
+	// page when the rect can't be found). No iframe navigation.
 	br.WaitSettled(ctx)
 	time.Sleep(1500 * time.Millisecond)
 	stamp := time.Now().UTC().Format("20060102-150405")
 	inputPath := filepath.Join(cfg.DataDir, "krydsord-graph-input-"+stamp+".png")
-	if err := br.Screenshot(ctx, inputPath); err != nil {
+	imgBytes, err := klublotto.CropToGameIframe(ctx, br, "iframe[src*='krydsord']")
+	if err != nil {
 		return "", nil, fmt.Errorf("screenshot parent board: %w", err)
 	}
-	imgBytes, _ := os.ReadFile(inputPath)
 	if len(imgBytes) == 0 {
-		return "", nil, fmt.Errorf("parent screenshot was empty (%s)", inputPath)
+		return "", nil, fmt.Errorf("parent screenshot was empty")
 	}
+	_ = os.WriteFile(inputPath, imgBytes, 0o644)
 	fmt.Printf("   [graph] input image: %s\n", inputPath)
 	visionCtx, cancel := context.WithTimeout(ctx, 300*time.Second)
 	raw, err := ac.ExtractFromImage(visionCtx, imgBytes, "image/png", krydsordDeconstructPrompt)
@@ -1374,11 +1377,13 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 	promptPath := filepath.Join(cfg.DataDir, "krydsord-assemble-prompt.txt")
 	_ = os.WriteFile(promptPath, []byte(basePrompt), 0o644)
 	fmt.Printf("       [assemble] prompt (%d chars) saved: %s\n", len(basePrompt), promptPath)
-	fmt.Println("       ---- assembler prompt ----")
-	for _, ln := range strings.Split(strings.TrimRight(basePrompt, "\n"), "\n") {
-		fmt.Println("       | " + ln)
+	if os.Getenv("KLUBLOTTO_DEBUG") != "" {
+		fmt.Println("       ---- assembler prompt ----")
+		for _, ln := range strings.Split(strings.TrimRight(basePrompt, "\n"), "\n") {
+			fmt.Println("       | " + ln)
+		}
+		fmt.Println("       ---- end prompt ----")
 	}
-	fmt.Println("       ---- end prompt ----")
 
 	// Retry, feeding back which slots are missing or which crossings conflict.
 	const maxAttempts = 3
@@ -1575,6 +1580,13 @@ func repairKrydsordConflictsLLM(ctx context.Context, p llm.JSONGenerator, slots 
 	involved, patternByID := klublotto.KrydsordConflictSlots(slots, answers)
 	if len(involved) == 0 {
 		return nil, false
+	}
+	// The repair is a tiny constrained pick — cap reasoning effort. p is SHARED
+	// with the assembler's retries, so clone before mutating.
+	if or, ok := p.(*llm.OpenRouter); ok {
+		cp := *or
+		cp.ReasoningEffort = "low"
+		p = &cp
 	}
 	byID := map[string]klublotto.KrydsordSlot{}
 	for _, s := range slots {

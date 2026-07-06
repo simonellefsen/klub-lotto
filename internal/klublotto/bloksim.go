@@ -5,9 +5,11 @@ import "math/rand"
 // Blok for Blok offline simulator. We only get ONE live game per day, so to tune
 // the solver (BlokPlan/blokQuality) we play thousands of simulated games here and
 // measure the score distribution. The engine implements the real scoring rules:
-// +1 point per cell placed, and a combo chain — the 1st line-clear starts the
-// chain, and each further clear WITHIN 3 placements pays an escalating bonus
-// (2nd +10, 3rd +20, …). Game over when none of the remaining tray pieces fits.
+// +1 point per cell placed, and a combo chain — a line-clear starts the chain,
+// each further clear within the window extends it, and the k-th clearing
+// placement pays 10×(k−2) (the first two pay 0; multi-line clears pay nothing
+// extra) — see BlokChain.Advance, fitted from live traces 2026-07-05. Game over
+// when none of the remaining tray pieces fits.
 //
 // The PIECE SET is a model of the game's bag, approximated from the observed
 // screenshots (dominoes, trominoes, all tetrominoes, the 3x3 L-pentomino, and the
@@ -106,42 +108,32 @@ type BlokSimResult struct {
 	MaxClears int // most lines cleared by a single placement
 }
 
-// BlokChooser ranks moves for a board + tray (BlokPlan's signature), so the
-// simulator can drive any solver variant.
-type BlokChooser func(board [8][8]int, shapes [][][]int) []BlokScoredMove
+// BlokChooser ranks moves for a board + tray + live chain state (BlokPlan's
+// signature), so the simulator can drive any solver variant.
+type BlokChooser func(board [8][8]int, shapes [][][]int, chain BlokChain) []BlokScoredMove
 
 // SimulateBlokGame plays one full game with the given chooser and RNG, returning
 // the final score. It mirrors the live driver: draw a trio of 3 random pieces,
 // then repeatedly re-plan (chooser) and place the top-ranked move until the trio
-// is empty; refill; stop when no remaining piece fits anywhere.
+// is empty; refill; stop when no remaining piece fits anywhere. Chain payout and
+// state live in BlokChain.Advance — the same transition the planner searches
+// with, so the sim scores exactly what the planner optimises.
 func SimulateBlokGame(rng *rand.Rand, choose BlokChooser) BlokSimResult {
 	var board [8][8]int
 	res := BlokSimResult{}
-	comboLen := 0   // active chain length (0 = no chain)
-	sinceClear := 4 // placements since last clear (>3 ⇒ chain expired)
+	var chain BlokChain
 
 	place := func(s [][]int, r, c int) {
 		res.Cells += shapeCells(s)
 		res.Score += shapeCells(s) // +1 per cell placed
 		nb, lines := BlokApply(board, s, r, c)
 		board = nb
-		if lines > 0 {
-			if lines > res.MaxClears {
-				res.MaxClears = lines
-			}
-			if comboLen > 0 && sinceClear <= 3 {
-				comboLen++
-			} else {
-				comboLen = 1 // start (or restart) the chain
-			}
-			res.Score += 10 * (comboLen - 1) // 1st clear +0, 2nd +10, 3rd +20…
-			sinceClear = 0
-		} else {
-			sinceClear++
-			if sinceClear > 3 {
-				comboLen = 0
-			}
+		if lines > res.MaxClears {
+			res.MaxClears = lines
 		}
+		var bonus int
+		chain, bonus = chain.Advance(lines > 0)
+		res.Score += bonus
 	}
 
 	for {
@@ -162,7 +154,7 @@ func SimulateBlokGame(rng *rand.Rand, choose BlokChooser) BlokSimResult {
 			if !anyFits {
 				return res // game over
 			}
-			moves := choose(board, remaining)
+			moves := choose(board, remaining, chain)
 			if len(moves) == 0 {
 				return res
 			}

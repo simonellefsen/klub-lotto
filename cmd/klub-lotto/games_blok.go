@@ -378,11 +378,17 @@ func (d *blokDriver) play(ctx context.Context, goal, maxSteps int) (blokResult, 
 		return res, err
 	}
 	defer rec.Close()
-	fmt.Fprintln(rec, "step,piece,row,col,current_score,best_score,placed_cells,board_filled")
+	fmt.Fprintln(rec, "step,piece,row,col,current_score,best_score,placed_cells,board_filled,clears,chain_len,bonus_exp,bonus_obs")
 
 	placed, steps, stuck := 0, 0, 0
 	bad := map[string]bool{} // (piece-shape,r,c) moves to avoid this trio
 	lastSig := ""
+	// Live combo-chain state, carried across trios (the game's escalating clear
+	// bonus never resets at a trio boundary — confirmed from live traces). The
+	// planner needs it to value clears at their REAL payout, and we cross-check
+	// our belief against the observed score delta every step.
+	var chain klublotto.BlokChain
+	prevScore := -1 // last successfully-read live score (-1 = none yet)
 
 	badKey := func(shape [][]int, r, c int) string {
 		var sb strings.Builder
@@ -432,7 +438,7 @@ func (d *blokDriver) play(ctx context.Context, goal, maxSteps int) (blokResult, 
 		for i, p := range read.pieces {
 			shapes[i] = p.Shape
 		}
-		ranked := klublotto.BlokPlan(read.board, shapes)
+		ranked := klublotto.BlokPlan(read.board, shapes, chain)
 		// Drop moves already known to fail for this trio.
 		var mv *klublotto.BlokScoredMove
 		for i := range ranked {
@@ -463,16 +469,51 @@ func (d *blokDriver) play(ctx context.Context, goal, maxSteps int) (blokResult, 
 		placed += pieceCells(piece.Shape)
 		lastSig = blokKey(board2, nil) // force fresh trio detection next loop
 
+		// Advance the chain by the EXPECTED clears of this placement (BlokApply on
+		// the pre-placement board — the same transition the planner searched with).
+		_, expClears := klublotto.BlokApply(read.board, piece.Shape, mv.R, mv.C)
+		var expBonus int
+		chain, expBonus = chain.Advance(expClears > 0)
+
 		cur, best, scoreOK := d.readScores(ctx)
-		curS, bestS := "", ""
+		curS, bestS, obsS := "", "", ""
 		if scoreOK {
 			curS, bestS = strconv.Itoa(cur), strconv.Itoa(best)
 			res.current, res.best, res.scored = cur, best, true
+			// Cross-check: the live score delta minus the cells placed is the REAL
+			// bonus the game paid. If it disagrees with our belief, trust the game
+			// and re-derive the chain length (bonus b>0 ⇒ this was clear #(b/10+2)).
+			if prevScore >= 0 {
+				obs := cur - prevScore - pieceCells(piece.Shape)
+				obsS = strconv.Itoa(obs)
+				if obs != expBonus {
+					fmt.Printf("[%d] chain cross-check: expected bonus %d, game paid %d — re-syncing chain\n",
+						steps, expBonus, obs)
+					switch {
+					case obs > 0:
+						chain = klublotto.BlokChain{Len: obs/10 + 2, SinceClear: 0}
+					case expClears > 0:
+						// A clear that paid 0 was chain step #1 or #2 — cap our belief.
+						if chain.Len > 2 {
+							chain.Len = 2
+						}
+					}
+				}
+			}
+			prevScore = cur
 		}
-		fmt.Fprintf(rec, "%d,%dx%d,%d,%d,%s,%s,%d,%d\n",
-			steps, piece.H, piece.W, mv.R, mv.C, curS, bestS, placed, blokCells(board2))
-		fmt.Printf("[%d] placed %dx%d@(%d,%d)  score=%s  best=%s  placed~%d  board_filled=%d\n",
-			steps, piece.H, piece.W, mv.R, mv.C, orQ(curS), orQ(bestS), placed, blokCells(board2))
+		fmt.Fprintf(rec, "%d,%dx%d,%d,%d,%s,%s,%d,%d,%d,%d,%d,%s\n",
+			steps, piece.H, piece.W, mv.R, mv.C, curS, bestS, placed, blokCells(board2),
+			expClears, chain.Len, expBonus, obsS)
+		chainS := ""
+		if chain.Len > 0 {
+			chainS = fmt.Sprintf("  chain=%d", chain.Len)
+			if expBonus > 0 {
+				chainS += fmt.Sprintf("(+%d)", expBonus)
+			}
+		}
+		fmt.Printf("[%d] placed %dx%d@(%d,%d)  score=%s  best=%s  placed~%d  board_filled=%d%s\n",
+			steps, piece.H, piece.W, mv.R, mv.C, orQ(curS), orQ(bestS), placed, blokCells(board2), chainS)
 
 		if !scoreOK {
 			// Score element gone → board replaced by the win/game-over screen.

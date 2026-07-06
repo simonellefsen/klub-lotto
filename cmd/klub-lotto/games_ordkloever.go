@@ -439,6 +439,12 @@ func askOrdKloeverProbeLetters(ctx context.Context, cfg *config.Config, provider
 	if err != nil {
 		return nil, err
 	}
+	// Letter suggestion is a cheap ranking task — cap reasoning effort so a
+	// thinking model doesn't burn minutes (and tokens) on it. wordProvider
+	// returns a fresh instance per call, so mutating it is safe.
+	if or, ok := p.(*llm.OpenRouter); ok {
+		or.ReasoningEffort = "low"
+	}
 	remaining := 12 - st.Attempts
 	// Derive shape from board in case the extracted shape field is wrong.
 	boardShape := klublotto.BoardShapeFromString(st.Board)
@@ -594,7 +600,12 @@ func askOrdKloeverDecision(ctx context.Context, cfg *config.Config, provider str
 			candBlock.WriteString("Opfind IKKE nye ord — vælg den bedste match fra listen nedenfor.\n")
 			candBlock.WriteString("Hvis ingen kandidat er korrekt, vælg action=\"probe\" i stedet.\n\n")
 		}
-		for i, c := range cands {
+		// Top 8 is plenty for the choice; the tail only adds tokens.
+		show := cands
+		if len(show) > 8 {
+			show = show[:8]
+		}
+		for i, c := range show {
 			conf := c.Confidence
 			if conf == "" {
 				conf = "?"
@@ -618,60 +629,45 @@ func askOrdKloeverDecision(ctx context.Context, cfg *config.Config, provider str
 		askLine = "Giv eksakt 1 svar på løsningen, eller alternativt foreslå op til to nye bogstaver vi kan gætte."
 	}
 
-	prompt := fmt.Sprintf(`Du løser et dansk "Ordkløver" puzzle (som Wheel of Fortune) på danskespil.dk.
-%s
+	// Prompt layout: STATIC rules first (byte-identical across rounds and games),
+	// then the per-game constants, then the per-round state. A stable prefix lets
+	// provider-side prompt caching (Gemini/OpenAI implicit, Anthropic ephemeral)
+	// engage across the up-to-10 decision rounds of a game.
+	prompt := fmt.Sprintf(`Du løser et dansk "Ordkløver" puzzle (Wheel of Fortune-stil) på danskespil.dk.
+
+=== REGLER (Wheel of Fortune) ===
+1. Bogstaver på BOARD er 100%% bekræftede og sidder præcis der (_ = ukendt).
+2. Forkerte bogstaver forekommer INTET sted i svaret.
+3. SIMULTANAVSLØRING: et prøvet bogstav afsløres ALLE steder på én gang — det forekommer i svaret PRÆCIS så mange gange som det vises på BOARD (ses X kun 1 gang, har svaret præcis 1 X). Et bogstav bekræftet i ord 1 men ikke i ord 2 → ord 2 har det IKKE.
+4. Svaret er ét sammenhængende udtryk der matcher svarformen bogstav for bogstav (fx "8+4" = 8 bogstaver, mellemrum, 4 bogstaver).
+Returner KUN ét JSON-objekt — ingen tekst udenfor. Svar hurtigt (maks 480 sekunder).
 
 Kategori: %s
 %s
-
 Svarform: %s
-(Svarformen angiver antal bogstaver per ord — fx "8+4" = 8 bogstaver, mellemrum, 4 bogstaver = 12 bogstaver i alt)
 
-BOARD — kendte bogstaver i nøjagtigt de rigtige positioner (_ = ukendt):
+BOARD — kendte bogstaver på nøjagtige positioner (_ = ukendt):
   %s
-
-=== WHEEL OF FORTUNE REGLER (MEGET VIGTIGT) ===
-1. Bogstaver på BOARD er 100%% bekræftede — de sidder præcis der.
-2. Forkerte bogstaver er ABSOLUT FRAVÆRENDE fra hele svaret — de forekommer ikke ét eneste sted.
-3. Hvis et bogstav er bekræftet i ord 1 men IKKE i ord 2 → ord 2 indeholder IKKE det bogstav.
-4. Svaret er ét sammenhængende udtryk, der matcher svarformen bogstav for bogstav.
-5. SIMULTANAVSLØRINGSREGEL (KRITISK): Når man prøver et bogstav, afsløres ALLE forekomster
-   af det bogstav på én gang — ligesom i Lykkehjulet/Wheel of Fortune.
-   Det betyder: hvis et prøvet bogstav X kun er synligt N gange på BOARD, er der præcis N
-   forekomster af X i hele svaret — hverken flere eller færre.
-   EKSEMPEL: O er kun synlig 1 gang på boardet → svaret har præcis 1 O i alt.
-   Foreslå ALDRIG et udtryk, der indeholder et prøvet bogstav på FLERE positioner end det
-   antal gange det vises på boardet. Hvis du gør det er svaret garanteret forkert.
 
 Forkerte bogstaver — IKKE i svaret overhovedet: %s
 Alle forsøgte bogstaver (undgå disse ved probe): %s
 Forsøg brugt: %d/12 (%d tilbage)
 %s
-Instrukser:
-• Analyser hvad BOARD og svarformen fortæller dig om svaret.
-• Tæl nøje: hvis bogstavet O er vist 1 gang på boardet, kan svaret ikke indeholde 2 O'er.
-• Bogstaver i ord 1 men ikke i ord 2 på BOARD = ord 2 har dem IKKE.
+%s
 %s
 Vælg ÉN handling og returner præcis ét JSON objekt:
 
 %s
-Regler for dit svar:
-- "phrase" skal matche svarformen %s — bogstav for bogstav, inklusive mellemrum
-- Alle kendte bogstaver fra BOARD skal være på de rigtige pladser i "phrase"
-- Hvert prøvet bogstav på BOARD optræder præcis så mange gange i "phrase" som på boardet
-- "probe"-bogstaver må IKKE være i listen over forsøgte bogstaver
-- Du har maksimalt 480 sekunder til at svare — prioritér hurtigt svar
-- Returner KUN JSON — ingen tekst udenfor JSON-objektet`,
-		askLine,
+Krav til svaret: "phrase" matcher svarformen og alle kendte BOARD-bogstaver på deres pladser; hvert prøvet bogstav optræder præcis så ofte i "phrase" som på BOARD; "probe"-bogstaver må ikke være forsøgt før.`,
 		st.Category, categoryHint,
 		shapeInfo,
 		boardDisplay,
 		wrongLetters, alreadyTried,
 		st.Attempts, remaining,
 		candBlock.String(),
+		askLine,
 		endgameInstruction(remaining),
 		endgameActionBlock(remaining),
-		shapeInfo,
 	)
 
 	var lastErr error
@@ -887,47 +883,49 @@ func runOrdKloeverProbe(ctx context.Context, cfg *config.Config, br *browser.Cli
 		shot := filepath.Join(cfg.DataDir, "ordkloever-guess-"+stamp+"-after.png")
 		_ = br.Screenshot(ctx, shot)
 
-		next, err := reExtract()
-		if err != nil {
-			return false, fmt.Errorf("extract after submit: %w", err)
+		// TOKEN DIET: a WRONG phrase guess reveals nothing (Wheel-of-Fortune rules)
+		// and the game reverts the tiles, so a re-extraction can't tell us anything
+		// — no reason to burn a vision/DOM read here. All we need is win vs
+		// error-screen vs wrong, readable from the parent body text. The win
+		// banner can lag a few seconds, so poll briefly.
+		klublotto.LeaveFrame(br) // ensure top frame
+		body, _ := br.Eval(ctx, `document.body ? document.body.innerText : ""`)
+		for i := 0; i < 3 && !wonAtSubmit && !klublotto.IsOrdKloeverWinText(body) && !klublotto.IsDanskeSpilErrorScreen(body); i++ {
+			time.Sleep(2 * time.Second)
+			body, _ = br.Eval(ctx, `document.body ? document.body.innerText : ""`)
 		}
-		st = next
-		// Bolster win detection: the submit step or the post-guess raw page text may
-		// carry a success banner ("Flot præstation", "Super imponerende", …) even
-		// when the vision board read came back blank.
-		if wonAtSubmit || klublotto.IsOrdKloeverWinText(st.Raw) {
+		switch {
+		case wonAtSubmit || klublotto.IsOrdKloeverWinText(body):
 			st.Solved = true
-		}
-		// Defensive: the win banner ("Flot præstation! Du løste ordkløver med
-		// stil!") renders in the Danske Spil PARENT body, but extraction can
-		// overwrite st.Raw with the vision JSON (empty board on a win screen).
-		// Read the parent body directly as the authoritative solved signal.
-		if !st.Solved {
-			klublotto.LeaveFrame(br) // ensure top frame
-			if body, _ := br.Eval(ctx, `document.body ? document.body.innerText : ""`); klublotto.IsOrdKloeverWinText(body) {
-				fmt.Println("   win banner detected in parent page text — marking Ordkløver solved")
+			st.Raw = body
+		case klublotto.IsDanskeSpilErrorScreen(body):
+			// State genuinely unknown (the crash page can swallow a win) — the one
+			// post-guess case that still warrants a real re-extraction. reExtract
+			// detects the error screen and reopens the game first.
+			fmt.Println("   [recover] danskespil error screen after guess — re-extracting real state...")
+			next, err := reExtract()
+			if err != nil {
+				return false, fmt.Errorf("extract after submit (error screen): %w", err)
+			}
+			st = next
+			if klublotto.IsOrdKloeverWinText(st.Raw) {
 				st.Solved = true
 			}
-		}
-		// After a wrong phrase guess the board MUST be identical to before — Wheel of
-		// Fortune only reveals new positions via letter probes, never via wrong phrase
-		// guesses. Restore the pre-guess board if the puzzle is not solved yet, to
-		// prevent the animation's intermediate tile-state from corrupting later rounds.
-		if !st.Solved && prePhraseBoard != "" {
+			if !st.Solved && prePhraseBoard != "" {
+				st.Board = prePhraseBoard
+			}
+			if !st.Solved && st.Attempts < preAttempts {
+				st.Attempts = preAttempts + 1
+			}
+		default:
+			// Wrong guess: the board reverts and exactly one attempt is burned —
+			// update locally, zero extraction calls.
+			st.Solved = false
 			st.Board = prePhraseBoard
-		}
-		// SAFEGUARD: a blank / transition-screen re-extraction reports attempts=0.
-		// Never let the counter run backwards — a wrong full-phrase guess always
-		// costs exactly one attempt. Without this the loop resets 5/12 → 0/12,
-		// believes it has a fresh board, and re-submits the same wrong answer
-		// forever.
-		if !st.Solved && st.Attempts < preAttempts {
 			st.Attempts = preAttempts + 1
-			fmt.Printf("   [safeguard] re-extract reported attempts=%d (< %d before guess); restoring to %d\n",
-				next.Attempts, preAttempts, st.Attempts)
 		}
-		// The post-win re-extract usually returns a blank screen — restore the
-		// puzzle metadata so the ledger row keeps its category/shape/hint.
+		// Keep the puzzle metadata (a blank post-win/transition screen would
+		// otherwise wipe it from the ledger row).
 		if st.Category == "" {
 			st.Category = preCategory
 		}

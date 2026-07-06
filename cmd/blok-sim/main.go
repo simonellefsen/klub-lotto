@@ -23,13 +23,15 @@ func main() {
 	// Heuristic weights (default to production; override to A/B a change).
 	flag.IntVar(&klublotto.BlokWSurvival, "w-survival", klublotto.BlokWSurvival, "survival weight per placed piece")
 	flag.IntVar(&klublotto.BlokWClear, "w-clear", klublotto.BlokWClear, "reward per line cleared")
-	flag.IntVar(&klublotto.BlokWCombo, "w-combo", klublotto.BlokWCombo, "combo unit bonus")
+	flag.IntVar(&klublotto.BlokWChain, "w-chain", klublotto.BlokWChain, "multiplier on real chain-bonus points in the lookahead")
+	flag.IntVar(&klublotto.BlokWChainState, "w-chainstate", klublotto.BlokWChainState, "terminal value per live chain step")
 	flag.IntVar(&klublotto.BlokWDead, "w-dead", klublotto.BlokWDead, "penalty per dead hole")
 	flag.IntVar(&klublotto.BlokWTight, "w-tight", klublotto.BlokWTight, "penalty per tight gap")
 	flag.IntVar(&klublotto.BlokWNear, "w-near", klublotto.BlokWNear, "reward per near-line unit")
 	flag.Parse()
-	fmt.Printf("weights: survival=%d clear=%d combo=%d dead=%d tight=%d near=%d\n",
-		klublotto.BlokWSurvival, klublotto.BlokWClear, klublotto.BlokWCombo, klublotto.BlokWDead, klublotto.BlokWTight, klublotto.BlokWNear)
+	fmt.Printf("weights: survival=%d clear=%d chain=%d chainstate=%d dead=%d tight=%d near=%d\n",
+		klublotto.BlokWSurvival, klublotto.BlokWClear, klublotto.BlokWChain, klublotto.BlokWChainState,
+		klublotto.BlokWDead, klublotto.BlokWTight, klublotto.BlokWNear)
 
 	scores := make([]int, *n)
 	cells := make([]int, *n)
@@ -47,9 +49,11 @@ func main() {
 	elapsed := time.Since(start)
 
 	sort.Ints(scores)
-	sum := 0
-	for _, s := range scores {
-		sum += s
+	sort.Ints(cells)
+	sum, cellSum := 0, 0
+	for i := range scores {
+		sum += scores[i]
+		cellSum += cells[i]
 	}
 	mean := float64(sum) / float64(*n)
 	pct := func(p float64) int { return scores[int(p*float64(*n-1))] }
@@ -57,5 +61,7 @@ func main() {
 	fmt.Printf("games=%d  seed=%d  (%.1fs, %.0f games/s)\n", *n, *seed, elapsed.Seconds(), float64(*n)/elapsed.Seconds())
 	fmt.Printf("score:  mean=%.0f  min=%d  p25=%d  median=%d  p75=%d  p90=%d  max=%d\n",
 		mean, scores[0], pct(0.25), pct(0.50), pct(0.75), pct(0.90), scores[*n-1])
+	fmt.Printf("cells:  mean=%.0f  median=%d  (bonus share of score: %.0f%%)\n",
+		float64(cellSum)/float64(*n), cells[*n/2], 100*(1-float64(cellSum)/float64(sum)))
 	fmt.Printf("lod≥%d: %.0f%% of games (%d/%d)\n", *lod, 100*float64(lodHits)/float64(*n), lodHits, *n)
 }

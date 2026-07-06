@@ -434,13 +434,48 @@ func BlokApply(b [8][8]int, s [][]int, r, c int) ([8][8]int, int) {
 // simulator/harness (cmd/blok-sim) overrides them to A/B different settings so we
 // can tune the solver against thousands of games instead of the one live game/day.
 var (
-	BlokWSurvival = 10000 // per trio piece placed — dominates (never strand a piece)
-	BlokWClear    = 120   // per line cleared (survival proxy: frees space)
-	BlokWCombo    = 10    // combo unit: +10 for the 2nd clearing placement, +20 3rd…
-	BlokWDead     = 45    // penalty per dead 1x1 hole (unfillable)
-	BlokWTight    = 4     // penalty per tight single-neighbour empty cell
-	BlokWNear     = 10    // reward per near-complete-line unit (6/8→+1, 7/8→+2); tuned via cmd/blok-sim
+	BlokWSurvival   = 10000 // per trio piece placed — dominates (never strand a piece)
+	BlokWClear      = 120   // per line cleared (survival proxy: frees space)
+	BlokWChain      = 1     // multiplier on REAL chain-bonus points earned in the branch
+	BlokWChainState = 30    // terminal value per live chain step (future-payout proxy)
+	BlokWDead       = 45    // penalty per dead 1x1 hole (unfillable)
+	BlokWTight      = 4     // penalty per tight single-neighbour empty cell
+	BlokWNear       = 10    // reward per near-complete-line unit (6/8→+1, 7/8→+2); tuned via cmd/blok-sim
 )
+
+// BlokChain is the live combo-chain state, carried ACROSS trios (confirmed from
+// live traces: the escalation ran unbroken through ~8 trios on 2026-07-05).
+type BlokChain struct {
+	Len        int // clearing placements in the current chain (0 = no chain)
+	SinceClear int // placements since the last clear (>3 ⇒ chain expired)
+}
+
+// Advance transitions the chain across one placement and returns the REAL bonus
+// points that placement pays. Payout schedule fitted from live per-step score
+// deltas (2026-07-05, Δscore − Δcells): the k-th clearing placement of a chain
+// pays 10×(k−2) — the first TWO clears pay 0 — and a placement clearing multiple
+// lines at once pays NOTHING extra (one chain step, same bonus). This is the
+// single source of truth used by the simulator, the planner, and the driver.
+func (ch BlokChain) Advance(cleared bool) (BlokChain, int) {
+	if !cleared {
+		ch.SinceClear++
+		if ch.SinceClear > 3 {
+			ch.Len = 0
+		}
+		return ch, 0
+	}
+	if ch.Len > 0 && ch.SinceClear <= 3 {
+		ch.Len++
+	} else {
+		ch.Len = 1 // start (or restart) the chain
+	}
+	ch.SinceClear = 0
+	bonus := 10 * (ch.Len - 2)
+	if bonus < 0 {
+		bonus = 0
+	}
+	return ch, bonus
+}
 
 // blokQuality rewards open space, heavily penalises dead 1x1 holes (no piece is a
 // single cell) and tight single-neighbour gaps, and lightly rewards near-complete
@@ -502,26 +537,28 @@ func blokQuality(b [8][8]int) int {
 // GAME OVER. So the score is dominated by how many of the trio's pieces the branch
 // manages to PLACE (survivalWeight): a first move that clears a line but then
 // strands the 3x3 (fatal) must rank below one that places all three, even if the
-// fatal line scores more clears. Under that, we keep the 120/line survival proxy
-// for clearing (frees space for future trios) and the real COMBO bonus for chained
-// clears (1st starts the chain, 2nd +10, 3rd +20, …), which nudges the solver to
-// SPREAD clears across pieces. Returns moves best-first, tie-broken descending
-// (score, pi, r, c).
-func BlokPlan(board [8][8]int, shapes [][][]int) []BlokScoredMove {
+// fatal line scores more clears. Under that: the 120/line survival proxy for
+// clearing (frees space for future trios), the REAL chain payout for each clearing
+// placement (BlokChain.Advance — makes the lookahead sequence clears one line per
+// placement instead of clearing two at once, which the game pays nothing extra
+// for), and a terminal chain-state value (a live chain is future income the next
+// trio can harvest). chain is the LIVE chain state carried across trios by the
+// caller. Returns moves best-first, tie-broken descending (score, pi, r, c).
+func BlokPlan(board [8][8]int, shapes [][][]int, chain BlokChain) []BlokScoredMove {
 	type key struct{ Pi, R, C int }
 	results := map[key]int{}
 	nShapes := len(shapes)
 	// BlokWSurvival must dominate every other term so placing one more piece always
-	// wins: max reachable clear+combo+quality is well under it, so "place all 3"
+	// wins: max reachable clear+chain+quality is well under it, so "place all 3"
 	// strictly beats any "place 2 with big clears" (fatal) line.
-	// cl = total lines cleared in the trio (survival proxy); clears = number of
-	// PLACEMENTS that cleared ≥1 line (the combo length); combo = accumulated combo
-	// bonus so far (BlokWCombo for the 2nd clearing placement, 2× for the 3rd, …).
-	var rec func(bd [8][8]int, rem []int, first *key, cl, clears, combo int)
-	rec = func(bd [8][8]int, rem []int, first *key, cl, clears, combo int) {
+	// cl = total lines cleared in the trio (survival proxy); bonus = accumulated
+	// REAL chain payout in this branch; ch = chain state after the branch so far.
+	var rec func(bd [8][8]int, rem []int, first *key, cl, bonus int, ch BlokChain)
+	rec = func(bd [8][8]int, rem []int, first *key, cl, bonus int, ch BlokChain) {
 		if first != nil {
 			placed := nShapes - len(rem)
-			sc := placed*BlokWSurvival + cl*BlokWClear + combo + blokQuality(bd)
+			sc := placed*BlokWSurvival + cl*BlokWClear + BlokWChain*bonus +
+				BlokWChainState*ch.Len + blokQuality(bd)
 			if old, ok := results[*first]; !ok || sc > old {
 				results[*first] = sc
 			}
@@ -536,15 +573,11 @@ func BlokPlan(board [8][8]int, shapes [][][]int) []BlokScoredMove {
 					mv := key{pi, rc[0], rc[1]}
 					f = &mv
 				}
-				nClears, nCombo := clears, combo
-				if n > 0 {
-					nCombo += BlokWCombo * clears // 1st clearing placement +0, 2nd +10, 3rd +20…
-					nClears++
-				}
+				nch, pay := ch.Advance(n > 0)
 				rest := make([]int, 0, len(rem)-1)
 				rest = append(rest, rem[:k]...)
 				rest = append(rest, rem[k+1:]...)
-				rec(nb, rest, f, cl+n, nClears, nCombo)
+				rec(nb, rest, f, cl+n, bonus+pay, nch)
 			}
 		}
 	}
@@ -552,7 +585,7 @@ func BlokPlan(board [8][8]int, shapes [][][]int) []BlokScoredMove {
 	for i := range rem {
 		rem[i] = i
 	}
-	rec(board, rem, nil, 0, 0, 0)
+	rec(board, rem, nil, 0, 0, chain)
 
 	out := make([]BlokScoredMove, 0, len(results))
 	for mv, sc := range results {
