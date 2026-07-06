@@ -453,3 +453,7 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-05 06:43 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
 
+## [2026-07-06 04:22 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
+## [2026-07-06 04:22 UTC] ingest | quiz | I hvilket sydamerikansk land finder man den tørre Atacamaø… | outcome=submitted
+
