@@ -482,7 +482,8 @@ func (d *blokDriver) play(ctx context.Context, goal, maxSteps int) (blokResult, 
 			res.current, res.best, res.scored = cur, best, true
 			// Cross-check: the live score delta minus the cells placed is the REAL
 			// bonus the game paid. If it disagrees with our belief, trust the game
-			// and re-derive the chain length (bonus b>0 ⇒ this was clear #(b/10+2)).
+			// and re-derive the chain length (bonus b>0 ⇒ this was clear #(b/10+1),
+			// since the k-th clear pays 10×(k−1)).
 			if prevScore >= 0 {
 				obs := cur - prevScore - pieceCells(piece.Shape)
 				obsS = strconv.Itoa(obs)
@@ -491,11 +492,11 @@ func (d *blokDriver) play(ctx context.Context, goal, maxSteps int) (blokResult, 
 						steps, expBonus, obs)
 					switch {
 					case obs > 0:
-						chain = klublotto.BlokChain{Len: obs/10 + 2, SinceClear: 0}
+						chain = klublotto.BlokChain{Len: obs/10 + 1, SinceClear: 0}
 					case expClears > 0:
-						// A clear that paid 0 was chain step #1 or #2 — cap our belief.
-						if chain.Len > 2 {
-							chain.Len = 2
+						// A clear that paid 0 was the chain's FIRST clear — cap our belief.
+						if chain.Len > 1 {
+							chain.Len = 1
 						}
 					}
 				}

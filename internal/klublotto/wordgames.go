@@ -1179,8 +1179,10 @@ func extractOrdKloeverViaDOM(ctx context.Context, br *browser.Client) (OrdKloeve
 	st.VisualShape = strings.TrimSpace(board.VisualShape)
 	st.VisualBoard = strings.TrimSpace(board.VisualBoard)
 
-	st.Category = firstCapture(frameText, `(?im)\bKategori:?\s*([^\n]+)`)
-	st.Hint = firstCapture(frameText, `(?im)\b(?:Ledetråd|Hint):?\s*([^\n]+)`)
+	st.Category = firstCapture(frameText, `(?im)\bKategori:\s*([^\n]+)`)
+	// Require the colon: without it "Brug ledetråd" (the *use-hint* button) matches
+	// and captures the following keyboard letter (seen as a bogus "Hint: Q").
+	st.Hint = firstCapture(frameText, `(?im)\b(?:Ledetråd|Hint):\s+(\S[^\n]*)`)
 	if a := firstCapture(frameText, `(?im)(\d+)\s*/\s*12`); a != "" {
 		_, _ = fmt.Sscanf(a, "%d", &st.Attempts)
 	}

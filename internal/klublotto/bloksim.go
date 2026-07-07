@@ -7,9 +7,9 @@ import "math/rand"
 // measure the score distribution. The engine implements the real scoring rules:
 // +1 point per cell placed, and a combo chain — a line-clear starts the chain,
 // each further clear within the window extends it, and the k-th clearing
-// placement pays 10×(k−2) (the first two pay 0; multi-line clears pay nothing
-// extra) — see BlokChain.Advance, fitted from live traces 2026-07-05. Game over
-// when none of the remaining tray pieces fits.
+// placement pays 10×(k−1) (only the first clear is free; multi-line clears pay
+// nothing extra) — see BlokChain.Advance, confirmed from a continuous-chain live
+// trace 2026-07-07. Game over when none of the remaining tray pieces fits.
 //
 // The PIECE SET is a model of the game's bag, approximated from the observed
 // screenshots (dominoes, trominoes, all tetrominoes, the 3x3 L-pentomino, and the

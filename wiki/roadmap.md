@@ -210,15 +210,18 @@ every round, and (c) **uncropped screenshots**.
 
 Reverse-engineered the REAL scoring from the per-step CSV (`.klublotto/
 blok-scores.csv`): `bonus = Δscore − Δcells` per placement isolates the clear
-payouts. Observed bonuses across one game: 0, 0, 10, 20, 30, 40, 50, 60, 70,
-80, 90, 100 — one step per CLEARING PLACEMENT, escalating monotonically, with
-1–2 non-clearing placements between steps, **spanning ~8 trios unbroken**.
+payouts. **Payout: the k-th clearing placement of a chain pays `10×(k−1)`** —
+only the first clear is free, then +10 each (confirmed 2026-07-07 from a
+continuous 14-clear chain: 0,10,20,…,130). An earlier 07-05 read of "0,0,10,20"
+was a broken-and-restarted chain (two chain-firsts), which mis-fit `10×(k−2)`;
+see Blok-P1 note. One step per CLEARING PLACEMENT, escalating monotonically,
+with 1–2 non-clearing placements between steps, **spanning many trios unbroken**.
 
 ## Confirmed payout model (vs what we implement)
 
 | Rule (observed) | Simulator (`bloksim.go`) | Planner (`BlokPlan`) |
 |---|---|---|
-| k-th clearing placement of a chain pays **10×(k−2)** (first TWO clears pay 0) | pays 10×(k−1) — one step too generous | `BlokWCombo×clears` ≈ same off-by-one, within-trio only |
+| k-th clearing placement of a chain pays **10×(k−1)** (only the FIRST clear is free) | ✅ `BlokChain.Advance` (fixed 2026-07-07) | ✅ real payout accumulated in the lookahead |
 | **Multi-line simultaneous clears pay NOTHING extra** (step 15: 2 lines → 40; step 18: row+col 15 cells → 50; step 29: 2 lines → 100) | ✅ correct (per placement) | ❌ values `cl×120` per LINE → indifferent between clearing 2 lines at once vs sequencing them, when sequencing pays ~double (two chain steps) |
 | **Chain persists across trios** (escalation ran unbroken through ~8 trios) | ✅ tracks `comboLen`/`sinceClear` across trios | ❌ every `BlokPlan` call starts at `clears=0, combo=0`; driver passes no chain state |
 | Chain-reset window: no reset observed with gaps ≤2; assumed "clear within 3 placements" | uses ≤3 | n/a |
@@ -235,9 +238,15 @@ fix — compare like-for-like only.)
 
 ### Blok-P1 — model the real payout, make the planner chain-aware — ✅ DONE 2026-07-05
 1. ✅ **Fix the sim payout:** `BlokChain.Advance` (blok.go) is the single source
-   of truth — k-th clearing placement pays `10×max(0, k−2)`, per-placement
+   of truth — k-th clearing placement pays `10×(k−1)`, per-placement
    (multi-line pays no extra), chain dies after 4 non-clearing placements.
    Sim, planner, and driver all use it. Pinned by `TestBlokChainAdvance`.
+   **Corrected 2026-07-07:** the 07-05 fit read `10×(k−2)` ("first TWO free")
+   from a broken-and-restarted chain; the 07-07 continuous-chain live trace
+   (14 clears, bonuses 0,10,20,…,130) proves `10×(k−1)` ("first ONE free").
+   The 07-05 live score was still correct only because the driver's score-delta
+   cross-check re-synced our counter +1 above the true clear count, cancelling
+   the −1 formula error. Driver re-sync updated to `Len = obs/10 + 1`.
 2. ✅ **Chain-aware planning:** `BlokPlan(board, shapes, chain BlokChain)`
    accumulates the REAL payout per clearing placement + a terminal
    `BlokWChainState×Len` future-income value. New weights `BlokWChain=1`,
@@ -249,12 +258,17 @@ fix — compare like-for-like only.)
    delta each step (re-syncs `Len = bonus/10 + 2` when the game disagrees);
    CSV gains `clears,chain_len,bonus_exp,bonus_obs` columns.
 
-**A/B validation (n=150, seed 1, corrected payout, paired seeds):**
-chain-blind mean 11,038 / median 3,789 → **chain-aware mean 19,457 / median
-6,288 (+76% / +66%)**, cells 422→469 (chain play survives LONGER — sequenced
+**A/B validation (n=150, seed 1, corrected `10×(k−1)` payout, paired seeds):**
+chain-blind mean 11,460 / median 4,059 → **chain-aware mean 19,964 / median
+6,638 (+74% / +64%)**, cells 422→469 (chain play survives LONGER — sequenced
 single-line clears keep the board flatter), lod 94→95%. A stronger pull
 (chain=3, state=60) was statistically identical — the light defaults are kept.
-Live validation: next `make blok` run.
+
+**Live validation 2026-07-07: score 1054 — a new record (prev 660).** The
+chain ran essentially unbroken from step 5 to step 34, escalating to chain=15
+(+130/clear); bonuses were 910 of the 1054. This trace is what corrected the
+payout model above (only the first clear is free). With the fix, the single
+step-6 cross-check re-sync that occurred would no longer fire.
 
 ### Blok-P2 — survival beyond the trio + retune — NOT STARTED
 4. ⬜ **3x3-fit safety term:** end-of-trio boards where no 3×3 fits anywhere are

@@ -451,11 +451,15 @@ type BlokChain struct {
 }
 
 // Advance transitions the chain across one placement and returns the REAL bonus
-// points that placement pays. Payout schedule fitted from live per-step score
-// deltas (2026-07-05, Δscore − Δcells): the k-th clearing placement of a chain
-// pays 10×(k−2) — the first TWO clears pay 0 — and a placement clearing multiple
-// lines at once pays NOTHING extra (one chain step, same bonus). This is the
-// single source of truth used by the simulator, the planner, and the driver.
+// points that placement pays. Payout schedule confirmed from a full continuous
+// chain in live per-step score deltas (2026-07-07, Δscore − Δcells): the k-th
+// clearing placement of a chain pays 10×(k−1) — only the FIRST clear is free,
+// then +10 each (0, 10, 20, … up to +130 over 14 clears) — and a placement
+// clearing multiple lines at once pays NOTHING extra (one chain step, same
+// bonus). (An earlier fit from a 2026-07-05 trace read "first TWO free"; that
+// trace was a broken-and-restarted chain — the continuous 07-07 data is
+// authoritative.) This is the single source of truth used by the simulator, the
+// planner, and the driver.
 func (ch BlokChain) Advance(cleared bool) (BlokChain, int) {
 	if !cleared {
 		ch.SinceClear++
@@ -470,11 +474,7 @@ func (ch BlokChain) Advance(cleared bool) (BlokChain, int) {
 		ch.Len = 1 // start (or restart) the chain
 	}
 	ch.SinceClear = 0
-	bonus := 10 * (ch.Len - 2)
-	if bonus < 0 {
-		bonus = 0
-	}
-	return ch, bonus
+	return ch, 10 * (ch.Len - 1) // 1st clear +0, 2nd +10, 3rd +20…
 }
 
 // blokQuality rewards open space, heavily penalises dead 1x1 holes (no piece is a

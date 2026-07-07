@@ -167,11 +167,11 @@ func TestBlokPlanPrefersLineClear(t *testing.T) {
 }
 
 func TestBlokChainAdvance(t *testing.T) {
-	// Payout schedule fitted from the 2026-07-05 live trace: the k-th clearing
-	// placement pays 10×(k−2), the first two pay 0; the chain survives gaps of
-	// ≤3 non-clearing placements and dies on the 4th.
+	// Payout schedule confirmed from the 2026-07-07 continuous-chain live trace:
+	// the k-th clearing placement pays 10×(k−1) — only the FIRST clear is free —
+	// and the chain survives gaps of ≤3 non-clearing placements, dying on the 4th.
 	var ch BlokChain
-	wantPay := []int{0, 0, 10, 20, 30}
+	wantPay := []int{0, 10, 20, 30, 40}
 	for k, want := range wantPay {
 		var pay int
 		ch, pay = ch.Advance(true)
@@ -187,8 +187,8 @@ func TestBlokChainAdvance(t *testing.T) {
 		t.Fatalf("chain died too early: len=%d after 3 non-clears", ch.Len)
 	}
 	ch, pay := ch.Advance(true)
-	if pay != 40 || ch.Len != 6 {
-		t.Fatalf("clear #6 after gap: pay=%d len=%d, want 40/6", pay, ch.Len)
+	if pay != 50 || ch.Len != 6 {
+		t.Fatalf("clear #6 after gap: pay=%d len=%d, want 50/6", pay, ch.Len)
 	}
 	// Four non-clears kill it; the next clear restarts at len 1, pay 0.
 	for i := 0; i < 4; i++ {
@@ -205,10 +205,10 @@ func TestBlokChainAdvance(t *testing.T) {
 
 func TestBlokPlanRewardsChainedClears(t *testing.T) {
 	// Rows 0 and 7 each need their last two cells; two 1x2 pieces each complete
-	// one row → two SEPARATE clearing placements. From a cold chain both pay 0
-	// real bonus (clears #1 and #2), but the branch ends with a LIVE chain of 2.
-	// Expected top score: survival + 2 lines × 120 + 2×BlokWChainState +
-	// quality(empty board)=64.
+	// one row → two SEPARATE clearing placements. From a cold chain the 1st clear
+	// pays 0 and the 2nd pays 10, and the branch ends with a LIVE chain of 2.
+	// Expected top score: survival + 2 lines × 120 + BlokWChain×10 bonus +
+	// 2×BlokWChainState + quality(empty board)=64.
 	var b [8][8]int
 	for c := 0; c < 6; c++ {
 		b[0][c] = 1
@@ -219,9 +219,9 @@ func TestBlokPlanRewardsChainedClears(t *testing.T) {
 	if len(ranked) == 0 {
 		t.Fatal("no moves planned")
 	}
-	want := 2*10000 + 2*120 + 2*BlokWChainState + 64
+	want := 2*10000 + 2*120 + BlokWChain*10 + 2*BlokWChainState + 64
 	if ranked[0].Score != want {
-		t.Fatalf("top score = %d, want %d (survival + clears + live-chain state)", ranked[0].Score, want)
+		t.Fatalf("top score = %d, want %d (survival + clears + chain bonus + live-chain state)", ranked[0].Score, want)
 	}
 }
 
@@ -231,8 +231,8 @@ func TestBlokPlanSequencesClearsOverDoubleClear(t *testing.T) {
 	// 1x2 (row 0 alone, then the 2x2 finishes row 1 → TWO clearing placements).
 	// The game pays NOTHING extra for a multi-line clear, so with a live chain of
 	// 3 the real payout makes sequencing strictly better:
-	//   double clear: pay 10×(4−2)=20, chain ends at 4
-	//   sequenced:    pays 20 + 30 = 50, chain ends at 5
+	//   double clear: pay 10×(4−1)=30, chain ends at 4
+	//   sequenced:    pays 30 + 40 = 70, chain ends at 5
 	// The top-ranked FIRST move must be the 1x2 at (0,6), not the 2x2 double clear.
 	var b [8][8]int
 	for c := 0; c < 6; c++ {
