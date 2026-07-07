@@ -20,6 +20,9 @@
   "506": [
     "DVI"
   ],
+  "55": [
+    "LV"
+  ],
   "ALTSÅ": [
     "ERGO"
   ],
@@ -50,6 +53,9 @@
   "BABYUDSTYR": [
     "BLE",
     "SUT"
+  ],
+  "BALANCE": [
+    "RO"
   ],
   "BALJE": [
     "KAR"
@@ -191,6 +197,9 @@
   "DA": [
     "IDET"
   ],
+  "DANS": [
+    "JITTERBUG"
+  ],
   "DEJLIGT": [
     "RART"
   ],
@@ -243,6 +252,9 @@
   ],
   "DØRSLAG": [
     "SI"
+  ],
+  "EFTER": [
+    "BAG"
   ],
   "EFTERSKRIFT": [
     "PS"
@@ -328,10 +340,14 @@
     "MODE"
   ],
   "FEDTSTOF": [
-    "OLIE"
+    "OLIE",
+    "SMØR"
   ],
   "FEDTSTOFFET": [
     "OLIEN"
+  ],
+  "FESTKJOLE": [
+    "ROBE"
   ],
   "FESTSAL": [
     "AULA"
@@ -360,7 +376,8 @@
   ],
   "FISK": [
     "ÅL",
-    "TUN"
+    "TUN",
+    "ØRRED"
   ],
   "FISKE": [
     "MEDE"
@@ -485,6 +502,9 @@
   "GODT": [
     "VEL"
   ],
+  "GOLFUDSTYR": [
+    "TEE"
+  ],
   "GRAM": [
     "G"
   ],
@@ -573,6 +593,9 @@
   "HORISONTALE": [
     "VANDRETTE"
   ],
+  "HOT": [
+    "IN"
+  ],
   "HOVEDSTAD": [
     "OSLO",
     "NUUK"
@@ -582,6 +605,9 @@
   ],
   "HUNDSE": [
     "HERSE"
+  ],
+  "HYLSTER": [
+    "ETUI"
   ],
   "HYREN": [
     "ÅRSLØNNEN"
@@ -685,6 +711,9 @@
     "BUTIK",
     "ISBOD"
   ],
+  "KIRKEJOB": [
+    "DEGN"
+  ],
   "KLARE": [
     "TÅLE"
   ],
@@ -718,6 +747,9 @@
   "KORN": [
     "BYG",
     "RUG"
+  ],
+  "KORPS": [
+    "GARDE"
   ],
   "KORRIGERE": [
     "RETTE"
@@ -832,6 +864,9 @@
   "LITER": [
     "L"
   ],
+  "LOYAL": [
+    "TRO"
+  ],
   "LUKKET": [
     "NEDLAGT"
   ],
@@ -927,7 +962,11 @@
   ],
   "MÆRKE": [
     "AR",
-    "LOGO"
+    "LOGO",
+    "EMBLEM"
+  ],
+  "MØDES": [
+    "SES"
   ],
   "MØNT": [
     "TIER"
@@ -994,6 +1033,9 @@
   "ORGANISATION": [
     "NASA"
   ],
+  "OST": [
+    "BRIE"
+  ],
   "OVERSIGT": [
     "MENU"
   ],
@@ -1012,6 +1054,9 @@
   ],
   "PASTASTYKKE": [
     "NUDEL"
+  ],
+  "PATINA": [
+    "IR"
   ],
   "PAVE": [
     "LEO"
@@ -1049,6 +1094,9 @@
     "LØG",
     "ROD"
   ],
+  "PLUS": [
+    "OG"
+  ],
   "POKAL": [
     "CUP"
   ],
@@ -1061,6 +1109,9 @@
   "PRIS": [
     "ROS"
   ],
+  "PRIVAT": [
+    "EGEN"
+  ],
   "PRIVATE": [
     "EGNE"
   ],
@@ -1069,6 +1120,9 @@
   ],
   "PROPPET": [
     "FYLDT"
+  ],
+  "PRÆSTEDRAGT": [
+    "ORNAT"
   ],
   "PÅDETTESTED": [
     "HER"
@@ -1108,6 +1162,9 @@
   ],
   "REX": [
     "R"
+  ],
+  "ROD": [
+    "UREDE"
   ],
   "ROYALFORKORTELSE": [
     "KGL"
@@ -1416,6 +1473,9 @@
   "TIDSRUM": [
     "EPOKE"
   ],
+  "TILATREGULERE": [
+    "JUSTERBARE"
+  ],
   "TILBEHØR": [
     "GELE"
   ],
@@ -1504,13 +1564,17 @@
     "NÆRE"
   ],
   "UDBRUD": [
-    "AV"
+    "AV",
+    "ØV"
   ],
   "UDVALG": [
     "NÆVN"
   ],
   "UJÆVN": [
     "RU"
+  ],
+  "UNDERLIG": [
+    "SÆR"
   ],
   "UNDERTRYKKE": [
     "KUE"
@@ -1586,6 +1650,9 @@
   "VREDE": [
     "RASERI"
   ],
+  "VRISSE": [
+    "SNERRE"
+  ],
   "VULKAN": [
     "ETNA"
   ],
@@ -1637,6 +1704,9 @@
   "[IMG]BLACKDIEWITHONEPIP": [
     "ENER"
   ],
+  "[IMG]BOOKS": [
+    "BØGER"
+  ],
   "[IMG]BOOKSHELF": [
     "REOL"
   ],
@@ -1650,7 +1720,8 @@
     "KAMERA"
   ],
   "[IMG]CASTLE": [
-    "SLOT"
+    "SLOT",
+    "BORG"
   ],
   "[IMG]CHAIRS": [
     "STOLE"
@@ -1660,6 +1731,9 @@
   ],
   "[IMG]CINNAMONROLL": [
     "REB"
+  ],
+  "[IMG]CLOCK": [
+    "UR"
   ],
   "[IMG]CLOVER": [
     "KLØVER"
@@ -1793,6 +1867,9 @@
   ],
   "ÆGTE": [
     "AUTENTISK"
+  ],
+  "ØBO": [
+    "IRER"
   ],
   "ØDELAGT": [
     "ITU"
