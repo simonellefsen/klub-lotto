@@ -82,11 +82,17 @@
     "VASE",
     "DÅSE"
   ],
+  "BEHOLDERE": [
+    "TØNDER"
+  ],
   "BELGIEN": [
     "B"
   ],
   "BEMÆRK": [
     "NB"
+  ],
+  "BESAD": [
+    "EJEDE"
   ],
   "BESKED": [
     "SMS"
@@ -194,6 +200,9 @@
   "CYKELDEL": [
     "PEDAL"
   ],
+  "CYKELUDSTYR": [
+    "GEAR"
+  ],
   "DA": [
     "IDET"
   ],
@@ -248,7 +257,8 @@
     "ÆSEL",
     "LOS",
     "GRIS",
-    "ILDERE"
+    "ILDERE",
+    "REN"
   ],
   "DØRSLAG": [
     "SI"
@@ -312,6 +322,9 @@
   "EXIT": [
     "UD"
   ],
+  "FABELFUGL": [
+    "ROK"
+  ],
   "FAGPERSON": [
     "CYKELSMED"
   ],
@@ -360,7 +373,8 @@
     "ASA"
   ],
   "FILTER": [
-    "SI"
+    "SI",
+    "TESI"
   ],
   "FINDES": [
     "ER"
@@ -377,7 +391,8 @@
   "FISK": [
     "ÅL",
     "TUN",
-    "ØRRED"
+    "ØRRED",
+    "ABORRE"
   ],
   "FISKE": [
     "MEDE"
@@ -461,7 +476,8 @@
   ],
   "FUGLE": [
     "ØRNE",
-    "STÆRE"
+    "STÆRE",
+    "KOLIBRIER"
   ],
   "FURER": [
     "RILLER"
@@ -584,6 +600,9 @@
   "HOLDTTÆT": [
     "TIET"
   ],
+  "HOLM": [
+    "Ø"
+  ],
   "HOLME": [
     "ØER"
   ],
@@ -619,6 +638,9 @@
   "HÅNDARBEJDE": [
     "SYTØJ"
   ],
+  "HÆLDT": [
+    "ØSET"
+  ],
   "HÆNDT": [
     "SKET"
   ],
@@ -633,6 +655,9 @@
   ],
   "IFORHOLDTIL": [
     "END"
+  ],
+  "IKKENOGET": [
+    "INTET"
   ],
   "ILDSTED": [
     "ESSE"
@@ -832,7 +857,8 @@
     "SUL"
   ],
   "KØKKENUDSTYR": [
-    "HÅNDMIKSER"
+    "HÅNDMIKSER",
+    "KASSEROLLE"
   ],
   "LARGE": [
     "L"
@@ -845,6 +871,9 @@
   ],
   "LED": [
     "KNO"
+  ],
+  "LEDIG": [
+    "FRI"
   ],
   "LEGEMSDEL": [
     "BEN"
@@ -930,6 +959,9 @@
   ],
   "MONETER": [
     "PENGE"
+  ],
+  "MONOPOL": [
+    "ENERET"
   ],
   "MONOTONT": [
     "ENSFORMIGT"
@@ -1085,7 +1117,8 @@
     "GENERE"
   ],
   "PLANTE": [
-    "BLÅBÆRBUSK"
+    "BLÅBÆRBUSK",
+    "ARALIE"
   ],
   "PLANTEDEL": [
     "AKS",
@@ -1204,6 +1237,9 @@
   "SAMT": [
     "OG"
   ],
+  "SANG": [
+    "ARIE"
+  ],
   "SIKKERT": [
     "NOK"
   ],
@@ -1251,6 +1287,9 @@
   ],
   "SKRIVER": [
     "PEN"
+  ],
+  "SKRÅNING": [
+    "LI"
   ],
   "SKRÆMME": [
     "TRUE"
@@ -1404,6 +1443,9 @@
     "EM",
     "NM",
     "VM"
+  ],
+  "SVAR": [
+    "JA"
   ],
   "SVIMMEL": [
     "ØR"
@@ -1567,6 +1609,9 @@
     "AV",
     "ØV"
   ],
+  "UDENINDHOLD": [
+    "TOM"
+  ],
   "UDVALG": [
     "NÆVN"
   ],
@@ -1710,6 +1755,9 @@
   "[IMG]BOOKSHELF": [
     "REOL"
   ],
+  "[IMG]BOUQUETOFFLOWERS": [
+    "BUKET"
+  ],
   "[IMG]BRICKWALL": [
     "MUR"
   ],
@@ -1790,11 +1838,17 @@
   "[IMG]LION": [
     "LØVE"
   ],
+  "[IMG]MOONANDSTARS": [
+    "NAT"
+  ],
   "[IMG]MUSICALNOTES": [
     "NODER"
   ],
   "[IMG]NESTWITHEGGS": [
     "REDE"
+  ],
+  "[IMG]OMEGASYMBOL": [
+    "OMEGA"
   ],
   "[IMG]PADDLE": [
     "ÅRE"
@@ -1831,6 +1885,9 @@
   ],
   "[IMG]SOCKS": [
     "SOKKER"
+  ],
+  "[IMG]STEERINGWHEEL": [
+    "RAT"
   ],
   "[IMG]STITCHES": [
     "AR"

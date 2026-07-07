@@ -471,3 +471,11 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-07 04:37 UTC] ingest | quiz | Hvilket land har det eneste nationalflag i verden der ikke e… | outcome=submitted
 
+## [2026-07-07 04:38 UTC] ingest | ordkløver | Category: `Ferie og fritid`; hint: `Q`; answer pattern `5 / … | outcome=submitted
+
+## [2026-07-07 04:52 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-07-07 04:57 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
+
+## [2026-07-07 05:03 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+
