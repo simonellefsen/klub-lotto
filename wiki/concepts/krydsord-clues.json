@@ -23,6 +23,9 @@
   "55": [
     "LV"
   ],
+  "ACEOFDIAMONDSPLAYINGCARD": [
+    "ES"
+  ],
   "ALTSÅ": [
     "ERGO"
   ],
@@ -66,6 +69,9 @@
   "BANDEORD": [
     "EDER"
   ],
+  "BASSIN": [
+    "POOL"
+  ],
   "BATTERITYPE": [
     "AA"
   ],
@@ -73,6 +79,9 @@
     "ROE",
     "FÅR",
     "BØN"
+  ],
+  "BEGÆRET": [
+    "ATTRÅET"
   ],
   "BEHAGELIGE": [
     "RARE"
@@ -179,6 +188,9 @@
   "BULDER": [
     "TORDEN"
   ],
+  "BYERNESBY": [
+    "PARIS"
+  ],
   "BÆR": [
     "RIBS"
   ],
@@ -258,7 +270,8 @@
     "LOS",
     "GRIS",
     "ILDERE",
-    "REN"
+    "REN",
+    "ORM"
   ],
   "DØRSLAG": [
     "SI"
@@ -472,7 +485,8 @@
     "MEJSE",
     "SPURV",
     "STORK",
-    "SVANE"
+    "SVANE",
+    "ALK"
   ],
   "FUGLE": [
     "ØRNE",
@@ -487,6 +501,9 @@
   ],
   "FØDEN": [
     "MADEN"
+  ],
+  "FØLGELIG": [
+    "ERGO"
   ],
   "FØRØ": [
     "Æ"
@@ -503,6 +520,9 @@
   "GEMME": [
     "BEVARE"
   ],
+  "GENLYD": [
+    "EKKO"
+  ],
   "GIDE": [
     "ORKE"
   ],
@@ -511,6 +531,9 @@
   ],
   "GLKARAKTR": [
     "UG"
+  ],
+  "GNAVEDE": [
+    "BED"
   ],
   "GODMODIG": [
     "MILD"
@@ -644,6 +667,12 @@
   "HÆNDT": [
     "SKET"
   ],
+  "HØFLIGTILTALE": [
+    "DE"
+  ],
+  "HØJTGRIN": [
+    "LATTERBRØL"
+  ],
   "IDAG": [
     "DD"
   ],
@@ -700,6 +729,9 @@
   "JEG": [
     "EGO"
   ],
+  "JO": [
+    "DES"
+  ],
   "JOB": [
     "MALER",
     "PLADS",
@@ -716,6 +748,9 @@
   ],
   "JÆVN": [
     "EGAL"
+  ],
+  "JÆVNE": [
+    "LIERE"
   ],
   "KAGE": [
     "ROULADE"
@@ -781,7 +816,8 @@
   ],
   "KORT": [
     "ES",
-    "TREERE"
+    "TREERE",
+    "JOKER"
   ],
   "KORTBOG": [
     "ATLAS"
@@ -859,6 +895,9 @@
   "KØKKENUDSTYR": [
     "HÅNDMIKSER",
     "KASSEROLLE"
+  ],
+  "KØRETØJ": [
+    "ELBIL"
   ],
   "LARGE": [
     "L"
@@ -997,6 +1036,9 @@
     "LOGO",
     "EMBLEM"
   ],
+  "MØBLER": [
+    "LÆNESTOLE"
+  ],
   "MØDES": [
     "SES"
   ],
@@ -1046,6 +1088,9 @@
   "OFTE": [
     "TIT"
   ],
+  "OMRÅDER": [
+    "EGNE"
+  ],
   "OMSLAG": [
     "BLE"
   ],
@@ -1058,6 +1103,9 @@
   ],
   "OPHÆNG": [
     "URO"
+  ],
+  "OPREGNET": [
+    "TALT"
   ],
   "OPTEGNELSE": [
     "NOTE"
@@ -1160,6 +1208,9 @@
   "PÅDETTESTED": [
     "HER"
   ],
+  "PÅLÆG": [
+    "OST"
+  ],
   "RAMMER": [
     "KARME"
   ],
@@ -1169,6 +1220,9 @@
     "FIL",
     "DÅSEÅBNER",
     "FORK"
+  ],
+  "REDSKABER": [
+    "ØKSER"
   ],
   "REJSE": [
     "ODYSSE"
@@ -1240,6 +1294,9 @@
   "SANG": [
     "ARIE"
   ],
+  "SIGERJATIL": [
+    "ÆGTER"
+  ],
   "SIKKERT": [
     "NOK"
   ],
@@ -1249,6 +1306,9 @@
   ],
   "SINGULARIS": [
     "ENTAL"
+  ],
+  "SJOV": [
+    "SPAS"
   ],
   "SJUSKER": [
     "SLØSER"
@@ -1277,6 +1337,9 @@
   ],
   "SKILTETEKST": [
     "P"
+  ],
+  "SKIMTE": [
+    "ANE"
   ],
   "SKIMTER": [
     "ANER"
@@ -1422,11 +1485,17 @@
   "STRYGE": [
     "AE"
   ],
+  "STRØGET": [
+    "AET"
+  ],
   "STRØM": [
     "EL"
   ],
   "STUEN": [
     "ST"
+  ],
+  "STYRESYSTEM": [
+    "IOS"
   ],
   "STÆDIG": [
     "UFORSONLIG"
@@ -1531,7 +1600,8 @@
     "LOK"
   ],
   "TOENS": [
-    "OO"
+    "OO",
+    "TT"
   ],
   "TON": [
     "T"
@@ -1618,6 +1688,12 @@
   "UJÆVN": [
     "RU"
   ],
+  "UKENDT": [
+    "NN"
+  ],
+  "ULMET": [
+    "GÆRET"
+  ],
   "UNDERLIG": [
     "SÆR"
   ],
@@ -1641,6 +1717,9 @@
   ],
   "VANDLØBET": [
     "ÅEN"
+  ],
+  "VANDRE": [
+    "GÅ"
   ],
   "VANHELD": [
     "UTUR"
@@ -1840,6 +1919,9 @@
   ],
   "[IMG]MOONANDSTARS": [
     "NAT"
+  ],
+  "[IMG]MOUNTAIN": [
+    "BJERG"
   ],
   "[IMG]MUSICALNOTES": [
     "NODER"
