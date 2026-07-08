@@ -209,9 +209,15 @@ func runKrydsord(ctx context.Context, args []string) error {
 				if b, rerr := os.ReadFile(filepath.Join(os.TempDir(), "krydsord-vision-raw.txt")); rerr == nil && len(b) > 0 {
 					_ = os.WriteFile(filepath.Join(cfg.DataDir, "krydsord-vision-raw.txt"), b, 0o644)
 				}
-				// Cache the clues so a restart on this same puzzle reuses them.
-				if err := klublotto.SaveKrydsordClueCache(cfg.DataDir, data.CrosswordID, clues); err == nil && len(clues) > 0 {
-					fmt.Printf("       cached %d clues to %s for reuse on restart\n", len(clues), klublotto.KrydsordClueCachePath(cfg.DataDir, data.CrosswordID))
+				// Cache the clues so a restart on this same puzzle reuses them —
+				// but ONLY when coverage is complete. Caching a partial read would
+				// pin the missing clues (e.g. a dropped BEGÆRET) for the rest of the
+				// day; a re-run then re-reads and can recover them.
+				covered, total := klublotto.KrydsordClueCoverage(data, clues)
+				if covered < total {
+					fmt.Printf("       clue coverage %d/%d — NOT caching (a re-run will re-read the missed cells)\n", covered, total)
+				} else if err := klublotto.SaveKrydsordClueCache(cfg.DataDir, data.CrosswordID, clues); err == nil && len(clues) > 0 {
+					fmt.Printf("       cached %d clues (coverage %d/%d) to %s for reuse on restart\n", len(clues), covered, total, klublotto.KrydsordClueCachePath(cfg.DataDir, data.CrosswordID))
 				}
 			}
 			fmt.Printf("       %d clues extracted\n", len(clues))
@@ -1386,19 +1392,32 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 	}
 
 	// Retry, feeding back which slots are missing or which crossings conflict.
+	// A reasoning model at medium effort can think past 3 minutes on a 40+ slot
+	// grid (seen live: attempt 1 "context deadline exceeded"). Give each attempt
+	// 300s, and after a TIMEOUT drop to reasoning effort=low for the remaining
+	// attempts so they answer within budget — the dictionary already pre-fixes
+	// several slots and seeds candidates, so low effort is usually enough.
 	const maxAttempts = 3
+	const attemptTimeout = 300 * time.Second
 	var lastErr error
 	for attempt := 1; attempt <= maxAttempts; attempt++ {
 		prompt := basePrompt
 		if lastErr != nil {
 			prompt += fmt.Sprintf("\nForrige forsøg var forkert: %v\nRet svarene: hvert slot skal have et svar med korrekt længde, og delte celler skal have samme bogstav.\n", lastErr)
 		}
-		modelCtx, cancel := context.WithTimeout(ctx, 180*time.Second)
+		modelCtx, cancel := context.WithTimeout(ctx, attemptTimeout)
 		raw, genErr := p.GenerateJSON(modelCtx, prompt, 0.05)
 		cancel()
 		if genErr != nil {
 			lastErr = genErr
 			fmt.Printf("       [assemble] attempt %d/%d: model error: %v\n", attempt, maxAttempts, genErr)
+			if or, ok := p.(*llm.OpenRouter); ok && or.ReasoningEffort != "low" &&
+				(errors.Is(genErr, context.DeadlineExceeded) || strings.Contains(genErr.Error(), "context deadline")) {
+				cp := *or
+				cp.ReasoningEffort = "low"
+				p = &cp
+				fmt.Println("       [assemble] timeout — dropping to reasoning effort=low for the retry")
+			}
 			continue
 		}
 		_ = os.WriteFile(filepath.Join(cfg.DataDir, "krydsord-assemble-raw.txt"), []byte(raw), 0o644)

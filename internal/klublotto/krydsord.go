@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -660,7 +661,7 @@ CRITICAL LAYOUT RULES — follow these exactly:
 - Top-row single clues (the horizontal texts in the top row of clue cells, e.g. BE-STEMTE, OPHØJE, NORGE...) normally govern the VERTICAL (down) runs starting downward from that column.
 - Left-edge single clues (texts in the leftmost column of clue cells, e.g. ALMINDELIGHED, LØFTE, FORBI...) normally govern the HORIZONTAL (across) runs starting to the right.
 - In a SPLIT clue square (one cell contains two lines/texts, one above the other, often with a line between), the UPPER text is usually the clue for the ACROSS run to the right; the LOWER text is for the DOWN run downward.
-- The dark red "Klub LOTTO" logo in the upper-left corner (with the small logo) and the small tea-bag icon in the top-right green cell are branding/prize indicators — they are NOT clues. Never transcribe "Klub LOTTO", "Lotto", or the tea bag as a clue unless it is clearly part of a puzzle clue cell.
+- The dark red "Klub LOTTO" logo in the upper-left corner and the small icon in the top-right GREEN cell are branding/prize indicators — they are NOT clues. The prize icon varies day to day (a tea bag, a playing card, a coin, or any small picture) — whatever small icon sits in that green top-right cell is the prize, never a clue. Never transcribe "Klub LOTTO", "Lotto", or the green-cell prize icon as a clue unless it is clearly part of a real puzzle clue cell.
 
 Geometry mask (. = clue cell that contains text or an icon, # = blank answer cell to fill):
 %s
@@ -735,8 +736,32 @@ Output ONLY the CLUE lines (one per clue cell or split part). If you identify ~3
 		return nil, fmt.Errorf("vision clue extract: %w", callErr)
 	}
 
-	// Parse line-based format (robust to truncation — we take whatever lines we got).
-	// img=true is optional and marks a picture/icon clue.
+	// Parse the line-based format (robust to truncation — take whatever we got) and
+	// map positions to our structural slots (1:1, geometry-corrected).
+	vclues := parseVisionClueLines(text)
+	clues := mapVisionCluesToSlots(data, vclues)
+
+	// Coverage re-ask: any length≥2 slot the 1:1 mapper left WITHOUT a clue is a
+	// missed read (the mapper leaves genuinely-unmatched slots empty rather than
+	// stealing a neighbour's clue, which used to hide drops like BEGÆRET). Ask the
+	// model once more for just those clue cells and re-map the union.
+	if missing := uncoveredClueCells(data, clues); len(missing) > 0 {
+		fmt.Printf("   [vision] %d clue cell(s) uncovered after first pass — targeted re-ask\n", len(missing))
+		if more, ok := reaskKrydsordClueCells(ctx, imgBytes, ac, missing); ok && len(more) > 0 {
+			vclues = append(vclues, more...)
+			clues = mapVisionCluesToSlots(data, vclues)
+			if still := uncoveredClueCells(data, clues); len(still) > 0 {
+				fmt.Printf("   [vision] %d clue cell(s) still uncovered after re-ask\n", len(still))
+			}
+		}
+	}
+	return clues, nil
+}
+
+// parseVisionClueLines pulls "CLUE row=.. col=.. dir=.. [img=..] clue=\"..\"" lines
+// out of a vision response into raw visionClues. Tolerant of surrounding prose and
+// truncation — every well-formed line is kept.
+func parseVisionClueLines(text string) []visionClue {
 	var vclues []visionClue
 	re := regexp.MustCompile(`(?i)CLUE\s+row=(\d+)\s+col=(\d+)\s+dir=(across|down)(?:\s+img=(true|false))?\s+clue="([^"]+)"`)
 	for _, line := range strings.Split(text, "\n") {
@@ -753,10 +778,113 @@ Output ONLY the CLUE lines (one per clue cell or split part). If you identify ~3
 			})
 		}
 	}
+	return vclues
+}
 
-	// Map positions reported by vision to our structural slots using geometry + rules.
-	// This step corrects many model mistakes on direction/position.
-	return mapVisionCluesToSlots(data, vclues), nil
+// krydsordMissingClue describes a length≥2 slot that came back without a clue,
+// plus the board coordinate of its governing CLUE cell (across → the cell to the
+// left of the answer start; down → the cell above it) so a targeted vision
+// re-ask knows exactly where to look.
+type krydsordMissingClue struct {
+	SlotID    string
+	Direction string
+	Length    int
+	ClueRow   int
+	ClueCol   int
+}
+
+// slotClueCell returns the 1-based board coordinate of the clue cell governing a
+// slot: one cell left of an across answer, one cell above a down answer.
+func slotClueCell(s KrydsordSlot) (row, col int) {
+	if s.Direction == "across" {
+		return s.Row, s.Col - 1
+	}
+	return s.Row - 1, s.Col
+}
+
+// uncoveredClueCells lists the length≥2 slots left without a clue after mapping.
+// Speculative 1-letter slots are excluded — they are optionally clued and their
+// cell is already fixed by the crossing word.
+func uncoveredClueCells(data KrydsordData, clues []KrydsordClue) []krydsordMissingClue {
+	byID := map[string]KrydsordClue{}
+	for _, c := range clues {
+		byID[c.SlotID] = c
+	}
+	var out []krydsordMissingClue
+	for _, s := range BuildKrydsordSlots(data) {
+		if s.Length < 2 {
+			continue
+		}
+		if c, ok := byID[s.ID]; ok && strings.TrimSpace(c.Clue) != "" {
+			continue
+		}
+		cr, cc := slotClueCell(s)
+		out = append(out, krydsordMissingClue{s.ID, s.Direction, s.Length, cr, cc})
+	}
+	return out
+}
+
+// KrydsordClueCoverage reports how many length≥2 slots ended up with a non-empty
+// clue (covered) out of the total. Callers use it to refuse caching a bad read.
+func KrydsordClueCoverage(data KrydsordData, clues []KrydsordClue) (covered, total int) {
+	byID := map[string]KrydsordClue{}
+	for _, c := range clues {
+		byID[c.SlotID] = c
+	}
+	for _, s := range BuildKrydsordSlots(data) {
+		if s.Length < 2 {
+			continue
+		}
+		total++
+		if c, ok := byID[s.ID]; ok && strings.TrimSpace(c.Clue) != "" {
+			covered++
+		}
+	}
+	return covered, total
+}
+
+// reaskKrydsordClueCells does ONE focused vision call for the clue cells the first
+// pass missed, returning any newly-read visionClues. Best-effort: a failed or
+// empty re-ask just returns ok=false and the caller keeps the first-pass clues.
+func reaskKrydsordClueCells(ctx context.Context, imgBytes []byte, ac llm.VisionProvider, missing []krydsordMissingClue) ([]visionClue, bool) {
+	if ac == nil || len(imgBytes) == 0 || len(missing) == 0 {
+		return nil, false
+	}
+	var b strings.Builder
+	b.WriteString("You already read most clues from this Danish clues-in-squares crossword. A few CLUE CELLS were missed. Read ONLY the clue cells listed below and output one line each in EXACTLY this format:\n")
+	b.WriteString("CLUE row=<r> col=<c> dir=<across|down> clue=\"TEXT\"\n")
+	b.WriteString("Add img=true and a short ENGLISH object description if the cell holds a picture/icon instead of text.\n")
+	b.WriteString("Preserve ÆØÅ, hyphens and spacing exactly as printed.\n\n")
+	b.WriteString("Missed clue cells (1-based row,col of the CLUE cell; dir is the answer's reading direction):\n")
+	for _, m := range missing {
+		fmt.Fprintf(&b, "- row=%d col=%d dir=%s (answer length %d)\n", m.ClueRow, m.ClueCol, m.Direction, m.Length)
+	}
+	b.WriteString("\nOutput ONLY the CLUE lines. If a listed cell genuinely has no text or icon, skip it.")
+
+	var text string
+	var err error
+	for attempt := 1; attempt <= 2; attempt++ {
+		text, err = ac.ExtractFromImage(ctx, imgBytes, "image/jpeg", b.String())
+		if err == nil {
+			break
+		}
+		if ctx.Err() != nil || !isTransientVisionError(err) || attempt == 2 {
+			break
+		}
+		select {
+		case <-ctx.Done():
+			return nil, false
+		case <-time.After(time.Duration(attempt) * 2 * time.Second):
+		}
+	}
+	if err != nil || strings.TrimSpace(text) == "" {
+		if err != nil {
+			fmt.Printf("   [vision] re-ask failed: %v\n", err)
+		}
+		return nil, false
+	}
+	_ = os.WriteFile(filepath.Join(os.TempDir(), "krydsord-vision-reask-raw.txt"), []byte(text), 0o644)
+	return parseVisionClueLines(text), true
 }
 
 // visionClue is the raw output format we request from the vision model (position of the
@@ -779,56 +907,76 @@ func absInt(x int) int {
 }
 
 // mapVisionCluesToSlots assigns OCRed clue texts (with visual positions) to the
-// slots we computed from the mask. This is deliberately deterministic Go code
-// rather than asking the vision model to guess our internal "A1/D3" IDs, which
-// do not match the visual reading order the model sees.
+// slots we computed from the mask. Deterministic Go, not the vision model guessing
+// our internal A1/D3 ids.
+//
+// GLOBAL 1:1 ASSIGNMENT: each vision clue is claimed by AT MOST ONE slot, and each
+// slot by at most one clue. The old per-slot nearest-clue selection let a single
+// clue be re-used by several slots — producing phantom/duplicate clues (e.g. one
+// FUGL mapped onto both a 3- and a 7-letter slot, or JÆVNE appearing twice) that
+// poison every crossing they touch. We score every ELIGIBLE (slot, clue) pair,
+// then assign greedily best-first with used-sets; a slot with no eligible clue
+// left is returned with an empty clue (its crossings fill it, and the coverage
+// re-ask can try to read it) rather than stealing a neighbour's.
+//
+// Eligibility is distance-bounded: a slot's governing clue cell sits one cell
+// before its answer start (across → col−1, down → row−1), so a correct clue is
+// ~1 cell away. We allow ≤2 with a direction match (vision jitter), ≤1 otherwise,
+// and require an adjacent direction-matching clue for speculative 1-letter slots.
 func mapVisionCluesToSlots(data KrydsordData, vclues []visionClue) []KrydsordClue {
 	slots := BuildKrydsordSlots(data)
-	out := make([]KrydsordClue, 0, len(slots))
-	for _, s := range slots {
-		bestIdx := -1
-		bestScore := 1 << 30
-		for i, vc := range vclues {
+
+	type pair struct{ slotIdx, vclueIdx, score int }
+	var pairs []pair
+	for si, s := range slots {
+		for vi, vc := range vclues {
 			dist := absInt(vc.Row-s.Row) + absInt(vc.Col-s.Col)
-			score := dist * 10
-			if strings.EqualFold(vc.Direction, s.Direction) {
-				score -= 20 // strong preference for direction match
+			dirMatch := strings.EqualFold(vc.Direction, s.Direction)
+			maxDist := 1
+			if dirMatch {
+				maxDist = 2
 			}
-			// Small bonus if the reported position is exactly the slot start or adjacent in the "clue" direction.
+			if dist > maxDist {
+				continue
+			}
+			if s.Length == 1 && !(dirMatch && dist <= 1) {
+				continue // 1-letter slots need an adjacent, direction-matching clue
+			}
+			score := dist * 10
+			if dirMatch {
+				score -= 20
+			}
 			if (s.Direction == "across" && vc.Col <= s.Col && vc.Row == s.Row) ||
 				(s.Direction == "down" && vc.Row <= s.Row && vc.Col == s.Col) {
 				score -= 5
 			}
-			// If model gave a length, small bonus if it matches the actual run length.
 			if vc.Length > 0 && vc.Length == s.Length {
 				score -= 3
 			}
-			if score < bestScore {
-				bestScore = score
-				bestIdx = i
-			}
+			pairs = append(pairs, pair{si, vi, score})
 		}
-		c := KrydsordClue{
-			SlotID:    s.ID,
-			Direction: s.Direction,
-			Length:    s.Length,
+	}
+	sort.SliceStable(pairs, func(i, j int) bool { return pairs[i].score < pairs[j].score })
+
+	slotClue := make([]int, len(slots)) // vclue idx assigned to each slot, -1 = none
+	for i := range slotClue {
+		slotClue[i] = -1
+	}
+	usedVClue := make([]bool, len(vclues))
+	for _, p := range pairs {
+		if slotClue[p.slotIdx] != -1 || usedVClue[p.vclueIdx] {
+			continue
 		}
-		if bestIdx >= 0 {
-			vc := vclues[bestIdx]
-			// For 1-letter slots, require a CLOSE, direction-matching clue (the
-			// adjacent clue cell). Many 1-letter slots are emitted speculatively
-			// (a length-1 run crossing a longer word); if no real clue sits next
-			// to it, leave the clue empty so the crossing word fills the cell
-			// rather than a mis-mapped clue forcing a wrong letter.
-			if s.Length == 1 {
-				if absInt(vc.Row-s.Row)+absInt(vc.Col-s.Col) <= 1 && strings.EqualFold(vc.Direction, s.Direction) {
-					c.Clue = vc.Clue
-					c.IsImage = vc.IsImage
-				}
-			} else {
-				c.Clue = vc.Clue
-				c.IsImage = vc.IsImage
-			}
+		slotClue[p.slotIdx] = p.vclueIdx
+		usedVClue[p.vclueIdx] = true
+	}
+
+	out := make([]KrydsordClue, 0, len(slots))
+	for si, s := range slots {
+		c := KrydsordClue{SlotID: s.ID, Direction: s.Direction, Length: s.Length}
+		if vi := slotClue[si]; vi >= 0 {
+			c.Clue = vclues[vi].Clue
+			c.IsImage = vclues[vi].IsImage
 		}
 		out = append(out, c)
 	}

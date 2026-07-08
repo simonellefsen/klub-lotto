@@ -410,6 +410,69 @@ func TestValidateKrydsordAnswerGridAcceptsValidGrid(t *testing.T) {
 	}
 }
 
+func TestMapVisionCluesToSlotsIsOneToOne(t *testing.T) {
+	// A 3x2 answer block: two across runs (rows 1,2) and three down runs (cols
+	// 1,2,3), all length ≥2. Only TWO clues are supplied.
+	mask := strings.Join([]string{
+		".....",
+		".###.",
+		".###.",
+		".....",
+	}, "\n")
+	data := KrydsordData{
+		SolutionSecret: secretFromKrydsordMask(mask),
+		CellCountX:     5,
+		CellCountY:     4,
+	}
+	slots := BuildKrydsordSlots(data)
+	idAt := func(dir string, row, col int) string {
+		for _, s := range slots {
+			if s.Direction == dir && s.Row == row && s.Col == col {
+				return s.ID
+			}
+		}
+		return ""
+	}
+
+	// Top across run's clue cell is (r2,c1); the left down run's is (r1,c2).
+	vclues := []visionClue{
+		{Row: 2, Col: 1, Direction: "across", Clue: "TOPACROSS"},
+		{Row: 1, Col: 2, Direction: "down", Clue: "LEFTDOWN"},
+	}
+	clues := mapVisionCluesToSlots(data, vclues)
+	byID := map[string]KrydsordClue{}
+	counts := map[string]int{}
+	for _, c := range clues {
+		byID[c.SlotID] = c
+		if c.Clue != "" {
+			counts[c.Clue]++
+		}
+	}
+
+	// 1:1: no clue text may land on more than one slot (the phantom/duplicate bug,
+	// e.g. one FUGL mapped to both a 3- and a 7-letter slot).
+	for text, n := range counts {
+		if n > 1 {
+			t.Fatalf("clue %q assigned to %d slots — 1:1 assignment violated", text, n)
+		}
+	}
+	// Each clue must land on its own adjacent slot…
+	if got := byID[idAt("across", 2, 2)].Clue; got != "TOPACROSS" {
+		t.Fatalf("across r2c2 clue = %q, want TOPACROSS", got)
+	}
+	if got := byID[idAt("down", 2, 2)].Clue; got != "LEFTDOWN" {
+		t.Fatalf("down r2c2 clue = %q, want LEFTDOWN", got)
+	}
+	// …and the three unclued slots stay EMPTY rather than stealing a neighbour's.
+	covered, total := KrydsordClueCoverage(data, clues)
+	if total != 5 || covered != 2 {
+		t.Fatalf("coverage = %d/%d, want 2/5", covered, total)
+	}
+	if missing := uncoveredClueCells(data, clues); len(missing) != 3 {
+		t.Fatalf("uncoveredClueCells = %d, want 3", len(missing))
+	}
+}
+
 func secretFromKrydsordMask(mask string) string {
 	var b strings.Builder
 	for _, ch := range mask {

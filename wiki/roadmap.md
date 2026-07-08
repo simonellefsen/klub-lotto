@@ -295,3 +295,60 @@ step-6 cross-check re-sync that occurred would no longer fire.
 of score we currently leave to luck; sim will quantify, but 1.5–3× the live
 score is plausible. P1 items are pure-Go, fully testable offline before the
 next live run.
+
+---
+
+# Krydsord robustness — assembler timeout + silent vision errors (2026-07-08)
+
+Puzzle 21281 (crossword id) HARD-FAILED: `assembleKrydsordSolutionGrid`
+attempt 1 hit `context deadline exceeded` (180s cap) — gpt-5.5 at
+`OPENROUTER_REASONING_EFFORT=medium` can think past 3 minutes on a 43-slot
+grid. Worse, comparing the extracted clues against the live board screenshot
+revealed the grid would have been WRONG even if assembly had finished:
+
+- **`BEGÆRET` (row 4, right edge) was dropped entirely** — absent from all 43
+  extracted clues. No coverage check caught it.
+- **`JÆVNE` was duplicated** (`D16` len 5 AND `D18` len 2) — only one JÆVNE is
+  on the board.
+- **`D19 down (7): FUGL` is a phantom** — FUGL is the (5,8) split-cell clue,
+  correctly mapped to the 3-letter `D14`, then RE-USED for an unrelated 7-cell
+  slot. A wrong clue on a 7-letter run poisons 7 crossings.
+
+Root cause of the dupes/phantoms: `mapVisionCluesToSlots` assigns each slot its
+nearest clue INDEPENDENTLY — no 1:1 constraint, so one vision clue can be
+claimed by many slots. Root cause of the drop: vision extraction has no
+coverage check against the mask's known clue-cell coordinates.
+
+## Plan
+
+### Krydsord-P1 — quick, targeted fixes — ✅ DONE 2026-07-08
+1. ✅ **Assembler timeout + effort backoff:** each attempt now 300s; on a TIMEOUT
+   the provider is cloned to `ReasoningEffort=low` for the remaining attempts
+   (games_krydsord.go). The dictionary pre-fixes several slots + seeds ~60
+   candidates, so low effort is usually enough.
+2. ✅ **1:1 clue assignment in `mapVisionCluesToSlots`:** rewritten to a global
+   greedy best-first assignment with used-sets — each vision clue serves at most
+   one slot, each slot at most one clue, eligibility distance-bounded (≤2 with a
+   direction match, ≤1 otherwise). Unmatched slots get an empty clue (crossings
+   fill them) instead of stealing a neighbour's. Pinned by
+   `TestMapVisionCluesToSlotsIsOneToOne`.
+3. ✅ **Prize-icon generalization:** OCR prompt now says the small icon in the
+   green top-right cell is the prize (tea bag, playing card, coin, any icon),
+   never a clue.
+
+### Krydsord-P2 — coverage-enforced extraction — ✅ DONE 2026-07-08
+4. ✅ **Coverage check + targeted re-ask:** after the first pass, `ExtractKrydsordClues`
+   finds length≥2 slots left without a clue (`uncoveredClueCells`) and does ONE
+   focused vision re-ask (`reaskKrydsordClueCells`) for just those clue cells,
+   then re-maps the union — would have recovered the dropped BEGÆRET.
+5. ✅ **Validate-before-cache:** the caller only writes the clue cache when
+   `KrydsordClueCoverage` reports full coverage, so a partial read isn't pinned
+   for the rest of the day (a re-run re-reads the missed cells).
+
+### Krydsord-P3 — deterministic CSP assembly — planned
+6. ⬜ **Go backtracking assembler over the candidate lists:** we already have
+   slots/lengths/crossings + dictionary seeds + batch candidates. A small
+   propagate-and-recurse solver assembles most days instantly, deterministically,
+   timeout-proof; only slots with no consistent candidate go to the LLM in a
+   tiny repair prompt. As the learned dictionary compounds, the LLM's share of
+   assembly trends toward zero.
