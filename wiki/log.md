@@ -479,3 +479,7 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-07 05:03 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
 
+## [2026-07-08 04:34 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
+## [2026-07-08 04:35 UTC] ingest | quiz | Hvilken farve har korset i det svenske flag? | outcome=submitted
+
