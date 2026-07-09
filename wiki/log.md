@@ -491,3 +491,7 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-08 05:26 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
 
+## [2026-07-09 04:08 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
+## [2026-07-09 04:08 UTC] ingest | quiz | Hvem stod bag superhittet 'Shape of You' fra 2017? | outcome=submitted
+
