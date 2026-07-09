@@ -361,6 +361,22 @@ func runOrdknude(ctx context.Context, args []string) error {
 				fmt.Println("   win screen detected inside game iframe — marking as solved")
 				st.Solved = true
 			}
+			// Round-complete guard: if the parent page already shows "Ordknuden
+			// besvaret / du har allerede besvaret dagens runde" (e.g. a human clicked
+			// "Tilbage til Spil & Quiz" post-win), the round is OVER — never keep
+			// submitting onto the dead board (that just flails on the missing
+			// keyboard). Completing in <6 guesses with no loss answer can only be a win.
+			if !st.Solved {
+				if body, _ := br.Eval(ctx, `document.body ? document.body.innerText : ""`); klublotto.IsOrdknudeAlreadyAnswered(body) {
+					if ans := klublotto.OrdknudeLossAnswer(body); ans != "" {
+						st.Answer, st.Remaining = ans, 0
+						fmt.Printf("   round already answered (loss) — correct word was %s\n", ans)
+					} else if attemptsThisRun < 6 {
+						st.Solved = true
+						fmt.Println("   round already answered before 6 guesses — inferring a win on the last guess")
+					}
+				}
+			}
 			// The result overlay can spin for 5-10s before "Super imponerende!" (win)
 			// or "Det rigtige svar var" (loss) renders. When our guess wiped the board
 			// (game ended: empty board after we've made guesses) but the banner hasn't
@@ -430,6 +446,18 @@ func runOrdknude(ctx context.Context, args []string) error {
 					if st.Answer == "" {
 						st.Answer = lastSubmittedAnswer // the answer that triggered the win
 					}
+				}
+			}
+		}
+		// Already-answered fallback: the round is complete (besvaret) with no loss
+		// answer and we DID play this run (≥1 guess) in under 6 — a win whose banner
+		// we never got to read (navigated away). Infer solved on the last guess.
+		if !st.Solved && attemptsThisRun >= 1 && attemptsThisRun < 6 {
+			if body, _ := br.Eval(ctx, `document.body ? document.body.innerText : ""`); klublotto.IsOrdknudeAlreadyAnswered(body) && klublotto.OrdknudeLossAnswer(body) == "" {
+				fmt.Println("   round already answered before 6 guesses (post-loop) — marking as solved on the last guess")
+				st.Solved = true
+				if st.Answer == "" {
+					st.Answer = lastSubmittedAnswer
 				}
 			}
 		}
@@ -993,6 +1021,12 @@ func printOrdknudeState(st klublotto.OrdknudeState) {
 // behind a submitted guess while the result screen spins. Returns true once the
 // win is confirmed; returns false on timeout or if a loss screen ("Det rigtige
 // svar var: …") renders instead (game ended without a win).
+//
+// This is only called after our guess CLEARED the board (i.e. the round just
+// ended mid-run — a loss keeps the board full through all 6 rows). So if the
+// "already answered" completion screen appears WITHOUT a loss answer — which is
+// what a human sees after clicking "Tilbage til Spil & Quiz" on the win overlay
+// before we read the banner — the round completed early and can only be a win.
 func waitForOrdknudeWinBanner(ctx context.Context, br *browser.Client, timeout time.Duration) bool {
 	deadline := time.Now().Add(timeout)
 	for {
@@ -1005,6 +1039,12 @@ func waitForOrdknudeWinBanner(ctx context.Context, br *browser.Client, timeout t
 		}
 		if klublotto.OrdknudeLossAnswer(body) != "" {
 			return false // loss screen — game over, not a win
+		}
+		if klublotto.IsOrdknudeAlreadyAnswered(body) {
+			// Round complete, no loss answer, board already cleared → win (the win
+			// banner was navigated away before we could read it).
+			fmt.Println("   round shows 'besvaret' with no loss answer — win navigated away, treating as solved")
+			return true
 		}
 		if time.Now().After(deadline) || ctx.Err() != nil {
 			return false

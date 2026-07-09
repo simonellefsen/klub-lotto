@@ -70,6 +70,21 @@ func IsOrdknudeWinText(s string) bool {
 	return false
 }
 
+// IsOrdknudeAlreadyAnswered reports whether the page shows the round-COMPLETE
+// screen ("Ordknuden besvaret! Du har allerede besvaret dagens runde. …"). This
+// is distinct from the win banner: you land here after finishing the round AND
+// whenever you navigate to / reopen a round you've already completed — e.g. a
+// human clicking "Tilbage til Spil & Quiz" on the win screen before the automation
+// has read the win banner. It is a definitive "the round is over, stop guessing"
+// signal (win OR loss); the caller decides which from the guess count and whether
+// a loss answer ("Det rigtige svar var …") is shown.
+func IsOrdknudeAlreadyAnswered(s string) bool {
+	low := strings.ToLower(s)
+	return strings.Contains(low, "ordknuden besvaret") ||
+		strings.Contains(low, "allerede besvaret") ||
+		strings.Contains(low, "besvaret dagens runde")
+}
+
 // IsDanskeSpilErrorScreen reports whether the page text is danskespil's generic
 // crash/error screen ("Der skete en fejl. Prøv igen. Hvis fejlen fortsætter
 // bedes du kontakte vores Kundecenter ..."), which sometimes replaces a game

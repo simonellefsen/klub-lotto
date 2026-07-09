@@ -107,3 +107,46 @@ func TestKrydsordStartUnmarshalBothForms(t *testing.T) {
 		t.Fatalf("legacy array form: %+v err=%v", arr, err)
 	}
 }
+
+func TestKrydsordConflictSlotsExcludesDisputedLetters(t *testing.T) {
+	// A1 (r2c2-c4, "ABC") crosses D1 (r2c3-r3c3, "XY") — conflict at r2c3 (B vs X)
+	// — and D2 (r2c4-r3c4, "CD"), which AGREES at r2c4 (C) and is thus trusted.
+	// The repair pattern for A1 must keep the trusted 'C' but must NOT bake in the
+	// disputed D1 letter: telling A1 to preserve the very letter under dispute is
+	// how MATEMATIK got "repaired" into the non-word MATEMDTIK on 2026-07-09.
+	mask := strings.Join([]string{
+		".....",
+		".###.",
+		"..##.",
+	}, "\n")
+	data := KrydsordData{
+		SolutionSecret: secretFromKrydsordMask(mask),
+		CellCountX:     5,
+		CellCountY:     3,
+	}
+	slots := BuildKrydsordSlots(data)
+	idAt := func(dir string, row, col int) string {
+		for _, s := range slots {
+			if s.Direction == dir && s.Row == row && s.Col == col {
+				return s.ID
+			}
+		}
+		t.Fatalf("no %s slot at r%dc%d in %+v", dir, row, col, slots)
+		return ""
+	}
+	a1 := idAt("across", 2, 2)
+	d1 := idAt("down", 2, 3)
+	d2 := idAt("down", 2, 4)
+
+	answers := map[string]string{a1: "ABC", d1: "XY", d2: "CD"}
+	involved, patterns := KrydsordConflictSlots(slots, answers)
+	if len(involved) != 2 || involved[0] != a1 && involved[1] != a1 {
+		t.Fatalf("involved = %v, want exactly [%s %s]", involved, a1, d1)
+	}
+	if got := patterns[a1]; got != "..C" {
+		t.Fatalf("pattern[%s] = %q, want \"..C\" (trusted D2 letter kept, disputed D1 letter excluded)", a1, got)
+	}
+	if got := patterns[d1]; got != ".." {
+		t.Fatalf("pattern[%s] = %q, want \"..\" (disputed A1 letter excluded)", d1, got)
+	}
+}

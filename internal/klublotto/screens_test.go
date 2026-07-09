@@ -43,6 +43,22 @@ func TestIsOrdknudeWinText(t *testing.T) {
 	}
 }
 
+func TestIsOrdknudeAlreadyAnswered(t *testing.T) {
+	// The exact round-complete splash a human lands on after clicking "Tilbage til
+	// Spil & Quiz" post-win (the screen that broke a live run 2026-07-09).
+	done := "Ordknuden besvaret!\nDu har allerede besvaret dagens runde. Håber du havde det sjovt! Har du prøvet de andre spil?\nTILBAGE TIL SPIL & QUIZ"
+	if !IsOrdknudeAlreadyAnswered(done) {
+		t.Fatal("IsOrdknudeAlreadyAnswered() = false for the 'besvaret / allerede besvaret' completion screen")
+	}
+	// The win banner and a fresh board are NOT the already-answered screen.
+	if IsOrdknudeAlreadyAnswered("Super imponerende! Du fandt frem til dagens ord.") {
+		t.Fatal("IsOrdknudeAlreadyAnswered() = true for the win banner")
+	}
+	if IsOrdknudeAlreadyAnswered("Ordknuden\nGæt dagens ord.") {
+		t.Fatal("IsOrdknudeAlreadyAnswered() = true for a fresh playable board")
+	}
+}
+
 func TestIsDanskeSpilErrorScreen(t *testing.T) {
 	// The exact crash page danskespil showed after an Ordkløver submit.
 	errPage := "Ordkløver\nDer skete en fejl. Prøv igen. Hvis fejlen fortsætter bedes " +

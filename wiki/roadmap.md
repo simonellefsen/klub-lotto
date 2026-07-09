@@ -345,6 +345,30 @@ coverage check against the mask's known clue-cell coordinates.
    `KrydsordClueCoverage` reports full coverage, so a partial read isn't pinned
    for the rest of the day (a re-run re-reads the missed cells).
 
+### Krydsord — untrusted-dict-drop leak (2026-07-09) — ✅ FIXED
+Puzzle 21282 was submitted with the non-word **MATEMDTIK** and rejected. The
+learned dict had `VITAMIN→D` (from an earlier puzzle; today's answer was A —
+both are valid vitamin answers, the dict was just incomplete). The conflict
+valve fired correctly ("dropping dict answer D21=D") but only removed it from
+`knownAnswers`; the stale letter survived in THREE other places, and each
+pushed the model to preserve the D by mangling the crossing word instead:
+1. the repair pattern (`KrydsordConflictSlots` baked the disputed slot's own
+   letter into the other side's mønster),
+2. the retry basePrompt (built once, before the drop — stale `fixed` cells),
+3. the slot's candidate list (`cands=[D]`) + the model's own clue knowledge
+   re-answering VITAMIN→D.
+
+Fix: `KrydsordConflictSlots` patterns now exclude letters from OTHER INVOLVED
+slots (trusted crossings only; pinned by
+`TestKrydsordConflictSlotsExcludesDisputedLetters`); the assemble prompt +
+fixed cells are REBUILT every attempt from current `knownAnswers`; a dropped
+answer is purged from the slot's candidates; and a dropped 1-LETTER slot cedes
+its cell to the crossing word entirely (clue blanked, answer scrubbed from all
+later parses/repairs) with an immediate re-validate — today's case resolves
+right after the drop with MATEMATIK intact, no repair call needed. The dict
+self-heals on the next successful solve (auto-learn adds VITAMIN→A, making the
+clue ambiguous → seeded as candidates, never fixed).
+
 ### Krydsord-P3 — deterministic CSP assembly — planned
 6. ⬜ **Go backtracking assembler over the candidate lists:** we already have
    slots/lengths/crossings + dictionary seeds + batch candidates. A small

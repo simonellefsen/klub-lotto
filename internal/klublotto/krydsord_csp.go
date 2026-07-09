@@ -413,6 +413,15 @@ func KrydsordConflictSlots(slots []KrydsordSlot, answers map[string]string) (inv
 				if r.id == id {
 					continue
 				}
+				// Only TRUSTED crossings constrain the repair pattern: another
+				// slot that is itself part of a conflict is a disputed party, and
+				// baking its current letter into this slot's pattern would force
+				// the repair to preserve the very letter under dispute (seen live:
+				// A1 was told to keep an untrusted 1-letter dict answer's D and
+				// "fixed" MATEMATIK into the non-word MATEMDTIK).
+				if inv[r.id] {
+					continue
+				}
 				if ch, has := letterAt(r.id, r.pos); has {
 					if !ok {
 						want, ok = ch, true

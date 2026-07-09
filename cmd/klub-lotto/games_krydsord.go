@@ -1266,26 +1266,34 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 
 	// Pre-place the deterministic known answers onto the grid as FIXED cells, so
 	// every crossing slot inherits the constraint as a letter pattern. cellKey is
-	// "r<row>c<col>"; the value is the fixed rune at that cell.
+	// "r<row>c<col>"; the value is the fixed rune at that cell. REBUILDABLE:
+	// when a conflicting dict answer is dropped mid-loop, the fixed cells (and
+	// thus every mønster= in the next prompt) must be recomputed — a stale
+	// pattern kept pushing the model to preserve the dropped letter (seen live:
+	// MATEMATIK "corrected" to the non-word MATEMDTIK to match an untrusted D).
 	cellKey := func(r, c int) string { return fmt.Sprintf("r%dc%d", r, c) }
 	fixed := map[string]rune{}
-	for id, ans := range knownAnswers {
-		s, ok := slotByID[id]
-		if !ok {
-			continue
-		}
-		rs := []rune(ans)
-		if len(rs) != len(s.Cells) {
-			continue
-		}
-		for i, cell := range s.Cells {
-			k := cellKey(cell.Row, cell.Col)
-			if ex, seen := fixed[k]; seen && ex != rs[i] {
-				continue // two known answers disagree (mapping/curation error) — keep first
+	rebuildFixed := func() {
+		fixed = map[string]rune{}
+		for id, ans := range knownAnswers {
+			s, ok := slotByID[id]
+			if !ok {
+				continue
 			}
-			fixed[k] = rs[i]
+			rs := []rune(ans)
+			if len(rs) != len(s.Cells) {
+				continue
+			}
+			for i, cell := range s.Cells {
+				k := cellKey(cell.Row, cell.Col)
+				if ex, seen := fixed[k]; seen && ex != rs[i] {
+					continue // two known answers disagree (mapping/curation error) — keep first
+				}
+				fixed[k] = rs[i]
+			}
 		}
 	}
+	rebuildFixed()
 	// slotPattern returns the crossing pattern for a slot ("." = unknown), plus
 	// the count of fixed letters in it. matchesPattern tests a candidate rune-wise.
 	slotPattern := func(s klublotto.KrydsordSlot) (string, int) {
@@ -1314,68 +1322,72 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 		return true
 	}
 
-	var b strings.Builder
-	fmt.Fprintf(&b, "Løs dette danske krydsord (clues-in-squares). VÆLG for HVER slot ét dansk svar med PRÆCIS den angivne længde, så bogstaverne passer ved ALLE krydsninger (celler delt mellem to slots skal have samme bogstav).\n")
-	fmt.Fprintf(&b, "Billedledetråde står som engelske beskrivelser (fx \"grill\", \"t-shirt\", \"turnip\", \"desk lamp\") — svar med det danske ord for tingen (GRILL, TSHIRT, ROE, LAMPE).\n")
-	if len(allClueTexts) > 0 {
-		fmt.Fprintf(&b, "Alle synlige ledetråde (OCR-tildelingen pr. slot kan være unøjagtig): %q\n", allClueTexts)
-	}
-	fmt.Fprintf(&b, "\nSlots (id, retning, længde, ledetråd, celler r<row>c<col>, kandidater):\n")
-	for _, s := range slots {
-		cl := cluesByID[s.ID]
-		// Skip speculative 1-letter slots that got no clue from vision — their
-		// single cell is already fixed by the crossing word, and asking the LLM
-		// to "answer" them only invites a wrong letter that conflicts.
-		if s.Length == 1 && strings.TrimSpace(cl.Clue) == "" {
-			continue
+	buildPrompt := func() string {
+		var b strings.Builder
+		fmt.Fprintf(&b, "Løs dette danske krydsord (clues-in-squares). VÆLG for HVER slot ét dansk svar med PRÆCIS den angivne længde, så bogstaverne passer ved ALLE krydsninger (celler delt mellem to slots skal have samme bogstav).\n")
+		fmt.Fprintf(&b, "Billedledetråde står som engelske beskrivelser (fx \"grill\", \"t-shirt\", \"turnip\", \"desk lamp\") — svar med det danske ord for tingen (GRILL, TSHIRT, ROE, LAMPE).\n")
+		if len(allClueTexts) > 0 {
+			fmt.Fprintf(&b, "Alle synlige ledetråde (OCR-tildelingen pr. slot kan være unøjagtig): %q\n", allClueTexts)
 		}
-		pat, known := slotPattern(s)
-		var candList []string
-		for _, c := range perSlot[s.ID] {
-			a := klublotto.NormalizeDanishLetters(c.Answer)
-			if len([]rune(a)) == s.Length {
-				candList = append(candList, a)
+		fmt.Fprintf(&b, "\nSlots (id, retning, længde, ledetråd, celler r<row>c<col>, kandidater):\n")
+		for _, s := range slots {
+			cl := cluesByID[s.ID]
+			// Skip speculative 1-letter slots that got no clue from vision (or whose
+			// untrusted clue was dropped mid-loop) — their single cell is already
+			// fixed by the crossing word, and asking the LLM to "answer" them only
+			// invites a wrong letter that conflicts.
+			if s.Length == 1 && strings.TrimSpace(cl.Clue) == "" {
+				continue
 			}
-		}
-		// If crossings fix some letters, prefer candidates that match the pattern.
-		// Only narrow when at least one survives — never starve a slot to zero.
-		if known > 0 {
-			var keep []string
-			for _, a := range candList {
-				if matchesPattern(a, pat) {
-					keep = append(keep, a)
+			pat, known := slotPattern(s)
+			var candList []string
+			for _, c := range perSlot[s.ID] {
+				a := klublotto.NormalizeDanishLetters(c.Answer)
+				if len([]rune(a)) == s.Length {
+					candList = append(candList, a)
 				}
 			}
-			if len(keep) > 0 {
-				candList = keep
+			// If crossings fix some letters, prefer candidates that match the pattern.
+			// Only narrow when at least one survives — never starve a slot to zero.
+			if known > 0 {
+				var keep []string
+				for _, a := range candList {
+					if matchesPattern(a, pat) {
+						keep = append(keep, a)
+					}
+				}
+				if len(keep) > 0 {
+					candList = keep
+				}
 			}
-		}
-		cellIDs := make([]string, 0, len(s.Cells))
-		for _, cell := range s.Cells {
-			cellIDs = append(cellIDs, cellKey(cell.Row, cell.Col))
-		}
-		clueText := cl.Clue
-		kind := ""
-		if cl.IsImage {
-			// Spell out that this clue is a picture so the model translates the
-			// depicted object instead of treating the description as a literal word.
-			if clueText != "" {
-				clueText = "an image of a " + clueText
+			cellIDs := make([]string, 0, len(s.Cells))
+			for _, cell := range s.Cells {
+				cellIDs = append(cellIDs, cellKey(cell.Row, cell.Col))
 			}
-			kind = " BILLEDE"
+			clueText := cl.Clue
+			kind := ""
+			if cl.IsImage {
+				// Spell out that this clue is a picture so the model translates the
+				// depicted object instead of treating the description as a literal word.
+				if clueText != "" {
+					clueText = "an image of a " + clueText
+				}
+				kind = " BILLEDE"
+			}
+			patHint := ""
+			if known > 0 {
+				// Show the fixed-letter pattern so the model picks a crossing-consistent word.
+				patHint = fmt.Sprintf(" mønster=%s", pat)
+			}
+			fmt.Fprintf(&b, "- %s %s len=%d clue=%q%s%s cells=%s cands=%v\n", s.ID, s.Direction, s.Length, clueText, kind, patHint, strings.Join(cellIDs, ","), candList)
 		}
-		patHint := ""
-		if known > 0 {
-			// Show the fixed-letter pattern so the model picks a crossing-consistent word.
-			patHint = fmt.Sprintf(" mønster=%s", pat)
+		if len(fixed) > 0 {
+			fmt.Fprintf(&b, "\nVIGTIGT: 'mønster' viser bogstaver der ALLEREDE er fastlagt af krydsende ord (. = ukendt). Dit svar for sådan et slot SKAL matche mønsteret nøjagtigt på de kendte positioner.\n")
 		}
-		fmt.Fprintf(&b, "- %s %s len=%d clue=%q%s%s cells=%s cands=%v\n", s.ID, s.Direction, s.Length, clueText, kind, patHint, strings.Join(cellIDs, ","), candList)
+		b.WriteString("\nReturnér KUN JSON: {\"answers\":{\"A1\":\"ORD\",\"D1\":\"ORD\", ...}} med ét svar pr. slot-id ovenfor. Kun bogstaver (ÆØÅ tilladt), ingen mellemrum/tegn. INGEN markdown.\n")
+		return b.String()
 	}
-	if len(fixed) > 0 {
-		fmt.Fprintf(&b, "\nVIGTIGT: 'mønster' viser bogstaver der ALLEREDE er fastlagt af krydsende ord (. = ukendt). Dit svar for sådan et slot SKAL matche mønsteret nøjagtigt på de kendte positioner.\n")
-	}
-	b.WriteString("\nReturnér KUN JSON: {\"answers\":{\"A1\":\"ORD\",\"D1\":\"ORD\", ...}} med ét svar pr. slot-id ovenfor. Kun bogstaver (ÆØÅ tilladt), ingen mellemrum/tegn. INGEN markdown.\n")
-	basePrompt := b.String()
+	basePrompt := buildPrompt()
 
 	// Surface the exact assembler prompt — including the per-slot `mønster=` patterns
 	// derived from the fixed 1-letter clues (e.g. ILT=O making D1 BILLEDE `_______O__`)
@@ -1400,8 +1412,15 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 	const maxAttempts = 3
 	const attemptTimeout = 300 * time.Second
 	var lastErr error
+	// Slots whose untrusted 1-letter dict answer was dropped mid-loop: the model
+	// must never re-answer them (the crossing word owns the cell), so they are
+	// scrubbed from every parsed/repaired answer set.
+	droppedSlots := map[string]bool{}
 	for attempt := 1; attempt <= maxAttempts; attempt++ {
-		prompt := basePrompt
+		// Rebuild from the CURRENT knownAnswers/clues — a stale prompt carries
+		// mønster= patterns for dict answers that were dropped as untrusted.
+		rebuildFixed()
+		prompt := buildPrompt()
 		if lastErr != nil {
 			prompt += fmt.Sprintf("\nForrige forsøg var forkert: %v\nRet svarene: hvert slot skal have et svar med korrekt længde, og delte celler skal have samme bogstav.\n", lastErr)
 		}
@@ -1434,6 +1453,12 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 		for id, ans := range knownAnswers {
 			answers[id] = ans
 		}
+		// Scrub slots whose untrusted answer was dropped — their cell belongs to
+		// the crossing word now; the model re-answering them (e.g. from its own
+		// clue knowledge: VITAMIN → D) would just recreate the conflict.
+		for id := range droppedSlots {
+			delete(answers, id)
+		}
 		// Echo the answers used this attempt (model's + forced dictionary answers).
 		ids := make([]string, 0, len(answers))
 		for id := range answers {
@@ -1463,21 +1488,60 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 		// the conflicting slots, telling it the exact letters their crossings demand.
 		if check.FilledN == check.AnswerN && len(conflicts) > 0 && len(conflicts) <= 8 {
 			// A dict answer that participates in a crossing conflict is likely WRONG
-			// for this puzzle — e.g. an ambiguous short clue (FUGL→ØRN) whose only
-			// learned answer isn't today's. Stop trusting it: drop it from knownAnswers
-			// so neither the repair below nor any later whole-grid attempt re-forces it,
-			// letting the model pick an answer that actually fits the crossings.
+			// for this puzzle — e.g. an ambiguous short clue (FUGL→ØRN, or VITAMIN
+			// where A and D are both valid answers) whose only learned answer isn't
+			// today's. Stop trusting it EVERYWHERE: drop it from knownAnswers, purge
+			// it from the slot's candidate list, and for a 1-letter slot cede the
+			// cell to the crossing word entirely (blank the clue so no later prompt
+			// re-asks it, and remove its answer). Half-dropping it (knownAnswers
+			// only) left the stale letter in the retry prompt's mønster= patterns
+			// and in cands=[…], which pushed the model to "fix" the crossing WORD
+			// instead — turning MATEMATIK into the non-word MATEMDTIK.
 			if involved, _ := klublotto.KrydsordConflictSlots(slots, answers); len(involved) > 0 {
+				droppedNow := false
 				for _, id := range involved {
-					if ans, ok := knownAnswers[id]; ok {
-						fmt.Printf("       [assemble] dropping dict answer %s=%s — it conflicts with the crossings (untrusted for this puzzle)\n", id, ans)
-						delete(knownAnswers, id)
+					ans, ok := knownAnswers[id]
+					if !ok {
+						continue
 					}
+					fmt.Printf("       [assemble] dropping dict answer %s=%s — it conflicts with the crossings (untrusted for this puzzle)\n", id, ans)
+					delete(knownAnswers, id)
+					// Purge the untrusted answer from the slot's candidates.
+					var keep []klublotto.WordCandidate
+					for _, c := range perSlot[id] {
+						if klublotto.NormalizeDanishLetters(c.Answer) != ans {
+							keep = append(keep, c)
+						}
+					}
+					perSlot[id] = keep
+					if s, okS := slotByID[id]; okS && s.Length == 1 {
+						cl := cluesByID[id]
+						cl.Clue, cl.IsImage = "", false
+						cluesByID[id] = cl
+						droppedSlots[id] = true
+						delete(answers, id)
+						fmt.Printf("       [assemble] %s is a 1-letter slot — ceding its cell to the crossing word\n", id)
+					}
+					droppedNow = true
+				}
+				// The drop alone may fully resolve the grid (the crossing word was
+				// right all along) — re-validate before burning a repair call.
+				if droppedNow {
+					g2, c2 := klublotto.BuildKrydsordGridFromSlotAnswers(data, slots, answers)
+					chk2 := klublotto.ValidateKrydsordAnswerGrid(data, g2)
+					if chk2.OK && chk2.FilledN == chk2.AnswerN && len(c2) == 0 {
+						fmt.Printf("       [assemble] resolved by dropping the untrusted dict answer(s) (after attempt %d)\n", attempt)
+						return g2, nil
+					}
+					grid, conflicts, check = g2, c2, chk2 // carry the improved state forward
 				}
 			}
 			if repaired, ok := repairKrydsordConflictsLLM(ctx, p, slots, cluesByID, perSlot, answers); ok {
 				for id, ans := range knownAnswers {
 					repaired[id] = ans // remaining trusted dict answers stay authoritative
+				}
+				for id := range droppedSlots {
+					delete(repaired, id) // ceded cells stay with the crossing word
 				}
 				g2, c2 := klublotto.BuildKrydsordGridFromSlotAnswers(data, slots, repaired)
 				chk2 := klublotto.ValidateKrydsordAnswerGrid(data, g2)
