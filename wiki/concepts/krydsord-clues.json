@@ -288,6 +288,9 @@
   "ENFOLDIG": [
     "GODTROENDE"
   ],
+  "ENGELSKTILSAGN": [
+    "YES"
+  ],
   "ENGELSKTITEL": [
     "SIR"
   ],
@@ -337,6 +340,9 @@
   ],
   "FABELFUGL": [
     "ROK"
+  ],
+  "FAG": [
+    "MATEMATIK"
   ],
   "FAGPERSON": [
     "CYKELSMED"
@@ -418,6 +424,12 @@
   ],
   "FLAMMER": [
     "ILD"
+  ],
+  "FLEKSIBEL": [
+    "ELASTISK"
+  ],
+  "FODSLAG": [
+    "TRIT"
   ],
   "FORBLØFFE": [
     "UNDRE"
@@ -553,8 +565,14 @@
   "GRINE": [
     "LE"
   ],
+  "GRINER": [
+    "LER"
+  ],
   "GRUNDE": [
     "ÅRSAGER"
+  ],
+  "GRÆSKBOGSTAV": [
+    "BETA"
   ],
   "GRÆSKTEGN": [
     "MY",
@@ -571,6 +589,9 @@
     "ATE",
     "LUNA"
   ],
+  "GUF": [
+    "SLIK"
+  ],
   "GÅDE": [
     "ENIGMA"
   ],
@@ -579,6 +600,9 @@
   ],
   "GÆTTE": [
     "GISNE"
+  ],
+  "HADER": [
+    "AFSKYR"
   ],
   "HANK": [
     "ØRE"
@@ -706,6 +730,9 @@
   "INDTAGE": [
     "ÆDE"
   ],
+  "INKLUSIVE": [
+    "MED"
+  ],
   "INSEKT": [
     "BI"
   ],
@@ -761,11 +788,20 @@
   "KARAT": [
     "K"
   ],
+  "KERNESYRE": [
+    "RNA"
+  ],
   "KIGGE": [
     "SE"
   ],
+  "KIGGER": [
+    "SER"
+  ],
   "KILO": [
     "K"
+  ],
+  "KIMONO": [
+    "MORGENKÅBE"
   ],
   "KIOSK": [
     "BUTIK",
@@ -847,6 +883,9 @@
   "KRONER": [
     "KR"
   ],
+  "KRYDDERDELE": [
+    "OVERE"
+  ],
   "KRYDDERURT": [
     "BASILIKUM"
   ],
@@ -923,8 +962,14 @@
   "LEKTION": [
     "IDRÆTSTIME"
   ],
+  "LET": [
+    "NEM"
+  ],
   "LEVER": [
     "BOR"
+  ],
+  "LEVNING": [
+    "REST"
   ],
   "LILLE": [
     "LL"
@@ -1175,6 +1220,9 @@
     "LØG",
     "ROD"
   ],
+  "PLUDSELIGT": [
+    "BRAT"
+  ],
   "PLUS": [
     "OG"
   ],
@@ -1294,6 +1342,9 @@
   "SANG": [
     "ARIE"
   ],
+  "SIDE": [
+    "KANT"
+  ],
   "SIGERJATIL": [
     "ÆGTER"
   ],
@@ -1318,6 +1369,9 @@
   ],
   "SKABER": [
     "TER"
+  ],
+  "SKALDYR": [
+    "KREBS"
   ],
   "SKIB": [
     "MF",
@@ -1356,6 +1410,9 @@
   ],
   "SKRÆMME": [
     "TRUE"
+  ],
+  "SKRÆMMES": [
+    "TRUES"
   ],
   "SKRØBELIGE": [
     "SKØRE"
@@ -1442,13 +1499,17 @@
     "SKATEBOARD"
   ],
   "SPROG": [
-    "IRSK"
+    "IRSK",
+    "TYSK"
   ],
   "SPÆDBARN": [
     "BABY"
   ],
   "STAKKELS": [
     "ARME"
+  ],
+  "STAT": [
+    "EIRE"
   ],
   "STEDNAVN": [
     "ORØ",
@@ -1525,6 +1586,9 @@
   "SYD": [
     "S"
   ],
+  "SYN": [
+    "SKUE"
+  ],
   "SÆLSOM": [
     "APARTE"
   ],
@@ -1586,6 +1650,9 @@
   ],
   "TILATREGULERE": [
     "JUSTERBARE"
+  ],
+  "TILBAGESLAG": [
+    "REKYL"
   ],
   "TILBEHØR": [
     "GELE"
@@ -1713,7 +1780,8 @@
     "SØ"
   ],
   "VANDLØB": [
-    "ÅER"
+    "ÅER",
+    "Å"
   ],
   "VANDLØBET": [
     "ÅEN"
@@ -1769,7 +1837,11 @@
     "NORET"
   ],
   "VITAMIN": [
-    "D"
+    "A",
+    "B",
+    "C",
+    "D",
+    "E"
   ],
   "VREDE": [
     "RASERI"

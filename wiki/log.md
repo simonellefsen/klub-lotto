@@ -495,3 +495,13 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-09 04:08 UTC] ingest | quiz | Hvem stod bag superhittet 'Shape of You' fra 2017? | outcome=submitted
 
+## [2026-07-09 04:09 UTC] ingest | ordkløver | Category: `Begivenhed`; answer pattern `10 / 7` | outcome=submitted
+
+## [2026-07-09 04:13 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-07-09 04:29 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
+
+## [2026-07-09 04:37 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+
+## [2026-07-09 04:49 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+
