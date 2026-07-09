@@ -12,11 +12,11 @@ AGENT_BROWSER_HEADED ?= true
 # Override with: make sudoku AGENT_BROWSER_BIN=agent-browser (to use PATH version instead)
 AGENT_BROWSER_BIN ?= /Users/lindau/codex/agent-browser/cli/target/release/agent-browser
 LOCAL_BROWSER_ENV := AGENT_BROWSER_SESSION=$(AGENT_BROWSER_SESSION) AGENT_BROWSER_SESSION_NAME=$(AGENT_BROWSER_SESSION_NAME) AGENT_BROWSER_HEADED=$(AGENT_BROWSER_HEADED) AGENT_BROWSER_BIN=$(AGENT_BROWSER_BIN)
-# Vision model for reading the Ordkløver board. A "~"-prefixed slug is a valid
-# OpenRouter floating alias (resolves to the current concrete model).
+# Vision model for reading the Ordkløver/Krydsord board. A "~"-prefixed slug is
+# a valid OpenRouter floating alias (resolves to the current concrete model).
 # Override the vision model with either VISION_MODEL=... or
 # OPENROUTER_VISION_MODEL=... e.g. `make krydsord VISION_MODEL=~google/gemini-pro-latest`.
-OPENROUTER_VISION_MODEL ?= $(or $(VISION_MODEL),~google/gemini-pro-latest)
+OPENROUTER_VISION_MODEL ?= $(or $(VISION_MODEL),openai/gpt-5.5)
 GAME_ANSWER := $(or $(ANSWER),$(answer),$(SOLUTION),$(solution))
 GAME_PROVIDER := $(or $(PROVIDER),$(provider))
 GAME_PROVIDER_FLAG := $(if $(GAME_PROVIDER),--provider "$(GAME_PROVIDER)")
@@ -28,7 +28,7 @@ GAME_AUTO_ANSWER_FLAG := $(if $(filter true 1 yes,$(AUTO_ANSWER)),--auto-answer)
 # < 7/12, then switches in-code to the REASON model at >= 7/12 (and for the
 # final guess). Override with PROVIDER=/WORD_PROVIDER= (fast) or FINAL_PROVIDER=
 # (reason). "~author/model-latest" slugs are OpenRouter floating aliases.
-ORDKLOEVER_FAST   := $(or $(PROVIDER),$(provider),$(WORD_PROVIDER),openai/gpt-5.4-mini)
+ORDKLOEVER_FAST   := $(or $(PROVIDER),$(provider),$(WORD_PROVIDER),openai/gpt-5.5)
 ORDKLOEVER_REASON := $(or $(FINAL_PROVIDER),$(final_provider),$(ORDKLOEVER_FINAL_PROVIDER),~google/gemini-pro-latest)
 
 # Ordknuden default word model. Override with PROVIDER=/WORD_PROVIDER=/ORDKNUDE_PROVIDER=.
@@ -148,8 +148,11 @@ ordknude: $(BIN)
 		$(LOCAL_BROWSER_ENV) $(BIN) ordknude --submit --answer "$(GAME_ANSWER)" $(ORDKNUDE_PROVIDER_FLAG); \
 	fi
 
+# Krydsord default word/candidate/assembler model. Override with PROVIDER=/WORD_PROVIDER=.
+KRYDSORD_PROVIDER := $(or $(PROVIDER),$(provider),$(WORD_PROVIDER),openai/gpt-5.5)
+
 krydsord-dry: $(BIN)
-	$(LOCAL_BROWSER_ENV) $(BIN) krydsord --dry-run
+	$(LOCAL_BROWSER_ENV) $(BIN) krydsord --dry-run --provider "$(KRYDSORD_PROVIDER)"
 
 # Stage 1 of the crossword solver: deconstruct the board into a clue graph
 # (JSON) via the vision model, verify it (2nd pass on length/direction), exit.
@@ -183,7 +186,7 @@ krydsord-solve-dry: $(BIN)
 	$(BIN) krydsord --solve --dry-run $(KRYDSORD_GRAPH_FILE_FLAG)
 
 krydsord: $(BIN)
-	OPENROUTER_VISION_MODEL=$(OPENROUTER_VISION_MODEL) $(LOCAL_BROWSER_ENV) $(BIN) krydsord --submit
+	OPENROUTER_VISION_MODEL=$(OPENROUTER_VISION_MODEL) $(LOCAL_BROWSER_ENV) $(BIN) krydsord --submit --provider "$(KRYDSORD_PROVIDER)"
 
 # Blok for Blok is a Phaser WebGL canvas game with no accessible JS state, so it
 # is driven by pixel-perception + real coordinate mouse-drags — now a native Go
