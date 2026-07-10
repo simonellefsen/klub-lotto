@@ -505,3 +505,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-09 04:49 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
 
+## [2026-07-10 05:19 UTC] ingest | quiz | Hvad hedder den japanske ret, hvor ingredienser dyppes i en … | outcome=submitted
+
