@@ -1,6 +1,9 @@
 package klublotto
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestIsOrdKloeverWinText(t *testing.T) {
 	// The exact win banner from the parent body (see the live "Flot præstation!"
@@ -56,6 +59,41 @@ func TestIsOrdknudeAlreadyAnswered(t *testing.T) {
 	}
 	if IsOrdknudeAlreadyAnswered("Ordknuden\nGæt dagens ord.") {
 		t.Fatal("IsOrdknudeAlreadyAnswered() = true for a fresh playable board")
+	}
+}
+
+func TestIsFrameTornDownError(t *testing.T) {
+	// The exact error agent-browser returned when the last sudoku cell's click
+	// completed the puzzle and the win screen replaced the game iframe.
+	live := fmt.Errorf(`click [data-ab-num="3"]: exit status 1 ` +
+		`(stdout={"success":false,"data":null,"error":"CDP error (DOM.getFrameOwner): ` +
+		`Frame with the given id was not found."} stderr=)`)
+	if !IsFrameTornDownError(live) {
+		t.Fatal("IsFrameTornDownError() = false for the live DOM.getFrameOwner teardown error")
+	}
+	for _, msg := range []string{
+		"Execution context was destroyed",
+		"could not find frame for selector",
+		"Target closed",
+		"frame was detached",
+	} {
+		if !IsFrameTornDownError(fmt.Errorf("%s", msg)) {
+			t.Errorf("IsFrameTornDownError(%q) = false, want true", msg)
+		}
+	}
+	// A real fault must still fail loudly — never swallowed as "we won".
+	for _, msg := range []string{
+		"element not found: .cell-8-6",
+		"element is covered by <div.shadow.right>",
+		"timeout waiting for selector",
+		"context deadline exceeded",
+	} {
+		if IsFrameTornDownError(fmt.Errorf("%s", msg)) {
+			t.Errorf("IsFrameTornDownError(%q) = true, want false (real error must not be swallowed)", msg)
+		}
+	}
+	if IsFrameTornDownError(nil) {
+		t.Fatal("IsFrameTornDownError(nil) = true")
 	}
 }
 

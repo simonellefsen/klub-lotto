@@ -70,6 +70,40 @@ func IsOrdknudeWinText(s string) bool {
 	return false
 }
 
+// IsFrameTornDownError reports whether a browser action failed because the game
+// iframe went away mid-action. When a final move COMPLETES a puzzle, the game
+// swaps its cross-origin iframe for the win screen — and any action still in
+// flight against that frame fails with a CDP frame-lifecycle error rather than a
+// real fault (seen live 2026-07-10: the last sudoku cell's number click landed,
+// the win screen rendered, and agent-browser's post-click DOM.getFrameOwner
+// reported "Frame with the given id was not found" — aborting a run that had in
+// fact just won).
+//
+// Callers should treat this as "the board is gone, go look for the win banner",
+// not as an error. It matches only frame/context-lifecycle wording, so a genuine
+// selector miss ("element not found") still fails loudly.
+func IsFrameTornDownError(err error) bool {
+	if err == nil {
+		return false
+	}
+	low := strings.ToLower(err.Error())
+	for _, marker := range []string{
+		"frame with the given id was not found",
+		"execution context was destroyed",
+		"target closed",
+		"session closed",
+		"could not find frame for selector",
+		"getframeowner",
+		"frame was detached",
+		"no frame with given id found",
+	} {
+		if strings.Contains(low, marker) {
+			return true
+		}
+	}
+	return false
+}
+
 // IsOrdknudeAlreadyAnswered reports whether the page shows the round-COMPLETE
 // screen ("Ordknuden besvaret! Du har allerede besvaret dagens runde. …"). This
 // is distinct from the win banner: you land here after finishing the round AND

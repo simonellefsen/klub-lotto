@@ -117,8 +117,20 @@ func submitSudoku(ctx context.Context, br *browser.Client, givens, solved klublo
 	}
 
 	// Fill: click each empty cell by its unique class, then its number button.
+	//
+	// The FINAL cell's number click completes the puzzle, and the game swaps the
+	// grid iframe for the win screen straight away. Any click still in flight
+	// against that frame then fails with a CDP frame-lifecycle error — which
+	// means we WON, not that we failed (seen live 2026-07-10: the last cell's
+	// click landed, "Fantastisk! Du løste den!" rendered, and the run aborted on
+	// agent-browser's post-click DOM.getFrameOwner). So a frame-teardown error
+	// breaks out of the fill loop and falls through to the success check below,
+	// which reads the PARENT page and is unaffected. A genuine selector/coverage
+	// error still aborts loudly.
 	fmt.Println("       filling sudoku grid (.cell-<r>-<c> + number pad)...")
 	filled := 0
+	tornDown := false
+fill:
 	for r := 0; r < 9; r++ {
 		for c := 0; c < 9; c++ {
 			if givens[r][c] != 0 {
@@ -127,11 +139,24 @@ func submitSudoku(ctx context.Context, br *browser.Client, givens, solved klublo
 			n := solved[r][c]
 			cellSel := fmt.Sprintf(".cell-%d-%d", r, c)
 			if err := br.Click(ctx, cellSel); err != nil {
+				if klublotto.IsFrameTornDownError(err) {
+					fmt.Printf("       game frame went away at r%d c%d (board completed) — checking result\n", r+1, c+1)
+					tornDown = true
+					break fill
+				}
 				return fmt.Errorf("click cell %s: %w", cellSel, err)
 			}
 			time.Sleep(50 * time.Millisecond)
 			numSel := fmt.Sprintf(`[data-ab-num="%d"]`, n)
 			if err := br.Click(ctx, numSel); err != nil {
+				if klublotto.IsFrameTornDownError(err) {
+					// The click landed and completed the puzzle; only the
+					// post-click frame bookkeeping failed. Count the cell.
+					filled++
+					fmt.Printf("       game frame went away after r%d c%d=%d (board completed) — checking result\n", r+1, c+1, n)
+					tornDown = true
+					break fill
+				}
 				return fmt.Errorf("click number %d (%s) at r%d c%d: %w", n, numSel, r+1, c+1, err)
 			}
 			time.Sleep(70 * time.Millisecond)
@@ -140,7 +165,8 @@ func submitSudoku(ctx context.Context, br *browser.Client, givens, solved klublo
 	}
 	fmt.Printf("       filled %d cells\n", filled)
 
-	// Back to the parent and check for the success banner.
+	// Back to the parent and check for the success banner. After a teardown the
+	// frame is already gone, so the switch is best-effort either way.
 	if inFrame {
 		_ = br.Frame(ctx, "")
 	}
@@ -148,6 +174,9 @@ func submitSudoku(ctx context.Context, br *browser.Client, givens, solved klublo
 	if ok, detail := waitForSudokuSuccess(ctx, br); ok {
 		fmt.Println("       success:", detail)
 		return nil
+	}
+	if tornDown {
+		return fmt.Errorf("game frame went away after %d cells but no success confirmation appeared", filled)
 	}
 	return fmt.Errorf("filled %d cells but did not detect a success confirmation", filled)
 }
