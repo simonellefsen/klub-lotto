@@ -67,7 +67,8 @@
     "URO"
   ],
   "BANDEORD": [
-    "EDER"
+    "EDER",
+    "ED"
   ],
   "BASSIN": [
     "POOL"
@@ -160,6 +161,9 @@
   "BLÆST": [
     "SUS"
   ],
+  "BOLDKLUB": [
+    "AGF"
+  ],
   "BOLIG": [
     "TELT"
   ],
@@ -218,6 +222,9 @@
   "DA": [
     "IDET"
   ],
+  "DAMP": [
+    "EM"
+  ],
   "DANS": [
     "JITTERBUG"
   ],
@@ -237,6 +244,9 @@
   ],
   "DIGTER": [
     "POET"
+  ],
+  "DIRRER": [
+    "RYSTER"
   ],
   "DRIK": [
     "TE",
@@ -271,7 +281,8 @@
     "GRIS",
     "ILDERE",
     "REN",
-    "ORM"
+    "ORM",
+    "ELGE"
   ],
   "DØRSLAG": [
     "SI"
@@ -296,6 +307,9 @@
   ],
   "ENILONDON": [
     "ONE"
+  ],
+  "ENVELOPE": [
+    "BREV"
   ],
   "ETAGE": [
     "SAL"
@@ -465,6 +479,9 @@
   "FORRÅDTE": [
     "SVEG"
   ],
+  "FORSØMME": [
+    "NEGLIGERE"
+  ],
   "FRANKRIG": [
     "F"
   ],
@@ -476,6 +493,9 @@
   ],
   "FRISERES": [
     "REDES"
+  ],
+  "FRISK": [
+    "NY"
   ],
   "FRISKT": [
     "NYT"
@@ -764,6 +784,9 @@
     "PLADS",
     "HVERV"
   ],
+  "JORDTYPE": [
+    "LER"
+  ],
   "JOULE": [
     "J"
   ],
@@ -1017,6 +1040,9 @@
   "MASSERE": [
     "ÆLTE"
   ],
+  "MATERIALE": [
+    "GLAS"
+  ],
   "MEDIEHUS": [
     "DR"
   ],
@@ -1196,6 +1222,9 @@
     "ÅRTI",
     "ÅR"
   ],
+  "PERIODER": [
+    "UGER"
+  ],
   "PINE": [
     "NAGE"
   ],
@@ -1231,6 +1260,9 @@
   ],
   "POLERE": [
     "PUDSE"
+  ],
+  "POLITIAFDELING": [
+    "PET"
   ],
   "POPGRUPPE": [
     "ABBA"
@@ -1281,6 +1313,9 @@
   "REST": [
     "LEVN"
   ],
+  "RET": [
+    "NUDELSUPPE"
+  ],
   "RETNING": [
     "NV",
     "SV",
@@ -1297,6 +1332,9 @@
   ],
   "REX": [
     "R"
+  ],
+  "RINGE": [
+    "USLE"
   ],
   "ROD": [
     "UREDE"
@@ -1402,6 +1440,9 @@
     "DVD",
     "CD"
   ],
+  "SKOVGUD": [
+    "FAUN"
+  ],
   "SKRIVER": [
     "PEN"
   ],
@@ -1480,6 +1521,9 @@
   "SPIDS": [
     "OD"
   ],
+  "SPIL": [
+    "LEG"
+  ],
   "SPIRER": [
     "GROR"
   ],
@@ -1497,6 +1541,9 @@
   ],
   "SPORTSUDSTYR": [
     "SKATEBOARD"
+  ],
+  "SPORTSUDØVEREN": [
+    "ROEREN"
   ],
   "SPROG": [
     "IRSK",
@@ -1533,6 +1580,9 @@
   ],
   "STEMME": [
     "BAS"
+  ],
+  "STERIL": [
+    "REN"
   ],
   "STOLTHED": [
     "ÆRE"
@@ -1597,6 +1647,9 @@
   ],
   "SØDEMIDDEL": [
     "ROESUKKER"
+  ],
+  "TABLET": [
+    "IPAD"
   ],
   "TAGEFEJLAF": [
     "FORVEKSLE"
@@ -1668,7 +1721,8 @@
   ],
   "TOENS": [
     "OO",
-    "TT"
+    "TT",
+    "LL"
   ],
   "TON": [
     "T"
@@ -1688,6 +1742,9 @@
   ],
   "TOPTEAM": [
     "ELITEHOLD"
+  ],
+  "TORN": [
+    "PIG"
   ],
   "TOV": [
     "REB"
@@ -1715,11 +1772,13 @@
     "EL",
     "ÆR",
     "ESP",
-    "AHORN"
+    "AHORN",
+    "ELM"
   ],
   "TRÆER": [
     "ASPE",
-    "ESPE"
+    "ESPE",
+    "EGE"
   ],
   "TRÆET": [
     "ESPEN"
@@ -1833,8 +1892,14 @@
   "VIA": [
     "IGENNEM"
   ],
+  "VIDE": [
+    "ANE"
+  ],
   "VIGEN": [
     "NORET"
+  ],
+  "VIS": [
+    "KLOG"
   ],
   "VITAMIN": [
     "A",
@@ -1974,6 +2039,9 @@
   "[IMG]GRILL": [
     "GRILL"
   ],
+  "[IMG]HAMBURGER": [
+    "BURGER"
+  ],
   "[IMG]HAT": [
     "HAT"
   ],
@@ -1998,6 +2066,9 @@
   "[IMG]MUSICALNOTES": [
     "NODER"
   ],
+  "[IMG]MUSICNOTES": [
+    "NODER"
+  ],
   "[IMG]NESTWITHEGGS": [
     "REDE"
   ],
@@ -2015,6 +2086,9 @@
   ],
   "[IMG]PIGEON": [
     "DUE"
+  ],
+  "[IMG]PLAYINGCARD": [
+    "ES"
   ],
   "[IMG]PLAYINGCARDS": [
     "ESSER"

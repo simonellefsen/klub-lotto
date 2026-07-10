@@ -507,3 +507,11 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-10 05:19 UTC] ingest | quiz | Hvad hedder den japanske ret, hvor ingredienser dyppes i en … | outcome=submitted
 
+## [2026-07-10 05:20 UTC] ingest | ordkløver | Category: `Mad & drikke`; answer pattern `7 / 3 / 5`; visual… | outcome=submitted
+
+## [2026-07-10 05:24 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-07-10 05:27 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
+
+## [2026-07-10 05:43 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+
