@@ -206,6 +206,47 @@ func TestBlokChainAdvance(t *testing.T) {
 	}
 }
 
+func TestBlokAny3x3Fits(t *testing.T) {
+	var empty [8][8]int
+	if !blokAny3x3Fits(empty) {
+		t.Fatal("empty board should have a 3x3 fit")
+	}
+	// A checkerboard has no all-empty 3x3 window: any 3x3 block spans both
+	// parities of (r+c)%2, so it always contains at least one filled cell.
+	var checker [8][8]int
+	for r := 0; r < 8; r++ {
+		for c := 0; c < 8; c++ {
+			if (r+c)%2 == 0 {
+				checker[r][c] = 1
+			}
+		}
+	}
+	if blokAny3x3Fits(checker) {
+		t.Fatal("checkerboard board should have no 3x3 fit")
+	}
+}
+
+func TestBlokQualityPenalizesNo3x3Fit(t *testing.T) {
+	var checker [8][8]int
+	for r := 0; r < 8; r++ {
+		for c := 0; c < 8; c++ {
+			if (r+c)%2 == 0 {
+				checker[r][c] = 1
+			}
+		}
+	}
+	saved := BlokW3x3
+	defer func() { BlokW3x3 = saved }()
+
+	BlokW3x3 = 0
+	base := blokQuality(checker)
+	BlokW3x3 = 77
+	withPenalty := blokQuality(checker)
+	if base-withPenalty != 77 {
+		t.Fatalf("3x3 penalty not applied: base=%d withPenalty=%d, want diff 77", base, withPenalty)
+	}
+}
+
 func TestBlokPlanRewardsChainedClears(t *testing.T) {
 	// Rows 0 and 7 each need their last two cells; two 1x2 pieces each complete
 	// one row → two SEPARATE clearing placements. From a cold chain the 1st clear

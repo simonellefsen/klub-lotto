@@ -295,14 +295,39 @@ mean 10,057 / median 4,640 / p90 25,639 / lod 96% → **slack-scaled mean
 284,086. `-w-chainstate 45/60` probes were within noise (+~1% mean, −1 lod
 point) — default 30 kept; a proper sweep is Blok-P2.
 
-### Blok-P2 — survival beyond the trio + retune — NOT STARTED
-4. ⬜ **3x3-fit safety term:** end-of-trio boards where no 3×3 fits anywhere are
-   one bad draw from death (the classic boxed-in killer). Add
-   `BlokW3x3 × (no-3x3-fits ? 1 : 0)` penalty to `blokQuality` (cheap:
-   `blokValid` on the 3×3 is ≤36 positions).
-5. ⬜ **Retune all weights** against the corrected payout model with paired
-   seeds; add a `-compare` flag to blok-sim (two weight sets, same seeds, one
-   invocation, per-seed delta + sign test) instead of eyeballing two runs.
+### Blok-P2 — survival beyond the trio + retune — ✅ DONE 2026-07-11
+4. ✅ **3x3-fit safety term:** `blokAny3x3Fits` (probes with a solid 3×3 via
+   the existing `blokValid`) feeds a `BlokW3x3=150` penalty into `blokQuality`
+   whenever NO 3×3 region fits anywhere — the classic boxed-in-soon signal.
+   Pinned by `TestBlokAny3x3Fits` (checkerboard has no 3×3 window) and
+   `TestBlokQualityPenalizesNo3x3Fit`. **A/B (n=200, paired seeds): disabling
+   it entirely (w-3x3=0) is significantly worse (mean 19,128→12,492, p=0.0007
+   at n=200, confirmed p=0.0007 again at n=200 seed 1 on a second pass)** — the
+   term is clearly load-bearing. Sweeping its magnitude (75/150/250/400/600)
+   showed no significant difference from any other — the effect is "must be
+   present", not "must be precisely tuned"; 150 (a superset penalty deliberately
+   above `BlokWDead`'s per-cell 45, since a total lockout is far worse than one
+   dead cell) is kept.
+5. ✅ **`-compare` flag on blok-sim:** runs the production-default weight set
+   (A) and the CLI-overridden set (B) on identical paired seeds in one
+   invocation, reports per-seed delta + a two-sided sign test (normal
+   approximation), and flags "not distinguishable from noise" vs a real
+   verdict — replaces eyeballing two separate runs.
+   **Harness also parallelized** (games fan out across `GOMAXPROCS` — they
+   only read the shared `BlokW*` vars during a batch, never write them), ~2.5×
+   throughput on a 12-core box (2→5 games/s).
+   **Retune pass (n=200-400, paired seeds, vs the shipped defaults):**
+   `BlokWTight=0` (disabled) is significantly worse (p=0.0001) — confirms the
+   tight-gap penalty matters. `BlokWDead` (20/30/70/100) and `BlokWNear`
+   (0/5/20/30) showed no value beating the current default with significance
+   at this sample size except `BlokWDead=70` (significantly WORSE, p=0.0442) —
+   this game's score distribution is extremely heavy-tailed (max scores in the
+   100k-300k range vs medians in the 5k-10k range), so the sign test needs
+   larger n than was practical to run interactively for anything but the
+   largest effects. **Kept defaults: dead=45, tight=4, near=10** — each
+   confirmed non-degenerate (can't be zeroed), no confirmed better value found.
+   A longer unattended sweep (n≥1000 per point) is the natural follow-up if
+   more gains are wanted here.
 6. ✅ **blok-sim harness polish:** `cells:` line (mean/median + bonus share of
    score) now printed — landed as part of Blok-P1's A/B validation work above.
 

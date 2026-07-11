@@ -441,7 +441,20 @@ var (
 	BlokWDead       = 45    // penalty per dead 1x1 hole (unfillable)
 	BlokWTight      = 4     // penalty per tight single-neighbour empty cell
 	BlokWNear       = 10    // reward per near-complete-line unit (6/8→+1, 7/8→+2); tuned via cmd/blok-sim
+	BlokW3x3        = 150   // penalty when no 3x3 region fits anywhere (boxed-in-soon signal); tuned via cmd/blok-sim
 )
+
+// blok3x3 is a solid 3x3 block used only to PROBE the board — it is not a real
+// tray piece. The biggest common pieces are 3x3 (the rectangle) and the 3x3
+// L-pentomino's bounding box, so a board with no open 3x3 region is a strong
+// leading signal that the next trio's big piece will strand the game (the
+// classic boxed-in death). Checked via the existing blokValid machinery.
+var blok3x3 = [][]int{{1, 1, 1}, {1, 1, 1}, {1, 1, 1}}
+
+// blokAny3x3Fits reports whether an all-filled 3x3 block fits anywhere on b.
+func blokAny3x3Fits(b [8][8]int) bool {
+	return len(blokValid(b, blok3x3)) > 0
+}
 
 // BlokChain is the live combo-chain state, carried ACROSS trios (confirmed from
 // live traces: the escalation ran unbroken through ~8 trios on 2026-07-05).
@@ -531,7 +544,11 @@ func blokQuality(b [8][8]int) int {
 			near += cf - 5
 		}
 	}
-	return empty - BlokWDead*dead - BlokWTight*tight + BlokWNear*near
+	quality := empty - BlokWDead*dead - BlokWTight*tight + BlokWNear*near
+	if !blokAny3x3Fits(b) {
+		quality -= BlokW3x3
+	}
+	return quality
 }
 
 // BlokPlan does the full-trio lookahead: it tries every ordering/placement of the
