@@ -585,7 +585,10 @@ func askOrdKloeverDecision(ctx context.Context, cfg *config.Config, provider str
 	// the display word-groups.
 	boardDisplay := st.Board
 	if strings.Contains(st.Board, "-") {
-		boardDisplay = st.Board + "\n  (BEMÆRK: '-' er en fast bindestreg der hører til svaret — fx et bindestregsord som TRYGHEDS-NARKOMAN. Den tæller som én position men skrives ikke som bogstav. '/' adskiller ord. Medtag bindestregen i din frase.)"
+		boardDisplay += "\n  (BEMÆRK: '-' er en fast bindestreg der hører til svaret — fx et bindestregsord som TRYGHEDS-NARKOMAN. Den tæller som én position men skrives ikke som bogstav. '/' adskiller ord. Medtag bindestregen i din frase.)"
+	}
+	if strings.Contains(st.Board, "&") {
+		boardDisplay += "\n  (BEMÆRK: '&' er et fast og-tegn spillet allerede har udfyldt — svaret er et par på formen \"X & Y\", fx \"GØG & GOKKE\". '&' gættes og tastes IKKE, men medtag det i din frase.)"
 	}
 
 	// Build candidate block — the LLM MUST choose from this list when guessing.

@@ -266,7 +266,9 @@ func NormalizeDanishPhrase(s string) string {
 			lastSpace = false
 			continue
 		}
-		if unicode.IsSpace(r) || r == '-' || r == '/' {
+		// '&' is a pre-given board character ("KAJ & ANDREA") that is never
+		// typed — treat it like a word break so mask/shape word counts line up.
+		if unicode.IsSpace(r) || r == '-' || r == '/' || r == '&' {
 			if !lastSpace && b.Len() > 0 {
 				b.WriteByte(' ')
 				lastSpace = true
@@ -378,13 +380,21 @@ func PhraseMatchesMask(phrase, mask string) bool {
 		maskWords = strings.Fields(strings.ReplaceAll(mask, "/", " "))
 	}
 
-	// Structural dashes ("-") are pre-revealed separators, not typed letters.
-	// NormalizeDanishPhrase turns dashes into word breaks, so the phrase carries
-	// no dash; strip dashes from each mask word so position counts line up
-	// (e.g. mask "TR___E__-" → "TR___E__" matches "TRYGHEDS").
-	for i := range maskWords {
-		maskWords[i] = strings.ReplaceAll(maskWords[i], "-", "")
+	// Structural dashes ("-") and ampersands ("&") are pre-revealed characters,
+	// not typed letters. NormalizeDanishPhrase turns both into word breaks, so
+	// the phrase carries neither; strip them from each mask word so position
+	// counts line up (e.g. mask "TR___E__-" → "TR___E__" matches "TRYGHEDS").
+	// A mask word that was ONLY structural (the standalone "&" tile group in
+	// "KAJ / & / ANDREA") disappears entirely — it demands no phrase word.
+	kept := maskWords[:0]
+	for _, w := range maskWords {
+		w = strings.ReplaceAll(w, "-", "")
+		w = strings.ReplaceAll(w, "&", "")
+		if w != "" {
+			kept = append(kept, w)
+		}
 	}
+	maskWords = kept
 
 	phraseWords := strings.Fields(phrase)
 	if len(maskWords) != len(phraseWords) {
@@ -456,11 +466,13 @@ func BoardShapeFromString(board string) string {
 		if len(tokens) == 0 {
 			continue
 		}
-		// In spaced format every token is a single character (letter, "_", or "-").
-		// Count letter/blank positions but skip structural dashes.
+		// In spaced format every token is a single character (letter, "_", "-",
+		// or "&"). Count letter/blank positions but skip structural characters
+		// ("-" hyphen, "&" ampersand) — they are pre-given, never typed. A group
+		// that is ONLY structural (the lone "&" tile) contributes no word.
 		total := 0
 		for _, t := range tokens {
-			if t == "-" {
+			if t == "-" || t == "&" {
 				continue
 			}
 			total += len([]rune(t))
@@ -473,13 +485,14 @@ func BoardShapeFromString(board string) string {
 }
 
 // EffectiveShapeForMatching returns the word-length pattern to validate guessed
-// phrases against. When the board contains structural dashes ("-"), those count
-// toward the game's displayed shape (e.g. "9+8") but are not typed letters, so a
-// correct answer like "TRYGHEDS-NARKOMAN" normalizes to 8+8 letters. In that
-// case we derive the shape from the board with dashes excluded so the correct
-// answer is not wrongly filtered out. Falls back to the extracted shape.
+// phrases against. When the board contains structural characters ("-" hyphen,
+// "&" ampersand), those count toward the game's displayed shape (e.g. "9+8", or
+// "3+1+6" for "KAJ & ANDREA") but are not typed letters, so the correct answer
+// normalizes to fewer/shorter words. In that case we derive the shape from the
+// board with structural characters excluded so the correct answer is not
+// wrongly filtered out. Falls back to the extracted shape.
 func EffectiveShapeForMatching(board, shape string) string {
-	if strings.Contains(board, "-") {
+	if strings.ContainsAny(board, "-&") {
 		if bs := BoardShapeFromString(board); bs != "" {
 			return bs
 		}
@@ -1001,6 +1014,8 @@ and a revealed tile as its letter. Rules:
    ("TV-AVIS").
 4. Combine as needed: "VÆRKSTEDS-/MESTER HOS/BING OG GRØN-/DAHL" ->
    "VÆRKSTEDSMESTER", "HOS", "BING", "OG", "GRØNDAHL".
+5. A greyed-out pre-filled special character tile (e.g. "&") is its own
+   entry — keep the character ("KAJ", "&", "ANDREA").
 
 Example: first line shows "_ I N _    O _" (two words), second line
 "_ R _ N D A _ L" (one word) -> "pattern_rows": ["_IN_", "O_", "_R_NDA_L"].
@@ -1275,7 +1290,10 @@ const ordKloeverBoardJS = `(() => {
     const isControl = el.tagName.toLowerCase() === 'button' || !!el.closest('button,[role="button"]');
     if (isControl) continue;
     const text = (el.innerText || el.textContent || '').trim().toUpperCase();
-    const chars = Array.from(text).filter(ch => alphabet.includes(ch) || ch === '-');
+    // '-' and '&' are structural pre-given characters (hyphenated words,
+    // "X & Y" pairs) — keep them as literals so the Go side knows the tile
+    // is fixed, not an unguessed blank.
+    const chars = Array.from(text).filter(ch => alphabet.includes(ch) || '-&'.includes(ch));
     gridTiles.push({col, row, letter: chars[0] || '_'});
   }
 
@@ -1333,7 +1351,7 @@ const ordKloeverBoardJS = `(() => {
   let boxes = Array.from(document.querySelectorAll('[class*="tile"],[class*="cell"],[class*="letter"],[class*="square"],[role="gridcell"]')).map(el => {
     const r = el.getBoundingClientRect();
     const text = (el.innerText || el.textContent || '').trim().toUpperCase();
-    const chars = Array.from(text).filter(ch => alphabet.includes(ch) || ch === '-');
+    const chars = Array.from(text).filter(ch => alphabet.includes(ch) || '-&'.includes(ch));
     const cls = String(el.className || '').toLowerCase();
     const tag = el.tagName.toLowerCase();
     const isControl = tag === 'button' || tag === 'input' || tag === 'textarea' || !!el.closest('button,[role="button"]');
@@ -2713,10 +2731,26 @@ func BuildOrdKloeverPrompt(st OrdKloeverState, maxProbe int) string {
 		// but is NOT typed — like a space between words).
 		groups := strings.Split(st.Board, "/")
 		hasDash := false
+		hasAmp := false
 		gi := 0
 		for _, grp := range groups {
 			tokens := strings.Fields(grp)
 			if len(tokens) == 0 {
+				continue
+			}
+			// A group that is ONLY structural characters (the pre-given lone "&"
+			// tile between two words, e.g. "KAJ / & / ANDREA") is not a word to
+			// guess — note it instead of numbering it.
+			allStructural := true
+			for _, t := range tokens {
+				if t != "&" && t != "-" {
+					allStructural = false
+					break
+				}
+			}
+			if allStructural {
+				hasAmp = hasAmp || strings.Contains(grp, "&")
+				fmt.Fprintf(&b, "Mellem ordene står et fast '%s' (allerede udfyldt af spillet).\n", strings.Join(tokens, ""))
 				continue
 			}
 			gi++
@@ -2729,6 +2763,9 @@ func BuildOrdKloeverPrompt(st OrdKloeverState, maxProbe int) string {
 				case "-":
 					hasDash = true
 					knownLines = append(knownLines, fmt.Sprintf("position %d = bindestreg '-'", i+1))
+				case "&":
+					hasAmp = true
+					knownLines = append(knownLines, fmt.Sprintf("position %d = og-tegn '&'", i+1))
 				default:
 					knownLines = append(knownLines, fmt.Sprintf("position %d = %s", i+1, t))
 				}
@@ -2740,6 +2777,9 @@ func BuildOrdKloeverPrompt(st OrdKloeverState, maxProbe int) string {
 		}
 		if hasDash {
 			b.WriteString("BEMÆRK: En bindestreg '-' er en fast del af svaret (fx et bindestregsord) — den optælles i tegn-antallet, men skrives ikke som et bogstav. Medtag bindestregen i dit svar, fx \"TRYGHEDS-NARKOMAN\".\n")
+		}
+		if hasAmp {
+			b.WriteString("BEMÆRK: Svaret indeholder et fast '&' (og-tegn) som spillet allerede har udfyldt — det gættes og tastes IKKE. Svaret er altså et par/en duo på formen \"X & Y\", fx \"GØG & GOKKE\". Medtag '&' i din frase.\n")
 		}
 		b.WriteString("Kandidater SKAL have præcis de rigtige bogstaver/tegn på de angivne positioner.\n")
 	}

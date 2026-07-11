@@ -129,6 +129,47 @@ func TestPhraseMatchesMask(t *testing.T) {
 	}
 }
 
+// The board can contain a pre-given "&" tile (category "Makkerpar", answers
+// like "KAJ & ANDREA" — seen live 2026-07-11). The "&" is its own grayed word
+// group, is never typed, and must not make shape/mask validation reject the
+// correct answer or demand a letter in its place.
+func TestStructuralAmpersandBoard(t *testing.T) {
+	// Spaced board as extractOrdKloeverViaDOM produces it: three groups.
+	board := "K _ J / & / _ N D _ E _"
+
+	if got := NormalizeDanishPhrase("KAJ & ANDREA"); got != "KAJ ANDREA" {
+		t.Fatalf("NormalizeDanishPhrase(KAJ & ANDREA) = %q, want KAJ ANDREA", got)
+	}
+	// Compact "&" without spaces must still split the words.
+	if got := NormalizeDanishPhrase("GØG&GOKKE"); got != "GØG GOKKE" {
+		t.Fatalf("NormalizeDanishPhrase(GØG&GOKKE) = %q, want GØG GOKKE", got)
+	}
+
+	// Typed-letter shape skips the "&" group entirely: 3+6, not 3+1+6.
+	if got := BoardShapeFromString(board); got != "3+6" {
+		t.Fatalf("BoardShapeFromString(%q) = %q, want 3+6", board, got)
+	}
+	// The raw extracted shape counts the "&" tile ("3 / 1 / 6"); matching must
+	// use the board-derived typed-letter shape instead.
+	if got := EffectiveShapeForMatching(board, "3 / 1 / 6"); got != "3+6" {
+		t.Fatalf("EffectiveShapeForMatching = %q, want 3+6", got)
+	}
+	if !PhraseMatchesLengthPattern("KAJ & ANDREA", EffectiveShapeForMatching(board, "3 / 1 / 6")) {
+		t.Fatal("correct answer rejected by length pattern")
+	}
+
+	// Mask matching: the lone "&" group demands no phrase word.
+	if !PhraseMatchesMask("KAJ & ANDREA", board) {
+		t.Fatalf("PhraseMatchesMask(KAJ & ANDREA, %q) = false, want true", board)
+	}
+	if PhraseMatchesMask("KIM & ANDREA", board) {
+		t.Fatal("PhraseMatchesMask accepted KIM against revealed K_J")
+	}
+	if PhraseMatchesMask("KAJ & ANDERS", board) {
+		t.Fatal("PhraseMatchesMask accepted six-letter ANDERS against _ND_E_")
+	}
+}
+
 func TestFilterCandidatesByMask(t *testing.T) {
 	cands := []WordCandidate{
 		{Answer: "TONE OM EN KONCERT"},
