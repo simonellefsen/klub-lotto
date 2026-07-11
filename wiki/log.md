@@ -515,3 +515,7 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-10 05:43 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
 
+## [2026-07-11 05:50 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
+## [2026-07-11 05:50 UTC] ingest | quiz | Hvor mange sæsoner har den amerikanske tv-serie Friends? | outcome=submitted
+
