@@ -167,9 +167,12 @@ func TestBlokPlanPrefersLineClear(t *testing.T) {
 }
 
 func TestBlokChainAdvance(t *testing.T) {
-	// Payout schedule confirmed from the 2026-07-07 continuous-chain live trace:
-	// the k-th clearing placement pays 10×(k−1) — only the FIRST clear is free —
-	// and the chain survives gaps of ≤3 non-clearing placements, dying on the 4th.
+	// Payout schedule confirmed from the 2026-07-07 continuous-chain live trace
+	// (validated to chain 41/+400 live 2026-07-11): the k-th clearing placement
+	// pays 10×(k−1) — only the FIRST clear is free. Gap rule corrected from the
+	// 2026-07-11 193-move game: the chain survives gaps of ≤2 non-clearing
+	// placements and dies on the 3rd (89/89 continuations at gaps 0-2, 3/3
+	// +0 restarts at gap 3 — the game's only mispredicted moves that day).
 	var ch BlokChain
 	wantPay := []int{0, 10, 20, 30, 40}
 	for k, want := range wantPay {
@@ -179,23 +182,23 @@ func TestBlokChainAdvance(t *testing.T) {
 			t.Fatalf("clear #%d: pay=%d len=%d, want pay=%d len=%d", k+1, pay, ch.Len, want, k+1)
 		}
 	}
-	// Three non-clears keep the chain alive; the next clear extends it.
-	for i := 0; i < 3; i++ {
+	// Two non-clears keep the chain alive; the next clear extends it.
+	for i := 0; i < 2; i++ {
 		ch, _ = ch.Advance(false)
 	}
 	if ch.Len != 5 {
-		t.Fatalf("chain died too early: len=%d after 3 non-clears", ch.Len)
+		t.Fatalf("chain died too early: len=%d after 2 non-clears", ch.Len)
 	}
 	ch, pay := ch.Advance(true)
 	if pay != 50 || ch.Len != 6 {
-		t.Fatalf("clear #6 after gap: pay=%d len=%d, want 50/6", pay, ch.Len)
+		t.Fatalf("clear #6 after gap of 2: pay=%d len=%d, want 50/6", pay, ch.Len)
 	}
-	// Four non-clears kill it; the next clear restarts at len 1, pay 0.
-	for i := 0; i < 4; i++ {
+	// Three non-clears kill it; the next clear restarts at len 1, pay 0.
+	for i := 0; i < 3; i++ {
 		ch, _ = ch.Advance(false)
 	}
 	if ch.Len != 0 {
-		t.Fatalf("chain should be dead after 4 non-clears, len=%d", ch.Len)
+		t.Fatalf("chain should be dead after 3 non-clears, len=%d", ch.Len)
 	}
 	ch, pay = ch.Advance(true)
 	if pay != 0 || ch.Len != 1 {

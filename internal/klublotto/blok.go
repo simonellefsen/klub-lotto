@@ -447,28 +447,34 @@ var (
 // live traces: the escalation ran unbroken through ~8 trios on 2026-07-05).
 type BlokChain struct {
 	Len        int // clearing placements in the current chain (0 = no chain)
-	SinceClear int // placements since the last clear (>3 ⇒ chain expired)
+	SinceClear int // placements since the last clear (3 ⇒ chain expired)
 }
 
 // Advance transitions the chain across one placement and returns the REAL bonus
 // points that placement pays. Payout schedule confirmed from a full continuous
 // chain in live per-step score deltas (2026-07-07, Δscore − Δcells): the k-th
 // clearing placement of a chain pays 10×(k−1) — only the FIRST clear is free,
-// then +10 each (0, 10, 20, … up to +130 over 14 clears) — and a placement
-// clearing multiple lines at once pays NOTHING extra (one chain step, same
-// bonus). (An earlier fit from a 2026-07-05 trace read "first TWO free"; that
-// trace was a broken-and-restarted chain — the continuous 07-07 data is
-// authoritative.) This is the single source of truth used by the simulator, the
-// planner, and the driver.
+// then +10 each — and a placement clearing multiple lines at once pays NOTHING
+// extra (one chain step, same bonus). Validated live up to chain 41 (+400) on
+// 2026-07-11. (An earlier fit from a 2026-07-05 trace read "first TWO free";
+// that trace was a broken-and-restarted chain — the continuous 07-07 data is
+// authoritative.)
+//
+// GAP RULE: the chain survives at most TWO consecutive non-clearing placements;
+// the third kills it. Confirmed 2026-07-11 across a 193-move game: 89/89 clears
+// after gaps of 0-2 continued the chain, 3/3 clears after a gap of exactly 3
+// restarted it at +0 (the only mispredictions of the whole game, under the old
+// "gap of 3 survives" model). This is the single source of truth used by the
+// simulator, the planner, and the driver.
 func (ch BlokChain) Advance(cleared bool) (BlokChain, int) {
 	if !cleared {
 		ch.SinceClear++
-		if ch.SinceClear > 3 {
+		if ch.SinceClear > 2 {
 			ch.Len = 0
 		}
 		return ch, 0
 	}
-	if ch.Len > 0 && ch.SinceClear <= 3 {
+	if ch.Len > 0 && ch.SinceClear <= 2 {
 		ch.Len++
 	} else {
 		ch.Len = 1 // start (or restart) the chain
@@ -557,8 +563,13 @@ func BlokPlan(board [8][8]int, shapes [][][]int, chain BlokChain) []BlokScoredMo
 	rec = func(bd [8][8]int, rem []int, first *key, cl, bonus int, ch BlokChain) {
 		if first != nil {
 			placed := nShapes - len(rem)
+			// The live chain's terminal value is scaled by its remaining gap
+			// slack: with SinceClear=s the next trio has 2−s free non-clearing
+			// placements before the chain dies, so a fresh chain (s=0) is worth
+			// full value and one at s=2 (must clear IMMEDIATELY) a third.
+			chainState := BlokWChainState * ch.Len * (3 - ch.SinceClear) / 3
 			sc := placed*BlokWSurvival + cl*BlokWClear + BlokWChain*bonus +
-				BlokWChainState*ch.Len + blokQuality(bd)
+				chainState + blokQuality(bd)
 			if old, ok := results[*first]; !ok || sc > old {
 				results[*first] = sc
 			}
