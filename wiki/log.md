@@ -519,3 +519,15 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-11 05:50 UTC] ingest | quiz | Hvor mange sæsoner har den amerikanske tv-serie Friends? | outcome=submitted
 
+## [2026-07-11 06:13 UTC] ingest | ordkløver | Category: `Makkerpar`; answer pattern `9 / 1 / 6`; visual la… | outcome=submitted
+
+## [2026-07-11 06:15 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-07-11 06:36 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
+
+## [2026-07-11 06:50 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+
+## [2026-07-12 07:35 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
+## [2026-07-12 07:35 UTC] ingest | quiz | Hvilket dansk band udgav det globale hit 'Barbie Girl' i 199… | outcome=submitted
+

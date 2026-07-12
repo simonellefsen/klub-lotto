@@ -17,6 +17,9 @@
   "500": [
     "D"
   ],
+  "505": [
+    "DV"
+  ],
   "506": [
     "DVI"
   ],
@@ -25,6 +28,9 @@
   ],
   "ACEOFDIAMONDSPLAYINGCARD": [
     "ES"
+  ],
+  "AFTRYK": [
+    "SPOR"
   ],
   "ALTSÅ": [
     "ERGO"
@@ -127,6 +133,9 @@
   "BILLEDE": [
     "FOTO"
   ],
+  "BILUDSTYR": [
+    "PSKIVE"
+  ],
   "BINDEMIDDEL": [
     "KIT",
     "LIM",
@@ -169,6 +178,9 @@
   ],
   "BOR": [
     "B"
+  ],
+  "BORTE": [
+    "VÆK"
   ],
   "BRANCHE": [
     "IT"
@@ -251,7 +263,8 @@
   "DRIK": [
     "TE",
     "ØL",
-    "CAPPUCCINO"
+    "CAPPUCCINO",
+    "ORANGEADE"
   ],
   "DRØM": [
     "UTOPI"
@@ -282,7 +295,8 @@
     "ILDERE",
     "REN",
     "ORM",
-    "ELGE"
+    "ELGE",
+    "KANIN"
   ],
   "DØRSLAG": [
     "SI"
@@ -360,6 +374,9 @@
   ],
   "FAGPERSON": [
     "CYKELSMED"
+  ],
+  "FANDTES": [
+    "VAR"
   ],
   "FANTASERER": [
     "DAGDRØMMER"
@@ -906,6 +923,9 @@
   "KRONER": [
     "KR"
   ],
+  "KROP": [
+    "LEGEME"
+  ],
   "KRYDDERDELE": [
     "OVERE"
   ],
@@ -914,6 +934,9 @@
   ],
   "KUN": [
     "BARE"
+  ],
+  "KUNSTVÆRK": [
+    "OLIEMALERI"
   ],
   "KURS": [
     "N",
@@ -977,7 +1000,8 @@
     "FRI"
   ],
   "LEGEMSDEL": [
-    "BEN"
+    "BEN",
+    "ARM"
   ],
   "LEGITIMATION": [
     "ID"
@@ -1037,6 +1061,9 @@
   "MANGE": [
     "ADSKILLIGE"
   ],
+  "MASQUERADEMASK": [
+    "MASKE"
+  ],
   "MASSERE": [
     "ÆLTE"
   ],
@@ -1045,6 +1072,9 @@
   ],
   "MEDIEHUS": [
     "DR"
+  ],
+  "MEDIUM": [
+    "M"
   ],
   "MENUPUNKT": [
     "RET"
@@ -1057,6 +1087,9 @@
   ],
   "MI": [
     "E"
+  ],
+  "MIDTERLINJE": [
+    "AKSE"
   ],
   "MILLIMETER": [
     "MM"
@@ -1098,6 +1131,9 @@
   ],
   "MÅLFORK": [
     "KM"
+  ],
+  "MÅNEDSFORK": [
+    "AUG"
   ],
   "MÅNEFASE": [
     "NY"
@@ -1220,7 +1256,8 @@
   ],
   "PERIODE": [
     "ÅRTI",
-    "ÅR"
+    "ÅR",
+    "NAT"
   ],
   "PERIODER": [
     "UGER"
@@ -1339,6 +1376,9 @@
   "ROD": [
     "UREDE"
   ],
+  "ROGN": [
+    "ÆG"
+  ],
   "ROYALFORKORTELSE": [
     "KGL"
   ],
@@ -1379,6 +1419,9 @@
   ],
   "SANG": [
     "ARIE"
+  ],
+  "SELSKAB": [
+    "APS"
   ],
   "SIDE": [
     "KANT"
@@ -1499,6 +1542,9 @@
   ],
   "SNYLTE": [
     "NASSE"
+  ],
+  "SOL": [
+    "G"
   ],
   "SOLGUD": [
     "RA"
@@ -1798,6 +1844,9 @@
   "TÆRE": [
     "ÆTSE"
   ],
+  "TÆRING": [
+    "RUST"
+  ],
   "TÆTTE": [
     "NÆRE"
   ],
@@ -1828,6 +1877,9 @@
   ],
   "URAN": [
     "U"
+  ],
+  "VADER": [
+    "GÅR"
   ],
   "VAKLE": [
     "NØLE"
@@ -1862,6 +1914,9 @@
   ],
   "VEJDEL": [
     "BANE"
+  ],
+  "VEJLEDER": [
+    "GURU"
   ],
   "VEJRMELDER": [
     "DMI"
@@ -2084,6 +2139,9 @@
   "[IMG]PAPERCLIPS": [
     "CLIPS"
   ],
+  "[IMG]PEAR": [
+    "PÆRE"
+  ],
   "[IMG]PIGEON": [
     "DUE"
   ],
@@ -2097,7 +2155,11 @@
     "STIK"
   ],
   "[IMG]RAINDROPS": [
-    "REGN"
+    "REGN",
+    "DRÅBER"
+  ],
+  "[IMG]RAKES": [
+    "RIVER"
   ],
   "[IMG]ROSES": [
     "ROSER"
