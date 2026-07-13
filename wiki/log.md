@@ -531,3 +531,15 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-12 07:35 UTC] ingest | quiz | Hvilket dansk band udgav det globale hit 'Barbie Girl' i 199… | outcome=submitted
 
+## [2026-07-12 07:36 UTC] ingest | ordkløver | Category: `Mad & drikke`; answer pattern `2 / 6 / 3 / 3 / 4`… | outcome=submitted
+
+## [2026-07-12 07:40 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-07-12 07:48 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
+
+## [2026-07-12 07:53 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+
+## [2026-07-13 04:03 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
+## [2026-07-13 04:03 UTC] ingest | quiz | I hvilket år grundlagde Djengis Khan Det Mongolske Rige? | outcome=submitted
+

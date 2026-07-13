@@ -17,6 +17,9 @@
   "500": [
     "D"
   ],
+  "501": [
+    "DI"
+  ],
   "505": [
     "DV"
   ],
@@ -296,7 +299,10 @@
     "REN",
     "ORM",
     "ELGE",
-    "KANIN"
+    "KANIN",
+    "PANDA",
+    "ELG",
+    "MÅR"
   ],
   "DØRSLAG": [
     "SI"
@@ -468,6 +474,9 @@
   "FORBUND": [
     "EU"
   ],
+  "FOREDRAG": [
+    "TALE"
+  ],
   "FORESTILLING": [
     "REVY"
   ],
@@ -575,11 +584,17 @@
   "GIDE": [
     "ORKE"
   ],
+  "GIFT": [
+    "DDT"
+  ],
   "GIKOP": [
     "STEG"
   ],
   "GLKARAKTR": [
     "UG"
+  ],
+  "GLOSER": [
+    "ORD"
   ],
   "GNAVEDE": [
     "BED"
@@ -589,6 +604,9 @@
   ],
   "GODT": [
     "VEL"
+  ],
+  "GODTSLAG": [
+    "ES"
   ],
   "GOLFUDSTYR": [
     "TEE"
@@ -620,7 +638,8 @@
     "ENG"
   ],
   "GUD": [
-    "AS"
+    "AS",
+    "AMOR"
   ],
   "GUDINDE": [
     "ATE",
@@ -709,6 +728,9 @@
   "HUNDSE": [
     "HERSE"
   ],
+  "HVIL": [
+    "PAUSE"
+  ],
   "HYLSTER": [
     "ETUI"
   ],
@@ -721,6 +743,9 @@
   ],
   "HÅNDARBEJDE": [
     "SYTØJ"
+  ],
+  "HÅRPRODUKT": [
+    "GEL"
   ],
   "HÆLDT": [
     "ØSET"
@@ -833,6 +858,9 @@
   ],
   "KIGGE": [
     "SE"
+  ],
+  "KIGGEDE": [
+    "SÅ"
   ],
   "KIGGER": [
     "SER"
@@ -1035,6 +1063,12 @@
   ],
   "LYS": [
     "KERTE"
+  ],
+  "LYSKILDE": [
+    "SPOT"
+  ],
+  "LYTTEUDSTYR": [
+    "STETOSKOP"
   ],
   "LÆDER": [
     "SKIND"
@@ -1326,7 +1360,8 @@
     "HER"
   ],
   "PÅLÆG": [
-    "OST"
+    "OST",
+    "SPEGEPØLSE"
   ],
   "RAMMER": [
     "KARME"
@@ -1540,6 +1575,9 @@
   "SNEDIG": [
     "SNU"
   ],
+  "SNILDE": [
+    "LIST"
+  ],
   "SNYLTE": [
     "NASSE"
   ],
@@ -1670,6 +1708,9 @@
     "NM",
     "VM"
   ],
+  "STØRRELSE": [
+    "MEDIUM"
+  ],
   "SVAR": [
     "JA"
   ],
@@ -1760,7 +1801,8 @@
     "IRØRER"
   ],
   "TITEL": [
-    "INSPEKTØR"
+    "INSPEKTØR",
+    "PRINS"
   ],
   "TJAVS": [
     "LOK"
@@ -1768,7 +1810,8 @@
   "TOENS": [
     "OO",
     "TT",
-    "LL"
+    "LL",
+    "PP"
   ],
   "TON": [
     "T"
@@ -1835,6 +1878,9 @@
   "TRÆT": [
     "DØSIG"
   ],
+  "TYDELIG": [
+    "KLAR"
+  ],
   "TYSKLAND": [
     "D"
   ],
@@ -1849,6 +1895,9 @@
   ],
   "TÆTTE": [
     "NÆRE"
+  ],
+  "TØNDE": [
+    "TD"
   ],
   "UDBRUD": [
     "AV",
@@ -1956,6 +2005,9 @@
   "VIS": [
     "KLOG"
   ],
+  "VISER": [
+    "PEGER"
+  ],
   "VITAMIN": [
     "A",
     "B",
@@ -1984,6 +2036,9 @@
   "VÆSEN": [
     "FE"
   ],
+  "VÆSNER": [
+    "ENGLE"
+  ],
   "VÆSNET": [
     "ENGLEN"
   ],
@@ -2001,6 +2056,9 @@
   ],
   "[IMG]APPLE": [
     "ÆBLE"
+  ],
+  "[IMG]APPLECORE": [
+    "SKROG"
   ],
   "[IMG]BADMINTONRACKET": [
     "NET"
@@ -2105,6 +2163,9 @@
   ],
   "[IMG]LEAVES": [
     "BLADE"
+  ],
+  "[IMG]LIGHTBULBS": [
+    "PÆRER"
   ],
   "[IMG]LIGHTNINGBOLT": [
     "LYN"
@@ -2229,6 +2290,9 @@
   ],
   "ØLSORT": [
     "ALE"
+  ],
+  "ØRKENLUND": [
+    "OASE"
   ],
   "ØSTRIG": [
     "A"
