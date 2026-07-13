@@ -229,6 +229,9 @@ func runQuiz(ctx context.Context, args []string) error {
 	fmt.Println("[3/6] extracting question and options...")
 	round, err := klublotto.ExtractRound(snap)
 	if err != nil && !errors.Is(err, klublotto.ErrLoginRequired) {
+		if ctx.Err() != nil {
+			return ctx.Err() // interrupted — skip the vision fallback
+		}
 		fmt.Printf("       snapshot extraction failed (%v); falling back to screenshot OCR...\n", err)
 		visionCtx, visionCancel := context.WithTimeout(ctx, 60*time.Second)
 		round, err = klublotto.ExtractRoundFromScreenshot(visionCtx, br, cfg.DataDir, llm.NewAnthropic(cfg.AnthropicKey, "claude-haiku-4-5-20251001"))

@@ -200,7 +200,10 @@ func waitSudokuLoaderClear(ctx context.Context, br *browser.Client) error {
 		if strings.TrimSpace(raw) == "clear" {
 			return nil
 		}
-		if time.Now().After(deadline) || ctx.Err() != nil {
+		if ctx.Err() != nil {
+			return ctx.Err() // interrupted (Ctrl-C) — don't start the fill on a dead context
+		}
+		if time.Now().After(deadline) {
 			// Last resort: take the loader out of the click path so the fill can proceed.
 			_, _ = br.Eval(ctx, `(() => { document.querySelectorAll('.bm-container-loader').forEach(l=>{l.style.pointerEvents='none';}); return 'ok'; })()`)
 			return nil

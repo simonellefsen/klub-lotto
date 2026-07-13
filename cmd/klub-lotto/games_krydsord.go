@@ -1428,6 +1428,9 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 		raw, genErr := p.GenerateJSON(modelCtx, prompt, 0.05)
 		cancel()
 		if genErr != nil {
+			if ctx.Err() != nil {
+				return nil, ctx.Err() // interrupted (Ctrl-C) — don't churn retries on a dead context
+			}
 			lastErr = genErr
 			fmt.Printf("       [assemble] attempt %d/%d: model error: %v\n", attempt, maxAttempts, genErr)
 			if or, ok := p.(*llm.OpenRouter); ok && or.ReasoningEffort != "low" &&

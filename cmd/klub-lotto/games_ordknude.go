@@ -68,6 +68,10 @@ func runOrdknude(ctx context.Context, args []string) error {
 	// is what produced "no board letters" / "keyboard not ready".
 	enterCtx, enterCancel := context.WithTimeout(ctx, 80*time.Second)
 	if err := klublotto.EnterWordGame(enterCtx, br, "SPIL ORDKNUDEN", "Spil Ordknuden"); err != nil {
+		if ctx.Err() != nil {
+			enterCancel()
+			return ctx.Err() // interrupted (Ctrl-C) — do NOT zombie on with a dead context
+		}
 		fmt.Printf("       (enter flow: %v; extracting anyway)\n", err)
 	}
 	enterCancel()
@@ -176,6 +180,9 @@ func runOrdknude(ctx context.Context, args []string) error {
 				fmt.Printf("[3/4] asking provider for candidates (attempt %d/6)...\n", currentAttempt)
 				cands, err := wordCandidates(ctx, cfg, *providerFlag, klublotto.BuildOrdknudePrompt(st, rejected))
 				if err != nil {
+					if ctx.Err() != nil {
+						return ctx.Err() // interrupted — never turn a Ctrl-C into a local-fallback SUBMIT
+					}
 					if fb := klublotto.FallbackOrdknudeGuess(st.History, rejected); fb != "" {
 						fmt.Printf("   provider failed (%v), falling back to local guess: %s\n", err, fb)
 						currentAnswer = fb
@@ -194,6 +201,9 @@ func runOrdknude(ctx context.Context, args []string) error {
 						ddoCancel()
 					}
 					if len(validated) == 0 {
+						if ctx.Err() != nil {
+							return ctx.Err() // interrupted mid-DDO-validation — don't fall back to a local submit
+						}
 						// Add DDO-dropped words to rejected so the LLM doesn't re-suggest them.
 						for _, c := range beforeDDO {
 							w := klublotto.NormalizeDanishLetters(c.Answer)
@@ -284,7 +294,10 @@ func runOrdknude(ctx context.Context, args []string) error {
 				continue
 			}
 
-			fmt.Printf("[4/4] submitting %s (real play, permanent, attempt %d/6, no do-overs)...\n", currentAnswer, currentAttempt)
+			if ctx.Err() != nil {
+			return ctx.Err() // interrupted — a guess is permanent, never submit one on a dead context
+		}
+		fmt.Printf("[4/4] submitting %s (real play, permanent, attempt %d/6, no do-overs)...\n", currentAnswer, currentAttempt)
 			preShot := filepath.Join(cfg.DataDir, "ordknude-pre-"+currentAnswer+"-"+time.Now().UTC().Format("20060102-150405")+".png")
 			_ = br.Screenshot(ctx, preShot)
 			submitCtx, cancel := context.WithTimeout(ctx, 2*time.Minute)
