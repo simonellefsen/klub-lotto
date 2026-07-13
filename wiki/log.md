@@ -543,3 +543,11 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-13 04:03 UTC] ingest | quiz | I hvilket år grundlagde Djengis Khan Det Mongolske Rige? | outcome=submitted
 
+## [2026-07-13 04:15 UTC] ingest | ordkløver | Category: `Ordsprog`; answer pattern `5 / 5 / 3 / 3 / 2 / 4 … | outcome=submitted
+
+## [2026-07-13 04:21 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
+
+## [2026-07-13 04:24 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-07-13 04:30 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+

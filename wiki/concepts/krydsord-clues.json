@@ -35,6 +35,9 @@
   "AFTRYK": [
     "SPOR"
   ],
+  "AGITERE": [
+    "IVRE"
+  ],
   "ALTSÅ": [
     "ERGO"
   ],
@@ -188,6 +191,9 @@
   "BRANCHE": [
     "IT"
   ],
+  "BRAS": [
+    "MØG"
+  ],
   "BRINGER": [
     "LEVERER"
   ],
@@ -239,6 +245,9 @@
   ],
   "DAMP": [
     "EM"
+  ],
+  "DAMPE": [
+    "EMME"
   ],
   "DANS": [
     "JITTERBUG"
@@ -464,6 +473,9 @@
   ],
   "FLEKSIBEL": [
     "ELASTISK"
+  ],
+  "FLÅ": [
+    "RIVE"
   ],
   "FODSLAG": [
     "TRIT"
@@ -847,6 +859,9 @@
   "KAGE": [
     "ROULADE"
   ],
+  "KAMMERAT": [
+    "VEN"
+  ],
   "KAMMERTONEN": [
     "A"
   ],
@@ -883,6 +898,9 @@
   ],
   "KLASSE": [
     "KL"
+  ],
+  "KLISTERBÅND": [
+    "TAPE"
   ],
   "KLO": [
     "NEGL"
@@ -1011,6 +1029,9 @@
   ],
   "KØRETØJ": [
     "ELBIL"
+  ],
+  "LANGS": [
+    "AD"
   ],
   "LARGE": [
     "L"
@@ -1361,7 +1382,8 @@
   ],
   "PÅLÆG": [
     "OST",
-    "SPEGEPØLSE"
+    "SPEGEPØLSE",
+    "OSTE"
   ],
   "RAMMER": [
     "KARME"
@@ -1467,6 +1489,9 @@
   "SIKKERT": [
     "NOK"
   ],
+  "SIMPEL": [
+    "ENKEL"
+  ],
   "SINGLE": [
     "ALENE",
     "ENLIG"
@@ -1520,6 +1545,9 @@
   ],
   "SKOVGUD": [
     "FAUN"
+  ],
+  "SKOVNAVN": [
+    "ROLD"
   ],
   "SKRIVER": [
     "PEN"
@@ -1668,6 +1696,9 @@
   "STERIL": [
     "REN"
   ],
+  "STOF": [
+    "KAKI"
+  ],
   "STOLTHED": [
     "ÆRE"
   ],
@@ -1797,6 +1828,9 @@
   "TILBEHØR": [
     "GELE"
   ],
+  "TILSÆTTE": [
+    "IRØRE"
+  ],
   "TILSÆTTER": [
     "IRØRER"
   ],
@@ -1813,6 +1847,9 @@
     "LL",
     "PP"
   ],
+  "TOGTAG": [
+    "ROEDE"
+  ],
   "TON": [
     "T"
   ],
@@ -1825,6 +1862,9 @@
   ],
   "TONEN": [
     "EET"
+  ],
+  "TONER": [
+    "EER"
   ],
   "TOP": [
     "ELITE"
@@ -2015,6 +2055,9 @@
     "D",
     "E"
   ],
+  "VOVET": [
+    "RISIKERET"
+  ],
   "VREDE": [
     "RASERI"
   ],
@@ -2044,6 +2087,9 @@
   ],
   "X": [
     "TI"
+  ],
+  "[IMG]ACEOFCLUBS": [
+    "ES"
   ],
   "[IMG]ACEOFDIAMONDS": [
     "ES"
@@ -2111,6 +2157,9 @@
   ],
   "[IMG]CLOCK": [
     "UR"
+  ],
+  "[IMG]CLOTHESPIN": [
+    "KLEMME"
   ],
   "[IMG]CLOVER": [
     "KLØVER"
@@ -2264,6 +2313,9 @@
   "[IMG]WATERMELON": [
     "MELON"
   ],
+  "[IMG]WINDTURBINE": [
+    "MØLLE"
+  ],
   "[IMG]WINEGLASS": [
     "VIN"
   ],
@@ -2296,5 +2348,8 @@
   ],
   "ØSTRIG": [
     "A"
+  ],
+  "ØVEDE": [
+    "RUTINEREDE"
   ]
 }
