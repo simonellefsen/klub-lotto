@@ -49,6 +49,20 @@ func main() {
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
+	// NotifyContext swallows every signal after the first, so without this a
+	// run whose flow ignores the canceled context is unkillable from the
+	// keyboard (seen live 2026-07-13: ^C during a slow ordkløver open left a
+	// zombie run probing letters against a dead browser context). First ^C
+	// cancels ctx (graceful); a second ^C force-quits.
+	sigs := make(chan os.Signal, 2)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		<-sigs
+		fmt.Fprintln(os.Stderr, "\ninterrupt — canceling run (Ctrl-C again to force quit)")
+		<-sigs
+		fmt.Fprintln(os.Stderr, "force quit")
+		os.Exit(130)
+	}()
 
 	cmd, args := os.Args[1], os.Args[2:]
 	var err error
@@ -83,6 +97,9 @@ func main() {
 	}
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s: %v\n", cmd, err)
+		if ctx.Err() != nil {
+			os.Exit(130) // interrupted, not failed
+		}
 		os.Exit(1)
 	}
 }

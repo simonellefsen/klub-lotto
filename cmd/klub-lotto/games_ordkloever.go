@@ -134,6 +134,10 @@ func runOrdKloever(ctx context.Context, args []string) error {
 	// vision read below sees the real board, not an empty/loading page.
 	enterCtx, enterCancel := context.WithTimeout(ctx, 80*time.Second)
 	if err := klublotto.EnterWordGame(enterCtx, br, "SPIL ORDKLØVER", "SPIL ORDKLOEVER"); err != nil {
+		if ctx.Err() != nil {
+			enterCancel()
+			return ctx.Err() // interrupted (Ctrl-C) — do NOT zombie on with a dead context
+		}
 		fmt.Printf("       (enter flow: %v; continuing anyway)\n", err)
 	}
 	enterCancel()
@@ -783,6 +787,9 @@ func runOrdKloeverProbe(ctx context.Context, cfg *config.Config, br *browser.Cli
 			fmt.Printf("   [probe] re-extracted: Category=%q Shape=%q Board=%q Attempts=%d\n",
 				st.Category, st.Shape, st.Board, st.Attempts)
 		} else if ferr != nil {
+			if ctx.Err() != nil {
+				return ctx.Err() // interrupted — a blind probe run burns real attempts
+			}
 			fmt.Printf("   [probe] re-extract error: %v; continuing with empty state\n", ferr)
 		} else {
 			fmt.Println("   [probe] re-extract still empty; continuing (first probe will reveal board)")
@@ -844,6 +851,9 @@ func runOrdKloeverProbe(ctx context.Context, cfg *config.Config, br *browser.Cli
 	// submitAndCheck submits a full-phrase guess, re-extracts state, and reports
 	// whether the puzzle is solved.  Returns (solved, error).
 	submitAndCheck := func(phrase, label string) (bool, error) {
+		if ctx.Err() != nil {
+			return false, ctx.Err() // interrupted — a guess is permanent, never submit one on a dead context
+		}
 		// Save board + attempts BEFORE the guess — wrong phrase guesses reveal no
 		// new letters and the game reverts the tiles back to only the probed
 		// letters. If we re-extract too quickly, the animation is still running and
@@ -1028,10 +1038,16 @@ func runOrdKloeverProbe(ctx context.Context, cfg *config.Config, br *browser.Cli
 			// If no letters hit, keep probing 2 at a time until at least 1 reveals.
 			const maxMissRounds = 4
 			for missRound := 1; missRound <= maxMissRounds && !klublotto.BoardHasHit(st.Board, probedThisRun) && st.Attempts < 12; missRound++ {
+				if ctx.Err() != nil {
+					return ctx.Err() // interrupted
+				}
 				fmt.Printf("[phase-1 miss %d/%d] no letters revealed yet; asking LLM for 2 more probe letters...\n", missRound, maxMissRounds)
 				used := allUsed()
 				more, err := askOrdKloeverProbeLetters(ctx, cfg, activeProvider(), st, 2, used)
 				if err != nil || len(more) == 0 {
+					if ctx.Err() != nil {
+						return ctx.Err() // interrupted, not a provider failure
+					}
 					fmt.Printf("   letter suggestion failed: %v; moving to phase 2\n", err)
 					break
 				}
@@ -1060,6 +1076,9 @@ func runOrdKloeverProbe(ctx context.Context, cfg *config.Config, br *browser.Cli
 	// Rule summary: 11/12 → guess; 10/12 → 1 letter then guess; 9/12 → 2 letters then guess.
 	const maxDecisionRounds = 10
 	for round := 1; round <= maxDecisionRounds && st.Attempts < 12; round++ {
+		if ctx.Err() != nil {
+			return ctx.Err() // interrupted
+		}
 		remaining := 12 - st.Attempts
 		maxProbe := remaining - 1 // letters we can still probe before final guess
 		if maxProbe > 2 {
@@ -1077,6 +1096,9 @@ func runOrdKloeverProbe(ctx context.Context, cfg *config.Config, br *browser.Cli
 		used := allUsed()
 		decision, err := askOrdKloeverDecision(ctx, cfg, activeProvider(), st, used, cands)
 		if err != nil {
+			if ctx.Err() != nil {
+				return ctx.Err() // interrupted — must not fall through to a real guess
+			}
 			fmt.Printf("   decision LLM failed (%v); falling back to top candidate\n", err)
 			break
 		}
@@ -1204,6 +1226,9 @@ func runOrdKloeverProbe(ctx context.Context, cfg *config.Config, br *browser.Cli
 	}
 
 	// ── Final fallback: submit best available candidate ──────────────────────────
+	if ctx.Err() != nil {
+		return ctx.Err() // interrupted — never fire the final guess off a dead context
+	}
 	if st.Attempts >= 12 {
 		fmt.Println("[probe] out of attempts")
 		return nil
@@ -1383,6 +1408,9 @@ func submitOrdKloeverLetters(ctx context.Context, br *browser.Client, letters []
 		inFrame = true
 		defer klublotto.LeaveFrame(br)
 	} else {
+		if ctx.Err() != nil {
+			return ctx.Err() // interrupted — don't blind-click letters on the parent
+		}
 		fmt.Printf("       [warn] could not switch to kl-game__iframe: %v; falling back to parent context\n", ferr)
 	}
 
@@ -1427,6 +1455,9 @@ func submitOrdKloeverLetters(ctx context.Context, br *browser.Client, letters []
 
 	// Click each letter and GÆT.
 	for i, letter := range letters {
+		if ctx.Err() != nil {
+			return ctx.Err() // interrupted mid-probe — stop clicking immediately
+		}
 		letter = klublotto.NormalizeDanishLetters(letter)
 		if letter == "" {
 			continue
