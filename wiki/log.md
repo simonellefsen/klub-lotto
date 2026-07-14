@@ -555,3 +555,13 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-14 03:58 UTC] ingest | quiz | I hvilket årti blev Margaret Thatcher Storbritanniens førs… | outcome=submitted
 
+## [2026-07-14 03:59 UTC] ingest | ordkløver | Category: `Dansk forfatter`; answer pattern `6 / 8 / 4` | outcome=submitted
+
+## [2026-07-14 04:02 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-07-14 04:07 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
+
+## [2026-07-14 04:23 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+
+## [2026-07-14 04:36 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+

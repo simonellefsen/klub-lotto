@@ -65,6 +65,9 @@
   "ARVEENHED": [
     "GEN"
   ],
+  "ATOL": [
+    "REV"
+  ],
   "BABYUDSTYR": [
     "BLE",
     "SUT"
@@ -98,6 +101,9 @@
   ],
   "BEHAGELIGE": [
     "RARE"
+  ],
+  "BEHANDLING": [
+    "TERAPI"
   ],
   "BEHOLDER": [
     "TANK",
@@ -249,6 +255,9 @@
   "DAMPE": [
     "EMME"
   ],
+  "DANMARK": [
+    "DK"
+  ],
   "DANS": [
     "JITTERBUG"
   ],
@@ -271,6 +280,9 @@
   ],
   "DIRRER": [
     "RYSTER"
+  ],
+  "DIVIDERE": [
+    "DELE"
   ],
   "DRIK": [
     "TE",
@@ -312,6 +324,9 @@
     "PANDA",
     "ELG",
     "MÅR"
+  ],
+  "DÆKNAVN": [
+    "ALIAS"
   ],
   "DØRSLAG": [
     "SI"
@@ -375,6 +390,9 @@
     "ØØ",
     "ÅÅ"
   ],
+  "EVIGHED": [
+    "ÆON"
+  ],
   "EVIGHEDSBLOMST": [
     "ETERNEL"
   ],
@@ -423,6 +441,9 @@
   ],
   "FEDTSTOFFET": [
     "OLIEN"
+  ],
+  "FERNIS": [
+    "LAK"
   ],
   "FESTKJOLE": [
     "ROBE"
@@ -486,6 +507,9 @@
   "FORBUND": [
     "EU"
   ],
+  "FORDOMSFRIE": [
+    "TOLERANTE"
+  ],
   "FOREDRAG": [
     "TALE"
   ],
@@ -533,7 +557,8 @@
     "REDES"
   ],
   "FRISK": [
-    "NY"
+    "NY",
+    "RASK"
   ],
   "FRISKT": [
     "NYT"
@@ -572,6 +597,9 @@
   "FØDEN": [
     "MADEN"
   ],
+  "FØDEVARE": [
+    "TOFU"
+  ],
   "FØLGELIG": [
     "ERGO"
   ],
@@ -589,6 +617,9 @@
   ],
   "GEMME": [
     "BEVARE"
+  ],
+  "GENERT": [
+    "SKY"
   ],
   "GENLYD": [
     "EKKO"
@@ -649,6 +680,9 @@
   "GRÆSMARK": [
     "ENG"
   ],
+  "GRØNTSAG": [
+    "AGURK"
+  ],
   "GUD": [
     "AS",
     "AMOR"
@@ -708,6 +742,9 @@
   ],
   "HJERTELØSE": [
     "ONDE"
+  ],
+  "HOLDEMEGETAF": [
+    "ELSKE"
   ],
   "HOLDERMEGETAF": [
     "ELSKER"
@@ -836,7 +873,8 @@
   "JOB": [
     "MALER",
     "PLADS",
-    "HVERV"
+    "HVERV",
+    "TANDPLEJER"
   ],
   "JORDTYPE": [
     "LER"
@@ -854,7 +892,8 @@
     "EGAL"
   ],
   "JÆVNE": [
-    "LIERE"
+    "LIERE",
+    "EGALE"
   ],
   "KAGE": [
     "ROULADE"
@@ -1067,6 +1106,9 @@
   "LEVNING": [
     "REST"
   ],
+  "LIGE": [
+    "RET"
+  ],
   "LILLE": [
     "LL"
   ],
@@ -1075,6 +1117,9 @@
   ],
   "LOYAL": [
     "TRO"
+  ],
+  "LUGE": [
+    "LEM"
   ],
   "LUKKET": [
     "NEDLAGT"
@@ -1191,7 +1236,8 @@
     "AUG"
   ],
   "MÅNEFASE": [
-    "NY"
+    "NY",
+    "NÆ"
   ],
   "MÆRKE": [
     "AR",
@@ -1552,6 +1598,9 @@
   "SKRIVER": [
     "PEN"
   ],
+  "SKRYDERI": [
+    "PRAL"
+  ],
   "SKRÅNING": [
     "LI"
   ],
@@ -1616,7 +1665,8 @@
     "RA"
   ],
   "SOLO": [
-    "ENE"
+    "ENE",
+    "ALENE"
   ],
   "SPANIEN": [
     "E"
@@ -1754,6 +1804,9 @@
   "SYD": [
     "S"
   ],
+  "SYDVEST": [
+    "SV"
+  ],
   "SYN": [
     "SKUE"
   ],
@@ -1859,6 +1912,9 @@
     "MI",
     "DO",
     "LA"
+  ],
+  "TONEART": [
+    "EDUR"
   ],
   "TONEN": [
     "EET"
@@ -2204,6 +2260,9 @@
   "[IMG]HAMBURGER": [
     "BURGER"
   ],
+  "[IMG]HANDBAG": [
+    "TASKE"
+  ],
   "[IMG]HAT": [
     "HAT"
   ],
@@ -2221,6 +2280,9 @@
   ],
   "[IMG]LION": [
     "LØVE"
+  ],
+  "[IMG]LLAMA": [
+    "LAMA"
   ],
   "[IMG]MOONANDSTARS": [
     "NAT"
@@ -2270,6 +2332,9 @@
   ],
   "[IMG]RAKES": [
     "RIVER"
+  ],
+  "[IMG]ROCKET": [
+    "RAKET"
   ],
   "[IMG]ROSES": [
     "ROSER"
