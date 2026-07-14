@@ -551,3 +551,7 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-13 04:30 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
 
+## [2026-07-14 03:51 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
+## [2026-07-14 03:58 UTC] ingest | quiz | I hvilket årti blev Margaret Thatcher Storbritanniens førs… | outcome=submitted
+
