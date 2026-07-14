@@ -295,9 +295,9 @@ func runOrdknude(ctx context.Context, args []string) error {
 			}
 
 			if ctx.Err() != nil {
-			return ctx.Err() // interrupted — a guess is permanent, never submit one on a dead context
-		}
-		fmt.Printf("[4/4] submitting %s (real play, permanent, attempt %d/6, no do-overs)...\n", currentAnswer, currentAttempt)
+				return ctx.Err() // interrupted — a guess is permanent, never submit one on a dead context
+			}
+			fmt.Printf("[4/4] submitting %s (real play, permanent, attempt %d/6, no do-overs)...\n", currentAnswer, currentAttempt)
 			preShot := filepath.Join(cfg.DataDir, "ordknude-pre-"+currentAnswer+"-"+time.Now().UTC().Format("20060102-150405")+".png")
 			_ = br.Screenshot(ctx, preShot)
 			submitCtx, cancel := context.WithTimeout(ctx, 2*time.Minute)

@@ -1294,6 +1294,18 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 		}
 	}
 	rebuildFixed()
+
+	// Slots whose untrusted dict answer was dropped mid-loop. droppedSlots are
+	// 1-letter slots fully ceded to the crossing word (never re-asked).
+	// droppedAnswers records the rejected word(s) per slot so no later prompt,
+	// parse, or repair can re-instate them: the model otherwise re-proposes the
+	// familiar answer and "fixes" the CROSSING word into a non-word instead
+	// (seen live 2026-07-14: dict MÅNEFASE→NY dropped, model re-answered NY and
+	// turned EVIGHED's ÆON into YON; the crossings already spelled the correct
+	// alternative NÆ).
+	droppedSlots := map[string]bool{}
+	droppedAnswers := map[string]map[string]bool{}
+
 	// slotPattern returns the crossing pattern for a slot ("." = unknown), plus
 	// the count of fixed letters in it. matchesPattern tests a candidate rune-wise.
 	slotPattern := func(s klublotto.KrydsordSlot) (string, int) {
@@ -1364,6 +1376,15 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 			for _, cell := range s.Cells {
 				cellIDs = append(cellIDs, cellKey(cell.Row, cell.Col))
 			}
+			ban := ""
+			if fw := droppedAnswers[s.ID]; len(fw) > 0 {
+				words := make([]string, 0, len(fw))
+				for w := range fw {
+					words = append(words, w)
+				}
+				sort.Strings(words)
+				ban = fmt.Sprintf(" IKKE=%v", words)
+			}
 			clueText := cl.Clue
 			kind := ""
 			if cl.IsImage {
@@ -1379,10 +1400,13 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 				// Show the fixed-letter pattern so the model picks a crossing-consistent word.
 				patHint = fmt.Sprintf(" mønster=%s", pat)
 			}
-			fmt.Fprintf(&b, "- %s %s len=%d clue=%q%s%s cells=%s cands=%v\n", s.ID, s.Direction, s.Length, clueText, kind, patHint, strings.Join(cellIDs, ","), candList)
+			fmt.Fprintf(&b, "- %s %s len=%d clue=%q%s%s%s cells=%s cands=%v\n", s.ID, s.Direction, s.Length, clueText, kind, patHint, ban, strings.Join(cellIDs, ","), candList)
 		}
 		if len(fixed) > 0 {
 			fmt.Fprintf(&b, "\nVIGTIGT: 'mønster' viser bogstaver der ALLEREDE er fastlagt af krydsende ord (. = ukendt). Dit svar for sådan et slot SKAL matche mønsteret nøjagtigt på de kendte positioner.\n")
+		}
+		if len(droppedAnswers) > 0 {
+			fmt.Fprintf(&b, "VIGTIGT: 'IKKE=' angiver afviste svar der er FORKERTE i denne opgave (mange ledetråde har flere gyldige svar). Vælg et ANDET dansk ord til det slot — og lad være med at ændre de KRYDSENDE ord for at redde et afvist svar.\n")
 		}
 		b.WriteString("\nReturnér KUN JSON: {\"answers\":{\"A1\":\"ORD\",\"D1\":\"ORD\", ...}} med ét svar pr. slot-id ovenfor. Kun bogstaver (ÆØÅ tilladt), ingen mellemrum/tegn. INGEN markdown.\n")
 		return b.String()
@@ -1412,10 +1436,6 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 	const maxAttempts = 3
 	const attemptTimeout = 300 * time.Second
 	var lastErr error
-	// Slots whose untrusted 1-letter dict answer was dropped mid-loop: the model
-	// must never re-answer them (the crossing word owns the cell), so they are
-	// scrubbed from every parsed/repaired answer set.
-	droppedSlots := map[string]bool{}
 	for attempt := 1; attempt <= maxAttempts; attempt++ {
 		// Rebuild from the CURRENT knownAnswers/clues — a stale prompt carries
 		// mønster= patterns for dict answers that were dropped as untrusted.
@@ -1461,6 +1481,15 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 		// clue knowledge: VITAMIN → D) would just recreate the conflict.
 		for id := range droppedSlots {
 			delete(answers, id)
+		}
+		// And scrub any re-proposal of a dropped answer for a multi-letter slot
+		// (the model's own prior keeps suggesting it — MÅNEFASE→NY). Removing it
+		// lets the crossings decide those cells instead.
+		for id, fw := range droppedAnswers {
+			if a, ok := answers[id]; ok && fw[klublotto.NormalizeDanishLetters(a)] {
+				fmt.Printf("       [assemble] %s=%s re-proposes the dropped untrusted answer — removing (crossings decide)\n", id, a)
+				delete(answers, id)
+			}
 		}
 		// Echo the answers used this attempt (model's + forced dictionary answers).
 		ids := make([]string, 0, len(answers))
@@ -1509,6 +1538,10 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 					}
 					fmt.Printf("       [assemble] dropping dict answer %s=%s — it conflicts with the crossings (untrusted for this puzzle)\n", id, ans)
 					delete(knownAnswers, id)
+					if droppedAnswers[id] == nil {
+						droppedAnswers[id] = map[string]bool{}
+					}
+					droppedAnswers[id][ans] = true
 					// Purge the untrusted answer from the slot's candidates.
 					var keep []klublotto.WordCandidate
 					for _, c := range perSlot[id] {
@@ -1517,12 +1550,16 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 						}
 					}
 					perSlot[id] = keep
+					// Remove the forced answer entirely — the crossing words own the
+					// slot's cells now, and the re-validate below checks whether they
+					// already spell a consistent grid (MÅNEFASE: crossings gave N+Æ
+					// = NÆ, the correct alternative to the dropped NY).
+					delete(answers, id)
 					if s, okS := slotByID[id]; okS && s.Length == 1 {
 						cl := cluesByID[id]
 						cl.Clue, cl.IsImage = "", false
 						cluesByID[id] = cl
 						droppedSlots[id] = true
-						delete(answers, id)
 						fmt.Printf("       [assemble] %s is a 1-letter slot — ceding its cell to the crossing word\n", id)
 					}
 					droppedNow = true
@@ -1545,6 +1582,11 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 				}
 				for id := range droppedSlots {
 					delete(repaired, id) // ceded cells stay with the crossing word
+				}
+				for id, fw := range droppedAnswers {
+					if a, ok := repaired[id]; ok && fw[klublotto.NormalizeDanishLetters(a)] {
+						delete(repaired, id) // repair re-proposed a dropped answer — crossings decide
+					}
 				}
 				g2, c2 := klublotto.BuildKrydsordGridFromSlotAnswers(data, slots, repaired)
 				chk2 := klublotto.ValidateKrydsordAnswerGrid(data, g2)

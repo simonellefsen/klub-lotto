@@ -419,6 +419,28 @@ right after the drop with MATEMATIK intact, no repair call needed. The dict
 self-heals on the next successful solve (auto-learn adds VITAMIN→A, making the
 clue ambiguous → seeded as candidates, never fixed).
 
+### Krydsord — dict-drop re-proposal on MULTI-letter slots (2026-07-14) — ✅ FIXED
+Puzzle rejected with the non-word **YON** (EVIGHED should be ÆON). Same family
+as the 07-09 leak, but through the multi-letter gap the 07-09 fix left open:
+dict `MÅNEFASE→NY` was correctly dropped ("it conflicts with the crossings"),
+but (a) the already-FORCED `answers[D14]=NY` was only deleted for 1-letter
+slots, so the immediate post-drop re-validate still saw the conflict, and
+(b) nothing stopped the model re-proposing NY from its own prior on the next
+attempt — so it "fixed" the CROSSING instead (ÆON→YON) and produced a
+"consistent" wrong grid. The crossings already spelled the correct answer:
+N (TOLERANTE) + Æ (ÆON) = **NÆ** — månefase has two valid answers, ny og næ.
+
+Fix (generalises the 1-letter cession):
+1. a dropped dict answer is now removed from `answers` for EVERY slot length,
+   so the post-drop re-validate lets the crossings decide — today's case
+   resolves immediately after the drop, no repair call, ÆON intact;
+2. `droppedAnswers` tracks the rejected word(s) per slot: the assemble prompt
+   marks the slot `IKKE=[NY]` with an explicit "don't mangle the crossings to
+   save a rejected answer" instruction, and any re-proposal of the dropped
+   word (main parse or repair output) is scrubbed so crossings decide;
+3. data: `MÅNEFASE` now lists both `NY` and `NÆ` in the learned dict → two
+   matches → never pinned as a constraint again, both seeded as candidates.
+
 ### Krydsord-P3 — deterministic CSP assembly — planned
 6. ⬜ **Go backtracking assembler over the candidate lists:** we already have
    slots/lengths/crossings + dictionary seeds + batch candidates. A small
