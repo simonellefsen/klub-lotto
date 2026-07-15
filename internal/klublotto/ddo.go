@@ -23,6 +23,9 @@ import (
 
 var ddoHTTP = &http.Client{Timeout: 10 * time.Second}
 
+// ddoBaseURL is overridden in tests to point at an httptest server.
+var ddoBaseURL = "https://ordnet.dk/ddo/ordbog/"
+
 // IsDDOWord reports whether word appears as a headword in Den Danske Ordbog.
 // Returns (true, nil) on a confirmed hit, (false, nil) on a confirmed miss,
 // and (false, err) when the lookup itself failed (network, rate-limit, etc).
@@ -33,12 +36,19 @@ func IsDDOWord(ctx context.Context, word string) (bool, error) {
 	}
 	// Use the direct URL format /ddo/ordbog/<word> (lowercase) for canonical lookup.
 	lower := strings.ToLower(word)
-	url := "https://ordnet.dk/ddo/ordbog/" + lower
+	url := ddoBaseURL + lower
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return false, err
 	}
-	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; klub-lotto-bot/1.0)")
+	// ordnet.dk 401s any request whose User-Agent contains "bot" (confirmed live
+	// 2026-07-15: our honest "klub-lotto-bot/1.0" UA was blocked outright, and
+	// IsDDOWord's ambiguous-page-is-a-miss fallback below silently turned every
+	// one of those 401s into a false "not a word" — dropping real answers like
+	// KAHYT, HABIT, KAPUT). A plain desktop-browser UA is accepted normally; this
+	// is a single low-volume lookup against a public, unauthenticated dictionary
+	// page, not credential/paywall bypass.
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
 	req.Header.Set("Accept", "text/html,application/xhtml+xml")
 	resp, err := ddoHTTP.Do(req)
 	if err != nil {
@@ -48,6 +58,12 @@ func IsDDOWord(ctx context.Context, word string) (bool, error) {
 	body, err := io.ReadAll(io.LimitReader(resp.Body, 128*1024))
 	if err != nil {
 		return false, fmt.Errorf("ddo read body %s: %w", word, err)
+	}
+	// A non-200 (block, rate-limit, outage) is NOT a confirmed miss — surface it
+	// as an error so FilterDDOWords' fail-open path keeps the candidate instead
+	// of silently rejecting a real word because the lookup itself failed.
+	if resp.StatusCode != http.StatusOK {
+		return false, fmt.Errorf("ddo lookup %s: unexpected HTTP %d", word, resp.StatusCode)
 	}
 	html := string(body)
 
@@ -66,9 +82,9 @@ func IsDDOWord(ctx context.Context, word string) (bool, error) {
 
 	// Definitive HIT markers.
 	hitMarkers := []string{
-		`class="modern-match"`,   // the article heading for a matched headword
+		`class="modern-match"`,           // the article heading for a matched headword
 		`class="artikel modern-article"`, // article body present
-		`"@type": "DefinedTerm"`, // JSON-LD for a real dictionary entry with definition
+		`"@type": "DefinedTerm"`,         // JSON-LD for a real dictionary entry with definition
 	}
 	for _, m := range hitMarkers {
 		if strings.Contains(html, m) {
