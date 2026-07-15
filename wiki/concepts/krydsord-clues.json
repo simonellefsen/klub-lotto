@@ -11,6 +11,9 @@
   "1500": [
     "MD"
   ],
+  "2050": [
+    "MML"
+  ],
   "50": [
     "L"
   ],
@@ -128,6 +131,9 @@
   "BESKÆFTIGELSE": [
     "YRKE"
   ],
+  "BESTANDDEL": [
+    "ATOM"
+  ],
   "BESVÆR": [
     "BØVL"
   ],
@@ -237,6 +243,9 @@
   "BØRN": [
     "UNGER"
   ],
+  "CAMPINGUDSTYR": [
+    "TELTE"
+  ],
   "CIRKUSSCENE": [
     "ARENA"
   ],
@@ -264,6 +273,9 @@
   "DEJLIGT": [
     "RART"
   ],
+  "DEKANTERE": [
+    "ILTE"
+  ],
   "DES": [
     "JO"
   ],
@@ -284,6 +296,9 @@
   "DIVIDERE": [
     "DELE"
   ],
+  "DOPING": [
+    "EPO"
+  ],
   "DRIK": [
     "TE",
     "ØL",
@@ -292,6 +307,9 @@
   ],
   "DRØM": [
     "UTOPI"
+  ],
+  "DRØMMEAGTIG": [
+    "UVIRKELIG"
   ],
   "DYR": [
     "KO",
@@ -403,7 +421,8 @@
     "ROK"
   ],
   "FAG": [
-    "MATEMATIK"
+    "MATEMATIK",
+    "FYSIK"
   ],
   "FAGPERSON": [
     "CYKELSMED"
@@ -669,6 +688,9 @@
   "GRUNDE": [
     "ÅRSAGER"
   ],
+  "GRUPPE": [
+    "KOR"
+  ],
   "GRÆSKBOGSTAV": [
     "BETA"
   ],
@@ -709,6 +731,9 @@
   "HANK": [
     "ØRE"
   ],
+  "HARMLØST": [
+    "USKADELIGT"
+  ],
   "HAV": [
     "UTAL"
   ],
@@ -726,6 +751,9 @@
   ],
   "HELT": [
     "IDOL"
+  ],
+  "HELTEN": [
+    "IDOLET"
   ],
   "HILSEN": [
     "DAV",
@@ -1197,6 +1225,9 @@
   "MINUS": [
     "UDEN"
   ],
+  "MISTER": [
+    "MR"
+  ],
   "MISUNDELSE": [
     "NAG"
   ],
@@ -1358,7 +1389,8 @@
   "PERIODE": [
     "ÅRTI",
     "ÅR",
-    "NAT"
+    "NAT",
+    "UGE"
   ],
   "PERIODER": [
     "UGER"
@@ -1509,7 +1541,8 @@
     "RK"
   ],
   "RØG": [
-    "OS"
+    "OS",
+    "OSEDE"
   ],
   "RØNTGEN": [
     "R"
@@ -1643,6 +1676,9 @@
   "SMYKKET": [
     "HALSKÆDEN"
   ],
+  "SMÅSOVER": [
+    "SLUMRER"
+  ],
   "SMØREMIDDEL": [
     "OLIE"
   ],
@@ -1684,7 +1720,8 @@
     "OD"
   ],
   "SPIL": [
-    "LEG"
+    "LEG",
+    "MØLLE"
   ],
   "SPIRER": [
     "GROR"
@@ -1746,6 +1783,12 @@
   "STERIL": [
     "REN"
   ],
+  "STILART": [
+    "ROKOKO"
+  ],
+  "STIRRE": [
+    "GLO"
+  ],
   "STOF": [
     "KAKI"
   ],
@@ -1769,6 +1812,9 @@
   ],
   "STUEN": [
     "ST"
+  ],
+  "STUMPER": [
+    "LØSDELE"
   ],
   "STYRESYSTEM": [
     "IOS"
@@ -1824,6 +1870,9 @@
   ],
   "TAGEFEJLAF": [
     "FORVEKSLE"
+  ],
+  "TAGRYG": [
+    "KIP"
   ],
   "TALENT": [
     "EVNE"
@@ -1946,6 +1995,9 @@
   "TROLDMANDSUDSTYR": [
     "TRYLLESTAV"
   ],
+  "TRONEDE": [
+    "SAD"
+  ],
   "TRÅD": [
     "SENE"
   ],
@@ -2001,6 +2053,9 @@
   ],
   "UDENINDHOLD": [
     "TOM"
+  ],
+  "UDKIG": [
+    "VAGT"
   ],
   "UDVALG": [
     "NÆVN"
@@ -2202,6 +2257,9 @@
     "SLOT",
     "BORG"
   ],
+  "[IMG]CHAIR": [
+    "STOL"
+  ],
   "[IMG]CHAIRS": [
     "STOLE"
   ],
@@ -2341,6 +2399,12 @@
   ],
   "[IMG]RUNES": [
     "RUNER"
+  ],
+  "[IMG]SCYTHE": [
+    "LE"
+  ],
+  "[IMG]SMILEYFACE": [
+    "SMILEY"
   ],
   "[IMG]SNAIL": [
     "SNEGL"

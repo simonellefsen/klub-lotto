@@ -569,3 +569,13 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-15 04:37 UTC] ingest | quiz | Hvad hedder betjenten i den danske tv-serie Forbrydelsen? | outcome=submitted
 
+## [2026-07-15 04:38 UTC] ingest | ordkløver | Category: `Sted`; answer pattern `7 / 6 / 3 / 5`; visual lay… | outcome=submitted
+
+## [2026-07-15 04:49 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-07-15 04:52 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
+
+## [2026-07-15 04:59 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+
+## [2026-07-15 05:14 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+
