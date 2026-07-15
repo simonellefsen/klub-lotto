@@ -1337,6 +1337,7 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 	buildPrompt := func() string {
 		var b strings.Builder
 		fmt.Fprintf(&b, "Løs dette danske krydsord (clues-in-squares). VÆLG for HVER slot ét dansk svar med PRÆCIS den angivne længde, så bogstaverne passer ved ALLE krydsninger (celler delt mellem to slots skal have samme bogstav).\n")
+		fmt.Fprintf(&b, "Alle svar SKAL være DANSKE ord (som i Den Danske Ordbog) eller danske forkortelser/romertal. Brug ALDRIG norske, svenske eller engelske former — fx er en uge på dansk UGE, IKKE det norske UKE. Tjek hvert svar: er det stavet som på dansk?\n")
 		fmt.Fprintf(&b, "Billedledetråde står som engelske beskrivelser (fx \"grill\", \"t-shirt\", \"turnip\", \"desk lamp\") — svar med det danske ord for tingen (GRILL, TSHIRT, ROE, LAMPE).\n")
 		if len(allClueTexts) > 0 {
 			fmt.Fprintf(&b, "Alle synlige ledetråde (OCR-tildelingen pr. slot kan være unøjagtig): %q\n", allClueTexts)
@@ -1721,7 +1722,8 @@ func repairKrydsordConflictsLLM(ctx context.Context, p llm.JSONGenerator, slots 
 		byID[s.ID] = s
 	}
 	var b strings.Builder
-	b.WriteString("Dette danske krydsord er NÆSTEN løst, men nogle krydsende ord er uenige om bogstaver i delte celler. RET KUN nedenstående slots, så hvert svar matcher 'mønster' (bogstaver fastlagt af de KRYDSENDE ord; . = frit). Vælg om nødvendigt et andet dansk ord der både passer ledetråden OG mønsteret. Behold alle andre svar uændret.\n\n")
+	b.WriteString("Dette danske krydsord er NÆSTEN løst, men nogle krydsende ord er uenige om bogstaver i delte celler. RET KUN nedenstående slots, så hvert svar matcher 'mønster' (bogstaver fastlagt af de KRYDSENDE ord; . = frit). Vælg om nødvendigt et andet dansk ord der både passer ledetråden OG mønsteret. Behold alle andre svar uændret.\n")
+	b.WriteString("Svarene SKAL være DANSKE ord (som i Den Danske Ordbog) — ALDRIG norske, svenske eller engelske former (fx UGE, ikke det norske UKE).\n\n")
 	for _, id := range involved {
 		s := byID[id]
 		cl := cluesByID[id]

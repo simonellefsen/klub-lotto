@@ -441,6 +441,45 @@ Fix (generalises the 1-letter cession):
 3. data: `MÅNEFASE` now lists both `NY` and `NÆ` in the learned dict → two
    matches → never pinned as a constraint again, both seeded as candidates.
 
+### Krydsord — Norwegian answer poisoned a whole neighborhood (2026-07-15) — ✅ FIXED
+Grid rejected: D10 (PERIODE, 3) came back as **UKE — Norwegian; Danish is
+UGE** — and it didn't stay contained. The model coherently built a
+UKE-compatible cluster around it: A11 GI→KI, A12 TO→NO, D17 IDOLET→IDOLEN
+all flipped from correct to wrong to keep the grid "consistent", and the
+conflict valve even dropped the CORRECT dict answer A11=GI because the
+contaminated crossings outvoted it. One Norwegian word, four casualties.
+
+Two gaps lined up:
+1. The dict pinned PERIODE→NAT (multi-answer entry, but only NAT is length
+   3 — the pin rule filters by slot length first). The valve correctly
+   dropped it, but D10's middle cell (R7C6) is crossed by NOTHING, so that
+   letter was completely unconstrained — the consistency check had no
+   opinion on K vs G. Fixed on data: PERIODE now also lists UGE (two
+   length-3 matches → never pinned, both seeded).
+2. The assemble/repair prompts only said "ét dansk svar" in passing — the
+   per-clue candidates prompt has an explicit "ALDRIG svenske/norske/
+   engelske former" rule, but the assembler (which invented UKE on the
+   retry) did not. Both prompts now carry the explicit anti-Scandinavian
+   rule with today's exact example (UGE, ikke det norske UKE).
+
+**Verified live same day: re-run solved on attempt 1 with ZERO drops** —
+A11=GI, A12=TO, D17=IDOLET, D10=UGE, grid accepted, 23 new dict entries
+learned. Forcing Danish resolved the entire cluster at once.
+
+Optional hardening noted, not yet needed: a missing-slots mini-repair (ask
+ONLY for slots left blank after a dict drop, like the conflict repair does
+for conflicts) would keep a full-grid retry — and its reshuffling freedom —
+out of the loop entirely when the only defect is an unfilled cell.
+
+⬜ **Krydsord-P4 — DDO soft-check of model answers:** after a "consistent"
+grid is found, validate MODEL-invented answers (not dict-seeded ones, not
+1-2 letter abbreviations/roman numerals) against ordnet.dk/ddo (the
+ordknude IsDDOWord helper, fail-open). On misses, one extra assemble retry
+with the suspicious words flagged (IKKE= style); accept if the retry
+doesn't improve. Would have caught UKE deterministically — the prompt fix
+is a nudge, not a guarantee. Needs care: inflected forms (OSEDE, IDOLET)
+resolve fine in DDO, but crossword-isms (EKSE) and image answers may not.
+
 ### Krydsord-P3 — deterministic CSP assembly — planned
 6. ⬜ **Go backtracking assembler over the candidate lists:** we already have
    slots/lengths/crossings + dictionary seeds + batch candidates. A small
