@@ -185,6 +185,9 @@
   "BLÆNDENDE": [
     "GENIAL"
   ],
+  "BLÆSER": [
+    "VENTILATOR"
+  ],
   "BLÆST": [
     "SUS"
   ],
@@ -193,6 +196,9 @@
   ],
   "BOLIG": [
     "TELT"
+  ],
+  "BOPLADS": [
+    "BYGD"
   ],
   "BOR": [
     "B"
@@ -227,6 +233,9 @@
   ],
   "BYERNESBY": [
     "PARIS"
+  ],
+  "BÆLTE": [
+    "REM"
   ],
   "BÆR": [
     "RIBS"
@@ -295,6 +304,9 @@
   ],
   "DIVIDERE": [
     "DELE"
+  ],
+  "DIÆT": [
+    "KUR"
   ],
   "DOPING": [
     "EPO"
@@ -372,6 +384,9 @@
   ],
   "ENVELOPE": [
     "BREV"
+  ],
+  "ERFAREDE": [
+    "LÆRTE"
   ],
   "ETAGE": [
     "SAL"
@@ -572,12 +587,16 @@
   "FREMRAGENDE": [
     "YPPERLIGT"
   ],
+  "FRI": [
+    "LEDIG"
+  ],
   "FRISERES": [
     "REDES"
   ],
   "FRISK": [
     "NY",
-    "RASK"
+    "RASK",
+    "VELOPLAGT"
   ],
   "FRISKT": [
     "NYT"
@@ -619,11 +638,17 @@
   "FØDEVARE": [
     "TOFU"
   ],
+  "FØJ": [
+    "UF"
+  ],
   "FØLGELIG": [
     "ERGO"
   ],
   "FØRØ": [
     "Æ"
+  ],
+  "GAD": [
+    "ORKEDE"
   ],
   "GAMMEL": [
     "GL"
@@ -636,6 +661,9 @@
   ],
   "GEMME": [
     "BEVARE"
+  ],
+  "GEMMESTED": [
+    "ARKIV"
   ],
   "GENERT": [
     "SKY"
@@ -875,6 +903,9 @@
   "INSEKT": [
     "BI"
   ],
+  "INSEKTERNE": [
+    "BIERNE"
+  ],
   "INSPEKTION": [
     "SYN"
   ],
@@ -932,6 +963,9 @@
   "KAMMERTONEN": [
     "A"
   ],
+  "KAOS": [
+    "ROD"
+  ],
   "KARAT": [
     "K"
   ],
@@ -949,6 +983,9 @@
   ],
   "KILO": [
     "K"
+  ],
+  "KILOMETER": [
+    "KM"
   ],
   "KIMONO": [
     "MORGENKÅBE"
@@ -1188,6 +1225,9 @@
   ],
   "MANGE": [
     "ADSKILLIGE"
+  ],
+  "MAS": [
+    "BESVÆR"
   ],
   "MASQUERADEMASK": [
     "MASKE"
@@ -1452,6 +1492,9 @@
   "PROPPET": [
     "FYLDT"
   ],
+  "PRÆCIS": [
+    "NETOP"
+  ],
   "PRÆSTEDRAGT": [
     "ORNAT"
   ],
@@ -1478,6 +1521,9 @@
   ],
   "REJSE": [
     "ODYSSE"
+  ],
+  "RELIGION": [
+    "TRO"
   ],
   "RENSEMIDDEL": [
     "SÆBE"
@@ -1729,6 +1775,9 @@
   "SPISEKORT": [
     "MENU"
   ],
+  "SPIST": [
+    "ÆDT"
+  ],
   "SPORTSGREN": [
     "TENNIS"
   ],
@@ -1837,6 +1886,9 @@
   ],
   "STØRRELSE": [
     "MEDIUM"
+  ],
+  "SURE": [
+    "TVÆRE"
   ],
   "SVAR": [
     "JA"
@@ -2103,6 +2155,9 @@
   "VANHELD": [
     "UTUR"
   ],
+  "VANVID": [
+    "PIP"
+  ],
   "VEDRØRENDE": [
     "OM"
   ],
@@ -2220,6 +2275,9 @@
   "[IMG]BADMINTONRACKET": [
     "NET"
   ],
+  "[IMG]BATHROOMSCALE": [
+    "ÆGGEUR"
+  ],
   "[IMG]BEANIE": [
     "HUE"
   ],
@@ -2299,6 +2357,12 @@
   ],
   "[IMG]DUCK": [
     "AND"
+  ],
+  "[IMG]ENVELOPE": [
+    "BREV"
+  ],
+  "[IMG]FAIRY": [
+    "FE"
   ],
   "[IMG]FENCE": [
     "HEGN"
@@ -2450,6 +2514,9 @@
   ],
   "ÅRE": [
     "AORTA"
+  ],
+  "ÅRTI": [
+    "ENERNE"
   ],
   "ÆDELSTEN": [
     "JUVEL"
