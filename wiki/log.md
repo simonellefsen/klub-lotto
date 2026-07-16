@@ -583,3 +583,13 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-16 04:06 UTC] ingest | quiz | Hvilken kunstner udgav albummet “Midnights” i 2022? | outcome=submitted
 
+## [2026-07-16 04:07 UTC] ingest | ordkløver | Category: `På Danmarkskortet`; answer pattern `7 / 5 / 3`; … | outcome=submitted
+
+## [2026-07-16 04:09 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-07-16 04:18 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
+
+## [2026-07-16 04:20 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
+
+## [2026-07-16 04:37 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
+
