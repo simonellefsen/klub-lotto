@@ -74,10 +74,17 @@ func runBlok(ctx context.Context, args []string) error {
 const blokDailyThreshold = 200
 
 // logBlokScore records the final Blok score in the daily ledger, mirroring how
-// the other games upsert their result. The lod is awarded at blokDailyThreshold,
-// so we mark it registered once the best score passes it.
+// the other games upsert their result. The lod is awarded at blokDailyThreshold
+// and must be judged on TODAY's score (res.current) — res.best is the game's
+// PERSISTENT all-time high (15,733 since 2026-07-13), which passes 200 forever;
+// keying off it certified a 0-point phantom run as "lod earned" during the
+// 2026-07-16 danskespil incident. A run that never read a score at all
+// (res.scored=false) writes NOTHING — there is no trustworthy result to record.
 func logBlokScore(ctx context.Context, cfg *config.Config, res blokResult) error {
-	passed := res.best >= blokDailyThreshold
+	if !res.scored {
+		return fmt.Errorf("no score was ever read (placed~%d cells in %d steps) — likely an unreadable/incident page; not writing a ledger row", res.placed, res.steps)
+	}
+	passed := res.current >= blokDailyThreshold
 	recPath := filepath.Join(cfg.DataDir, "blok-scores.csv")
 
 	answer := fmt.Sprintf("Score %d · high score %d", res.current, res.best)
@@ -99,6 +106,7 @@ func logBlokScore(ctx context.Context, cfg *config.Config, res blokResult) error
 type blokDriver struct {
 	br      *browser.Client
 	shotDir string
+	opFails int // consecutive failed/timed-out browser ops (wedge detector)
 }
 
 // abTimeout bounds each browser op so a hung agent-browser command (e.g. a frame
@@ -109,8 +117,20 @@ const abTimeout = 20 * time.Second
 func (d *blokDriver) op(ctx context.Context, fn func(context.Context) error) {
 	c, cancel := context.WithTimeout(ctx, abTimeout)
 	defer cancel()
-	_ = fn(c)
+	if fn(c) != nil {
+		d.opFails++
+	} else {
+		d.opFails = 0
+	}
 }
+
+// wedged reports a browser that has stopped responding: several CONSECUTIVE ops
+// failed or timed out, each having burned up to abTimeout in total silence. A
+// single drag is ~33 ops, so without this check a wedged agent-browser (seen
+// live 2026-07-16 during a danskespil site incident) turns one placement into
+// ~11 minutes of output-free hang. Isolated failures reset the streak (a frame
+// switch legitimately fails at game-over while the next screenshot succeeds).
+func (d *blokDriver) wedged() bool { return d.opFails >= 6 }
 
 func (d *blokDriver) eval(ctx context.Context, js string) string {
 	c, cancel := context.WithTimeout(ctx, abTimeout)
@@ -201,6 +221,10 @@ func (d *blokDriver) drag(ctx context.Context, px, py, qx, qy int) {
 	d.op(ctx, func(c context.Context) error { return d.br.MouseDown(c) })
 	time.Sleep(320 * time.Millisecond)
 	for i := 1; i <= steps; i++ {
+		if d.wedged() {
+			fmt.Println("       [drag] browser unresponsive mid-drag — aborting the glide")
+			break
+		}
 		x := px + (qx-px)*i/steps
 		y := py + (qy-py)*i/steps
 		d.op(ctx, func(c context.Context) error { return d.br.MouseMove(c, x, y) })
@@ -380,7 +404,7 @@ func (d *blokDriver) play(ctx context.Context, goal, maxSteps int) (blokResult, 
 	defer rec.Close()
 	fmt.Fprintln(rec, "step,piece,row,col,current_score,best_score,placed_cells,board_filled,clears,chain_len,bonus_exp,bonus_obs")
 
-	placed, steps, stuck := 0, 0, 0
+	placed, steps, stuck, emptyTray := 0, 0, 0, 0
 	bad := map[string]bool{} // (piece-shape,r,c) moves to avoid this trio
 	lastSig := ""
 	// Live combo-chain state, carried across trios (the game's escalating clear
@@ -409,6 +433,11 @@ func (d *blokDriver) play(ctx context.Context, goal, maxSteps int) (blokResult, 
 			return res, ctx.Err()
 		default:
 		}
+		if d.wedged() {
+			d.shot(ctx, "blok_final.png")
+			res.steps, res.placed = steps, placed
+			return res, fmt.Errorf("browser unresponsive (%d consecutive op failures/timeouts) — aborting; danskespil may be having an incident (see blok_final.png)", d.opFails)
+		}
 		steps++
 		read, ok := d.readSettled(ctx, 6)
 		if !ok {
@@ -430,10 +459,17 @@ func (d *blokDriver) play(ctx context.Context, goal, maxSteps int) (blokResult, 
 			lastSig = sig
 		}
 		if len(read.pieces) == 0 {
-			fmt.Printf("[%d] tray empty; waiting for refill\n", steps)
+			emptyTray++
+			fmt.Printf("[%d] tray empty; waiting for refill (%d/10)\n", steps, emptyTray)
+			if emptyTray >= 10 {
+				d.shot(ctx, "blok_final.png")
+				res.steps, res.placed = steps, placed
+				return res, fmt.Errorf("tray read as empty %d times in a row — board unreadable or site incident; aborting (see blok_final.png)", emptyTray)
+			}
 			time.Sleep(1200 * time.Millisecond)
 			continue
 		}
+		emptyTray = 0
 		shapes := make([][][]int, len(read.pieces))
 		for i, p := range read.pieces {
 			shapes[i] = p.Shape

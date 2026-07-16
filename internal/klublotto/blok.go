@@ -314,6 +314,13 @@ func readPieces(im *blokImage, geom BlokGeom) []BlokPiece {
 				}
 			}
 		}
+		// The game has NO 1-cell piece (dominoes are the smallest tray piece), so
+		// a 1x1 "piece" is always a perception artifact — seen live 2026-07-16
+		// when danskespil's yellow incident badge (high-G pixels, matching the
+		// piece mini-cell mask) read as a phantom 1x1 the driver then "placed".
+		if cells <= 1 {
+			continue
+		}
 		cx := (gx0 + gx1) / 2
 		cy := (gy0 + gy1) / 2
 		pieces = append(pieces, BlokPiece{
