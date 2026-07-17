@@ -480,6 +480,28 @@ doesn't improve. Would have caught UKE deterministically — the prompt fix
 is a nudge, not a guarantee. Needs care: inflected forms (OSEDE, IDOLET)
 resolve fine in DDO, but crossword-isms (EKSE) and image answers may not.
 
+### Krydsord — token audit of a full solve (2026-07-17) — vision fixed, assemble measured
+Mapped the day's 4 OpenRouter calls against actual completion tokens (now
+logged per call): vision OCR 5,945 out (~700 real clue lines, ~5,200 hidden
+reasoning — 88% of the bill was thinking on a transcription task), re-ask
+543, candidates batch 2,854 (mostly legit), assemble 5,438 (~350-token JSON
++ ~5,100 reasoning). The board image sent to vision IS the vendor API's own
+base64 JPEG (1002×1102, 95 kB) — no cleaner/cheaper source exists.
+
+Shipped: `OpenRouterVision` gained ReasoningEffort + MaxTokens (it had
+neither — vision calls were also exposed to the credits-affordability
+gate); krydsord clue OCR now defaults to effort=low, cap 16000. A/B on the
+day's board with 43 known-correct clues: **1,794+137 completion tokens vs
+5,945+543 (−70%), 44/44 coverage — one better than the default-effort run
+(which missed D14 even after the re-ask); only nit an Ø/O slip (LØVLIGE).**
+
+Measured but NOT shipped: assemble at effort=low (−48%, consistent 75/75
+first shot) — rejected because it silently misspelled D1 YNGELPLEJE →
+YNGELPLEGE to make its A15 choice fit; an internally-consistent non-word
+is the exact failure mode the validator can't see. Assemble stays at the
+configured default (medium); its real savings are a cheaper model tier
+and, structurally, Krydsord-P3 below (zero assemble tokens).
+
 ### Krydsord-P3 — deterministic CSP assembly — planned
 6. ⬜ **Go backtracking assembler over the candidate lists:** we already have
    slots/lengths/crossings + dictionary seeds + batch candidates. A small

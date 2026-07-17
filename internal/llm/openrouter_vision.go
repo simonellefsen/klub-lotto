@@ -18,6 +18,15 @@ type OpenRouterVision struct {
 	APIKey string
 	Model  string
 	HTTP   *http.Client
+	// MaxTokens caps the completion (0 = provider default). Uncapped, OpenRouter
+	// gates the request on the model's own output ceiling being affordable (the
+	// 2026-07-17 ordknude credits-gate incident) — cap vision calls too.
+	MaxTokens int
+	// ReasoningEffort bounds a thinking model's internal reasoning (high|medium|
+	// low). Clue OCR is transcription, not reasoning: unbounded, gpt-5.5 spent
+	// ~5,200 hidden reasoning tokens against ~700 tokens of actual clue output
+	// (2026-07-17 measurement — 88% of the vision bill was thinking).
+	ReasoningEffort string
 }
 
 // NewOpenRouterVision returns a VisionProvider backed by OpenRouter. If model is
@@ -44,20 +53,22 @@ func (o *OpenRouterVision) Name() string { return "openrouter-vision:" + o.Model
 // and the text prompt. This is distinct from openAIRequest which uses a plain
 // string content field (text-only). OpenRouter follows OpenAI's multimodal spec.
 type openRouterVisionRequest struct {
-	Model       string                     `json:"model"`
-	Messages    []openRouterVisionMessage  `json:"messages"`
-	Temperature float64                    `json:"temperature"`
+	Model       string                    `json:"model"`
+	Messages    []openRouterVisionMessage `json:"messages"`
+	Temperature float64                   `json:"temperature"`
+	MaxTokens   int                       `json:"max_tokens,omitempty"`
+	Reasoning   *openAIReasoning          `json:"reasoning,omitempty"`
 }
 
 type openRouterVisionMessage struct {
-	Role    string                   `json:"role"`
-	Content []openRouterVisionPart   `json:"content"`
+	Role    string                 `json:"role"`
+	Content []openRouterVisionPart `json:"content"`
 }
 
 type openRouterVisionPart struct {
-	Type     string                     `json:"type"`
-	Text     string                     `json:"text,omitempty"`
-	ImageURL *openRouterVisionImageURL  `json:"image_url,omitempty"`
+	Type     string                    `json:"type"`
+	Text     string                    `json:"text,omitempty"`
+	ImageURL *openRouterVisionImageURL `json:"image_url,omitempty"`
 }
 
 type openRouterVisionImageURL struct {
@@ -87,6 +98,10 @@ func (o *OpenRouterVision) ExtractFromImage(ctx context.Context, imageBytes []by
 			},
 		},
 		Temperature: 0,
+		MaxTokens:   o.MaxTokens,
+	}
+	if o.ReasoningEffort != "" {
+		body.Reasoning = &openAIReasoning{Effort: o.ReasoningEffort}
 	}
 
 	buf, err := json.Marshal(body)
@@ -122,6 +137,9 @@ func (o *OpenRouterVision) ExtractFromImage(ctx context.Context, imageBytes []by
 	}
 	if len(parsed.Choices) == 0 {
 		return "", fmt.Errorf("openrouter-vision: empty choices")
+	}
+	if parsed.Usage != nil {
+		fmt.Printf("   [llm] %s used %d completion tokens (cap %d, effort %q)\n", o.Name(), parsed.Usage.CompletionTokens, o.MaxTokens, o.ReasoningEffort)
 	}
 	return parsed.Choices[0].Message.Content, nil
 }

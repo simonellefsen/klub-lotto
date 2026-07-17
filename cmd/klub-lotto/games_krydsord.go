@@ -355,7 +355,7 @@ func runKrydsord(ctx context.Context, args []string) error {
 
 	fmt.Println("[4/4] submitting through parent page...")
 	submitCtx, cancel := context.WithTimeout(ctx, 3*time.Minute)
-	err = submitKrydsord(submitCtx, br, data, solvedGrid)
+	err = submitKrydsord(submitCtx, br, cfg.DataDir, data, solvedGrid)
 	cancel()
 	if err != nil {
 		snap, _ := br.Snapshot(ctx)
@@ -520,7 +520,24 @@ func krydsordVisionProvider(cfg *config.Config) (llm.VisionProvider, error) {
 	// VISION_MODEL=gemini:gemini-pro-latest hit Google directly instead of being
 	// shoved into OpenRouter as an invalid model id.
 	if m := strings.TrimSpace(cfg.OpenRouterVisionModel); m != "" {
-		return llm.ResolveVision(m, providerKeys(cfg))
+		vp, err := llm.ResolveVision(m, providerKeys(cfg))
+		if err != nil {
+			return nil, err
+		}
+		// Clue OCR is transcription, not reasoning. Unbounded, gpt-5.5 spent
+		// ~5,200 hidden reasoning tokens against ~700 tokens of clue output
+		// (2026-07-17: 88% of the vision bill was thinking). Bound effort and
+		// cap the completion so the credits-affordability gate can't trip on
+		// the model's own huge default output ceiling.
+		if orv, ok := vp.(*llm.OpenRouterVision); ok {
+			if orv.ReasoningEffort == "" {
+				orv.ReasoningEffort = "low"
+			}
+			if orv.MaxTokens == 0 {
+				orv.MaxTokens = 16000
+			}
+		}
+		return vp, nil
 	}
 	switch {
 	case cfg.GeminiKey != "":
@@ -862,7 +879,7 @@ func solveKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, 
 			fmt.Printf("   [submit] grid validates against the live mask (%d answer cells) — submitting...\n", chk.AnswerN)
 		}
 		submitCtx, cancel := context.WithTimeout(ctx, 3*time.Minute)
-		serr := submitKrydsord(submitCtx, br, data, grid)
+		serr := submitKrydsord(submitCtx, br, cfg.DataDir, data, grid)
 		cancel()
 		shot := filepath.Join(cfg.DataDir, "krydsord-result-"+time.Now().UTC().Format("20060102-150405")+".png")
 		_ = br.Screenshot(ctx, shot)
@@ -1046,7 +1063,7 @@ func recordKrydsordFailure(ctx context.Context, cfg *config.Config, grid []strin
 	return upsertDailyGame(ctx, cfg, "Krydsord", "Danish clues-in-squares crossword", krydsordAnswerBoard(grid), true, false, note)
 }
 
-func submitKrydsord(ctx context.Context, br *browser.Client, data klublotto.KrydsordData, solvedGrid []string) error {
+func submitKrydsord(ctx context.Context, br *browser.Client, dataDir string, data klublotto.KrydsordData, solvedGrid []string) error {
 	if len(solvedGrid) == 0 {
 		return fmt.Errorf("no solved grid to submit")
 	}
@@ -1139,6 +1156,14 @@ func submitKrydsord(ctx context.Context, br *browser.Client, data klublotto.Kryd
 		time.Sleep(50 * time.Millisecond)
 	}
 	time.Sleep(1200 * time.Millisecond) // let the grid commit the typed letters
+
+	// Screenshot the FILLED grid before checking — the only way to visually tell
+	// a wrong-content submission from a right-content/wrong-cell-mapping one
+	// after a rejection (previously we only ever screenshot on SUCCESS, so a
+	// rejected submission left zero evidence of what actually landed where).
+	filledShot := filepath.Join(dataDir, "krydsord-filled-"+time.Now().UTC().Format("20060102-150405")+".png")
+	_ = br.Screenshot(ctx, filledShot)
+	fmt.Println("       filled-grid screenshot:", filledShot)
 
 	// Find the "TJEK LØSNING" button — the buttons DO carry roles, so they appear
 	// in the in-frame interactive snapshot as refs.
