@@ -182,6 +182,20 @@ func appendModelNote(notes, label string) string {
 	return strings.TrimRight(notes, " ") + " " + suffix
 }
 
+// defaultOpenRouterMaxTokens caps completion length for word-model calls that
+// don't set their own cap. Reasoning models (gpt-5.5 et al.) default to their
+// full context-window output limit (65536 for gpt-5.5) when max_tokens is
+// omitted — and OpenRouter gates the REQUEST itself on that ceiling being
+// affordable, not on what the response actually ends up costing. Seen live
+// 2026-07-17: an ordknude candidate call (needs a few hundred output tokens)
+// was rejected outright ("requested up to 65536 tokens, but can only afford
+// 54885") purely because nothing capped the request — no unusually large
+// prompt or response was ever in play. 40000 mirrors the krydsord --solve
+// path's already-tested value (a much bigger full-grid task) and comfortably
+// covers any candidate-list or grid-assemble response plus reasoning, while
+// leaving real headroom under a partially-depleted balance.
+const defaultOpenRouterMaxTokens = 40000
+
 // wordProvider resolves the configured/overridden word-model name to a provider.
 // The routing itself lives in (and is tested in) internal/llm; this wrapper just
 // supplies the default from config and maps config fields to llm.Keys.
@@ -190,7 +204,14 @@ func wordProvider(cfg *config.Config, override string) (llm.JSONGenerator, error
 	if name == "" {
 		name = strings.TrimSpace(cfg.WordProvider)
 	}
-	return llm.Resolve(name, providerKeys(cfg))
+	p, err := llm.Resolve(name, providerKeys(cfg))
+	if err != nil {
+		return nil, err
+	}
+	if or, ok := p.(*llm.OpenRouter); ok && or.MaxTokens == 0 {
+		or.MaxTokens = defaultOpenRouterMaxTokens
+	}
+	return p, nil
 }
 
 // providerKeys maps the config's API keys + default models into llm.Keys.

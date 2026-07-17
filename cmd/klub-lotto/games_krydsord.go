@@ -744,11 +744,6 @@ func solveKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, 
 		if perr != nil {
 			return perr
 		}
-		// Reasoning models spend much of their output budget on reasoning; a large
-		// cap keeps the full answer JSON from being truncated after the reasoning.
-		if or, ok := p.(*llm.OpenRouter); ok {
-			or.MaxTokens = 40000
-		}
 		solveSource = p.Name()
 		fmt.Printf("   [solve] model: %s\n", p.Name())
 		// Retry: the empty-content failure mode is intermittent.
