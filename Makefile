@@ -16,7 +16,7 @@ LOCAL_BROWSER_ENV := AGENT_BROWSER_SESSION=$(AGENT_BROWSER_SESSION) AGENT_BROWSE
 # a valid OpenRouter floating alias (resolves to the current concrete model).
 # Override the vision model with either VISION_MODEL=... or
 # OPENROUTER_VISION_MODEL=... e.g. `make krydsord VISION_MODEL=~google/gemini-pro-latest`.
-OPENROUTER_VISION_MODEL ?= $(or $(VISION_MODEL),openai/gpt-5.5)
+OPENROUTER_VISION_MODEL ?= $(or $(VISION_MODEL),openai/gpt-5.6-luna)
 GAME_ANSWER := $(or $(ANSWER),$(answer),$(SOLUTION),$(solution))
 GAME_PROVIDER := $(or $(PROVIDER),$(provider))
 GAME_PROVIDER_FLAG := $(if $(GAME_PROVIDER),--provider "$(GAME_PROVIDER)")
@@ -154,7 +154,7 @@ ordknude: $(BIN)
 	fi
 
 # Krydsord default word/candidate/assembler model. Override with PROVIDER=/WORD_PROVIDER=.
-KRYDSORD_PROVIDER := $(or $(PROVIDER),$(provider),$(WORD_PROVIDER),openai/gpt-5.5)
+KRYDSORD_PROVIDER := $(or $(PROVIDER),$(provider),$(WORD_PROVIDER),openai/gpt-5.6-luna)
 
 krydsord-dry: $(BIN)
 	$(LOCAL_BROWSER_ENV) $(BIN) krydsord --dry-run --provider "$(KRYDSORD_PROVIDER)"
