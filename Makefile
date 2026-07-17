@@ -28,14 +28,16 @@ GAME_AUTO_ANSWER_FLAG := $(if $(filter true 1 yes,$(AUTO_ANSWER)),--auto-answer)
 # < 7/12, then switches in-code to the REASON model at >= 7/12 (and for the
 # final guess). Override with PROVIDER=/WORD_PROVIDER= (fast) or FINAL_PROVIDER=
 # (reason). "~author/model-latest" slugs are OpenRouter floating aliases.
-# "openai:<model>" (colon, no slash) routes to the native OpenAI subscription
-# (OPENAI_API_KEY) — NOT OpenRouter's "openai/<model>" catalog slug.
-ORDKLOEVER_FAST   := $(or $(PROVIDER),$(provider),$(WORD_PROVIDER),openai:gpt-5.6-terra)
+# "openai/<model>" (slash) routes through OpenRouter's catalog — billed via
+# OpenRouter's BYOK OpenAI key, not the native OPENAI_API_KEY subscription
+# ("openai:<model>", colon, is that separate direct route; still supported,
+# just not the default while the direct OpenAI project lacks model access).
+ORDKLOEVER_FAST   := $(or $(PROVIDER),$(provider),$(WORD_PROVIDER),openai/gpt-5.6-terra)
 ORDKLOEVER_REASON := $(or $(FINAL_PROVIDER),$(final_provider),$(ORDKLOEVER_FINAL_PROVIDER),~google/gemini-pro-latest)
 
 # Ordknuden default word model. Override with PROVIDER=/WORD_PROVIDER=/ORDKNUDE_PROVIDER=.
-# "openai:<model>" routes to the native OpenAI subscription, not OpenRouter.
-ORDKNUDE_MODEL := $(or $(PROVIDER),$(provider),$(WORD_PROVIDER),$(ORDKNUDE_PROVIDER),openai:gpt-5.6-luna)
+# "openai/<model>" routes through OpenRouter (BYOK), not the native OpenAI API.
+ORDKNUDE_MODEL := $(or $(PROVIDER),$(provider),$(WORD_PROVIDER),$(ORDKNUDE_PROVIDER),openai/gpt-5.6-luna)
 ORDKNUDE_PROVIDER_FLAG := --provider "$(ORDKNUDE_MODEL)"
 
 .PHONY: help build vet test check doctor login quiz quiz-dry sudoku sudoku-dry ordkloever ordkloever-dry ordkloever-extract ordkloever-probe ordknude ordknude-dry ordknude-extract krydsord krydsord-dry krydsord-graph krydsord-solve krydsord-solve-dry blok wiki-query wiki-lint sync clean reset \
