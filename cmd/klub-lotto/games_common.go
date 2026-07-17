@@ -190,11 +190,22 @@ func appendModelNote(notes, label string) string {
 // 2026-07-17: an ordknude candidate call (needs a few hundred output tokens)
 // was rejected outright ("requested up to 65536 tokens, but can only afford
 // 54885") purely because nothing capped the request — no unusually large
-// prompt or response was ever in play. 40000 mirrors the krydsord --solve
-// path's already-tested value (a much bigger full-grid task) and comfortably
-// covers any candidate-list or grid-assemble response plus reasoning, while
-// leaving real headroom under a partially-depleted balance.
-const defaultOpenRouterMaxTokens = 40000
+// prompt or response was ever in play.
+//
+// This is the DEFAULT for the common case: a short candidate-list or single-
+// word ask (ordknude/ordkløver candidates, probe letters, decisions; the
+// krydsord per-slot batch). 8000 comfortably covers medium-effort reasoning
+// plus a small JSON reply while staying far under any real balance most of
+// the time it's this call, not the big grid-output ones, that trips the
+// gate. Callers with a genuinely larger expected output (krydsord's 44-slot
+// grid assemble/solve) explicitly raise this after resolving — see
+// defaultOpenRouterMaxTokensGrid.
+const defaultOpenRouterMaxTokens = 8000
+
+// defaultOpenRouterMaxTokensGrid is for the few calls whose answer is itself
+// large (a full ~44-slot krydsord grid as JSON) — kept at the value already
+// proven live for that task, well before this cap existed at all.
+const defaultOpenRouterMaxTokensGrid = 40000
 
 // wordProvider resolves the configured/overridden word-model name to a provider.
 // The routing itself lives in (and is tested in) internal/llm; this wrapper just

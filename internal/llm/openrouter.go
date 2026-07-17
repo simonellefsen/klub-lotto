@@ -153,5 +153,11 @@ func (o *OpenRouter) GenerateJSON(ctx context.Context, prompt string, temperatur
 	if len(resp.Choices) == 0 {
 		return "", fmt.Errorf("openrouter: empty choices")
 	}
+	// Surface actual usage against the requested cap — the only way to tell
+	// whether MaxTokens is sized right instead of guessing (see the 2026-07-17
+	// credits-gate incident: the cap had never been measured against reality).
+	if resp.Usage != nil {
+		fmt.Printf("   [llm] %s used %d completion tokens (cap %d)\n", o.Name(), resp.Usage.CompletionTokens, o.MaxTokens)
+	}
 	return resp.Choices[0].Message.Content, nil
 }

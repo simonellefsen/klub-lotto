@@ -744,6 +744,11 @@ func solveKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, 
 		if perr != nil {
 			return perr
 		}
+		// Full-grid answer (~44 slots as JSON) needs more room than the shared
+		// candidate-list default.
+		if or, ok := p.(*llm.OpenRouter); ok {
+			or.MaxTokens = defaultOpenRouterMaxTokensGrid
+		}
 		solveSource = p.Name()
 		fmt.Printf("   [solve] model: %s\n", p.Name())
 		// Retry: the empty-content failure mode is intermittent.
@@ -1244,6 +1249,11 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 	p, err := wordProvider(cfg, provider)
 	if err != nil {
 		return nil, err
+	}
+	// Full-grid answer (~44 slots as JSON) needs more room than the shared
+	// candidate-list default.
+	if or, ok := p.(*llm.OpenRouter); ok {
+		or.MaxTokens = defaultOpenRouterMaxTokensGrid
 	}
 	// Ask the model for ONE answer per slot id, NOT the whole grid. Go then
 	// places the letters deterministically from each slot's known cells, so the
