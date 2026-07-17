@@ -30,7 +30,10 @@ func TestResolveRouting(t *testing.T) {
 		{"gemini", "gemini:gemini-2.5-pro", ""},
 		{"gemini:gemini-pro-latest", "gemini:gemini-pro-latest", ""}, // native account, model override
 		{"gemini:gemini-3-pro-preview", "gemini:gemini-3-pro-preview", ""},
-		{"openai", "openai:gpt-x", ""}, // uses OpenAIModel
+		{"openai", "openai:gpt-x", ""},                                // uses OpenAIModel
+		{"openai:gpt-5.6-luna", "openai:gpt-5.6-luna", ""},            // slug override — native OpenAI, not OpenRouter
+		{"openai:gpt-5.6-terra", "openai:gpt-5.6-terra", ""},          // slug override
+		{"openai/gpt-5.6-luna", "openrouter:openai/gpt-5.6-luna", ""}, // '/' → OpenRouter's catalog, distinct provider
 		{"xai", "xai:grok-4-fast", ""},
 		{"grok", "xai:grok-4-fast", ""},
 		{"openrouter", "openrouter:or/default", ""}, // uses OpenRouterModel
@@ -86,6 +89,7 @@ func TestResolveMissingKeys(t *testing.T) {
 	}{
 		{"gemini", Keys{}, "GEMINI_API_KEY"},
 		{"openai", Keys{}, "OPENAI_API_KEY"},
+		{"openai:gpt-5.6-luna", Keys{}, "OPENAI_API_KEY"},
 		{"xai", Keys{}, "XAI_API_KEY"},
 		{"anthropic", Keys{}, "ANTHROPIC_API_KEY"},
 		{"openrouter", Keys{}, "OPENROUTER_API_KEY"},

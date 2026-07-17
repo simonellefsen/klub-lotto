@@ -28,6 +28,10 @@ type Keys struct {
 //   - a keyword: gemini | openai | xai (grok) | anthropic (claude) | openrouter
 //   - a native Gemini slug: "gemini" or "gemini:<model>" (e.g. "gemini:gemini-pro-latest")
 //     — uses GEMINI_API_KEY directly (your own Google account), NOT OpenRouter
+//   - a native OpenAI slug: "openai" or "openai:<model>" (e.g. "openai:gpt-5.6-luna")
+//     — uses OPENAI_API_KEY directly (your own OpenAI subscription), NOT
+//     OpenRouter. Distinct from an OpenRouter "openai/<model>" slug (with a
+//     "/"), which routes through OpenRouter's OpenAI-hosted catalog instead.
 //   - a Z.AI slug: "zai", "zai:<model>", "zai/<model>", "glm" or a bare "glm-…"
 //   - a full OpenRouter slug containing "/" (e.g. "google/gemini-3.1-pro-preview")
 //
@@ -83,12 +87,22 @@ func Resolve(name string, keys Keys) (JSONGenerator, error) {
 		return newOpenRouterWithReasoning(keys.OpenRouter, name, keys.OpenRouterReasoning), nil
 	}
 
-	switch strings.ToLower(name) {
-	case "openai":
+	// Native OpenAI (your own subscription) via OPENAI_API_KEY. "openai" → the
+	// default/configured model; "openai:<model>" picks one, e.g.
+	// "openai:gpt-5.6-luna". Checked before the keyword switch so the colon
+	// form doesn't fall through to "unknown word provider".
+	if low := strings.ToLower(name); low == "openai" || strings.HasPrefix(low, "openai:") {
 		if keys.OpenAI == "" {
-			return nil, fmt.Errorf("OPENAI_API_KEY is required for word provider openai")
+			return nil, fmt.Errorf("OPENAI_API_KEY is required for word provider %q", name)
 		}
-		return NewOpenAI(keys.OpenAI, keys.OpenAIModel), nil
+		model := keys.OpenAIModel
+		if i := strings.IndexByte(name, ':'); i >= 0 { // openai:gpt-5.6-luna
+			model = strings.TrimSpace(name[i+1:])
+		}
+		return NewOpenAI(keys.OpenAI, model), nil
+	}
+
+	switch strings.ToLower(name) {
 	case "xai", "grok":
 		if keys.XAI == "" {
 			return nil, fmt.Errorf("XAI_API_KEY is required for word provider xai")
