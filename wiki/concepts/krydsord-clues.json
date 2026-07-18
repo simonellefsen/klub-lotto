@@ -47,6 +47,9 @@
   "ALTSÅ": [
     "ERGO"
   ],
+  "ANERKENDELSEN": [
+    "ÆRESPRISEN"
+  ],
   "ANGER": [
     "RUELSE"
   ],
@@ -77,6 +80,9 @@
   "BABYUDSTYR": [
     "BLE",
     "SUT"
+  ],
+  "BAGVÆRK": [
+    "ÆBLEKAGER"
   ],
   "BALANCE": [
     "RO"
@@ -157,6 +163,9 @@
   "BILUDSTYR": [
     "PSKIVE"
   ],
+  "BIND": [
+    "BD"
+  ],
   "BINDEMIDDEL": [
     "KIT",
     "LIM",
@@ -208,6 +217,9 @@
   ],
   "BORTE": [
     "VÆK"
+  ],
+  "BOWLER": [
+    "SKÅLE"
   ],
   "BRANCHE": [
     "IT"
@@ -568,6 +580,9 @@
   "FORKERTE": [
     "UKORREKTE"
   ],
+  "FORKLARING": [
+    "ALIBI"
+  ],
   "FORLANGER": [
     "KRÆVER"
   ],
@@ -678,6 +693,9 @@
   "GANG": [
     "STI"
   ],
+  "GARN": [
+    "NET"
+  ],
   "GEMME": [
     "BEVARE"
   ],
@@ -720,11 +738,11 @@
   "GOLFUDSTYR": [
     "TEE"
   ],
-  "GRAM": [
-    "G"
-  ],
   "GRACIØST": [
     "YNDEFULDT"
+  ],
+  "GRAM": [
+    "G"
   ],
   "GRIBE": [
     "TY"
@@ -798,6 +816,9 @@
   ],
   "HEJSEVÆRK": [
     "KRAN"
+  ],
+  "HELE": [
+    "AL"
   ],
   "HELT": [
     "IDOL"
@@ -922,6 +943,9 @@
   "INDHENTER": [
     "NÅR"
   ],
+  "INDLEDTE": [
+    "ÅBNEDE"
+  ],
   "INDTAGE": [
     "ÆDE"
   ],
@@ -991,6 +1015,9 @@
   ],
   "KAMMERTONEN": [
     "A"
+  ],
+  "KANT": [
+    "BORT"
   ],
   "KAOS": [
     "ROD"
@@ -1179,6 +1206,9 @@
   "LAVNING": [
     "DAL"
   ],
+  "LAVVANDE": [
+    "EBBE"
+  ],
   "LED": [
     "KNO"
   ],
@@ -1325,6 +1355,9 @@
   "MORAL": [
     "ETIK"
   ],
+  "MOREDESIG": [
+    "FNES"
+  ],
   "MOTORSKIB": [
     "MS"
   ],
@@ -1354,8 +1387,12 @@
     "LOGO",
     "EMBLEM"
   ],
+  "MØBEL": [
+    "STOL"
+  ],
   "MØBLER": [
-    "LÆNESTOLE"
+    "LÆNESTOLE",
+    "SENGE"
   ],
   "MØDES": [
     "SES"
@@ -1392,6 +1429,9 @@
   ],
   "NY": [
     "NEO"
+  ],
+  "NYDELIG": [
+    "FIN"
   ],
   "NYVASKET": [
     "REN"
@@ -1648,6 +1688,9 @@
   "SANG": [
     "ARIE"
   ],
+  "SCENE": [
+    "ARENA"
+  ],
   "SELSKAB": [
     "APS"
   ],
@@ -1709,6 +1752,9 @@
   ],
   "SKIMTER": [
     "ANER"
+  ],
+  "SKITSE": [
+    "RIDS"
   ],
   "SKIVE": [
     "DVD",
@@ -1911,6 +1957,9 @@
   "STUMPER": [
     "LØSDELE"
   ],
+  "STYR": [
+    "RAT"
+  ],
   "STYRESYSTEM": [
     "IOS"
   ],
@@ -1961,11 +2010,11 @@
   "SÆR": [
     "APARTE"
   ],
-  "SØLV": [
-    "AG"
-  ],
   "SØDEMIDDEL": [
     "ROESUKKER"
+  ],
+  "SØLV": [
+    "AG"
   ],
   "TABLET": [
     "IPAD"
@@ -2014,6 +2063,9 @@
   ],
   "TEMA": [
     "EMNE"
+  ],
+  "TEMAET": [
+    "EMNET"
   ],
   "TIDLIGERE": [
     "EKS",
@@ -2088,6 +2140,9 @@
   "TOV": [
     "REB"
   ],
+  "TRADEMARK": [
+    "TM"
+  ],
   "TRENDY": [
     "IN"
   ],
@@ -2155,6 +2210,9 @@
   ],
   "TÆTTE": [
     "NÆRE"
+  ],
+  "TØJDYR": [
+    "BAMSE"
   ],
   "TØNDE": [
     "TD"
@@ -2450,6 +2508,12 @@
   ],
   "[IMG]ICECREAMCONE": [
     "IS"
+  ],
+  "[IMG]KITE": [
+    "DRAGE"
+  ],
+  "[IMG]LADDER": [
+    "STIGE"
   ],
   "[IMG]LEAVES": [
     "BLADE"

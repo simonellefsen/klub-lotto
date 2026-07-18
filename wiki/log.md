@@ -611,3 +611,11 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-18 03:47 UTC] ingest | quiz | Hvad forestiller det blå symbol i midten af det indiske nat… | outcome=submitted
 
+## [2026-07-18 03:50 UTC] ingest | ordkløver | Category: `Person`; answer pattern `11` | outcome=submitted
+
+## [2026-07-18 03:54 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-07-18 04:20 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
+
+## [2026-07-18 04:22 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+
