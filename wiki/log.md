@@ -599,3 +599,15 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-17 04:33 UTC] ingest | quiz | Hvad er den koreanske betegnelse for fermenteret, krydret k�… | outcome=submitted
 
+## [2026-07-17 04:34 UTC] ingest | ordkløver | Category: `Overgangsfase`; answer pattern `3 / 6 / 10`; visu… | outcome=submitted
+
+## [2026-07-17 05:27 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-07-17 06:24 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
+
+## [2026-07-17 06:30 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+
+## [2026-07-18 03:47 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
+## [2026-07-18 03:47 UTC] ingest | quiz | Hvad forestiller det blå symbol i midten af det indiske nat… | outcome=submitted
+

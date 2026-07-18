@@ -32,6 +32,9 @@
   "55": [
     "LV"
   ],
+  "551": [
+    "DLI"
+  ],
   "ACEOFDIAMONDSPLAYINGCARD": [
     "ES"
   ],
@@ -252,11 +255,17 @@
   "BØRN": [
     "UNGER"
   ],
+  "BØRNEPASNING": [
+    "YNGELPLEJE"
+  ],
   "CAMPINGUDSTYR": [
     "TELTE"
   ],
   "CIRKUSSCENE": [
     "ARENA"
+  ],
+  "COMPUTER": [
+    "PC"
   ],
   "CYKELDEL": [
     "PEDAL"
@@ -384,6 +393,12 @@
   ],
   "ENVELOPE": [
     "BREV"
+  ],
+  "EPOKE": [
+    "ÆRA"
+  ],
+  "EPOKEN": [
+    "ÆRAEN"
   ],
   "ERFAREDE": [
     "LÆRTE"
@@ -630,7 +645,11 @@
     "RILLER"
   ],
   "FYR": [
+    "JAS",
     "KARL"
+  ],
+  "FYRSTE": [
+    "EMIR"
   ],
   "FØDEN": [
     "MADEN"
@@ -703,6 +722,9 @@
   ],
   "GRAM": [
     "G"
+  ],
+  "GRACIØST": [
+    "YNDEFULDT"
   ],
   "GRIBE": [
     "TY"
@@ -799,6 +821,9 @@
   "HJERTELØSE": [
     "ONDE"
   ],
+  "HJULDEL": [
+    "EGER"
+  ],
   "HOLDEMEGETAF": [
     "ELSKE"
   ],
@@ -891,6 +916,9 @@
   "INDHAK": [
     "SLIDS"
   ],
+  "INDHENTE": [
+    "NÅ"
+  ],
   "INDHENTER": [
     "NÅR"
   ],
@@ -955,6 +983,7 @@
     "EGALE"
   ],
   "KAGE": [
+    "LINSE",
     "ROULADE"
   ],
   "KAMMERAT": [
@@ -1002,6 +1031,9 @@
   ],
   "KLASSE": [
     "KL"
+  ],
+  "KLIMA": [
+    "VEJR"
   ],
   "KLISTERBÅND": [
     "TAPE"
@@ -1128,6 +1160,7 @@
     "SUL"
   ],
   "KØKKENUDSTYR": [
+    "OVN",
     "HÅNDMIKSER",
     "KASSEROLLE"
   ],
@@ -1180,6 +1213,9 @@
   "LITER": [
     "L"
   ],
+  "LOVLIGE": [
+    "LEGALE"
+  ],
   "LOYAL": [
     "TRO"
   ],
@@ -1213,6 +1249,9 @@
   ],
   "LÆSEPENGE": [
     "SU"
+  ],
+  "LØBE": [
+    "SPÆNE"
   ],
   "LØFTE": [
     "ED"
@@ -1377,6 +1416,9 @@
     "PR",
     "RY"
   ],
+  "OPFINDER": [
+    "EDISON"
+  ],
   "OPFØRER": [
     "TER"
   ],
@@ -1391,6 +1433,9 @@
   ],
   "ORGANISATION": [
     "NASA"
+  ],
+  "ORKEDE": [
+    "GAD"
   ],
   "OST": [
     "BRIE"
@@ -1513,6 +1558,7 @@
     "LOMMEKNIV",
     "LE",
     "FIL",
+    "NÅL",
     "DÅSEÅBNER",
     "FORK"
   ],
@@ -1891,7 +1937,8 @@
     "TVÆRE"
   ],
   "SVAR": [
-    "JA"
+    "JA",
+    "JEP"
   ],
   "SVIMMEL": [
     "ØR"
@@ -1913,6 +1960,9 @@
   ],
   "SÆR": [
     "APARTE"
+  ],
+  "SØLV": [
+    "AG"
   ],
   "SØDEMIDDEL": [
     "ROESUKKER"
@@ -2004,6 +2054,9 @@
   "TOGTAG": [
     "ROEDE"
   ],
+  "TOGTYPE": [
+    "IC"
+  ],
   "TON": [
     "T"
   ],
@@ -2041,6 +2094,9 @@
   "TRICK": [
     "KNEB"
   ],
+  "TRIST": [
+    "KED"
+  ],
   "TRISTE": [
     "KEDE"
   ],
@@ -2066,6 +2122,7 @@
   ],
   "TRÆER": [
     "ASPE",
+    "ELME",
     "ESPE",
     "EGE"
   ],
@@ -2086,6 +2143,9 @@
   ],
   "TÅGE": [
     "DIS"
+  ],
+  "TÆPPE": [
+    "KELIM"
   ],
   "TÆRE": [
     "ÆTSE"
