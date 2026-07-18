@@ -207,6 +207,25 @@ const defaultOpenRouterMaxTokens = 8000
 // proven live for that task, well before this cap existed at all.
 const defaultOpenRouterMaxTokensGrid = 40000
 
+// defaultOpenRouterMaxTokensGemini is the short-answer default for Gemini
+// routes specifically. Measured live 2026-07-18 on the identical task
+// (krydsord candidates batch, 22 clues): gpt-5.5 used ~2,854 completion
+// tokens; ~google/gemini-pro-latest used 7,946 against the plain 8000 cap —
+// a 54-token near-miss from truncating mid-JSON. Gemini reasons markedly
+// harder on this call shape, so it gets real headroom instead of skating
+// the edge of the gpt-5.5-tuned default.
+const defaultOpenRouterMaxTokensGemini = 20000
+
+// openRouterMaxTokensFor picks the short-answer MaxTokens default for a
+// resolved OpenRouter model slug (bare "google/…" or the "~google/…-latest"
+// floating-alias form both match).
+func openRouterMaxTokensFor(model string) int {
+	if strings.Contains(strings.ToLower(model), "gemini") {
+		return defaultOpenRouterMaxTokensGemini
+	}
+	return defaultOpenRouterMaxTokens
+}
+
 // wordProvider resolves the configured/overridden word-model name to a provider.
 // The routing itself lives in (and is tested in) internal/llm; this wrapper just
 // supplies the default from config and maps config fields to llm.Keys.
@@ -220,7 +239,7 @@ func wordProvider(cfg *config.Config, override string) (llm.JSONGenerator, error
 		return nil, err
 	}
 	if or, ok := p.(*llm.OpenRouter); ok && or.MaxTokens == 0 {
-		or.MaxTokens = defaultOpenRouterMaxTokens
+		or.MaxTokens = openRouterMaxTokensFor(or.Model)
 	}
 	return p, nil
 }

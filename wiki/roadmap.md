@@ -500,6 +500,21 @@ first shot) — rejected because it silently misspelled D1 YNGELPLEJE →
 YNGELPLEGE to make its A15 choice fit; an internally-consistent non-word
 is the exact failure mode the validator can't see. Assemble stays at the
 configured default (medium); its real savings are a cheaper model tier
+
+**2026-07-18 follow-up — the 8000 candidates cap actually truncated on
+Gemini, not just came close.** First live krydsord run on
+~google/gemini-pro-latest: `used 7946 completion tokens (cap 8000)` was
+a real mid-JSON cutoff — `batch candidate parse failed (unexpected end of
+JSON input)`, falling back to clue-text+dict-only assembly with zero
+pre-computed candidates. The run still solved cleanly (44/44, attempt 1)
+purely because the assembler was strong enough to work unaided — that's
+luck, not margin; a harder puzzle could have come back wrong with no
+candidate hints to lean on. `openRouterMaxTokensFor(model)` in
+games_common.go now gives Gemini routes a 20000 short-answer cap (gpt-5.5
+stays at 8000, tuned to its ~2,854-token usage on the same task). Vision's
+16000 cap is UNCHECKED for Gemini — the run's vision-call usage line
+rolled off a truncated log capture, so there's no evidence either way; not
+adjusted without a measurement.
 and, structurally, Krydsord-P3 below (zero assemble tokens).
 
 ### Krydsord-P3 — deterministic CSP assembly — planned
