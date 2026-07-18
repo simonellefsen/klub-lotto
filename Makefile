@@ -36,8 +36,12 @@ ORDKLOEVER_FAST   := $(or $(PROVIDER),$(provider),$(WORD_PROVIDER),openai/gpt-5.
 ORDKLOEVER_REASON := $(or $(FINAL_PROVIDER),$(final_provider),$(ORDKLOEVER_FINAL_PROVIDER),~google/gemini-pro-latest)
 
 # Ordknuden default word model. Override with PROVIDER=/WORD_PROVIDER=/ORDKNUDE_PROVIDER=.
-# "openai/<model>" routes through OpenRouter (BYOK), not the native OpenAI API.
-ORDKNUDE_MODEL := $(or $(PROVIDER),$(provider),$(WORD_PROVIDER),$(ORDKNUDE_PROVIDER),openai/gpt-5.6-luna)
+# "~author/model-latest" is an OpenRouter floating alias (resolves to Google's
+# current flash model). Routed via BYOK against the Google AI Studio key, so
+# it's effectively free — and replayed clean against today's live __KEL
+# endgame (2026-07-18): one round, one candidate, correct (CYKEL), vs
+# gpt-5.6-luna's 8 fabricated non-words before the same answer.
+ORDKNUDE_MODEL := $(or $(PROVIDER),$(provider),$(WORD_PROVIDER),$(ORDKNUDE_PROVIDER),~google/gemini-flash-latest)
 ORDKNUDE_PROVIDER_FLAG := --provider "$(ORDKNUDE_MODEL)"
 
 .PHONY: help build vet test check doctor login quiz quiz-dry sudoku sudoku-dry ordkloever ordkloever-dry ordkloever-extract ordkloever-probe ordknude ordknude-dry ordknude-extract krydsord krydsord-dry krydsord-graph krydsord-solve krydsord-solve-dry blok wiki-query wiki-lint sync clean reset \
