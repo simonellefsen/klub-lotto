@@ -161,7 +161,12 @@ ordknude: $(BIN)
 	fi
 
 # Krydsord default word/candidate/assembler model. Override with PROVIDER=/WORD_PROVIDER=.
-KRYDSORD_PROVIDER := $(or $(PROVIDER),$(provider),$(WORD_PROVIDER),openai/gpt-5.6-luna)
+# Trying ~google/gemini-pro-latest (BYOK, effectively free) for both vision
+# and word/reasoning — decoupled from ordkløver's OPENROUTER_VISION_MODEL
+# (still openai/gpt-5.6-luna) via a krydsord-specific vision var below, so
+# this doesn't silently change ordkløver's board reading too.
+KRYDSORD_PROVIDER := $(or $(PROVIDER),$(provider),$(WORD_PROVIDER),~google/gemini-pro-latest)
+KRYDSORD_VISION_MODEL := $(or $(VISION_MODEL),~google/gemini-pro-latest)
 
 krydsord-dry: $(BIN)
 	$(LOCAL_BROWSER_ENV) $(BIN) krydsord --dry-run --provider "$(KRYDSORD_PROVIDER)"
@@ -198,7 +203,7 @@ krydsord-solve-dry: $(BIN)
 	$(BIN) krydsord --solve --dry-run $(KRYDSORD_GRAPH_FILE_FLAG)
 
 krydsord: $(BIN)
-	OPENROUTER_VISION_MODEL=$(OPENROUTER_VISION_MODEL) $(LOCAL_BROWSER_ENV) $(BIN) krydsord --submit --provider "$(KRYDSORD_PROVIDER)"
+	OPENROUTER_VISION_MODEL=$(KRYDSORD_VISION_MODEL) $(LOCAL_BROWSER_ENV) $(BIN) krydsord --submit --provider "$(KRYDSORD_PROVIDER)"
 
 # Blok for Blok is a Phaser WebGL canvas game with no accessible JS state, so it
 # is driven by pixel-perception + real coordinate mouse-drags — now a native Go
