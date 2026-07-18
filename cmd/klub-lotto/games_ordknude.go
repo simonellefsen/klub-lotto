@@ -128,6 +128,13 @@ func runOrdknude(ctx context.Context, args []string) error {
 		// word respecting the known green pattern. We re-ask rather than submit a
 		// pattern-violating guess; after a few rounds we fall back to a local word.
 		noConsistentRounds := 0
+		// ddoDropRounds counts consecutive LLM batches where EVERY candidate was
+		// rejected by the DDO dictionary check. Seen live 2026-07-18 on the __KEL
+		// pattern: gpt-5.6-luna fabricated 8 straight non-words (HÆKEL, ÆKKEL,
+		// JÆKEL, GÆKEL, EKKEL, KÆKEL, HØKEL, PØKEL) before landing CYKEL — the
+		// DDO gate caught all 8 without burning a real guess, but the retry loop
+		// had NO bound, so a model that never converges would loop forever.
+		ddoDropRounds := 0
 		// lastGoodHistory keeps the most recent non-empty board history: the win/
 		// loss overlay re-extract returns "0 guesses", wiping st.History, so we
 		// snapshot it here to reconstruct the guess sequence for the ledger.
@@ -178,7 +185,13 @@ func runOrdknude(ctx context.Context, args []string) error {
 				fmt.Printf("   -> trying %s (from pool; %d candidate(s) left, no LLM call)\n", currentAnswer, len(pool))
 			} else {
 				fmt.Printf("[3/4] asking provider for candidates (attempt %d/6)...\n", currentAttempt)
-				cands, err := wordCandidates(ctx, cfg, *providerFlag, klublotto.BuildOrdknudePrompt(st, rejected))
+				prompt := klublotto.BuildOrdknudePrompt(st, rejected)
+				if ddoDropRounds > 0 {
+					// The model's whole previous batch was fabricated non-words —
+					// spell out the dictionary requirement explicitly.
+					prompt += "\nVIGTIGT: Dine seneste forslag findes IKKE i Den Danske Ordbog (ordnet.dk/ddo) og blev afvist. Foreslå KUN almindelige danske ord du er HELT sikker på står i ordbogen — ingen opfundne, dialektale eller sammensatte former."
+				}
+				cands, err := wordCandidates(ctx, cfg, *providerFlag, prompt)
 				if err != nil {
 					if ctx.Err() != nil {
 						return ctx.Err() // interrupted — never turn a Ctrl-C into a local-fallback SUBMIT
@@ -216,10 +229,15 @@ func runOrdknude(ctx context.Context, args []string) error {
 							currentAnswer = fb
 							fmt.Printf("   -> trying fallback %s\n", currentAnswer)
 						} else {
-							fmt.Printf("   all candidates dropped by DDO — retrying LLM for new suggestions...\n")
+							ddoDropRounds++
+							if ddoDropRounds >= 10 {
+								return fmt.Errorf("model proposed only non-DDO words for %d straight rounds (last batch rejected: see [ddo] lines) — stopping instead of looping; try a different WORD_PROVIDER", ddoDropRounds)
+							}
+							fmt.Printf("   all candidates dropped by DDO — retrying LLM for new suggestions (%d/10)...\n", ddoDropRounds)
 							continue
 						}
 					} else {
+						ddoDropRounds = 0
 						// Keep only fully-constraint-consistent words as the reusable pool.
 						pool = prunePool(validated)
 						if len(pool) == 0 {
