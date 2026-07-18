@@ -32,7 +32,10 @@ GAME_AUTO_ANSWER_FLAG := $(if $(filter true 1 yes,$(AUTO_ANSWER)),--auto-answer)
 # OpenRouter's BYOK OpenAI key, not the native OPENAI_API_KEY subscription
 # ("openai:<model>", colon, is that separate direct route; still supported,
 # just not the default while the direct OpenAI project lacks model access).
-ORDKLOEVER_FAST   := $(or $(PROVIDER),$(provider),$(WORD_PROVIDER),openai/gpt-5.6-terra)
+# Both tiers route via OpenRouter BYOK against the Google AI Studio key
+# (effectively free) — flash for cheap letter-probe/candidate rounds, pro for
+# the higher-stakes late-game/final full-phrase guess.
+ORDKLOEVER_FAST   := $(or $(PROVIDER),$(provider),$(WORD_PROVIDER),~google/gemini-flash-latest)
 ORDKLOEVER_REASON := $(or $(FINAL_PROVIDER),$(final_provider),$(ORDKLOEVER_FINAL_PROVIDER),~google/gemini-pro-latest)
 
 # Ordknuden default word model. Override with PROVIDER=/WORD_PROVIDER=/ORDKNUDE_PROVIDER=.
