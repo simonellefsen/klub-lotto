@@ -363,7 +363,7 @@ func runKrydsord(ctx context.Context, args []string) error {
 		if errors.Is(err, errKrydsordNotSolved) {
 			// Wrong solution rejected by the vendor — record the loss and exit cleanly
 			// (like an Ordknuden loss) instead of a hard error.
-			return recordKrydsordFailure(ctx, cfg, solvedGrid, wordModelLabel(cfg, *providerFlag), "Tofaset clues OCR + LLM-kandidater + konsistent gitter.")
+			return recordKrydsordFailure(ctx, cfg, solvedGrid, art.ImagePath, wordModelLabel(cfg, *providerFlag), "Tofaset clues OCR + LLM-kandidater + konsistent gitter.")
 		}
 		return err
 	}
@@ -464,6 +464,7 @@ func runKrydsord(ctx context.Context, args []string) error {
 		}
 	}
 	notes := appendModelNote("Solved via clues OCR + LLM candidates + consistent grid. Saved via vendor API + Tjek løsning.", krydsordModel)
+	notes = appendKrydsordBoardLink(notes, art.ImagePath)
 	return upsertDailyGame(ctx, cfg, "Krydsord", "Danish clues-in-squares crossword", krydsordAnswerBoard(solvedGrid), true, true, notes)
 }
 
@@ -885,7 +886,7 @@ func solveKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, 
 		_ = br.Screenshot(ctx, shot)
 		if serr != nil {
 			if errors.Is(serr, errKrydsordNotSolved) {
-				return recordKrydsordFailure(ctx, cfg, grid, wordModelLabel(cfg, provider), "Tofaset graph→CSP→LLM ("+solveSource+").")
+				return recordKrydsordFailure(ctx, cfg, grid, "", wordModelLabel(cfg, provider), "Tofaset graph→CSP→LLM ("+solveSource+").")
 			}
 			return fmt.Errorf("submit: %w", serr)
 		}
@@ -1053,14 +1054,63 @@ var errKrydsordNotSolved = errors.New("krydsord submitted but not solved correct
 // recordKrydsordFailure logs a not-solved Krydsord attempt to the daily ledger
 // (registered=no) and prints a clear failure line. The Danish failure screen
 // reveals no correct solution, so we record the grid we submitted plus a loss tag.
-func recordKrydsordFailure(ctx context.Context, cfg *config.Config, grid []string, model, source string) error {
+func recordKrydsordFailure(ctx context.Context, cfg *config.Config, grid []string, imagePath, model, source string) error {
 	fmt.Println("\n❌ Krydsord not solved — Danske Spil rejected the submitted grid (ikke løst korrekt).")
 	note := "Ikke løst — indsendt gitter blev afvist (ikke løst korrekt)."
 	if strings.TrimSpace(source) != "" {
 		note += " " + source
 	}
 	note = appendModelNote(note, model)
+	note = appendKrydsordBoardLink(note, imagePath)
 	return upsertDailyGame(ctx, cfg, "Krydsord", "Danish clues-in-squares crossword", krydsordAnswerBoard(grid), true, false, note)
+}
+
+// krydsordBoardsDir is the TRACKED (non-gitignored) home for archived board
+// images — .klublotto/ itself is gitignored, so a link there would 404 on
+// GitHub. One copy per calendar day (Europe/Copenhagen, matching the daily
+// ledger's date key); same-day reruns overwrite it, which is fine since the
+// board is identical across retries of the same daily puzzle.
+func krydsordBoardsDir() string {
+	return filepath.Join(wikiRoot(), "sources", "krydsord-boards")
+}
+
+// appendKrydsordBoardLink copies the board JPEG (read from the local,
+// gitignored .klublotto/ path) into the tracked wiki/sources/krydsord-boards/
+// directory and appends a markdown link to notes, so the daily ledger carries
+// a real, committed reference to what the puzzle looked like — not just a
+// local path that goes dead once .klublotto/ is cleaned or the machine
+// changes. Best-effort: a copy failure is logged but never blocks recording
+// the day's result.
+func appendKrydsordBoardLink(notes, imagePath string) string {
+	if strings.TrimSpace(imagePath) == "" {
+		return notes
+	}
+	img, err := os.ReadFile(imagePath)
+	if err != nil || len(img) == 0 {
+		fmt.Printf("       [board-archive] could not read %s: %v\n", imagePath, err)
+		return notes
+	}
+	loc, err := time.LoadLocation("Europe/Copenhagen")
+	if err != nil {
+		loc = time.Local
+	}
+	date := time.Now().In(loc).Format("2006-01-02")
+	dir := krydsordBoardsDir()
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		fmt.Printf("       [board-archive] mkdir %s: %v\n", dir, err)
+		return notes
+	}
+	dst := filepath.Join(dir, "krydsord-board-"+date+".jpg")
+	if err := os.WriteFile(dst, img, 0o644); err != nil {
+		fmt.Printf("       [board-archive] write %s: %v\n", dst, err)
+		return notes
+	}
+	fmt.Println("       board image archived:", dst)
+	link := fmt.Sprintf("[Board image](../sources/krydsord-boards/krydsord-board-%s.jpg)", date)
+	if strings.TrimSpace(notes) == "" {
+		return link
+	}
+	return strings.TrimRight(notes, " ") + " " + link
 }
 
 func submitKrydsord(ctx context.Context, br *browser.Client, dataDir string, data klublotto.KrydsordData, solvedGrid []string) error {
