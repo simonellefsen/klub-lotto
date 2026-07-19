@@ -623,3 +623,15 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-19 04:43 UTC] ingest | quiz | Hvilket land har flest tidszoner i alt inklusive oversøiske… | outcome=submitted
 
+## [2026-07-19 04:44 UTC] ingest | ordkløver | Category: `Konstruktion`; answer pattern `8 / 7 / 3`; visual… | outcome=submitted
+
+## [2026-07-19 04:45 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-07-19 04:47 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
+
+## [2026-07-19 04:55 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+
+## [2026-07-19 22:11 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
+## [2026-07-19 22:12 UTC] ingest | quiz | På hvilken italiensk ø finder man den aktive vulkan Etna? | outcome=submitted
+

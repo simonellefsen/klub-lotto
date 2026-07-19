@@ -741,6 +741,9 @@
   "GRACIØST": [
     "YNDEFULDT"
   ],
+  "GRAD": [
+    "RANG"
+  ],
   "GRAM": [
     "G"
   ],
@@ -801,6 +804,9 @@
   ],
   "HARMLØST": [
     "USKADELIGT"
+  ],
+  "HASTE": [
+    "ILE"
   ],
   "HAV": [
     "UTAL"
@@ -865,6 +871,9 @@
   ],
   "HORISONTALE": [
     "VANDRETTE"
+  ],
+  "HORNLYD": [
+    "DYT"
   ],
   "HOT": [
     "IN"
@@ -967,7 +976,8 @@
     "LUR",
     "OBO",
     "SAX",
-    "SÆKKEPIBE"
+    "SÆKKEPIBE",
+    "SITAR"
   ],
   "JAG": [
     "VE"
@@ -1119,6 +1129,9 @@
   "KRADSE": [
     "KLØ"
   ],
+  "KRAFTESLØSE": [
+    "SLAPPE"
+  ],
   "KRAFTIG": [
     "FED",
     "TYK"
@@ -1191,6 +1204,9 @@
     "HÅNDMIKSER",
     "KASSEROLLE"
   ],
+  "KØRE": [
+    "AGE"
+  ],
   "KØRETØJ": [
     "ELBIL"
   ],
@@ -1237,6 +1253,9 @@
   "LIGE": [
     "RET"
   ],
+  "LIGEPRÆCIS": [
+    "NETOP"
+  ],
   "LILLE": [
     "LL"
   ],
@@ -1269,6 +1288,9 @@
   ],
   "LÆDER": [
     "SKIND"
+  ],
+  "LÆKKERI": [
+    "NOUGAT"
   ],
   "LÆNKER": [
     "KÆDER"
@@ -1446,6 +1468,9 @@
   "OFTE": [
     "TIT"
   ],
+  "OMRÅDE": [
+    "SOGN"
+  ],
   "OMRÅDER": [
     "EGNE"
   ],
@@ -1511,6 +1536,9 @@
   "PEP": [
     "GO"
   ],
+  "PERFEKTBEGYNDELSE": [
+    "ØNSKESTART"
+  ],
   "PERIODE": [
     "ÅRTI",
     "ÅR",
@@ -1555,6 +1583,9 @@
   ],
   "POLERE": [
     "PUDSE"
+  ],
+  "POLEREDE": [
+    "GNED"
   ],
   "POLITIAFDELING": [
     "PET"
@@ -1799,6 +1830,9 @@
   "SLANGE": [
     "SNOG"
   ],
+  "SLEMT": [
+    "ARGT"
+  ],
   "SLÆGT": [
     "ÆT"
   ],
@@ -1869,6 +1903,9 @@
   ],
   "SPIST": [
     "ÆDT"
+  ],
+  "SPOLERER": [
+    "ØDELÆGGER"
   ],
   "SPORTSGREN": [
     "TENNIS"
@@ -1989,6 +2026,9 @@
     "JA",
     "JEP"
   ],
+  "SVENSKKILDE": [
+    "TT"
+  ],
   "SVIMMEL": [
     "ØR"
   ],
@@ -2027,6 +2067,9 @@
   ],
   "TALENT": [
     "EVNE"
+  ],
+  "TALJE": [
+    "GI"
   ],
   "TALORD": [
     "EN",
@@ -2083,6 +2126,9 @@
   ],
   "TILBEHØR": [
     "GELE"
+  ],
+  "TILBEREDT": [
+    "STEGT"
   ],
   "TILSÆTTE": [
     "IRØRE"
@@ -2351,11 +2397,15 @@
   "VULKAN": [
     "ETNA"
   ],
+  "VÆGTENHED": [
+    "LOD"
+  ],
   "VÆGTFORK": [
     "KG"
   ],
   "VÆKST": [
-    "TRÆ"
+    "TRÆ",
+    "GRÆS"
   ],
   "VÆRKE": [
     "MURRE"
@@ -2569,12 +2619,21 @@
   "[IMG]PLAYINGCARDS": [
     "ESSER"
   ],
+  "[IMG]POT": [
+    "GRYDE"
+  ],
   "[IMG]POWERPLUG": [
     "STIK"
+  ],
+  "[IMG]RADIO": [
+    "RADIO"
   ],
   "[IMG]RAINDROPS": [
     "REGN",
     "DRÅBER"
+  ],
+  "[IMG]RAKE": [
+    "RIVE"
   ],
   "[IMG]RAKES": [
     "RIVER"
@@ -2587,6 +2646,9 @@
   ],
   "[IMG]RUNES": [
     "RUNER"
+  ],
+  "[IMG]SAW": [
+    "SAV"
   ],
   "[IMG]SCYTHE": [
     "LE"
@@ -2653,6 +2715,9 @@
   ],
   "ØDELAGT": [
     "ITU"
+  ],
+  "ØGLE": [
+    "LEGUAN"
   ],
   "ØJESTYKKE": [
     "ETUDE"
