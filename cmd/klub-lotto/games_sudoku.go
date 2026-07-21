@@ -76,7 +76,7 @@ func runSudoku(ctx context.Context, args []string) error {
 	}
 	shot := filepath.Join(cfg.DataDir, "sudoku-result-"+time.Now().UTC().Format("20060102-150405")+".png")
 	_ = br.Screenshot(ctx, shot)
-	return upsertDailyGame(ctx, cfg, "Sudoku", "9x9 Sudoku", gridOneLine(solved), true, true, "Solved with deterministic local compute.")
+	return upsertDailyGame(ctx, cfg, "Sudoku", "9x9 Sudoku", gridLedgerFormat(solved), true, true, "Solved with deterministic local compute.")
 }
 
 func submitSudoku(ctx context.Context, br *browser.Client, givens, solved klublotto.SudokuGrid) error {
@@ -277,6 +277,14 @@ func sudokuNumberSelectors(n string) []string {
 	}
 }
 
-func gridOneLine(g klublotto.SudokuGrid) string {
-	return strings.ReplaceAll(klublotto.FormatSudokuGrid(g), "\n", " / ")
+// gridLedgerFormat renders the solved grid as nine backtick-quoted rows
+// joined by <br>, matching the Krydsord ledger convention (see the "Board"
+// notes in wiki/daily/*.md) so the daily ledger shows a readable 9-row
+// monospace grid instead of one long " / "-joined line that just wraps.
+func gridLedgerFormat(g klublotto.SudokuGrid) string {
+	rows := strings.Split(klublotto.FormatSudokuGrid(g), "\n")
+	for i, r := range rows {
+		rows[i] = "`" + r + "`"
+	}
+	return strings.Join(rows, "<br>")
 }
