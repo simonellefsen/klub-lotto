@@ -635,3 +635,17 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-19 22:12 UTC] ingest | quiz | På hvilken italiensk ø finder man den aktive vulkan Etna? | outcome=submitted
 
+## [2026-07-19 22:16 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-07-19 22:30 UTC] ingest | ordkløver | Category: `Fiktiv forbrydelse`; answer pattern `9 / 2 / 6`; … | outcome=submitted
+
+## [2026-07-19 22:36 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
+
+## [2026-07-19 22:46 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+
+## [2026-07-19 22:53 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+
+## [2026-07-21 04:34 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
+## [2026-07-21 04:35 UTC] ingest | quiz | Hvilken planet roterer næsten på siden med en aksehældnin… | outcome=submitted
+
