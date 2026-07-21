@@ -242,18 +242,22 @@ func runOrdknude(ctx context.Context, args []string) error {
 						pool = prunePool(validated)
 						if len(pool) == 0 {
 							// Full consistency over-pruned (often a mis-read yellow). Keep at
-							// least the words that respect the confirmed GREEN letters — we
-							// must never submit a word that contradicts a known green (e.g.
-							// GRUBE when the pattern is G R _ D E).
+							// least the words that respect the confirmed GREEN letters AND the
+							// confirmed-ABSENT (gray/banned) letters — those two signals are
+							// unambiguous regardless of how a yellow was read. Only the
+							// present/yellow must-include-and-not-here constraints are relaxed
+							// here. Green-only was too permissive: it let SVAMP through on
+							// 2026-07-20 despite SVAMP containing P (banned/gray from PLADS)
+							// and misplacing S/A onto known-wrong yellow positions.
 							for _, c := range validated {
-								if klublotto.ConsistentWithOrdknudeGreens(c.Answer, st.History) {
+								if klublotto.ConsistentWithOrdknudeGreensAndAbsent(c.Answer, st.History) {
 									pool = append(pool, c)
 								}
 							}
 						}
 						if len(pool) == 0 {
-							// Every provider candidate violates a known green letter. Reject
-							// the whole batch and ask again rather than wasting a real guess.
+							// Every provider candidate violates a known green or absent letter.
+							// Reject the whole batch and ask again rather than wasting a real guess.
 							for _, c := range validated {
 								w := klublotto.NormalizeDanishLetters(c.Answer)
 								if !containsWord(rejected, w) {
@@ -303,9 +307,10 @@ func runOrdknude(ctx context.Context, args []string) error {
 				continue
 			}
 			// Final hard guard: never submit a word that contradicts a confirmed green
-			// letter, regardless of which path produced it. Reject it and ask again.
-			if !klublotto.ConsistentWithOrdknudeGreens(currentAnswer, st.History) {
-				fmt.Printf("   %s violates the known green pattern — rejecting and asking for another word...\n", currentAnswer)
+			// position or reuses a confirmed-absent (gray/banned) letter, regardless of
+			// which path produced it. Reject it and ask again.
+			if !klublotto.ConsistentWithOrdknudeGreensAndAbsent(currentAnswer, st.History) {
+				fmt.Printf("   %s violates a known green/absent constraint — rejecting and asking for another word...\n", currentAnswer)
 				if w := klublotto.NormalizeDanishLetters(currentAnswer); !containsWord(rejected, w) {
 					rejected = append(rejected, w)
 				}

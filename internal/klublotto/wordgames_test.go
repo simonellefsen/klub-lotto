@@ -97,6 +97,33 @@ func TestConsistentWithOrdknudeHistory(t *testing.T) {
 	}
 }
 
+// TestConsistentWithOrdknudeGreensAndAbsent reproduces the 2026-07-20 SVAMP
+// regression: after STIER (S yellow@1) and PLADS (A yellow@3, S yellow@5,
+// P/L/D gray), SVAMP places S back at position 1, A back at position 3, and
+// contains the gray letter P. The green-only fallback (ConsistentWithOrdknudeGreens)
+// let it through because there were no confirmed greens yet; the fix must
+// reject it on the gray-letter P alone, even though yellow-position checks
+// are intentionally relaxed here.
+func TestConsistentWithOrdknudeGreensAndAbsent(t *testing.T) {
+	history := []OrdknudeGuess{
+		{Word: "STIER", Marks: []string{"present", "absent", "absent", "absent", "absent"}},
+		{Word: "PLADS", Marks: []string{"absent", "absent", "present", "absent", "present"}},
+	}
+	if ConsistentWithOrdknudeGreensAndAbsent("SVAMP", history) {
+		t.Fatal("SVAMP contains the gray letter P and must be rejected even by the relaxed green+absent check")
+	}
+	// A word that only reuses S/A at their known-wrong yellow positions (no gray
+	// letters, no green violation) is still accepted — that's the whole point of
+	// relaxing the yellow-position constraint as a safety valve.
+	if !ConsistentWithOrdknudeGreensAndAbsent("SAMBA", history) {
+		t.Fatal("SAMBA has no gray letters and no green conflict, so the relaxed check should accept it")
+	}
+	// BASUN respects every constraint (full Wordle-consistent), so it must pass too.
+	if !ConsistentWithOrdknudeGreensAndAbsent("BASUN", history) {
+		t.Fatal("BASUN is fully consistent and must be accepted")
+	}
+}
+
 func TestPhraseMatchesLengthPattern(t *testing.T) {
 	if !PhraseMatchesLengthPattern("DET ER EN SANGBOG", "3 / 2 / 2 / 7") {
 		t.Fatal("expected phrase to match Danish word-length pattern")

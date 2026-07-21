@@ -3179,6 +3179,48 @@ func ConsistentWithOrdknudeGreens(word string, history []OrdknudeGuess) bool {
 	return true
 }
 
+// ConsistentWithOrdknudeGreensAndAbsent is the middle-ground safety valve
+// between ConsistentWithOrdknudeHistory (full) and ConsistentWithOrdknudeGreens
+// (green-only): it honours every confirmed-green position AND every confirmed-
+// absent (gray/banned) letter, but not present (yellow) must-include/wrong-
+// position constraints. Use this — not the green-only check — as the fallback
+// when the full consistency filter over-prunes a mis-read yellow: a candidate
+// that reuses a letter the board has shown gray, or places a green letter
+// wrong, can never be the answer regardless of how the yellows were read.
+// Seen live 2026-07-20: SVAMP slipped through the green-only fallback despite
+// containing P (banned/gray from PLADS) and misplacing S/A onto positions the
+// board had already marked yellow-wrong — this closes that gap for the
+// unambiguous absent signal while still tolerating yellow misreads.
+func ConsistentWithOrdknudeGreensAndAbsent(word string, history []OrdknudeGuess) bool {
+	word = NormalizeDanishLetters(word)
+	if !IsDanishFiveLetterWord(word) {
+		return false
+	}
+	runes := []rune(word)
+	for _, h := range history {
+		hRunes := []rune(NormalizeDanishLetters(h.Word))
+		for i, m := range h.Marks {
+			if i >= len(hRunes) {
+				continue
+			}
+			ch := hRunes[i]
+			switch m {
+			case "correct":
+				if i >= len(runes) || runes[i] != ch {
+					return false
+				}
+			case "absent":
+				for _, r := range runes {
+					if r == ch {
+						return false
+					}
+				}
+			}
+		}
+	}
+	return true
+}
+
 func usedOrdknudeWord(word string, history []OrdknudeGuess, rejected []string) bool {
 	for _, h := range history {
 		if h.Word == word {
