@@ -38,6 +38,9 @@
   "ACEOFDIAMONDSPLAYINGCARD": [
     "ES"
   ],
+  "ADELSMÆND": [
+    "GREVER"
+  ],
   "AFSLØRER": [
     "ÅBENBARER"
   ],
@@ -409,6 +412,9 @@
   "EJER": [
     "HAR"
   ],
+  "ENDEN": [
+    "AFSLUTNING"
+  ],
   "ENFOLDIG": [
     "GODTROENDE"
   ],
@@ -583,6 +589,9 @@
   "FODSLAG": [
     "TRIT"
   ],
+  "FORBI": [
+    "OMME"
+  ],
   "FORBLØFFE": [
     "UNDRE"
   ],
@@ -597,6 +606,9 @@
   ],
   "FORESTILLING": [
     "REVY"
+  ],
+  "FORKERT": [
+    "USAND"
   ],
   "FORKERTE": [
     "UKORREKTE"
@@ -658,6 +670,9 @@
     "AGERN",
     "MELON"
   ],
+  "FRUGTER": [
+    "ABRIKOSER"
+  ],
   "FUGL": [
     "ARA",
     "DUE",
@@ -675,7 +690,8 @@
   "FUGLE": [
     "ØRNE",
     "STÆRE",
-    "KOLIBRIER"
+    "KOLIBRIER",
+    "ARAER"
   ],
   "FURER": [
     "RILLER"
@@ -909,6 +925,9 @@
   "HUNDSE": [
     "HERSE"
   ],
+  "HVEDETYPE": [
+    "SPELT"
+  ],
   "HVIL": [
     "PAUSE"
   ],
@@ -1114,6 +1133,9 @@
   "KNOB": [
     "KN"
   ],
+  "KNOGLE": [
+    "BEN"
+  ],
   "KNOLD": [
     "TUE"
   ],
@@ -1126,6 +1148,9 @@
   "KORN": [
     "BYG",
     "RUG"
+  ],
+  "KORNBUNDT": [
+    "NEG"
   ],
   "KORPS": [
     "GARDE"
@@ -1288,6 +1313,9 @@
   ],
   "LILLEGUD": [
     "EROT"
+  ],
+  "LISTIG": [
+    "SNU"
   ],
   "LITER": [
     "L"
@@ -1720,6 +1748,9 @@
   "ROGN": [
     "ÆG"
   ],
+  "ROS": [
+    "SMIGER"
+  ],
   "ROYALFORKORTELSE": [
     "KGL"
   ],
@@ -1921,6 +1952,9 @@
   "SNYLTE": [
     "NASSE"
   ],
+  "SNYLTER": [
+    "IGLE"
+  ],
   "SOL": [
     "G"
   ],
@@ -1948,7 +1982,8 @@
   ],
   "SPIL": [
     "LEG",
-    "MØLLE"
+    "MØLLE",
+    "DOMINO"
   ],
   "SPIRER": [
     "GROR"
@@ -2040,6 +2075,9 @@
   "STRYGE": [
     "AE"
   ],
+  "STRÆK": [
+    "ETAPE"
+  ],
   "STRØGET": [
     "AET"
   ],
@@ -2075,7 +2113,8 @@
     "VM"
   ],
   "STØRRELSE": [
-    "MEDIUM"
+    "MEDIUM",
+    "STR"
   ],
   "SURE": [
     "TVÆRE"
@@ -2294,6 +2333,9 @@
   "TRÆT": [
     "DØSIG"
   ],
+  "TWOREDROSES": [
+    "ROSER"
+  ],
   "TYDELIG": [
     "KLAR"
   ],
@@ -2323,7 +2365,8 @@
   ],
   "UDBRUD": [
     "AV",
-    "ØV"
+    "ØV",
+    "UHA"
   ],
   "UDENINDHOLD": [
     "TOM"
@@ -2379,6 +2422,9 @@
   ],
   "VANVID": [
     "PIP"
+  ],
+  "VARME": [
+    "HEDE"
   ],
   "VED": [
     "ANER"
@@ -2587,6 +2633,9 @@
   "[IMG]DANISHFLAG": [
     "FLAG"
   ],
+  "[IMG]DICE": [
+    "ENERE"
+  ],
   "[IMG]DIE": [
     "ENER"
   ],
@@ -2687,7 +2736,8 @@
     "ES"
   ],
   "[IMG]PLAYINGCARDS": [
-    "ESSER"
+    "ESSER",
+    "NIER"
   ],
   "[IMG]POT": [
     "GRYDE"
@@ -2794,6 +2844,9 @@
   ],
   "ØGLE": [
     "LEGUAN"
+  ],
+  "ØJEBLIKKET": [
+    "NUET"
   ],
   "ØJESTYKKE": [
     "ETUDE"

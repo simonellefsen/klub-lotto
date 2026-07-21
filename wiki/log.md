@@ -649,3 +649,11 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-21 04:35 UTC] ingest | quiz | Hvilken planet roterer næsten på siden med en aksehældnin… | outcome=submitted
 
+## [2026-07-21 04:35 UTC] ingest | ordkløver | Category: `TV & radio`; answer pattern `11` | outcome=submitted
+
+## [2026-07-21 04:39 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-07-21 04:46 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
+
+## [2026-07-21 04:52 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+
