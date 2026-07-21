@@ -114,8 +114,13 @@ doctor: $(BIN)
 login: $(BIN)
 	$(LOCAL_BROWSER_ENV) $(BIN) login
 
-# Default PoC target: solve the quiz with a visible browser, then commit
-# the new wiki state and push.
+# Solve the quiz with a visible browser, then commit the new wiki state and
+# push. Every other real-play game target (sudoku/ordkloever/ordknude/
+# krydsord/blok below) syncs the same way after it submits — don't rely on
+# running `make quiz` last in a multi-game session to pick up earlier runs;
+# each game commits+pushes its own result immediately. (Before 2026-07-21,
+# quiz was the ONLY target that synced, so any games run without a later
+# `make quiz` sat uncommitted until someone ran `make sync` by hand.)
 quiz: $(BIN)
 	$(LOCAL_BROWSER_ENV) $(BIN) quiz
 	@bash scripts/sync.sh
@@ -128,6 +133,7 @@ sudoku-dry: $(BIN)
 
 sudoku: $(BIN)
 	$(LOCAL_BROWSER_ENV) $(BIN) sudoku --submit
+	@bash scripts/sync.sh
 
 ordkloever-dry: $(BIN)
 	$(LOCAL_BROWSER_ENV) $(BIN) ordkloever --dry-run $(GAME_PROVIDER_FLAG)
@@ -142,6 +148,7 @@ ordkloever: $(BIN)
 	else \
 		OPENROUTER_VISION_MODEL=$(OPENROUTER_VISION_MODEL) $(LOCAL_BROWSER_ENV) $(BIN) ordkloever --submit --answer "$(GAME_ANSWER)" --provider "$(ORDKLOEVER_FAST)"; \
 	fi
+	@bash scripts/sync.sh
 
 ordkloever-probe: $(BIN)
 	$(LOCAL_BROWSER_ENV) $(BIN) ordkloever --submit --probe-letters --letter-rounds "$(or $(ROUNDS),3)" $(GAME_AUTO_ANSWER_FLAG) $(GAME_PROVIDER_FLAG)
@@ -159,6 +166,7 @@ ordknude: $(BIN)
 	else \
 		$(LOCAL_BROWSER_ENV) $(BIN) ordknude --submit --answer "$(GAME_ANSWER)" $(ORDKNUDE_PROVIDER_FLAG); \
 	fi
+	@bash scripts/sync.sh
 
 # Krydsord default word/candidate/assembler model. Override with PROVIDER=/WORD_PROVIDER=.
 # Trying ~google/gemini-pro-latest (BYOK, effectively free) for both vision
@@ -204,6 +212,7 @@ krydsord-solve-dry: $(BIN)
 
 krydsord: $(BIN)
 	OPENROUTER_VISION_MODEL=$(KRYDSORD_VISION_MODEL) $(LOCAL_BROWSER_ENV) $(BIN) krydsord --submit --provider "$(KRYDSORD_PROVIDER)"
+	@bash scripts/sync.sh
 
 # Blok for Blok is a Phaser WebGL canvas game with no accessible JS state, so it
 # is driven by pixel-perception + real coordinate mouse-drags — now a native Go
@@ -215,6 +224,7 @@ krydsord: $(BIN)
 BLOK_GOAL := $(or $(GOAL),$(goal),0)
 blok: $(BIN)
 	$(LOCAL_BROWSER_ENV) $(BIN) blok --goal $(BLOK_GOAL)
+	@bash scripts/sync.sh
 
 wiki-query: $(BIN)
 	@$(BIN) wiki query "$(Q)"
