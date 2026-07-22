@@ -35,6 +35,9 @@
   "551": [
     "DLI"
   ],
+  "ABC": [
+    "BOGSTAVER"
+  ],
   "ACEOFDIAMONDSPLAYINGCARD": [
     "ES"
   ],
@@ -153,7 +156,8 @@
     "BØVL"
   ],
   "BIBELFORK": [
-    "NT"
+    "NT",
+    "GT"
   ],
   "BIJOB": [
     "BEN",
@@ -332,6 +336,9 @@
   "DIGTER": [
     "POET"
   ],
+  "DIGTERVÆRK": [
+    "EDDA"
+  ],
   "DIRRER": [
     "RYSTER"
   ],
@@ -422,7 +429,8 @@
     "YES"
   ],
   "ENGELSKTITEL": [
-    "SIR"
+    "SIR",
+    "EARL"
   ],
   "ENILONDON": [
     "ONE"
@@ -492,6 +500,12 @@
   ],
   "FAGPERSON": [
     "CYKELSMED"
+  ],
+  "FAGUDTRYK": [
+    "TERM"
+  ],
+  "FALSK": [
+    "UREEL"
   ],
   "FANDTES": [
     "VAR"
@@ -673,6 +687,9 @@
   "FRUGTER": [
     "ABRIKOSER"
   ],
+  "FRØ": [
+    "ÆRT"
+  ],
   "FUGL": [
     "ARA",
     "DUE",
@@ -685,7 +702,8 @@
     "SPURV",
     "STORK",
     "SVANE",
-    "ALK"
+    "ALK",
+    "NATTERGAL"
   ],
   "FUGLE": [
     "ØRNE",
@@ -750,6 +768,9 @@
   ],
   "GIFT": [
     "DDT"
+  ],
+  "GIFTET": [
+    "VIET"
   ],
   "GIKOP": [
     "STEG"
@@ -1005,7 +1026,8 @@
     "MED"
   ],
   "INSEKT": [
-    "BI"
+    "BI",
+    "LOPPE"
   ],
   "INSEKTERNE": [
     "BIERNE"
@@ -1262,8 +1284,14 @@
   "KØRETØJ": [
     "ELBIL"
   ],
+  "LAND": [
+    "KINA"
+  ],
   "LANGS": [
     "AD"
+  ],
+  "LANGSOM": [
+    "SEN"
   ],
   "LARGE": [
     "L"
@@ -1742,6 +1770,9 @@
   "RINGE": [
     "USLE"
   ],
+  "ROCKET": [
+    "RAKET"
+  ],
   "ROD": [
     "UREDE"
   ],
@@ -1898,6 +1929,9 @@
   "SKURE": [
     "UDHUSE"
   ],
+  "SKYNDESIG": [
+    "ILE"
+  ],
   "SKØN": [
     "HERLIG"
   ],
@@ -1935,7 +1969,8 @@
     "RAL"
   ],
   "SMØREMIDDEL": [
-    "OLIE"
+    "OLIE",
+    "BODYLOTION"
   ],
   "SNAGE": [
     "RODE"
@@ -2063,6 +2098,9 @@
   "STOLEDEL": [
     "ARMLÆN"
   ],
+  "STOLT": [
+    "ÆREKÆR"
+  ],
   "STOLTHED": [
     "ÆRE"
   ],
@@ -2111,6 +2149,9 @@
     "EM",
     "NM",
     "VM"
+  ],
+  "STØJE": [
+    "LARME"
   ],
   "STØRRELSE": [
     "MEDIUM",
@@ -2395,6 +2436,9 @@
   "URAN": [
     "U"
   ],
+  "VADEDE": [
+    "GIK"
+  ],
   "VADER": [
     "GÅR"
   ],
@@ -2626,6 +2670,9 @@
   "[IMG]CUPCAKE": [
     "KAGE"
   ],
+  "[IMG]CUPCAKES": [
+    "KAGER"
+  ],
   "[IMG]CUPOFTEA": [
     "TEKOP",
     "TE"
@@ -2841,6 +2888,9 @@
   ],
   "ØDELAGT": [
     "ITU"
+  ],
+  "ØDELÆGGE": [
+    "KNUSE"
   ],
   "ØGLE": [
     "LEGUAN"

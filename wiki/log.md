@@ -657,3 +657,15 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-21 04:52 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
 
+## [2026-07-22 04:39 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
+## [2026-07-22 04:40 UTC] ingest | quiz | Hvad hedder Metallicas debutalbum fra 1983? | outcome=submitted
+
+## [2026-07-22 04:41 UTC] ingest | ordkløver | Category: `Sangtitel`; answer pattern `1 / 2 / 6 / 4 / 3 / 3… | outcome=submitted
+
+## [2026-07-22 04:42 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
+## [2026-07-22 04:50 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
+
+## [2026-07-22 04:52 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+
