@@ -100,10 +100,9 @@ func TestConsistentWithOrdknudeHistory(t *testing.T) {
 // TestConsistentWithOrdknudeGreensAndAbsent reproduces the 2026-07-20 SVAMP
 // regression: after STIER (S yellow@1) and PLADS (A yellow@3, S yellow@5,
 // P/L/D gray), SVAMP places S back at position 1, A back at position 3, and
-// contains the gray letter P. The green-only fallback (ConsistentWithOrdknudeGreens)
-// let it through because there were no confirmed greens yet; the fix must
-// reject it on the gray-letter P alone, even though yellow-position checks
-// are intentionally relaxed here.
+// contains the gray letter P. An earlier green-only floor let it through because
+// there were no confirmed greens yet; the green+absent backstop must reject it on
+// the gray-letter P alone, even though yellow-position checks are relaxed here.
 func TestConsistentWithOrdknudeGreensAndAbsent(t *testing.T) {
 	history := []OrdknudeGuess{
 		{Word: "STIER", Marks: []string{"present", "absent", "absent", "absent", "absent"}},
@@ -121,6 +120,44 @@ func TestConsistentWithOrdknudeGreensAndAbsent(t *testing.T) {
 	// BASUN respects every constraint (full Wordle-consistent), so it must pass too.
 	if !ConsistentWithOrdknudeGreensAndAbsent("BASUN", history) {
 		t.Fatal("BASUN is fully consistent and must be accepted")
+	}
+}
+
+// TestOrdknudeDuplicateLetterAbsent reproduces the 2026-07-23 ALGOD regression:
+// a gray tile on a DUPLICATE letter (whose other copy is green/present) must NOT
+// ban that letter from the word. Board: STORE, BOLIG, GALOP, ALGOL — ALGOL
+// scores 🟩🟩🟩🟩⬛, i.e. the 2nd L (pos 5) is gray only because the single L is
+// already accounted for by the green L at pos 2. ALGOD (A-L-G-O-D) reuses that L
+// legitimately and is fully consistent with the whole board; the buggy per-tile
+// absent scan rejected it, wasting a real guess.
+func TestOrdknudeDuplicateLetterAbsent(t *testing.T) {
+	history := []OrdknudeGuess{
+		{Word: "STORE", Marks: []string{"absent", "absent", "present", "absent", "absent"}},
+		{Word: "BOLIG", Marks: []string{"absent", "present", "present", "absent", "present"}},
+		{Word: "GALOP", Marks: []string{"present", "present", "present", "correct", "absent"}},
+		{Word: "ALGOL", Marks: []string{"correct", "correct", "correct", "correct", "absent"}},
+	}
+	// The gray L in ALGOL@5 must not ban L globally — L is green@2.
+	if !ConsistentWithOrdknudeGreensAndAbsent("ALGOD", history) {
+		t.Fatal("ALGOD reuses the confirmed L (green@2); the gray duplicate L@5 must not ban it")
+	}
+	if !ConsistentWithOrdknudeHistory("ALGOD", history) {
+		t.Fatal("ALGOD is fully Wordle-consistent with the whole board and must pass the strict filter")
+	}
+}
+
+// TestOrdknudeYellowWrongPositionRejected locks in the GALOP fix: a word that
+// places a letter on a position the board proved wrong (yellow) can never be the
+// answer, so the strict pool filter (ConsistentWithOrdknudeHistory) must reject
+// it. After STORE + BOLIG, BOLIG shows L yellow at position 3 (L is in the word
+// but not there) — GALOP puts L back at position 3.
+func TestOrdknudeYellowWrongPositionRejected(t *testing.T) {
+	history := []OrdknudeGuess{
+		{Word: "STORE", Marks: []string{"absent", "absent", "present", "absent", "absent"}},
+		{Word: "BOLIG", Marks: []string{"absent", "present", "present", "absent", "present"}},
+	}
+	if ConsistentWithOrdknudeHistory("GALOP", history) {
+		t.Fatal("GALOP places L at position 3 where BOLIG proved it yellow-wrong; strict filter must reject it")
 	}
 }
 

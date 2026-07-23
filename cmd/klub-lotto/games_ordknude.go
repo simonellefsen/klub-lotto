@@ -238,26 +238,21 @@ func runOrdknude(ctx context.Context, args []string) error {
 						}
 					} else {
 						ddoDropRounds = 0
-						// Keep only fully-constraint-consistent words as the reusable pool.
+						// Keep only fully Wordle-consistent words (green positions,
+						// present letters AND their forbidden positions, absent letters,
+						// with correct duplicate handling) as the reusable pool. Board
+						// colours are read exactly from the DOM, so a word that
+						// contradicts any observed mark — including a yellow's
+						// wrong-position signal — cannot be the answer and must never be
+						// submitted. If this empties the pool we re-ask the LLM rather
+						// than relaxing to a green/absent-only floor: that relaxation let
+						// GALOP through live on 2026-07-23 (L placed at position 3 despite
+						// BOLIG showing L yellow-wrong there), wasting a real guess.
 						pool = prunePool(validated)
 						if len(pool) == 0 {
-							// Full consistency over-pruned (often a mis-read yellow). Keep at
-							// least the words that respect the confirmed GREEN letters AND the
-							// confirmed-ABSENT (gray/banned) letters — those two signals are
-							// unambiguous regardless of how a yellow was read. Only the
-							// present/yellow must-include-and-not-here constraints are relaxed
-							// here. Green-only was too permissive: it let SVAMP through on
-							// 2026-07-20 despite SVAMP containing P (banned/gray from PLADS)
-							// and misplacing S/A onto known-wrong yellow positions.
-							for _, c := range validated {
-								if klublotto.ConsistentWithOrdknudeGreensAndAbsent(c.Answer, st.History) {
-									pool = append(pool, c)
-								}
-							}
-						}
-						if len(pool) == 0 {
-							// Every provider candidate violates a known green or absent letter.
-							// Reject the whole batch and ask again rather than wasting a real guess.
+							// No provider candidate is consistent with every observed
+							// mark. Reject the batch and re-ask rather than submitting a
+							// word we already know can't be the answer.
 							for _, c := range validated {
 								w := klublotto.NormalizeDanishLetters(c.Answer)
 								if !containsWord(rejected, w) {
@@ -266,7 +261,7 @@ func runOrdknude(ctx context.Context, args []string) error {
 							}
 							noConsistentRounds++
 							if noConsistentRounds <= 3 {
-								fmt.Printf("   all %d candidate(s) violate the known green pattern — asking provider for different words...\n", len(validated))
+								fmt.Printf("   all %d candidate(s) are inconsistent with the board — asking provider for different words...\n", len(validated))
 								continue
 							}
 							// Repeated failures: fall back to a local green-consistent word

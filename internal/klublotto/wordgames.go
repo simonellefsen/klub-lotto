@@ -3153,69 +3153,66 @@ func ConsistentWithOrdknudeHistory(word string, history []OrdknudeGuess) bool {
 	return true
 }
 
-// ConsistentWithOrdknudeGreens is the HARD floor: it only requires that every
-// confirmed-green (correct) letter sits at its known position. A confirmed green
-// is the most reliable signal on the board (a solid-green tile), and any valid
-// answer MUST contain it — so a word that contradicts one (e.g. GRUBE when the
-// pattern is G R _ D E: the green at position 4 is D, but GRUBE has B there) can
-// never be the answer and must never be submitted, even if the fuller
-// ConsistentWithOrdknudeHistory check over-prunes due to a mis-read yellow.
-func ConsistentWithOrdknudeGreens(word string, history []OrdknudeGuess) bool {
-	word = NormalizeDanishLetters(word)
-	if !IsDanishFiveLetterWord(word) {
-		return false
-	}
-	runes := []rune(word)
-	for _, h := range history {
-		hr := []rune(NormalizeDanishLetters(h.Word))
-		for i, m := range h.Marks {
-			if m == "correct" && i < len(hr) {
-				if i >= len(runes) || runes[i] != hr[i] {
-					return false
-				}
-			}
-		}
-	}
-	return true
-}
-
-// ConsistentWithOrdknudeGreensAndAbsent is the middle-ground safety valve
-// between ConsistentWithOrdknudeHistory (full) and ConsistentWithOrdknudeGreens
-// (green-only): it honours every confirmed-green position AND every confirmed-
-// absent (gray/banned) letter, but not present (yellow) must-include/wrong-
-// position constraints. Use this — not the green-only check — as the fallback
-// when the full consistency filter over-prunes a mis-read yellow: a candidate
-// that reuses a letter the board has shown gray, or places a green letter
-// wrong, can never be the answer regardless of how the yellows were read.
-// Seen live 2026-07-20: SVAMP slipped through the green-only fallback despite
-// containing P (banned/gray from PLADS) and misplacing S/A onto positions the
-// board had already marked yellow-wrong — this closes that gap for the
-// unambiguous absent signal while still tolerating yellow misreads.
+// ConsistentWithOrdknudeGreensAndAbsent is the HARD floor safety backstop: it
+// honours every confirmed-green position AND every letter proven absent from the
+// word entirely, but not present (yellow) must-include/wrong-position
+// constraints. It exists as a last-resort guard on words produced by the local
+// FallbackOrdknudeGuess relaxed pass (which may knowingly relax yellows when the
+// present constraints are unsatisfiable) — it must never reject a word that
+// could still be the answer.
+//
+// Duplicate-letter subtlety (this is what makes it "greens AND absent", not a
+// naive per-tile scan): a gray tile does NOT mean the letter is absent from the
+// word when that same letter is green or yellow elsewhere. Wordle marks the
+// SURPLUS copies of a letter gray. E.g. ALGOL scores 🟩🟩🟩🟩⬛ — the 2nd L
+// (position 5) is gray only because the word's single L is already accounted for
+// by the green L at position 2. L IS in the answer. Banning L globally here
+// wrongly rejected ALGOD live on 2026-07-23. So a letter counts as truly absent
+// only if it is marked absent somewhere and NEVER marked correct/present
+// anywhere in the history.
 func ConsistentWithOrdknudeGreensAndAbsent(word string, history []OrdknudeGuess) bool {
 	word = NormalizeDanishLetters(word)
 	if !IsDanishFiveLetterWord(word) {
 		return false
 	}
 	runes := []rune(word)
+
+	// Classify each letter: marked absent somewhere, and/or marked in-word
+	// (correct/present) somewhere. Only absent-and-never-in-word letters are
+	// truly banned; that's the correct handling of gray-on-a-duplicate.
+	absentSomewhere := map[rune]bool{}
+	inWordSomewhere := map[rune]bool{}
 	for _, h := range history {
 		hRunes := []rune(NormalizeDanishLetters(h.Word))
 		for i, m := range h.Marks {
 			if i >= len(hRunes) {
 				continue
 			}
-			ch := hRunes[i]
 			switch m {
-			case "correct":
-				if i >= len(runes) || runes[i] != ch {
+			case "absent":
+				absentSomewhere[hRunes[i]] = true
+			case "correct", "present":
+				inWordSomewhere[hRunes[i]] = true
+			}
+		}
+	}
+
+	// Green positions must match.
+	for _, h := range history {
+		hRunes := []rune(NormalizeDanishLetters(h.Word))
+		for i, m := range h.Marks {
+			if m == "correct" && i < len(hRunes) {
+				if i >= len(runes) || runes[i] != hRunes[i] {
 					return false
 				}
-			case "absent":
-				for _, r := range runes {
-					if r == ch {
-						return false
-					}
-				}
 			}
+		}
+	}
+
+	// Truly-absent letters must not appear at all.
+	for _, r := range runes {
+		if absentSomewhere[r] && !inWordSomewhere[r] {
+			return false
 		}
 	}
 	return true
