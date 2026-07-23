@@ -671,3 +671,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-23 04:30 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-07-23 04:30 UTC] ingest | quiz | Hvad står bogstaverne i forkortelsen NASA for? | outcome=submitted
+
