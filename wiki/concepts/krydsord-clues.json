@@ -47,6 +47,12 @@
   "AFSLØRER": [
     "ÅBENBARER"
   ],
+  "AFSNIT": [
+    "AKT"
+  ],
+  "AFSPÆRRING": [
+    "BOM"
+  ],
   "AFTRYK": [
     "SPOR"
   ],
@@ -145,6 +151,9 @@
   ],
   "BESKED": [
     "SMS"
+  ],
+  "BESKIDT": [
+    "NUSSET"
   ],
   "BESKÆFTIGELSE": [
     "YRKE"
@@ -399,7 +408,8 @@
     "KANIN",
     "PANDA",
     "ELG",
-    "MÅR"
+    "MÅR",
+    "ISBJØRN"
   ],
   "DYRKER": [
     "AVLER"
@@ -654,6 +664,9 @@
   ],
   "FORSØMME": [
     "NEGLIGERE"
+  ],
+  "FORTIDEN": [
+    "PT"
   ],
   "FRANKRIG": [
     "F"
@@ -971,6 +984,9 @@
   "HÅRPRODUKT": [
     "GEL"
   ],
+  "HÆLDE": [
+    "ØSE"
+  ],
   "HÆLDT": [
     "ØSET"
   ],
@@ -983,6 +999,9 @@
   "HØJTGRIN": [
     "LATTERBRØL"
   ],
+  "IBYEN": [
+    "UDE"
+  ],
   "IDAG": [
     "DD"
   ],
@@ -994,6 +1013,9 @@
   ],
   "IFORHOLDTIL": [
     "END"
+  ],
+  "IGNORERE": [
+    "OVERSE"
   ],
   "IKKENOGET": [
     "INTET"
@@ -1042,7 +1064,8 @@
     "OBO",
     "SAX",
     "SÆKKEPIBE",
-    "SITAR"
+    "SITAR",
+    "CELLO"
   ],
   "JAG": [
     "VE"
@@ -1148,6 +1171,9 @@
   ],
   "KLUDE": [
     "LASER"
+  ],
+  "KLUNS": [
+    "TØJ"
   ],
   "KNEB": [
     "NEV"
@@ -1315,6 +1341,9 @@
     "BEN",
     "ARM"
   ],
+  "LEGETØJ": [
+    "YOYO"
+  ],
   "LEGITIMATION": [
     "ID"
   ],
@@ -1479,7 +1508,8 @@
     "FOLK",
     "ROCK",
     "SOUL",
-    "RAP"
+    "RAP",
+    "POP"
   ],
   "MÅLER": [
     "UR"
@@ -1493,6 +1523,9 @@
   "MÅNEFASE": [
     "NY",
     "NÆ"
+  ],
+  "MÆNGDER": [
+    "SNESE"
   ],
   "MÆRKE": [
     "AR",
@@ -1517,6 +1550,9 @@
   ],
   "MØNTER": [
     "TIERE"
+  ],
+  "NATTØJ": [
+    "PY"
   ],
   "NEDBØR": [
     "SNE"
@@ -1855,6 +1891,9 @@
   "SINGULARIS": [
     "ENTAL"
   ],
+  "SIRLIGHED": [
+    "OMHU"
+  ],
   "SJOV": [
     "SPAS"
   ],
@@ -2019,6 +2058,9 @@
     "LEG",
     "MØLLE",
     "DOMINO"
+  ],
+  "SPILDES": [
+    "ØDES"
   ],
   "SPIRER": [
     "GROR"
@@ -2492,7 +2534,8 @@
     "DMI"
   ],
   "VEJVISER": [
-    "GPS"
+    "GPS",
+    "PIL"
   ],
   "VELHAVENDE": [
     "RIG"
@@ -2522,6 +2565,9 @@
   ],
   "VIGEN": [
     "NORET"
+  ],
+  "VINDERE": [
+    "ETTERE"
   ],
   "VIRKELIGE": [
     "REALE"
