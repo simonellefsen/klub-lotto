@@ -140,6 +140,9 @@
   "BEHOLDERE": [
     "TØNDER"
   ],
+  "BEKENDTGØRE": [
+    "DEKLARERE"
+  ],
   "BELGIEN": [
     "B"
   ],
@@ -839,13 +842,15 @@
   "GRÆSKTEGN": [
     "MY",
     "PI",
-    "ETA"
+    "ETA",
+    "OMEGA"
   ],
   "GRÆSMARK": [
     "ENG"
   ],
   "GRØNTSAG": [
-    "AGURK"
+    "AGURK",
+    "SALAT"
   ],
   "GUD": [
     "AS",
@@ -980,6 +985,9 @@
   ],
   "HÅNDARBEJDE": [
     "SYTØJ"
+  ],
+  "HÅNDTAG": [
+    "HANK"
   ],
   "HÅRPRODUKT": [
     "GEL"
@@ -1122,6 +1130,12 @@
   ],
   "KARAT": [
     "K"
+  ],
+  "KAT": [
+    "MIS"
+  ],
+  "KEDELIG": [
+    "TRIST"
   ],
   "KERNESYRE": [
     "RNA"
@@ -1310,6 +1324,9 @@
   "KØRETØJ": [
     "ELBIL"
   ],
+  "LABEL": [
+    "ETIKET"
+  ],
   "LAND": [
     "KINA"
   ],
@@ -1342,7 +1359,8 @@
     "ARM"
   ],
   "LEGETØJ": [
-    "YOYO"
+    "YOYO",
+    "RANGLE"
   ],
   "LEGITIMATION": [
     "ID"
@@ -1634,6 +1652,9 @@
   "OST": [
     "BRIE"
   ],
+  "OVER": [
+    "VIA"
+  ],
   "OVERSIGT": [
     "MENU"
   ],
@@ -1729,7 +1750,8 @@
     "ROS"
   ],
   "PRIVAT": [
-    "EGEN"
+    "EGEN",
+    "EGET"
   ],
   "PRIVATE": [
     "EGNE"
@@ -1745,6 +1767,9 @@
   ],
   "PRÆSTEDRAGT": [
     "ORNAT"
+  ],
+  "PUKLE": [
+    "ASE"
   ],
   "PYNTET": [
     "NETTET"
@@ -1995,6 +2020,9 @@
   "SMELTE": [
     "TØ"
   ],
+  "SMYKKE": [
+    "RING"
+  ],
   "SMYKKESTEN": [
     "OPAL"
   ],
@@ -2128,6 +2156,9 @@
   "STERIL": [
     "REN"
   ],
+  "STIKKERAF": [
+    "DESERTERER"
+  ],
   "STILART": [
     "ROKOKO"
   ],
@@ -2211,6 +2242,9 @@
   ],
   "SVIMMEL": [
     "ØR"
+  ],
+  "SVINDEL": [
+    "FUSK"
   ],
   "SVINGOM": [
     "DANS"
@@ -2408,7 +2442,8 @@
     "EGE"
   ],
   "TRÆET": [
-    "ESPEN"
+    "ESPEN",
+    "EGEN"
   ],
   "TRÆNE": [
     "ØVE"
@@ -2453,6 +2488,9 @@
   ],
   "UDENINDHOLD": [
     "TOM"
+  ],
+  "UDHUS": [
+    "SKUR"
   ],
   "UDKIG": [
     "VAGT"
@@ -2704,6 +2742,9 @@
   "[IMG]CLOTHESPIN": [
     "KLEMME"
   ],
+  "[IMG]CLOUD": [
+    "SKY"
+  ],
   "[IMG]CLOVER": [
     "KLØVER"
   ],
@@ -2712,6 +2753,9 @@
   ],
   "[IMG]COLANDER": [
     "SI"
+  ],
+  "[IMG]CROW": [
+    "RAVN"
   ],
   "[IMG]CUPCAKE": [
     "KAGE"
@@ -2853,6 +2897,9 @@
   ],
   "[IMG]ROCKET": [
     "RAKET"
+  ],
+  "[IMG]ROPE": [
+    "TOV"
   ],
   "[IMG]ROSES": [
     "ROSER"
