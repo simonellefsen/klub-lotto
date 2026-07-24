@@ -685,3 +685,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-24 04:34 UTC] ingest | quiz | I hvilken italiensk by blev modehuset Gucci grundlagt? | outcome=submitted
 
+## [2026-07-24 04:39 UTC] ingest | ordkløver | Category: `Person`; answer pattern `9` | outcome=submitted
+
