@@ -513,6 +513,17 @@ func (d *blokDriver) play(ctx context.Context, goal, maxSteps int) (blokResult, 
 
 		cur, best, scoreOK := d.readScores(ctx)
 		curS, bestS, obsS := "", "", ""
+		// estFinal reconstructs the score AFTER this placement from our own scoring
+		// model (+1 per cell placed + the chain bonus, a belief cross-checked against
+		// the live delta every prior step). It's only needed when the live element
+		// vanishes: a game-ending placement flips the board to "SPILLET ER SLUT!"
+		// before we can read its points, which used to drop the last brick from the
+		// recorded score (seen live 2026-07-25: final 2753 on screen, but the ledger
+		// stopped at the pre-placement 2751 — exactly the +2 domino that ended it).
+		estFinal := -1
+		if prevScore >= 0 {
+			estFinal = prevScore + pieceCells(piece.Shape) + expBonus
+		}
 		if scoreOK {
 			curS, bestS = strconv.Itoa(cur), strconv.Itoa(best)
 			res.current, res.best, res.scored = cur, best, true
@@ -538,6 +549,11 @@ func (d *blokDriver) play(ctx context.Context, goal, maxSteps int) (blokResult, 
 				}
 			}
 			prevScore = cur
+		} else if estFinal >= 0 {
+			// No live read — show/record the reconstructed score so the last brick
+			// isn't lost. (A game-ending placement scores its cells + bonus exactly
+			// like any other; only the display vanished.)
+			curS = strconv.Itoa(estFinal)
 		}
 		fmt.Fprintf(rec, "%d,%dx%d,%d,%d,%s,%s,%d,%d,%d,%d,%d,%s\n",
 			steps, piece.H, piece.W, mv.R, mv.C, curS, bestS, placed, blokCells(board2),
@@ -554,10 +570,28 @@ func (d *blokDriver) play(ctx context.Context, goal, maxSteps int) (blokResult, 
 
 		if !scoreOK {
 			// Score element gone → board replaced by the win/game-over screen.
-			// Confirm once (guard a transient mid-animation miss), then finish.
+			// Grab that screen immediately: danskespil auto-advances off "SPILLET
+			// ER SLUT!" within a second or two, so a late screenshot misses the
+			// final score entirely (Simon, 2026-07-25). Then confirm once (guard a
+			// transient mid-animation miss) before finishing.
+			d.shot(ctx, "blok_final.png")
 			time.Sleep(800 * time.Millisecond)
-			if _, _, ok2 := d.readScores(ctx); !ok2 {
-				fmt.Printf("[%d] score element gone — game over / completed. Finishing.\n", steps)
+			if c2, b2, ok2 := d.readScores(ctx); ok2 {
+				// The live score came back — this was a transient miss, not game
+				// over. Record the real numbers and keep playing.
+				res.current, res.best, res.scored = c2, b2, true
+				prevScore = c2
+			} else {
+				// Confirmed game over. Fold the final placement's points into the
+				// recorded score so the ledger matches the on-screen final.
+				if estFinal >= 0 {
+					res.current, res.scored = estFinal, true
+					if estFinal > res.best {
+						res.best = estFinal // a final move can set a new high score
+					}
+				}
+				fmt.Printf("[%d] score element gone — game over. Final score %d (high %d). Finishing.\n",
+					steps, res.current, res.best)
 				break
 			}
 		}
@@ -568,7 +602,12 @@ func (d *blokDriver) play(ctx context.Context, goal, maxSteps int) (blokResult, 
 	}
 	d.shot(ctx, "blok_final.png")
 	fmt.Printf("score record written to %s\n", recPath)
-	fmt.Printf("DONE: ~%d cells placed in %d steps\n", placed, steps)
+	if res.scored {
+		fmt.Printf("DONE: final score %d (high score %d) · ~%d cells placed in %d steps\n",
+			res.current, res.best, placed, steps)
+	} else {
+		fmt.Printf("DONE: ~%d cells placed in %d steps (no score read)\n", placed, steps)
+	}
 	res.steps, res.placed = steps, placed
 	return res, nil
 }
