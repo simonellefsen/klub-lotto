@@ -456,6 +456,29 @@ func containsWord(words []string, want string) bool {
 	return false
 }
 
+// Daily ledgers are bucketed as daily/YYYY/MM/YYYY-MM-DD.md (reorganised
+// 2026-07-25 — a flat daily/ dir was past 50 files and growing). The full date
+// stays in the filename so files remain self-identifying and parseDailyDate
+// keeps working. dailySourcesRel/dailyGamesRel are the relative link prefixes
+// from a daily file UP to wiki/sources and wiki/games — three levels now
+// (MM → YYYY → daily → wiki), so a Board image or quiz source link must use
+// these, not the old "../sources/".
+const (
+	dailySourcesRel = "../../../sources/"
+	dailyGamesRel   = "../../../games/"
+)
+
+// dailyLedgerPath is the on-disk path of the daily ledger for day.
+func dailyLedgerPath(wikiDir string, day time.Time) string {
+	return filepath.Join(wikiDir, "daily", day.Format("2006"), day.Format("01"),
+		day.Format("2006-01-02")+".md")
+}
+
+// dailyLedgerRel is the repo-relative path recorded as the Postgres SourcePath.
+func dailyLedgerRel(day time.Time) string {
+	return "wiki/daily/" + day.Format("2006/01/") + day.Format("2006-01-02") + ".md"
+}
+
 func upsertDailyGame(ctx context.Context, cfg *config.Config, game, prompt, answer string, submitted, registered bool, notes string) error {
 	loc, err := time.LoadLocation("Europe/Copenhagen")
 	if err != nil {
@@ -463,10 +486,10 @@ func upsertDailyGame(ctx context.Context, cfg *config.Config, game, prompt, answ
 	}
 	now := time.Now().In(loc)
 	wikiDir := wikiRoot()
-	if err := os.MkdirAll(filepath.Join(wikiDir, "daily"), 0o755); err != nil {
+	path := dailyLedgerPath(wikiDir, now)
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return err
 	}
-	path := filepath.Join(wikiDir, "daily", now.Format("2006-01-02")+".md")
 	body := ""
 	if raw, err := os.ReadFile(path); err == nil {
 		body = string(raw)
@@ -523,7 +546,7 @@ func upsertDailyGame(ctx context.Context, cfg *config.Config, game, prompt, answ
 				Submitted:  submitted,
 				Registered: registered,
 				Notes:      notes,
-				SourcePath: "wiki/daily/" + now.Format("2006-01-02") + ".md",
+				SourcePath: dailyLedgerRel(now),
 				PageURL:    dailyGamePageURL(slug),
 			}
 			if _, pgErr2 := pg.UpsertLedger(ctx, entry, nil); pgErr2 != nil {

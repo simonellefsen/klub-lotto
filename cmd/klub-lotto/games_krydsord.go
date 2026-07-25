@@ -1106,7 +1106,7 @@ func appendKrydsordBoardLink(notes, imagePath string) string {
 		return notes
 	}
 	fmt.Println("       board image archived:", dst)
-	link := fmt.Sprintf("[Board image](../sources/krydsord-boards/krydsord-board-%s.jpg)", date)
+	link := fmt.Sprintf("[Board image](%skrydsord-boards/krydsord-board-%s.jpg)", dailySourcesRel, date)
 	if strings.TrimSpace(notes) == "" {
 		return link
 	}
@@ -1702,6 +1702,18 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 // cells stay as ".". Each line is wrapped in backticks and joined with <br> so it
 // renders as aligned monospace inside a Markdown table cell. The column separator
 // is "│" (U+2502, box drawing) — NOT an ASCII "|", which would split the cell.
+//
+// Every line is deliberately kept free of line-break opportunities so GitHub's
+// table renderer can't wrap the grid mid-row when a long Notes cell squeezes the
+// Answer column (seen 2026-07-22/07-25: "* │ 123456789" split after the space and
+// the "----" separator broke at its hyphens). GitHub tables are `width:max-content;
+// max-width:100%; overflow:auto`, so an atomic (unbreakable) cell forces a
+// horizontal scrollbar instead of a squeezed, wrapped grid. Two rules keep the
+// lines atomic: (1) NO spaces — a space is a break point, so the row label abuts
+// the "│" and the cells with no padding; (2) the separator uses box-drawing "─"
+// (U+2500), not ASCII "-" (a hyphen is a break point). Digits, letters, "." and
+// the box-drawing glyphs carry no break opportunities, so each row stays on one
+// line at any column width.
 func krydsordAnswerBoard(g []string) string {
 	rows := make([][]rune, len(g))
 	width := 0
@@ -1746,16 +1758,16 @@ func krydsordAnswerBoard(g []string) string {
 
 	var lines []string
 	var hdr strings.Builder
-	hdr.WriteString("* │ ")
+	hdr.WriteString("*│") // no spaces: keep the line atomic (see the function doc)
 	for c := 0; c < cropW; c++ {
 		hdr.WriteByte(byte('0' + (c+1)%10))
 	}
 	lines = append(lines, hdr.String())
-	lines = append(lines, strings.Repeat("-", 4+cropW))
+	lines = append(lines, "─┼"+strings.Repeat("─", cropW)) // box-drawing, not ASCII '-'
 	for r := minR; r <= maxR; r++ {
 		var sb strings.Builder
 		sb.WriteString(krydsordRowLabel(r - minR))
-		sb.WriteString(" │ ")
+		sb.WriteString("│")
 		for c := minC; c <= maxC; c++ {
 			ch := cellAt(r, c)
 			if !isLetter(ch) {

@@ -6,13 +6,15 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 	"time"
 )
 
-// ImportWikiDaily walks wikiDir/daily/*.md and upserts each row into the
-// daily_ledger table. The markdown table format is the one used in
-// wiki/daily/2026-05-31.md:
+// ImportWikiDaily walks wikiDir/daily/ (recursively — files are bucketed as
+// daily/YYYY/MM/YYYY-MM-DD.md since 2026-07-25, though flat daily/*.md is still
+// accepted for older trees) and upserts each row into the daily_ledger table.
+// The markdown table format is the one used in wiki/daily/2026/05/2026-05-31.md:
 //
 //	| Game | Prompt / clue | Answer | Submitted through parent page | Registered on overview | Notes |
 //	|---|---|---|---:|---:|---|
@@ -33,36 +35,50 @@ func (s *Store) ImportWikiDaily(ctx context.Context, wikiDir string) ([]string, 
 		}
 	}
 
-	entries, err := os.ReadDir(dailyDir)
+	// Collect every *.md under daily/ at any depth (daily/YYYY/MM/*.md now, plus
+	// any legacy flat daily/*.md).
+	var mdFiles []string
+	err := filepath.WalkDir(dailyDir, func(p string, d os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if !d.IsDir() && strings.HasSuffix(d.Name(), ".md") {
+			mdFiles = append(mdFiles, p)
+		}
+		return nil
+	})
 	if err != nil {
-		return nil, fmt.Errorf("read daily dir: %w", err)
+		return nil, fmt.Errorf("walk daily dir: %w", err)
 	}
+	sort.Strings(mdFiles)
 
 	var warnings []string
 	foundAny := false
-	for _, ent := range entries {
-		if ent.IsDir() || !strings.HasSuffix(ent.Name(), ".md") {
-			continue
-		}
+	for _, path := range mdFiles {
+		name := filepath.Base(path)
 		foundAny = true
-		path := filepath.Join(dailyDir, ent.Name())
 		body, err := os.ReadFile(path)
 		if err != nil {
 			warnings = append(warnings, fmt.Sprintf("%s: %v", path, err))
 			continue
 		}
-		date, err := parseDailyDate(ent.Name(), string(body))
+		date, err := parseDailyDate(name, string(body))
 		if err != nil {
 			warnings = append(warnings, fmt.Sprintf("%s: %v", path, err))
 			continue
 		}
+		// Record the repo-relative path (wiki/daily/YYYY/MM/file.md) as SourcePath.
+		src := "wiki/daily/" + name // fallback for a flat/legacy layout
+		if rel, relErr := filepath.Rel(wikiDir, path); relErr == nil {
+			src = "wiki/" + filepath.ToSlash(rel)
+		}
 		rows, parseWarnings := parseDailyTable(string(body))
-		warnings = append(warnings, prefix(parseWarnings, ent.Name())...)
+		warnings = append(warnings, prefix(parseWarnings, name)...)
 		for _, r := range rows {
 			r.Date = date
-			r.SourcePath = "wiki/daily/" + ent.Name()
+			r.SourcePath = src
 			if _, err := s.UpsertLedger(ctx, r, nil); err != nil {
-				warnings = append(warnings, fmt.Sprintf("%s/%s: upsert: %v", ent.Name(), r.GameSlug, err))
+				warnings = append(warnings, fmt.Sprintf("%s/%s: upsert: %v", name, r.GameSlug, err))
 			}
 		}
 	}

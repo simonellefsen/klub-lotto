@@ -85,15 +85,17 @@ func logBlokScore(ctx context.Context, cfg *config.Config, res blokResult) error
 		return fmt.Errorf("no score was ever read (placed~%d cells in %d steps) — likely an unreadable/incident page; not writing a ledger row", res.placed, res.steps)
 	}
 	passed := res.current >= blokDailyThreshold
-	recPath := filepath.Join(cfg.DataDir, "blok-scores.csv")
 
 	answer := fmt.Sprintf("Score %d · high score %d", res.current, res.best)
 	lod := fmt.Sprintf("daily lod earned (passed %d)", blokDailyThreshold)
 	if !passed {
 		lod = fmt.Sprintf("did not reach the %d-point daily lod", blokDailyThreshold)
 	}
-	notes := fmt.Sprintf("Played to game-over with the native Go solver; %s. Day's final score %d (high score %d) over %d cells placed. Per-move score record: `%s`.",
-		lod, res.current, res.best, res.placed, recPath)
+	// NB: the per-move blok-scores.csv lives in the gitignored .klublotto/ data
+	// dir, so we intentionally don't cite its absolute local path in the ledger
+	// (it isn't committed and means nothing to anyone reading the wiki).
+	notes := fmt.Sprintf("Played to game-over with the native Go solver; %s. Day's final score %d (high score %d) over %d cells placed.",
+		lod, res.current, res.best, res.placed)
 
 	fmt.Printf("       ledger: %s — %s\n", answer, lod)
 	return upsertDailyGame(ctx, cfg, "Blok for Blok",

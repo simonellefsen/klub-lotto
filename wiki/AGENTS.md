@@ -57,10 +57,13 @@ and searched with [qmd](https://github.com/simonellefsen/qmd-rust).
   ## [YYYY-MM-DD HH:MM UTC] ingest | quiz | <truncated subject> | outcome=<...>
   ```
   This format is grep-friendly: `grep '^## \[' wiki/log.md | tail -10`.
-- `wiki/daily/YYYY-MM-DD.md` — daily answer ledger. Keep one row per game
+- `wiki/daily/YYYY/MM/YYYY-MM-DD.md` — daily answer ledger, bucketed by
+  year and month (the full date stays in the filename). Keep one row per game
   solved or inspected that day, including the prompt/clue, answer, whether
   it was submitted through the parent Danske Spil page, and whether the
-  overview showed a checkmark.
+  overview showed a checkmark. Because these files sit three levels below
+  `wiki/`, in-file links to sources/games use `../../../sources/…` and
+  `../../../games/…`.
 
 ## Workflows
 

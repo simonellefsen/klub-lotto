@@ -389,10 +389,10 @@ func upsertDailyQuiz(cfg *config.Config, prompt, answer string, submitted, regis
 	}
 	now := time.Now().In(loc)
 	wikiDir := wikiRoot()
-	if err := os.MkdirAll(filepath.Join(wikiDir, "daily"), 0o755); err != nil {
+	path := dailyLedgerPath(wikiDir, now)
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return err
 	}
-	path := filepath.Join(wikiDir, "daily", now.Format("2006-01-02")+".md")
 	body := ""
 	if raw, err := os.ReadFile(path); err == nil {
 		body = string(raw)
@@ -407,8 +407,9 @@ func upsertDailyQuiz(cfg *config.Config, prompt, answer string, submitted, regis
 	case "unknown":
 		resultNote = "Result not confirmed on screen. "
 	}
-	row := fmt.Sprintf("| Quiz | %s | %s | %s | %s | %sSource: [%s](../sources/%s). |\n",
-		mdCell(prompt), mdCell(answer), yesNo(submitted), yesNo(registered), resultNote, filepath.Base(sourceRel), filepath.Base(sourceRel))
+	row := fmt.Sprintf("| Quiz | %s | %s | %s | %s | %sSource: [%s](%s%s). |\n",
+		mdCell(prompt), mdCell(answer), yesNo(submitted), yesNo(registered), resultNote,
+		filepath.Base(sourceRel), dailySourcesRel, filepath.Base(sourceRel))
 	if body == "" || !strings.Contains(body, "| Game |") {
 		body = fmt.Sprintf("---\nkind: daily-ledger\ndate: %s\ntags: [klublotto, daily-ledger, answers]\nupdated: %s\n---\n\n# Klub Lotto Daily Ledger — %s\n\n## Answers\n\n| Game | Prompt / clue | Answer | Submitted through parent page | Registered on overview | Notes |\n|---|---|---|---:|---:|---|\n%s",
 			now.Format("2006-01-02"), now.UTC().Format(time.RFC3339), now.Format("2006-01-02"), row)

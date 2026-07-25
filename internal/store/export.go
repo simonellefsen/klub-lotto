@@ -10,10 +10,10 @@ import (
 	"time"
 )
 
-// ExportWikiDaily regenerates wiki/daily/YYYY-MM-DD.md from the DB for
+// ExportWikiDaily regenerates wiki/daily/YYYY/MM/YYYY-MM-DD.md from the DB for
 // every day in the (from, to) range. Files are overwritten in place; the
 // header preserves the human-friendly format we already use in
-// wiki/daily/2026-05-31.md so the markdown diff stays meaningful.
+// wiki/daily/2026/05/2026-05-31.md so the markdown diff stays meaningful.
 //
 // Called after each game run by the web server (and by `klub-lotto wiki
 // export` from the CLI) so the wiki stays current.
@@ -28,12 +28,13 @@ func (s *Store) ExportWikiDaily(ctx context.Context, wikiDir string, from, to ti
 		k := e.Date.Format("2006-01-02")
 		byDate[k] = append(byDate[k], e)
 	}
-	if err := os.MkdirAll(filepath.Join(wikiDir, "daily"), 0o755); err != nil {
-		return nil, err
-	}
 	var written []string
 	for date, es := range byDate {
-		path := filepath.Join(wikiDir, "daily", date+".md")
+		// Bucket as daily/YYYY/MM/YYYY-MM-DD.md (date is already YYYY-MM-DD).
+		path := filepath.Join(wikiDir, "daily", date[:4], date[5:7], date+".md")
+		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+			return written, err
+		}
 		sort.Slice(es, func(i, j int) bool { return es[i].GameSlug < es[j].GameSlug })
 		if err := os.WriteFile(path, []byte(renderDaily(date, es)), 0o644); err != nil {
 			return written, err
@@ -68,7 +69,7 @@ func renderDaily(date string, es []LedgerEntry) string {
 
 	fmt.Fprintln(&b, "## Related Pages")
 	for _, e := range es {
-		fmt.Fprintf(&b, "- [%s](../games/%s.md)\n", e.GameName, e.GameSlug)
+		fmt.Fprintf(&b, "- [%s](../../../games/%s.md)\n", e.GameName, e.GameSlug)
 	}
 	return b.String()
 }
