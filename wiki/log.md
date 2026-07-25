@@ -697,3 +697,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-25 05:44 UTC] ingest | quiz | I hvilken amerikansk by foregår tv-serien Breaking Bad? | outcome=submitted
 
+## [2026-07-25 05:45 UTC] ingest | ordkløver | Category: `TV & radio`; answer pattern `4 / 3 / 6 / 4`; visu… | outcome=submitted
+
