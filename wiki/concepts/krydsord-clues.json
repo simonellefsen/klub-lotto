@@ -158,6 +158,9 @@
   "BESKIDT": [
     "NUSSET"
   ],
+  "BESKYTTES": [
+    "FREDES"
+  ],
   "BESKÆFTIGELSE": [
     "YRKE"
   ],
@@ -380,6 +383,9 @@
   ],
   "DRØMMEAGTIG": [
     "UVIRKELIG"
+  ],
+  "DUO": [
+    "PAR"
   ],
   "DYR": [
     "KO",
@@ -668,6 +674,9 @@
   "FORSØMME": [
     "NEGLIGERE"
   ],
+  "FORTE": [
+    "F"
+  ],
   "FORTIDEN": [
     "PT"
   ],
@@ -843,7 +852,8 @@
     "MY",
     "PI",
     "ETA",
-    "OMEGA"
+    "OMEGA",
+    "TAU"
   ],
   "GRÆSMARK": [
     "ENG"
@@ -851,6 +861,9 @@
   "GRØNTSAG": [
     "AGURK",
     "SALAT"
+  ],
+  "GRØNTSAGER": [
+    "AGURKER"
   ],
   "GUD": [
     "AS",
@@ -862,6 +875,12 @@
   ],
   "GUF": [
     "SLIK"
+  ],
+  "GUITAR": [
+    "GUITAR"
+  ],
+  "GYST": [
+    "ISNET"
   ],
   "GÅDE": [
     "ENIGMA"
@@ -1091,7 +1110,8 @@
     "MALER",
     "PLADS",
     "HVERV",
-    "TANDPLEJER"
+    "TANDPLEJER",
+    "EKSPEDIENT"
   ],
   "JORDTYPE": [
     "LER"
@@ -1249,6 +1269,9 @@
   ],
   "KREBS": [
     "RUR"
+  ],
+  "KRITIK": [
+    "RIS"
   ],
   "KROMOSOM": [
     "Y"
@@ -1551,7 +1574,8 @@
     "EMBLEM"
   ],
   "MØBEL": [
-    "STOL"
+    "STOL",
+    "ETAGESENG"
   ],
   "MØBLER": [
     "LÆNESTOLE",
@@ -1589,6 +1613,9 @@
   ],
   "NORDISKGUD": [
     "AS"
+  ],
+  "NORDVEST": [
+    "NV"
   ],
   "NORGE": [
     "N"
@@ -1873,6 +1900,9 @@
     "OS",
     "OSEDE"
   ],
+  "RØGET": [
+    "OSET"
+  ],
   "RØNTGEN": [
     "R"
   ],
@@ -2000,7 +2030,8 @@
     "HERLIG"
   ],
   "SKØR": [
-    "TOSSET"
+    "TOSSET",
+    "GAK"
   ],
   "SLAGERE": [
     "HITS"
@@ -2264,6 +2295,9 @@
   "SÆR": [
     "APARTE"
   ],
+  "SÆTTEOP": [
+    "ØGE"
+  ],
   "SØDEMIDDEL": [
     "ROESUKKER"
   ],
@@ -2457,6 +2491,9 @@
   "TYDELIG": [
     "KLAR"
   ],
+  "TYRKIET": [
+    "TR"
+  ],
   "TYSKLAND": [
     "D"
   ],
@@ -2607,6 +2644,9 @@
   "VINDERE": [
     "ETTERE"
   ],
+  "VIRKE": [
+    "DU"
+  ],
   "VIRKELIGE": [
     "REALE"
   ],
@@ -2729,6 +2769,9 @@
   ],
   "[IMG]CHAIRS": [
     "STOLE"
+  ],
+  "[IMG]CHERRIES": [
+    "KIRSEBÆR"
   ],
   "[IMG]CHICKEN": [
     "HØNE"
