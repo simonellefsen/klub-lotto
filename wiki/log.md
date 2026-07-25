@@ -699,3 +699,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-25 05:45 UTC] ingest | ordkløver | Category: `TV & radio`; answer pattern `4 / 3 / 6 / 4`; visu… | outcome=submitted
 
+## [2026-07-25 05:47 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
