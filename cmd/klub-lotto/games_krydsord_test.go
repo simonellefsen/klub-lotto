@@ -45,11 +45,11 @@ func TestKrydsordAnswerBoard(t *testing.T) {
 	}
 
 	want := []string{
-		"`* │ 12345`", // header: left border column cropped → 5 wide
-		"`---------`", // separator: 4 prefix + 5 columns
-		"`A │ AUTOS`", // top border row cropped → first data row is A
-		"`B │ DR.EN`", // interior blocked cell kept as "."
-		"`C │ ABCDE`",
+		"`*│12345`", // header: left border column cropped → 5 wide, no spaces
+		"`─┼─────`", // separator: box-drawing, not ASCII '-'
+		"`A│AUTOS`", // top border row cropped → first data row is A
+		"`B│DR.EN`", // interior blocked cell kept as "."
+		"`C│ABCDE`",
 	}
 	if len(lines) != len(want) {
 		t.Fatalf("got %d lines, want %d:\n%s", len(lines), len(want), strings.Join(lines, "\n"))
