@@ -11,6 +11,9 @@
   "1500": [
     "MD"
   ],
+  "2005": [
+    "MMV"
+  ],
   "2050": [
     "MML"
   ],
@@ -111,6 +114,9 @@
   "BANDEORD": [
     "EDER",
     "ED"
+  ],
+  "BARSKT": [
+    "RÅT"
   ],
   "BASSIN": [
     "POOL"
@@ -213,7 +219,8 @@
   "BLOMST": [
     "IRIS",
     "ROSE",
-    "ORKIDE"
+    "ORKIDE",
+    "VIOL"
   ],
   "BLOMSTEN": [
     "ROSEN"
@@ -351,6 +358,9 @@
   "DIGTER": [
     "POET"
   ],
+  "DIGTERE": [
+    "POETER"
+  ],
   "DIGTERVÆRK": [
     "EDDA"
   ],
@@ -418,7 +428,8 @@
     "PANDA",
     "ELG",
     "MÅR",
-    "ISBJØRN"
+    "ISBJØRN",
+    "SÆLER"
   ],
   "DYRKER": [
     "AVLER"
@@ -610,6 +621,9 @@
   "FLAMMER": [
     "ILD"
   ],
+  "FLASKE": [
+    "SIFON"
+  ],
   "FLEKSIBEL": [
     "ELASTISK"
   ],
@@ -764,6 +778,9 @@
   "GAD": [
     "ORKEDE"
   ],
+  "GAL": [
+    "OLM"
+  ],
   "GAMMEL": [
     "GL"
   ],
@@ -796,6 +813,9 @@
   ],
   "GIFTET": [
     "VIET"
+  ],
+  "GIGABYTE": [
+    "GB"
   ],
   "GIKOP": [
     "STEG"
@@ -911,6 +931,9 @@
   ],
   "HEDEN": [
     "VARMEN"
+  ],
+  "HEDEU": [
+    "EF"
   ],
   "HEGN": [
     "GÆRDE"
@@ -1185,6 +1208,9 @@
   "KIRKEJOB": [
     "DEGN"
   ],
+  "KLANG": [
+    "TONE"
+  ],
   "KLARE": [
     "TÅLE"
   ],
@@ -1297,6 +1323,9 @@
   "KUNSTVÆRK": [
     "OLIEMALERI"
   ],
+  "KUREDE": [
+    "GLED"
+  ],
   "KURS": [
     "N",
     "S",
@@ -1396,6 +1425,9 @@
   ],
   "LEVER": [
     "BOR"
+  ],
+  "LEVN": [
+    "RUIN"
   ],
   "LEVNING": [
     "REST"
@@ -1520,6 +1552,9 @@
   ],
   "MISUNDELSE": [
     "NAG"
+  ],
+  "MODERNE": [
+    "IN"
   ],
   "MONETER": [
     "PENGE"
@@ -1650,13 +1685,17 @@
   ],
   "OMTALE": [
     "PR",
-    "RY"
+    "RY",
+    "NÆVNE"
   ],
   "OPFINDER": [
     "EDISON"
   ],
   "OPFØRER": [
     "TER"
+  ],
+  "OPGAVE": [
+    "REBUS"
   ],
   "OPHÆNG": [
     "URO"
@@ -1743,7 +1782,8 @@
   ],
   "PLANTE": [
     "BLÅBÆRBUSK",
-    "ARALIE"
+    "ARALIE",
+    "RAPS"
   ],
   "PLANTEDEL": [
     "AKS",
@@ -1968,7 +2008,8 @@
     "MF",
     "MS",
     "NS",
-    "SS"
+    "SS",
+    "FEMMASTER"
   ],
   "SKIBSDEL": [
     "BOV",
@@ -2029,6 +2070,9 @@
   "SKØN": [
     "HERLIG"
   ],
+  "SKØNÅND": [
+    "ÆSTET"
+  ],
   "SKØR": [
     "TOSSET",
     "GAK"
@@ -2042,8 +2086,14 @@
   "SLEMT": [
     "ARGT"
   ],
+  "SLUDRE": [
+    "ÆVLE"
+  ],
   "SLÆGT": [
     "ÆT"
+  ],
+  "SLÆGTNING": [
+    "NEVØ"
   ],
   "SMALL": [
     "S"
@@ -2116,7 +2166,8 @@
   "SPIL": [
     "LEG",
     "MØLLE",
-    "DOMINO"
+    "DOMINO",
+    "DART"
   ],
   "SPILDES": [
     "ØDES"
@@ -2151,6 +2202,9 @@
   "SPROG": [
     "IRSK",
     "TYSK"
+  ],
+  "SPÅR": [
+    "FORUDSIGER"
   ],
   "SPÆDBARN": [
     "BABY"
@@ -2485,6 +2539,9 @@
   "TRÆT": [
     "DØSIG"
   ],
+  "TVEKAMP": [
+    "DUEL"
+  ],
   "TWOREDROSES": [
     "ROSER"
   ],
@@ -2552,6 +2609,9 @@
   ],
   "URAN": [
     "U"
+  ],
+  "VADE": [
+    "GÅ"
   ],
   "VADEDE": [
     "GIK"
@@ -2754,6 +2814,9 @@
   "[IMG]BRICKWALL": [
     "MUR"
   ],
+  "[IMG]BUTTERFLYNET": [
+    "NET"
+  ],
   "[IMG]CACTUS": [
     "KAKTUS"
   ],
@@ -2854,6 +2917,9 @@
   ],
   "[IMG]ICECREAMCONE": [
     "IS"
+  ],
+  "[IMG]IGLOO": [
+    "IGLO"
   ],
   "[IMG]KITE": [
     "DRAGE"
