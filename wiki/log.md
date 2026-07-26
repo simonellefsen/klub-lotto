@@ -709,3 +709,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-26 05:52 UTC] ingest | quiz | Hvilken dansk by er kendt for Kunsten Museum of Modern Art? | outcome=submitted
 
+## [2026-07-26 05:53 UTC] ingest | ordkløver | Category: `Sygdom`; answer pattern `5 / 11` | outcome=submitted
+
