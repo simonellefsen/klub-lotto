@@ -47,6 +47,9 @@
   "ADELSMÆND": [
     "GREVER"
   ],
+  "AFGRØDE": [
+    "ROER"
+  ],
   "AFSLØRER": [
     "ÅBENBARER"
   ],
@@ -526,7 +529,8 @@
   ],
   "FAG": [
     "MATEMATIK",
-    "FYSIK"
+    "FYSIK",
+    "KEMI"
   ],
   "FAGPERSON": [
     "CYKELSMED"
@@ -627,6 +631,9 @@
   "FLEKSIBEL": [
     "ELASTISK"
   ],
+  "FLYVE": [
+    "SUSE"
+  ],
   "FLÅ": [
     "RIVE"
   ],
@@ -643,7 +650,8 @@
     "UNDRE"
   ],
   "FORBUND": [
-    "EU"
+    "EU",
+    "NATO"
   ],
   "FORDOMSFRIE": [
     "TOLERANTE"
@@ -684,6 +692,9 @@
   ],
   "FORRÅDTE": [
     "SVEG"
+  ],
+  "FORSKERE": [
+    "GENETIKERE"
   ],
   "FORSØMME": [
     "NEGLIGERE"
@@ -772,6 +783,9 @@
   "FØLGELIG": [
     "ERGO"
   ],
+  "FØRES": [
+    "LEDES"
+  ],
   "FØRØ": [
     "Æ"
   ],
@@ -819,6 +833,9 @@
   ],
   "GIKOP": [
     "STEG"
+  ],
+  "GITTER": [
+    "RIST"
   ],
   "GLKARAKTR": [
     "UG"
@@ -1646,6 +1663,9 @@
   "NOPRET": [
     "RU"
   ],
+  "NORD": [
+    "N"
+  ],
   "NORDISKGUD": [
     "AS"
   ],
@@ -1813,6 +1833,9 @@
   "POPGRUPPE": [
     "ABBA"
   ],
+  "PRESSEDE": [
+    "NØDTE"
+  ],
   "PRIS": [
     "ROS"
   ],
@@ -1898,6 +1921,9 @@
   "RINGE": [
     "USLE"
   ],
+  "RIVE": [
+    "FLÅ"
+  ],
   "ROCKET": [
     "RAKET"
   ],
@@ -1954,6 +1980,9 @@
   ],
   "SANG": [
     "ARIE"
+  ],
+  "SANGER": [
+    "TENOR"
   ],
   "SCENE": [
     "ARENA"
@@ -2175,6 +2204,9 @@
   "SPIRER": [
     "GROR"
   ],
+  "SPIRITUS": [
+    "RAKI"
+  ],
   "SPISEKORT": [
     "MENU"
   ],
@@ -2194,7 +2226,8 @@
     "ROLIGAN"
   ],
   "SPORTSUDSTYR": [
-    "SKATEBOARD"
+    "SKATEBOARD",
+    "GOLFKØLLE"
   ],
   "SPORTSUDØVEREN": [
     "ROEREN"
@@ -2251,7 +2284,8 @@
     "GLO"
   ],
   "STOF": [
-    "KAKI"
+    "KAKI",
+    "SATIN"
   ],
   "STOLEDEL": [
     "ARMLÆN"
@@ -2389,7 +2423,8 @@
     "TRE",
     "ELLEVE",
     "NITTEN",
-    "TRETTEN"
+    "TRETTEN",
+    "ET"
   ],
   "TANKE": [
     "IDE"
@@ -2583,11 +2618,17 @@
   "UDENINDHOLD": [
     "TOM"
   ],
+  "UDGIFT": [
+    "RENTE"
+  ],
   "UDHUS": [
     "SKUR"
   ],
   "UDKIG": [
     "VAGT"
+  ],
+  "UDSEENDE": [
+    "LOOK"
   ],
   "UDVALG": [
     "NÆVN"
@@ -2876,6 +2917,9 @@
   "[IMG]DANISHFLAG": [
     "FLAG"
   ],
+  "[IMG]DESKLAMP": [
+    "LAMPE"
+  ],
   "[IMG]DICE": [
     "ENERE"
   ],
@@ -2985,6 +3029,9 @@
     "ESSER",
     "NIER"
   ],
+  "[IMG]PLIERS": [
+    "TANG"
+  ],
   "[IMG]POT": [
     "GRYDE"
   ],
@@ -3003,6 +3050,9 @@
   ],
   "[IMG]RAKES": [
     "RIVER"
+  ],
+  "[IMG]RING": [
+    "RING"
   ],
   "[IMG]ROCKET": [
     "RAKET"
