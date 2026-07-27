@@ -721,3 +721,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-27 04:22 UTC] ingest | quiz | Hvilket bjerg ligger på grænsen mellem Schweiz og Italien … | outcome=submitted
 
+## [2026-07-27 04:23 UTC] ingest | ordkløver | Category: `Makkerpar`; answer pattern `4 / 1 / 5`; visual la… | outcome=submitted
+
