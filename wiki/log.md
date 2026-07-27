@@ -719,3 +719,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-27 04:22 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-07-27 04:22 UTC] ingest | quiz | Hvilket bjerg ligger på grænsen mellem Schweiz og Italien … | outcome=submitted
+
