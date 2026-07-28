@@ -733,3 +733,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-28 04:12 UTC] ingest | quiz | Hvilken lille ø ligger midt i Storebælt og er forbundet me… | outcome=submitted
 
+## [2026-07-28 04:12 UTC] ingest | ordkløver | Category: `Dansk forfatter`; answer pattern `3 / 4 / 10`; vi… | outcome=submitted
+
