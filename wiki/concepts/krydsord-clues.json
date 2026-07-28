@@ -271,6 +271,9 @@
   "BRINT": [
     "H"
   ],
+  "BRITPRINS": [
+    "GEORGE"
+  ],
   "BRODERE": [
     "RI",
     "SY"
@@ -591,6 +594,9 @@
   "FILMSELSKAB": [
     "ASA"
   ],
+  "FILMSKIVE": [
+    "DVD"
+  ],
   "FILTER": [
     "SI",
     "TESI"
@@ -793,7 +799,8 @@
     "ORKEDE"
   ],
   "GAL": [
-    "OLM"
+    "OLM",
+    "ARRIG"
   ],
   "GAMMEL": [
     "GL"
@@ -933,6 +940,9 @@
   ],
   "HANK": [
     "ØRE"
+  ],
+  "HANKE": [
+    "ØRER"
   ],
   "HARMLØST": [
     "USKADELIGT"
@@ -1225,6 +1235,9 @@
   "KIRKEJOB": [
     "DEGN"
   ],
+  "KLAGESANG": [
+    "ELEGI"
+  ],
   "KLANG": [
     "TONE"
   ],
@@ -1408,6 +1421,9 @@
   "LARGE": [
     "L"
   ],
+  "LARMENDE": [
+    "HØJRØSTET"
+  ],
   "LAVER": [
     "GØR"
   ],
@@ -1525,8 +1541,14 @@
   "MANGE": [
     "ADSKILLIGE"
   ],
+  "MARINADE": [
+    "LAGE"
+  ],
   "MAS": [
     "BESVÆR"
+  ],
+  "MASKETYPE": [
+    "VRANG"
   ],
   "MASQUERADEMASK": [
     "MASKE"
@@ -1606,6 +1628,9 @@
   ],
   "MÅLER": [
     "UR"
+  ],
+  "MÅLERE": [
+    "URE"
   ],
   "MÅLFORK": [
     "KM"
@@ -1701,7 +1726,8 @@
     "EGNE"
   ],
   "OMSLAG": [
-    "BLE"
+    "BLE",
+    "BLEER"
   ],
   "OMTALE": [
     "PR",
@@ -1743,6 +1769,9 @@
   ],
   "OVERSIGT": [
     "MENU"
+  ],
+  "OVERTAGET": [
+    "ARVET"
   ],
   "PALADS": [
     "SLOT"
@@ -1888,6 +1917,9 @@
   ],
   "REJSE": [
     "ODYSSE"
+  ],
+  "REJSELÆNGSEL": [
+    "UDVE"
   ],
   "RELIGION": [
     "TRO"
@@ -2115,8 +2147,17 @@
   "SLEMT": [
     "ARGT"
   ],
+  "SLINGER": [
+    "LAL"
+  ],
   "SLUDRE": [
     "ÆVLE"
+  ],
+  "SLUTTE": [
+    "ENDE"
+  ],
+  "SLUTTET": [
+    "ENDT"
   ],
   "SLÆGT": [
     "ÆT"
@@ -2392,6 +2433,9 @@
   "SØLV": [
     "AG"
   ],
+  "SØN": [
+    "JR"
+  ],
   "TABLET": [
     "IPAD"
   ],
@@ -2466,6 +2510,9 @@
   ],
   "TILBEREDT": [
     "STEGT"
+  ],
+  "TILLØB": [
+    "RUN"
   ],
   "TILSÆTTE": [
     "IRØRE"
@@ -2669,6 +2716,9 @@
   "VANDHUL": [
     "SØ"
   ],
+  "VANDINGSUDSTYR": [
+    "HAVESLANGE"
+  ],
   "VANDLØB": [
     "ÅER",
     "Å"
@@ -2678,6 +2728,9 @@
   ],
   "VANDRE": [
     "GÅ"
+  ],
+  "VANDSTAND": [
+    "EBBE"
   ],
   "VANHELD": [
     "UTUR"
@@ -2863,6 +2916,9 @@
   ],
   "[IMG]CAMERA": [
     "KAMERA"
+  ],
+  "[IMG]CARROT": [
+    "GULEROD"
   ],
   "[IMG]CASTLE": [
     "SLOT",
@@ -3051,6 +3107,9 @@
   "[IMG]RAKES": [
     "RIVER"
   ],
+  "[IMG]REDCHAIR": [
+    "STOL"
+  ],
   "[IMG]RING": [
     "RING"
   ],
@@ -3107,6 +3166,9 @@
   ],
   "[IMG]TELEVISION": [
     "TV"
+  ],
+  "[IMG]TUBA": [
+    "TUBA"
   ],
   "[IMG]TURNIP": [
     "ROE"
