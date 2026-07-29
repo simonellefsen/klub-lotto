@@ -745,3 +745,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-29 04:26 UTC] ingest | quiz | Hvad hedder den skandinaviske tradition den 13. december, hv… | outcome=submitted
 
+## [2026-07-29 04:28 UTC] ingest | ordkløver | Category: `Uformel tiltale`; answer pattern `6 / 7` | outcome=submitted
+
