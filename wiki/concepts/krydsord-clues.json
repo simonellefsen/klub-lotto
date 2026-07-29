@@ -290,6 +290,9 @@
   "BYERNESBY": [
     "PARIS"
   ],
+  "BYGGEMATERIALE": [
+    "TEGL"
+  ],
   "BYTE": [
     "B"
   ],
@@ -392,7 +395,8 @@
     "TE",
     "ØL",
     "CAPPUCCINO",
-    "ORANGEADE"
+    "ORANGEADE",
+    "MOST"
   ],
   "DRØM": [
     "UTOPI"
@@ -649,6 +653,9 @@
   "FODSLAG": [
     "TRIT"
   ],
+  "FOR": [
+    "THI"
+  ],
   "FORBI": [
     "OMME"
   ],
@@ -711,6 +718,9 @@
   "FORTIDEN": [
     "PT"
   ],
+  "FORTUMLET": [
+    "ØR"
+  ],
   "FRANKRIG": [
     "F"
   ],
@@ -765,7 +775,11 @@
     "ØRNE",
     "STÆRE",
     "KOLIBRIER",
-    "ARAER"
+    "ARAER",
+    "GÆS"
+  ],
+  "FURE": [
+    "KEL"
   ],
   "FURER": [
     "RILLER"
@@ -1038,6 +1052,9 @@
   ],
   "HVIL": [
     "PAUSE"
+  ],
+  "HVILEDE": [
+    "LÅ"
   ],
   "HYL": [
     "VRÆL"
@@ -1400,6 +1417,9 @@
     "HÅNDMIKSER",
     "KASSEROLLE"
   ],
+  "KØLEELEMENTER": [
+    "ISKLUMPER"
+  ],
   "KØRE": [
     "AGE"
   ],
@@ -1700,6 +1720,9 @@
   "NORGE": [
     "N"
   ],
+  "NUMMER": [
+    "NR"
+  ],
   "NY": [
     "NEO"
   ],
@@ -1766,6 +1789,9 @@
   ],
   "OVER": [
     "VIA"
+  ],
+  "OVERSET": [
+    "GLEMT"
   ],
   "OVERSIGT": [
     "MENU"
@@ -1910,10 +1936,14 @@
     "FIL",
     "NÅL",
     "DÅSEÅBNER",
-    "FORK"
+    "FORK",
+    "SYNÅL"
   ],
   "REDSKABER": [
     "ØKSER"
+  ],
+  "REDSKABET": [
+    "ÅBNEREN"
   ],
   "REJSE": [
     "ODYSSE"
@@ -2027,6 +2057,9 @@
   ],
   "SERVICE": [
     "STEL"
+  ],
+  "SERVICEDEL": [
+    "ØLGLAS"
   ],
   "SIDE": [
     "KANT"
@@ -2315,6 +2348,9 @@
   "STERIL": [
     "REN"
   ],
+  "STERILT": [
+    "RENT"
+  ],
   "STIKKERAF": [
     "DESERTERER"
   ],
@@ -2389,6 +2425,9 @@
   "STØRRELSE": [
     "MEDIUM",
     "STR"
+  ],
+  "SUNDE": [
+    "RASKE"
   ],
   "SURE": [
     "TVÆRE"
@@ -2618,6 +2657,9 @@
   "TRÆNE": [
     "ØVE"
   ],
+  "TRÆNER": [
+    "INSTRUKTØR"
+  ],
   "TRÆT": [
     "DØSIG"
   ],
@@ -2656,6 +2698,9 @@
   ],
   "TØNDE": [
     "TD"
+  ],
+  "TØVE": [
+    "NØLE"
   ],
   "UDBRUD": [
     "AV",
@@ -2874,6 +2919,9 @@
   ],
   "[IMG]APPLECORE": [
     "SKROG"
+  ],
+  "[IMG]APPLES": [
+    "ÆBLER"
   ],
   "[IMG]BADMINTONRACKET": [
     "NET"
@@ -3094,6 +3142,9 @@
   "[IMG]POWERPLUG": [
     "STIK"
   ],
+  "[IMG]RABBIT": [
+    "HARE"
+  ],
   "[IMG]RADIO": [
     "RADIO"
   ],
@@ -3154,6 +3205,9 @@
   ],
   "[IMG]SWEATER": [
     "TRØJE"
+  ],
+  "[IMG]TABLETENNISPADDLE": [
+    "BAT"
   ],
   "[IMG]TAPEDISPENSER": [
     "TAPE"
