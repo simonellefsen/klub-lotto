@@ -743,3 +743,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-29 04:26 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-07-29 04:26 UTC] ingest | quiz | Hvad hedder den skandinaviske tradition den 13. december, hv… | outcome=submitted
+
