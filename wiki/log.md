@@ -757,3 +757,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-30 02:59 UTC] ingest | quiz | Hvilket grundstof har det kemiske symbol K? | outcome=submitted
 
+## [2026-07-30 03:00 UTC] ingest | ordkløver | Category: `Mad & drikke`; answer pattern `8` | outcome=submitted
+
