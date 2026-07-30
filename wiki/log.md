@@ -755,3 +755,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-30 02:59 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-07-30 02:59 UTC] ingest | quiz | Hvilket grundstof har det kemiske symbol K? | outcome=submitted
+
