@@ -753,3 +753,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-29 04:38 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
 
+## [2026-07-30 02:59 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
