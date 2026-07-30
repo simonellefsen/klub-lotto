@@ -105,6 +105,9 @@
   "BAGVÆRK": [
     "ÆBLEKAGER"
   ],
+  "BAKKEDRAG": [
+    "ÅS"
+  ],
   "BALANCE": [
     "RO"
   ],
@@ -117,6 +120,9 @@
   "BANDEORD": [
     "EDER",
     "ED"
+  ],
+  "BANDS": [
+    "JAZZTRIOER"
   ],
   "BARSKT": [
     "RÅT"
@@ -561,7 +567,8 @@
     "DRØNER"
   ],
   "FARTØJ": [
-    "LUFTBALLON"
+    "LUFTBALLON",
+    "UBÅD"
   ],
   "FARVE": [
     "PINK",
@@ -805,6 +812,9 @@
   ],
   "FØRES": [
     "LEDES"
+  ],
+  "FØRÆ": [
+    "Z"
   ],
   "FØRØ": [
     "Æ"
@@ -1123,6 +1133,9 @@
   "IMAGE": [
     "RY"
   ],
+  "IMAGET": [
+    "RYET"
+  ],
   "INDHAK": [
     "SLIDS"
   ],
@@ -1343,6 +1356,9 @@
   "KREBS": [
     "RUR"
   ],
+  "KRIGSGUD": [
+    "ARES"
+  ],
   "KRITIK": [
     "RIS"
   ],
@@ -1415,7 +1431,8 @@
   "KØKKENUDSTYR": [
     "OVN",
     "HÅNDMIKSER",
-    "KASSEROLLE"
+    "KASSEROLLE",
+    "JERNGRYDE"
   ],
   "KØLEELEMENTER": [
     "ISKLUMPER"
@@ -1530,6 +1547,9 @@
   "LÆDER": [
     "SKIND"
   ],
+  "LÆGGEPÅKØL": [
+    "ISE"
+  ],
   "LÆKKERI": [
     "NOUGAT"
   ],
@@ -1542,6 +1562,9 @@
   ],
   "LÆSEPENGE": [
     "SU"
+  ],
+  "LØB": [
+    "RENDTE"
   ],
   "LØBE": [
     "SPÆNE"
@@ -1729,6 +1752,9 @@
   "NYDELIG": [
     "FIN"
   ],
+  "NYDELIGE": [
+    "NETTE"
+  ],
   "NYVASKET": [
     "REN"
   ],
@@ -1743,7 +1769,8 @@
     "TIT"
   ],
   "OMRÅDE": [
-    "SOGN"
+    "SOGN",
+    "EGN"
   ],
   "OMRÅDER": [
     "EGNE"
@@ -1858,7 +1885,8 @@
   "PLANTE": [
     "BLÅBÆRBUSK",
     "ARALIE",
-    "RAPS"
+    "RAPS",
+    "ALOE"
   ],
   "PLANTEDEL": [
     "AKS",
@@ -1937,13 +1965,15 @@
     "NÅL",
     "DÅSEÅBNER",
     "FORK",
-    "SYNÅL"
+    "SYNÅL",
+    "MEJSEL"
   ],
   "REDSKABER": [
     "ØKSER"
   ],
   "REDSKABET": [
-    "ÅBNEREN"
+    "ÅBNEREN",
+    "TRAGTEN"
   ],
   "REJSE": [
     "ODYSSE"
@@ -2054,6 +2084,9 @@
   ],
   "SELSKAB": [
     "APS"
+  ],
+  "SENGETØJ": [
+    "LINNED"
   ],
   "SERVICE": [
     "STEL"
@@ -2205,7 +2238,8 @@
     "TØ"
   ],
   "SMYKKE": [
-    "RING"
+    "RING",
+    "DIADEM"
   ],
   "SMYKKESTEN": [
     "OPAL"
@@ -2561,7 +2595,8 @@
   ],
   "TITEL": [
     "INSPEKTØR",
-    "PRINS"
+    "PRINS",
+    "ZAR"
   ],
   "TJAVS": [
     "LOK"
@@ -3075,6 +3110,9 @@
   "[IMG]LADDER": [
     "STIGE"
   ],
+  "[IMG]LEAF": [
+    "BLAD"
+  ],
   "[IMG]LEAVES": [
     "BLADE"
   ],
@@ -3094,6 +3132,9 @@
     "NAT"
   ],
   "[IMG]MOUNTAIN": [
+    "BJERG"
+  ],
+  "[IMG]MOUNTAINS": [
     "BJERG"
   ],
   "[IMG]MUSICALNOTES": [
@@ -3225,7 +3266,8 @@
     "TUBA"
   ],
   "[IMG]TURNIP": [
-    "ROE"
+    "ROE",
+    "ROER"
   ],
   "[IMG]VEST": [
     "VEST"
