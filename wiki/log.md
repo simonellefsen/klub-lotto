@@ -771,3 +771,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-31 04:49 UTC] ingest | ordkløver | Category: `Jobtitel`; answer pattern `12` | outcome=submitted
 
+## [2026-07-31 04:51 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
