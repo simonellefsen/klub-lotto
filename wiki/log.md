@@ -767,3 +767,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-07-31 04:48 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-07-31 04:49 UTC] ingest | quiz | Hvad hedder hovedstaden i Ecuador? | outcome=submitted
+
