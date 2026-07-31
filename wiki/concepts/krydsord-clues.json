@@ -47,8 +47,14 @@
   "ADELSMÆND": [
     "GREVER"
   ],
+  "AFFÆRE": [
+    "SAG"
+  ],
   "AFGRØDE": [
     "ROER"
+  ],
+  "AFSLØRE": [
+    "RØBE"
   ],
   "AFSLØRER": [
     "ÅBENBARER"
@@ -91,6 +97,9 @@
   ],
   "APPEL": [
     "BØN"
+  ],
+  "ARRANGEMENT": [
+    "KLASSEFEST"
   ],
   "ARVEENHED": [
     "GEN"
@@ -445,13 +454,20 @@
     "ELG",
     "MÅR",
     "ISBJØRN",
-    "SÆLER"
+    "SÆLER",
+    "KRONHJORT"
   ],
   "DYRKER": [
     "AVLER"
   ],
+  "DYRKNING": [
+    "AVL"
+  ],
   "DÆKNAVN": [
     "ALIAS"
+  ],
+  "DÆKNING": [
+    "LÆ"
   ],
   "DØRSLAG": [
     "SI"
@@ -627,6 +643,7 @@
   "FISK": [
     "ÅL",
     "TUN",
+    "ULK",
     "ØRRED",
     "ABORRE"
   ],
@@ -1121,6 +1138,9 @@
   "IGNORERE": [
     "OVERSE"
   ],
+  "IKKE": [
+    "EJ"
+  ],
   "IKKENOGET": [
     "INTET"
   ],
@@ -1191,7 +1211,8 @@
     "PLADS",
     "HVERV",
     "TANDPLEJER",
-    "EKSPEDIENT"
+    "EKSPEDIENT",
+    "TJENER"
   ],
   "JORDTYPE": [
     "LER"
@@ -1257,6 +1278,9 @@
   ],
   "KIMONO": [
     "MORGENKÅBE"
+  ],
+  "KINO": [
+    "BIO"
   ],
   "KIOSK": [
     "BUTIK",
@@ -1482,7 +1506,8 @@
   ],
   "LEGETØJ": [
     "YOYO",
-    "RANGLE"
+    "RANGLE",
+    "LEGO"
   ],
   "LEGITIMATION": [
     "ID"
@@ -1520,6 +1545,9 @@
   "LITER": [
     "L"
   ],
+  "LOKALE": [
+    "RUM"
+  ],
   "LOVLIGE": [
     "LEGALE"
   ],
@@ -1546,6 +1574,9 @@
   ],
   "LÆDER": [
     "SKIND"
+  ],
+  "LÆG": [
+    "FOLD"
   ],
   "LÆGGEPÅKØL": [
     "ISE"
@@ -1659,6 +1690,9 @@
   "MOTORSKIB": [
     "MS"
   ],
+  "MULD": [
+    "JORD"
+  ],
   "MUSEUM": [
     "LOUVRE"
   ],
@@ -1742,6 +1776,9 @@
   ],
   "NORGE": [
     "N"
+  ],
+  "NUL": [
+    "O"
   ],
   "NUMMER": [
     "NR"
@@ -1991,7 +2028,8 @@
     "LEVN"
   ],
   "RET": [
-    "NUDELSUPPE"
+    "NUDELSUPPE",
+    "SUPPE"
   ],
   "RETNING": [
     "NV",
@@ -2078,6 +2116,9 @@
   ],
   "SCENE": [
     "ARENA"
+  ],
+  "SEDDEL": [
+    "LAP"
   ],
   "SEKEL": [
     "ÅRHUNDREDE"
@@ -2210,6 +2251,9 @@
   "SLANGE": [
     "SNOG"
   ],
+  "SLED": [
+    "ASEDE"
+  ],
   "SLEMT": [
     "ARGT"
   ],
@@ -2230,6 +2274,9 @@
   ],
   "SLÆGTNING": [
     "NEVØ"
+  ],
+  "SLÆGTNINGEN": [
+    "ONKLEN"
   ],
   "SMALL": [
     "S"
@@ -2377,6 +2424,7 @@
     "SOM"
   ],
   "STEMME": [
+    "ALT",
     "BAS"
   ],
   "STERIL": [
@@ -2775,6 +2823,9 @@
   "UNDERTRYKKE": [
     "KUE"
   ],
+  "UNGE": [
+    "LAM"
+  ],
   "URAN": [
     "U"
   ],
@@ -2877,6 +2928,9 @@
   ],
   "VINDERE": [
     "ETTERE"
+  ],
+  "VINTERLEJE": [
+    "HI"
   ],
   "VIRKE": [
     "DU"
@@ -3065,6 +3119,9 @@
   "[IMG]DIE": [
     "ENER"
   ],
+  "[IMG]DRUM": [
+    "TROMME"
+  ],
   "[IMG]DUCK": [
     "AND"
   ],
@@ -3079,6 +3136,9 @@
   ],
   "[IMG]FISHINGHOOK": [
     "KROG"
+  ],
+  "[IMG]FOX": [
+    "RÆV"
   ],
   "[IMG]GRAPES": [
     "DRUER"
@@ -3209,6 +3269,7 @@
     "RAKET"
   ],
   "[IMG]ROPE": [
+    "REB",
     "TOV"
   ],
   "[IMG]ROSES": [
@@ -3222,6 +3283,9 @@
   ],
   "[IMG]SCYTHE": [
     "LE"
+  ],
+  "[IMG]SHOVEL": [
+    "SPADE"
   ],
   "[IMG]SMILEYFACE": [
     "SMILEY"
@@ -3261,6 +3325,9 @@
   ],
   "[IMG]TELEVISION": [
     "TV"
+  ],
+  "[IMG]TREE": [
+    "TRÆ"
   ],
   "[IMG]TUBA": [
     "TUBA"
