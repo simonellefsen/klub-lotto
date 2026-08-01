@@ -779,3 +779,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-01 05:36 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-08-01 05:36 UTC] ingest | quiz | Hvor mange knogler har et voksent menneske i kroppen? | outcome=submitted
+
