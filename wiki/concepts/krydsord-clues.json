@@ -11,6 +11,9 @@
   "1500": [
     "MD"
   ],
+  "1501": [
+    "MDI"
+  ],
   "2005": [
     "MMV"
   ],
@@ -247,6 +250,9 @@
     "GRO",
     "DRÆ"
   ],
+  "BLUS": [
+    "ILD"
+  ],
   "BLÆNDENDE": [
     "GENIAL"
   ],
@@ -258,6 +264,9 @@
   ],
   "BOLDKLUB": [
     "AGF"
+  ],
+  "BOLDUNION": [
+    "DBU"
   ],
   "BOLIG": [
     "TELT"
@@ -690,6 +699,9 @@
     "EU",
     "NATO"
   ],
+  "FORDELE": [
+    "STRØ"
+  ],
   "FORDOMSFRIE": [
     "TOLERANTE"
   ],
@@ -1021,6 +1033,9 @@
   "HILSEN": [
     "DAV",
     "HONNØR"
+  ],
+  "HILSTE": [
+    "NEJEDE"
   ],
   "HIMMELSYN": [
     "UFO"
@@ -1358,6 +1373,9 @@
   "KORTBOG": [
     "ATLAS"
   ],
+  "KORTET": [
+    "ESSET"
+  ],
   "KORTKULØR": [
     "KLØR"
   ],
@@ -1512,6 +1530,9 @@
   "LEGITIMATION": [
     "ID"
   ],
+  "LEJER": [
+    "LEASER"
+  ],
   "LEKTION": [
     "IDRÆTSTIME"
   ],
@@ -1553,6 +1574,9 @@
   ],
   "LOYAL": [
     "TRO"
+  ],
+  "LUFFE": [
+    "VANTE"
   ],
   "LUGE": [
     "LEM"
@@ -1605,6 +1629,9 @@
   ],
   "LØFTE": [
     "ED"
+  ],
+  "LØVTRÆ": [
+    "PLATAN"
   ],
   "MADDING": [
     "AGN"
@@ -1981,8 +2008,14 @@
   "PUKLE": [
     "ASE"
   ],
+  "PULVER": [
+    "MEL"
+  ],
   "PYNTET": [
     "NETTET"
+  ],
+  "PÅDENENESIDE": [
+    "DELS"
   ],
   "PÅDETTESTED": [
     "HER"
@@ -2029,7 +2062,8 @@
   ],
   "RET": [
     "NUDELSUPPE",
-    "SUPPE"
+    "SUPPE",
+    "LINSESUPPE"
   ],
   "RETNING": [
     "NV",
@@ -2104,6 +2138,9 @@
   ],
   "SAL": [
     "ETAGE"
+  ],
+  "SALEN": [
+    "ETAGEN"
   ],
   "SAMT": [
     "OG"
@@ -2256,6 +2293,9 @@
   ],
   "SLEMT": [
     "ARGT"
+  ],
+  "SLET": [
+    "ILDE"
   ],
   "SLINGER": [
     "LAL"
@@ -2506,7 +2546,8 @@
   ],
   "STØRRELSE": [
     "MEDIUM",
-    "STR"
+    "STR",
+    "S"
   ],
   "SUNDE": [
     "RASKE"
@@ -2526,6 +2567,9 @@
   ],
   "SVINDEL": [
     "FUSK"
+  ],
+  "SVING": [
+    "DREJ"
   ],
   "SVINGOM": [
     "DANS"
@@ -3030,6 +3074,9 @@
   "[IMG]BLACKBIRD": [
     "SOLSORT"
   ],
+  "[IMG]BLACKCAT": [
+    "KAT"
+  ],
   "[IMG]BLACKDIEWITHONEPIP": [
     "ENER"
   ],
@@ -3140,6 +3187,9 @@
   "[IMG]FOX": [
     "RÆV"
   ],
+  "[IMG]FROG": [
+    "FRØ"
+  ],
   "[IMG]GRAPES": [
     "DRUER"
   ],
@@ -3197,6 +3247,9 @@
   "[IMG]MOUNTAINS": [
     "BJERG"
   ],
+  "[IMG]MUSICALNOTE": [
+    "NODE"
+  ],
   "[IMG]MUSICALNOTES": [
     "NODER"
   ],
@@ -3226,6 +3279,9 @@
   ],
   "[IMG]PIGEON": [
     "DUE"
+  ],
+  "[IMG]PINEAPPLE": [
+    "ANANAS"
   ],
   "[IMG]PLAYINGCARD": [
     "ES"
@@ -3364,7 +3420,8 @@
     "IRER"
   ],
   "ØDELAGT": [
-    "ITU"
+    "ITU",
+    "KNUST"
   ],
   "ØDELÆGGE": [
     "KNUSE"
