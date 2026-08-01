@@ -1825,14 +1825,6 @@ func extractOrdknudeWordsFromFrame(ctx context.Context, br *browser.Client) ([]s
 	// Parse the "- text: <letters>" node from the snapshot.
 	// The game exposes all guessed letters as one space-separated text node.
 	words := parseWordsFromSnapTextNode(fullSnap)
-	if len(words) == 0 {
-		// Log the snapshot for debugging.
-		sample := fullSnap
-		if len(sample) > 600 {
-			sample = sample[:600] + "…"
-		}
-		fmt.Printf("   [snap-diag] no words found in frame snapshot (first 600 chars):\n%s\n", sample)
-	}
 	return words, nil
 }
 
