@@ -793,3 +793,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-02 04:49 UTC] ingest | quiz | Hvilken flod løber gennem Dresden? | outcome=submitted
 
+## [2026-08-02 04:51 UTC] ingest | ordkløver | Category: `Listig`; answer pattern `11` | outcome=submitted
+
