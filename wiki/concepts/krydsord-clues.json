@@ -490,6 +490,9 @@
   "EJER": [
     "HAR"
   ],
+  "EKSAMEN": [
+    "HF"
+  ],
   "ENDEN": [
     "AFSLUTNING"
   ],
@@ -1038,7 +1041,8 @@
     "NEJEDE"
   ],
   "HIMMELSYN": [
-    "UFO"
+    "UFO",
+    "UFOER"
   ],
   "HJEM": [
     "BO"
@@ -1082,6 +1086,9 @@
   "HOVEDSTAD": [
     "OSLO",
     "NUUK"
+  ],
+  "HUGGE": [
+    "NEME"
   ],
   "HUGGET": [
     "RANET"
@@ -1487,6 +1494,9 @@
   ],
   "LABEL": [
     "ETIKET"
+  ],
+  "LAMPEMAGER": [
+    "PH"
   ],
   "LAND": [
     "KINA"
@@ -2545,9 +2555,13 @@
     "LARME"
   ],
   "STØRRELSE": [
+    "L",
+    "LARGE",
+    "M",
     "MEDIUM",
-    "STR",
-    "S"
+    "S",
+    "SMALL",
+    "STR"
   ],
   "SUNDE": [
     "RASKE"
@@ -2645,7 +2659,8 @@
     "SATS"
   ],
   "TEGN": [
-    "NODE"
+    "NODE",
+    "NODER"
   ],
   "TEGNET": [
     "NODEN"
