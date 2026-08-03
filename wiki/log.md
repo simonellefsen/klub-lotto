@@ -809,3 +809,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-03 04:34 UTC] ingest | ordkløver | Category: `Sangtitel`; answer pattern `5 / 1 / 8`; visual la… | outcome=submitted
 
+## [2026-08-03 04:36 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
