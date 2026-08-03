@@ -104,6 +104,9 @@
   "ARRANGEMENT": [
     "KLASSEFEST"
   ],
+  "ARVEANLÆG": [
+    "GEN"
+  ],
   "ARVEENHED": [
     "GEN"
   ],
@@ -195,8 +198,14 @@
   "BESTANDDEL": [
     "ATOM"
   ],
+  "BESVIME": [
+    "DÅNE"
+  ],
   "BESVÆR": [
     "BØVL"
+  ],
+  "BEVIS": [
+    "ATTEST"
   ],
   "BIBELFORK": [
     "NT",
@@ -263,6 +272,9 @@
   "BLÆST": [
     "SUS"
   ],
+  "BO": [
+    "LOGERE"
+  ],
   "BOLDKLUB": [
     "AGF"
   ],
@@ -302,6 +314,9 @@
   "BRODERE": [
     "RI",
     "SY"
+  ],
+  "BRUGBAR": [
+    "EGNET"
   ],
   "BUD": [
     "KURER"
@@ -465,7 +480,8 @@
     "MÅR",
     "ISBJØRN",
     "SÆLER",
-    "KRONHJORT"
+    "KRONHJORT",
+    "DÅER"
   ],
   "DYRKER": [
     "AVLER"
@@ -521,6 +537,9 @@
   ],
   "ERFAREDE": [
     "LÆRTE"
+  ],
+  "ERHVERV": [
+    "TURISME"
   ],
   "ETAGE": [
     "SAL"
@@ -669,6 +688,9 @@
   "FJENDE": [
     "ÆRKERIVAL"
   ],
+  "FLAGRE": [
+    "VIFTE"
+  ],
   "FLAMMER": [
     "ILD"
   ],
@@ -791,7 +813,8 @@
     "MELON"
   ],
   "FRUGTER": [
-    "ABRIKOSER"
+    "ABRIKOSER",
+    "NEKTARINER"
   ],
   "FRØ": [
     "ÆRT"
@@ -1367,6 +1390,12 @@
   "KOLORERE": [
     "MALE"
   ],
+  "KONGEDØMME": [
+    "UK"
+  ],
+  "KOPIERE": [
+    "KLONE"
+  ],
   "KORN": [
     "BYG",
     "RUG"
@@ -1507,7 +1536,8 @@
     "PH"
   ],
   "LAND": [
-    "KINA"
+    "KINA",
+    "USA"
   ],
   "LANGS": [
     "AD"
@@ -1603,7 +1633,8 @@
     "LEM"
   ],
   "LUKKET": [
-    "NEDLAGT"
+    "NEDLAGT",
+    "NEDRULLET"
   ],
   "LUNS": [
     "BID"
@@ -1640,7 +1671,8 @@
     "SU"
   ],
   "LØB": [
-    "RENDTE"
+    "RENDTE",
+    "RISLEDE"
   ],
   "LØBE": [
     "SPÆNE"
@@ -2333,6 +2365,9 @@
   "SLET": [
     "ILDE"
   ],
+  "SLIK": [
+    "GUF"
+  ],
   "SLINGER": [
     "LAL"
   ],
@@ -2432,6 +2467,9 @@
   "SPILDES": [
     "ØDES"
   ],
+  "SPINDEREDSKAB": [
+    "TEN"
+  ],
   "SPIRER": [
     "GROR"
   ],
@@ -2443,6 +2481,9 @@
   ],
   "SPIST": [
     "ÆDT"
+  ],
+  "SPISTE": [
+    "ÅD"
   ],
   "SPOLERER": [
     "ØDELÆGGER"
@@ -2484,7 +2525,8 @@
   ],
   "STEDNAVN": [
     "ORØ",
-    "ÆRØ"
+    "ÆRØ",
+    "EGÅ"
   ],
   "STEDORD": [
     "I",
@@ -3274,11 +3316,17 @@
   "[IMG]LADDER": [
     "STIGE"
   ],
+  "[IMG]LAMB": [
+    "LAM"
+  ],
   "[IMG]LEAF": [
     "BLAD"
   ],
   "[IMG]LEAVES": [
     "BLADE"
+  ],
+  "[IMG]LEMON": [
+    "ROE"
   ],
   "[IMG]LIGHTBULBS": [
     "PÆRER"
@@ -3411,6 +3459,12 @@
   ],
   "[IMG]SOCKS": [
     "SOKKER"
+  ],
+  "[IMG]SPADESUIT": [
+    "SPAR"
+  ],
+  "[IMG]SPIRAL": [
+    "SPIRAL"
   ],
   "[IMG]SQUIRREL": [
     "EGERN"
