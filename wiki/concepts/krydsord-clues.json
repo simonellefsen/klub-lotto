@@ -178,10 +178,14 @@
     "B"
   ],
   "BEMÆRK": [
-    "NB"
+    "NB",
+    "OBS"
   ],
   "BESAD": [
     "EJEDE"
+  ],
+  "BESATTE": [
+    "OKKUPEREDE"
   ],
   "BESKED": [
     "SMS"
@@ -380,6 +384,9 @@
   ],
   "DAMPE": [
     "EMME"
+  ],
+  "DAMPSKIB": [
+    "SS"
   ],
   "DANMARK": [
     "DK"
@@ -746,6 +753,9 @@
   "FORKLARING": [
     "ALIBI"
   ],
+  "FORLANGENDE": [
+    "KRAV"
+  ],
   "FORLANGER": [
     "KRÆVER"
   ],
@@ -780,6 +790,9 @@
   "FORTIDEN": [
     "PT"
   ],
+  "FORTRYDER": [
+    "ANGRER"
+  ],
   "FORTUMLET": [
     "ØR"
   ],
@@ -810,7 +823,8 @@
     "DRUE",
     "ÆBLE",
     "AGERN",
-    "MELON"
+    "MELON",
+    "BÆR"
   ],
   "FRUGTER": [
     "ABRIKOSER",
@@ -818,6 +832,9 @@
   ],
   "FRØ": [
     "ÆRT"
+  ],
+  "FUGEMASSE": [
+    "KIT"
   ],
   "FUGL": [
     "ARA",
@@ -932,6 +949,9 @@
   ],
   "GNAVEDE": [
     "BED"
+  ],
+  "GODERÅD": [
+    "TIPS"
   ],
   "GODMODIG": [
     "MILD"
@@ -1351,6 +1371,9 @@
   "KLARE": [
     "TÅLE"
   ],
+  "KLARET": [
+    "OVERSTÅET"
+  ],
   "KLASSE": [
     "KL"
   ],
@@ -1392,6 +1415,9 @@
   ],
   "KONGEDØMME": [
     "UK"
+  ],
+  "KONTINENT": [
+    "AFRIKA"
   ],
   "KOPIERE": [
     "KLONE"
@@ -1527,7 +1553,8 @@
     "AGE"
   ],
   "KØRETØJ": [
-    "ELBIL"
+    "ELBIL",
+    "VOGN"
   ],
   "LABEL": [
     "ETIKET"
@@ -1957,6 +1984,9 @@
     "ARA",
     "KEA"
   ],
+  "PARADIS": [
+    "EDEN"
+  ],
   "PART": [
     "DEL"
   ],
@@ -2019,6 +2049,9 @@
     "FRØ",
     "LØG",
     "ROD"
+  ],
+  "PLAYINGCARD": [
+    "TREER"
   ],
   "PLUDSELIGT": [
     "BRAT"
@@ -2185,6 +2218,9 @@
   ],
   "RYK": [
     "NØK"
+  ],
+  "RYSTE": [
+    "VIRRE"
   ],
   "RYTMISKE": [
     "TAKTFASTE"
@@ -2377,6 +2413,9 @@
   "SLUTTE": [
     "ENDE"
   ],
+  "SLUTTEDE": [
+    "ENDTE"
+  ],
   "SLUTTET": [
     "ENDT"
   ],
@@ -2410,6 +2449,9 @@
   ],
   "SMÅSTEN": [
     "RAL"
+  ],
+  "SMØRELSE": [
+    "BEG"
   ],
   "SMØREMIDDEL": [
     "OLIE",
@@ -2939,6 +2981,9 @@
   "UDSEENDE": [
     "LOOK"
   ],
+  "UDSMYKKER": [
+    "SIRER"
+  ],
   "UDVALG": [
     "NÆVN"
   ],
@@ -3077,6 +3122,9 @@
   ],
   "VIS": [
     "KLOG"
+  ],
+  "VISE": [
+    "PEGE"
   ],
   "VISER": [
     "PEGER"
@@ -3279,6 +3327,9 @@
   ],
   "[IMG]FISHINGHOOK": [
     "KROG"
+  ],
+  "[IMG]FORKANDKNIFE": [
+    "BESTIK"
   ],
   "[IMG]FOX": [
     "RÆV"
