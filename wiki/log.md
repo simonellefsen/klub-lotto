@@ -819,3 +819,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-04 04:41 UTC] ingest | quiz | Hvem sang hittet 'Rolling in the Deep' fra 2010? | outcome=submitted
 
+## [2026-08-04 04:42 UTC] ingest | ordkløver | Category: `Begivenhed`; answer pattern `8` | outcome=submitted
+
