@@ -829,3 +829,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-05 03:58 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-08-05 03:58 UTC] ingest | quiz | Hvem udgav albummet 'The Miseducation of…' i 1998? | outcome=submitted
+
