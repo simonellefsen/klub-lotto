@@ -38,6 +38,9 @@
   "55": [
     "LV"
   ],
+  "550": [
+    "DL"
+  ],
   "551": [
     "DLI"
   ],
@@ -67,6 +70,9 @@
   ],
   "AFSPÆRRING": [
     "BOM"
+  ],
+  "AFSTEMNING": [
+    "VALG"
   ],
   "AFTRYK": [
     "SPOR"
@@ -166,7 +172,8 @@
   "BEHOLDER": [
     "TANK",
     "VASE",
-    "DÅSE"
+    "DÅSE",
+    "KANDE"
   ],
   "BEHOLDERE": [
     "TØNDER"
@@ -186,6 +193,9 @@
   ],
   "BESATTE": [
     "OKKUPEREDE"
+  ],
+  "BESIDDE": [
+    "EJE"
   ],
   "BESKED": [
     "SMS"
@@ -331,6 +341,9 @@
   "BULDER": [
     "TORDEN"
   ],
+  "BUNKE": [
+    "LÆS"
+  ],
   "BYERNESBY": [
     "PARIS"
   ],
@@ -364,6 +377,9 @@
   "CAMPINGUDSTYR": [
     "TELTE"
   ],
+  "CIFFER": [
+    "TAL"
+  ],
   "CIRKUSSCENE": [
     "ARENA"
   ],
@@ -390,6 +406,9 @@
   ],
   "DANMARK": [
     "DK"
+  ],
+  "DANNELSE": [
+    "PLI"
   ],
   "DANS": [
     "JITTERBUG"
@@ -533,6 +552,9 @@
   "ENILONDON": [
     "ONE"
   ],
+  "ENTERTAINER": [
+    "NAR"
+  ],
   "ENVELOPE": [
     "BREV"
   ],
@@ -582,6 +604,9 @@
     "ÆÆ",
     "ØØ",
     "ÅÅ"
+  ],
+  "EVENTYRLAND": [
+    "OZ"
   ],
   "EVIGHED": [
     "ÆON"
@@ -719,6 +744,9 @@
   "FODSLAG": [
     "TRIT"
   ],
+  "FODTØJ": [
+    "PLATEAUSKO"
+  ],
   "FOR": [
     "THI"
   ],
@@ -737,6 +765,9 @@
   ],
   "FORDOMSFRIE": [
     "TOLERANTE"
+  ],
+  "FORDÆRVE": [
+    "ORE"
   ],
   "FOREDRAG": [
     "TALE"
@@ -923,6 +954,9 @@
   "GENLYD": [
     "EKKO"
   ],
+  "GENSTAND": [
+    "GLAS"
+  ],
   "GIDE": [
     "ORKE"
   ],
@@ -1011,7 +1045,8 @@
   ],
   "GUD": [
     "AS",
-    "AMOR"
+    "AMOR",
+    "EROS"
   ],
   "GUDINDE": [
     "ATE",
@@ -1070,7 +1105,11 @@
     "KRAN"
   ],
   "HELE": [
-    "AL"
+    "AL",
+    "USKADTE"
+  ],
+  "HELSTIKKE": [
+    "NØDIG"
   ],
   "HELT": [
     "IDOL"
@@ -1266,6 +1305,9 @@
     "SÆKKEPIBE",
     "SITAR",
     "CELLO"
+  ],
+  "IX": [
+    "NI"
   ],
   "JAG": [
     "VE"
@@ -1519,6 +1561,9 @@
   "KURSIST": [
     "ELEV"
   ],
+  "KURSTED": [
+    "SPA"
+  ],
   "KVIKT": [
     "RAPT"
   ],
@@ -1656,6 +1701,9 @@
   "LUFFE": [
     "VANTE"
   ],
+  "LUFTART": [
+    "OZON"
+  ],
   "LUGE": [
     "LEM"
   ],
@@ -1719,6 +1767,9 @@
   "MAGASIN": [
     "BLAD"
   ],
+  "MALM": [
+    "ERTS"
+  ],
   "MANGE": [
     "ADSKILLIGE"
   ],
@@ -1739,6 +1790,9 @@
   ],
   "MATERIALE": [
     "GLAS"
+  ],
+  "MEDET": [
+    "PLUDSELIG"
   ],
   "MEDIEHUS": [
     "DR"
@@ -2639,6 +2693,9 @@
   "STRØM": [
     "EL"
   ],
+  "STUDERE": [
+    "LÆSE"
+  ],
   "STUEN": [
     "ST"
   ],
@@ -2819,7 +2876,8 @@
   "TITEL": [
     "INSPEKTØR",
     "PRINS",
-    "ZAR"
+    "ZAR",
+    "JARL"
   ],
   "TJAVS": [
     "LOK"
@@ -2900,7 +2958,8 @@
     "ÆR",
     "ESP",
     "AHORN",
-    "ELM"
+    "ELM",
+    "ASK"
   ],
   "TRÆER": [
     "ASPE",
@@ -3136,6 +3195,9 @@
     "D",
     "E"
   ],
+  "VOLT": [
+    "V"
+  ],
   "VOVET": [
     "RISIKERET"
   ],
@@ -3157,6 +3219,9 @@
   "VÆKST": [
     "TRÆ",
     "GRÆS"
+  ],
+  "VÆRK": [
+    "EPOS"
   ],
   "VÆRKE": [
     "MURRE"
@@ -3232,6 +3297,9 @@
   ],
   "[IMG]BRICKWALL": [
     "MUR"
+  ],
+  "[IMG]BROOM": [
+    "KOST"
   ],
   "[IMG]BUTTERFLYNET": [
     "NET"
@@ -3513,6 +3581,9 @@
   ],
   "[IMG]SPADESUIT": [
     "SPAR"
+  ],
+  "[IMG]SPIDER": [
+    "EDDERKOP"
   ],
   "[IMG]SPIRAL": [
     "SPIRAL"
