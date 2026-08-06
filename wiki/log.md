@@ -843,3 +843,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-06 04:31 UTC] ingest | quiz | Hvilken flod var afgørende for det gamle Egyptens landbrug? | outcome=submitted
 
+## [2026-08-06 04:32 UTC] ingest | ordkløver | Category: `Mad & drikke`; answer pattern `13` | outcome=submitted
+
