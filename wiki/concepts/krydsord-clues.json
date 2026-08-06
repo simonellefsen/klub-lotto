@@ -14,6 +14,9 @@
   "1501": [
     "MDI"
   ],
+  "2000": [
+    "MM"
+  ],
   "2005": [
     "MMV"
   ],
@@ -287,7 +290,8 @@
     "SUS"
   ],
   "BO": [
-    "LOGERE"
+    "LOGERE",
+    "REDE"
   ],
   "BOLDKLUB": [
     "AGF"
@@ -341,6 +345,9 @@
   "BULDER": [
     "TORDEN"
   ],
+  "BUNDT": [
+    "NEG"
+  ],
   "BUNKE": [
     "LÆS"
   ],
@@ -382,6 +389,9 @@
   ],
   "CIRKUSSCENE": [
     "ARENA"
+  ],
+  "COGNACBETEGN": [
+    "VO"
   ],
   "COMPUTER": [
     "PC"
@@ -799,6 +809,9 @@
   "FORMÅR": [
     "KAN"
   ],
+  "FORMÆLE": [
+    "VIE"
+  ],
   "FORNAVN": [
     "EVA",
     "JAN",
@@ -806,11 +819,17 @@
     "TOM",
     "ÅSE"
   ],
+  "FORNEMME": [
+    "ANE"
+  ],
   "FORRÅDTE": [
     "SVEG"
   ],
   "FORSKERE": [
     "GENETIKERE"
+  ],
+  "FORSMAG": [
+    "DEMO"
   ],
   "FORSØMME": [
     "NEGLIGERE"
@@ -984,6 +1003,9 @@
   "GNAVEDE": [
     "BED"
   ],
+  "GO": [
+    "PEP"
+  ],
   "GODERÅD": [
     "TIPS"
   ],
@@ -1085,6 +1107,9 @@
   ],
   "HASTE": [
     "ILE"
+  ],
+  "HASTER": [
+    "ILER"
   ],
   "HAV": [
     "UTAL"
@@ -1305,6 +1330,12 @@
     "SÆKKEPIBE",
     "SITAR",
     "CELLO"
+  ],
+  "INSTRUMENTER": [
+    "TROMPETER"
+  ],
+  "IORDEN": [
+    "OKAY"
   ],
   "IX": [
     "NI"
@@ -1604,6 +1635,9 @@
   "LABEL": [
     "ETIKET"
   ],
+  "LAGRE": [
+    "ARSENALER"
+  ],
   "LAMPEMAGER": [
     "PH"
   ],
@@ -1658,6 +1692,9 @@
   ],
   "LET": [
     "NEM"
+  ],
+  "LETTE": [
+    "NEMME"
   ],
   "LEVER": [
     "BOR"
@@ -1911,6 +1948,9 @@
   ],
   "NATTØJ": [
     "PY"
+  ],
+  "NAVNGIVET": [
+    "DØBT"
   ],
   "NEDBØR": [
     "SNE"
@@ -2187,7 +2227,8 @@
     "DÅSEÅBNER",
     "FORK",
     "SYNÅL",
-    "MEJSEL"
+    "MEJSEL",
+    "SI"
   ],
   "REDSKABER": [
     "ØKSER"
@@ -2330,6 +2371,9 @@
   "SERVICEDEL": [
     "ØLGLAS"
   ],
+  "SHOWS": [
+    "REVYER"
+  ],
   "SIDE": [
     "KANT"
   ],
@@ -2461,6 +2505,9 @@
   "SLINGER": [
     "LAL"
   ],
+  "SLOT": [
+    "ROSENBORG"
+  ],
   "SLUDRE": [
     "ÆVLE"
   ],
@@ -2566,6 +2613,9 @@
   "SPINDEREDSKAB": [
     "TEN"
   ],
+  "SPIRE": [
+    "GRO"
+  ],
   "SPIRER": [
     "GROR"
   ],
@@ -2574,6 +2624,9 @@
   ],
   "SPISEKORT": [
     "MENU"
+  ],
+  "SPISESTED": [
+    "RESTAURANT"
   ],
   "SPIST": [
     "ÆDT"
@@ -2844,6 +2897,9 @@
   "TEMAET": [
     "EMNET"
   ],
+  "TEST": [
+    "PRØVE"
+  ],
   "TIDLIGERE": [
     "EKS",
     "FØR",
@@ -3043,6 +3099,9 @@
   "UDSMYKKER": [
     "SIRER"
   ],
+  "UDSTÅ": [
+    "SONE"
+  ],
   "UDVALG": [
     "NÆVN"
   ],
@@ -3141,6 +3200,9 @@
   "VELHAVENDE": [
     "RIG"
   ],
+  "VENTE": [
+    "BIE"
+  ],
   "VERDENSHJØRNE": [
     "N",
     "S",
@@ -3169,6 +3231,9 @@
   ],
   "VINDERE": [
     "ETTERE"
+  ],
+  "VINE": [
+    "ROSEER"
   ],
   "VINTERLEJE": [
     "HI"
@@ -3270,6 +3335,9 @@
   ],
   "[IMG]BEANIE": [
     "HUE"
+  ],
+  "[IMG]BEE": [
+    "BI"
   ],
   "[IMG]BEES": [
     "BIER"
@@ -3373,7 +3441,8 @@
     "LAMPE"
   ],
   "[IMG]DICE": [
-    "ENERE"
+    "ENERE",
+    "ENER"
   ],
   "[IMG]DIE": [
     "ENER"
@@ -3505,7 +3574,8 @@
     "ANANAS"
   ],
   "[IMG]PLAYINGCARD": [
-    "ES"
+    "ES",
+    "OTTER"
   ],
   "[IMG]PLAYINGCARDCLUBS": [
     "ES"
