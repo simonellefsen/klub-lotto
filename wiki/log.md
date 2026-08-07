@@ -853,3 +853,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-07 04:27 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-08-07 04:28 UTC] ingest | quiz | Hvilken trøje bærer lederen af bjergklassementet i Tour de… | outcome=submitted
+
