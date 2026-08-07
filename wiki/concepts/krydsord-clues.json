@@ -311,6 +311,9 @@
   "BORTE": [
     "VÆK"
   ],
+  "BOSS": [
+    "LEDER"
+  ],
   "BOWLER": [
     "SKÅLE"
   ],
@@ -768,7 +771,8 @@
   ],
   "FORBUND": [
     "EU",
-    "NATO"
+    "NATO",
+    "FN"
   ],
   "FORDELE": [
     "STRØ"
@@ -845,6 +849,9 @@
   ],
   "FORTUMLET": [
     "ØR"
+  ],
+  "FRADUBLIN": [
+    "IRSKE"
   ],
   "FRANKRIG": [
     "F"
@@ -1111,6 +1118,9 @@
   "HASTER": [
     "ILER"
   ],
+  "HAT": [
+    "BØR"
+  ],
   "HAV": [
     "UTAL"
   ],
@@ -1164,6 +1174,9 @@
   ],
   "HJULDEL": [
     "EGER"
+  ],
+  "HOLDEHVIL": [
+    "RASTE"
   ],
   "HOLDEMEGETAF": [
     "ELSKE"
@@ -1329,7 +1342,8 @@
     "SAX",
     "SÆKKEPIBE",
     "SITAR",
-    "CELLO"
+    "CELLO",
+    "ORGEL"
   ],
   "INSTRUMENTER": [
     "TROMPETER"
@@ -1403,6 +1417,9 @@
   ],
   "KEDELIG": [
     "TRIST"
+  ],
+  "KENDBOGST": [
+    "EST"
   ],
   "KERNESYRE": [
     "RNA"
@@ -1480,6 +1497,9 @@
   "KNOLD": [
     "TUE"
   ],
+  "KNUDE": [
+    "KNOB"
+  ],
   "KNÆGT": [
     "DRENG"
   ],
@@ -1511,7 +1531,8 @@
   "KORT": [
     "ES",
     "TREERE",
-    "JOKER"
+    "JOKER",
+    "ESSER"
   ],
   "KORTBOG": [
     "ATLAS"
@@ -1620,7 +1641,8 @@
     "OVN",
     "HÅNDMIKSER",
     "KASSEROLLE",
-    "JERNGRYDE"
+    "JERNGRYDE",
+    "SKÆREBRÆT"
   ],
   "KØLEELEMENTER": [
     "ISKLUMPER"
@@ -1980,7 +2002,8 @@
     "N"
   ],
   "NUL": [
-    "O"
+    "O",
+    "INGEN"
   ],
   "NUMMER": [
     "NR"
@@ -2028,6 +2051,9 @@
   ],
   "OPFINDER": [
     "EDISON"
+  ],
+  "OPFØRE": [
+    "TE"
   ],
   "OPFØRER": [
     "TER"
@@ -2193,6 +2219,9 @@
   "PRÆSTEDRAGT": [
     "ORNAT"
   ],
+  "PSYKEDEL": [
+    "EGO"
+  ],
   "PUKLE": [
     "ASE"
   ],
@@ -2259,7 +2288,8 @@
     "NUDELSUPPE",
     "SUPPE",
     "LINSESUPPE",
-    "SUSHI"
+    "SUSHI",
+    "RANK"
   ],
   "RETNING": [
     "NV",
@@ -2444,6 +2474,9 @@
     "DVD",
     "CD"
   ],
+  "SKOVEN": [
+    "LUNDEN"
+  ],
   "SKOVGUD": [
     "FAUN"
   ],
@@ -2473,6 +2506,9 @@
   ],
   "SKYNDESIG": [
     "ILE"
+  ],
+  "SKÆR": [
+    "REN"
   ],
   "SKØN": [
     "HERLIG"
@@ -2586,6 +2622,9 @@
     "ENE",
     "ALENE"
   ],
+  "SOMMERUDSTYR": [
+    "SOLBRILLER"
+  ],
   "SPANIEN": [
     "E"
   ],
@@ -2605,7 +2644,8 @@
     "LEG",
     "MØLLE",
     "DOMINO",
-    "DART"
+    "DART",
+    "SKAK"
   ],
   "SPILDES": [
     "ØDES"
@@ -2708,6 +2748,9 @@
   ],
   "STILART": [
     "ROKOKO"
+  ],
+  "STILLET": [
+    "SAT"
   ],
   "STIRRE": [
     "GLO"
@@ -3360,6 +3403,9 @@
   "[IMG]BOOKSHELF": [
     "REOL"
   ],
+  "[IMG]BOOMERANG": [
+    "LE"
+  ],
   "[IMG]BOUQUETOFFLOWERS": [
     "BUKET"
   ],
@@ -3609,6 +3655,9 @@
   "[IMG]RAKES": [
     "RIVER"
   ],
+  "[IMG]REDBAG": [
+    "TASKE"
+  ],
   "[IMG]REDCHAIR": [
     "STOL"
   ],
@@ -3636,6 +3685,9 @@
   ],
   "[IMG]SHOVEL": [
     "SPADE"
+  ],
+  "[IMG]SKELETON": [
+    "SKELET"
   ],
   "[IMG]SMILEYFACE": [
     "SMILEY"
