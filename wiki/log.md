@@ -855,3 +855,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-07 04:28 UTC] ingest | quiz | Hvilken trøje bærer lederen af bjergklassementet i Tour de… | outcome=submitted
 
+## [2026-08-07 04:32 UTC] ingest | ordkløver | Category: `Artist`; answer pattern `13` | outcome=submitted
+
