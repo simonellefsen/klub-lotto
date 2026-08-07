@@ -857,3 +857,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-07 04:32 UTC] ingest | ordkløver | Category: `Artist`; answer pattern `13` | outcome=submitted
 
+## [2026-08-07 04:37 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
