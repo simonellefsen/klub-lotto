@@ -8,6 +8,9 @@
   "1050": [
     "ML"
   ],
+  "11": [
+    "XI"
+  ],
   "1500": [
     "MD"
   ],
@@ -176,7 +179,8 @@
     "TANK",
     "VASE",
     "DÅSE",
-    "KANDE"
+    "KANDE",
+    "TERMOKANDE"
   ],
   "BEHOLDERE": [
     "TØNDER"
@@ -220,6 +224,9 @@
   ],
   "BESVÆR": [
     "BØVL"
+  ],
+  "BETRAGTET": [
+    "ANSET"
   ],
   "BEVIS": [
     "ATTEST"
@@ -339,6 +346,9 @@
   "BRUGBAR": [
     "EGNET"
   ],
+  "BRUMME": [
+    "ARREST"
+  ],
   "BUD": [
     "KURER"
   ],
@@ -359,6 +369,9 @@
   ],
   "BYGGEMATERIALE": [
     "TEGL"
+  ],
+  "BYGNING": [
+    "PALADS"
   ],
   "BYTE": [
     "B"
@@ -555,6 +568,9 @@
   "ENFOLDIG": [
     "GODTROENDE"
   ],
+  "ENGELSKAFSLAG": [
+    "NO"
+  ],
   "ENGELSKTILSAGN": [
     "YES"
   ],
@@ -663,6 +679,9 @@
     "LUFTBALLON",
     "UBÅD"
   ],
+  "FARTØJER": [
+    "UBÅDE"
+  ],
   "FARVE": [
     "PINK",
     "ROSA",
@@ -759,6 +778,9 @@
   ],
   "FODTØJ": [
     "PLATEAUSKO"
+  ],
+  "FOLK": [
+    "IRERE"
   ],
   "FOR": [
     "THI"
@@ -1163,6 +1185,9 @@
     "UFO",
     "UFOER"
   ],
+  "HISTORIESKRIVER": [
+    "SAXO"
+  ],
   "HJEM": [
     "BO"
   ],
@@ -1403,6 +1428,9 @@
   "KAMMERTONEN": [
     "A"
   ],
+  "KAMRE": [
+    "SENATER"
+  ],
   "KANT": [
     "BORT"
   ],
@@ -1422,7 +1450,8 @@
     "EST"
   ],
   "KERNESYRE": [
-    "RNA"
+    "RNA",
+    "DNA"
   ],
   "KIGGE": [
     "SE"
@@ -1976,6 +2005,9 @@
   ],
   "NEDBØR": [
     "SNE"
+  ],
+  "NEJ": [
+    "NIKS"
   ],
   "NEMME": [
     "LETTE"
@@ -2645,7 +2677,8 @@
     "MØLLE",
     "DOMINO",
     "DART",
-    "SKAK"
+    "SKAK",
+    "UNO"
   ],
   "SPILDES": [
     "ØDES"
@@ -3001,7 +3034,8 @@
     "RE",
     "MI",
     "DO",
-    "LA"
+    "LA",
+    "EIS"
   ],
   "TONEART": [
     "EDUR"
@@ -3026,6 +3060,9 @@
   ],
   "TRADEMARK": [
     "TM"
+  ],
+  "TRANSPORTMIDDEL": [
+    "TURISTBUS"
   ],
   "TRENDY": [
     "IN"
@@ -3166,6 +3203,9 @@
   "UNGE": [
     "LAM"
   ],
+  "UORDEN": [
+    "ROD"
+  ],
   "URAN": [
     "U"
   ],
@@ -3239,6 +3279,9 @@
   "VEJVISER": [
     "GPS",
     "PIL"
+  ],
+  "VEKSLET": [
+    "OMSAT"
   ],
   "VELHAVENDE": [
     "RIG"
@@ -3601,6 +3644,9 @@
   "[IMG]PADDLE": [
     "ÅRE"
   ],
+  "[IMG]PAINTBUCKET": [
+    "MALING"
+  ],
   "[IMG]PALMTREE": [
     "PALME"
   ],
@@ -3753,6 +3799,9 @@
   "[IMG]WATERMELON": [
     "MELON"
   ],
+  "[IMG]WATERMELONSLICE": [
+    "MELON"
+  ],
   "[IMG]WINDTURBINE": [
     "MØLLE"
   ],
@@ -3761,6 +3810,9 @@
   ],
   "ÅRE": [
     "AORTA"
+  ],
+  "ÅRLIGT": [
+    "PA"
   ],
   "ÅRTI": [
     "ENERNE"
