@@ -867,3 +867,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-08 06:01 UTC] ingest | quiz | Hvem skabte den belgiske tegneseriefigur Tintin? | outcome=submitted
 
+## [2026-08-08 06:02 UTC] ingest | ordkløver | Category: `På Danmarkskortet`; answer pattern `7 / 11` | outcome=submitted
+
