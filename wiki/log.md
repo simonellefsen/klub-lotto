@@ -865,3 +865,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-08 06:00 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-08-08 06:01 UTC] ingest | quiz | Hvem skabte den belgiske tegneseriefigur Tintin? | outcome=submitted
+
