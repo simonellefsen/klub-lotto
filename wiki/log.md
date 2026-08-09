@@ -881,3 +881,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-09 07:09 UTC] ingest | ordkløver | Category: `Engelsk på dansk`; answer pattern `8 / 4` | outcome=submitted
 
+## [2026-08-09 07:11 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
