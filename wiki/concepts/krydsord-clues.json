@@ -63,7 +63,8 @@
     "SAG"
   ],
   "AFGRØDE": [
-    "ROER"
+    "ROER",
+    "RUG"
   ],
   "AFSLØRE": [
     "RØBE"
@@ -265,11 +266,17 @@
   "BIORD": [
     "AN"
   ],
+  "BJERGMASSE": [
+    "LAVA"
+  ],
   "BJÆFFE": [
     "GØ"
   ],
   "BLAD": [
     "AVIS"
+  ],
+  "BLIK": [
+    "KIG"
   ],
   "BLOMST": [
     "IRIS",
@@ -411,6 +418,9 @@
   ],
   "COMPUTER": [
     "PC"
+  ],
+  "COOL": [
+    "SEJE"
   ],
   "CYKELDEL": [
     "PEDAL"
@@ -693,6 +703,9 @@
   ],
   "FASHION": [
     "MODE"
+  ],
+  "FASTE": [
+    "UROKKELIGE"
   ],
   "FEDTSTOF": [
     "OLIE",
@@ -1877,7 +1890,8 @@
     "ÆLTE"
   ],
   "MATERIALE": [
-    "GLAS"
+    "GLAS",
+    "TRÆ"
   ],
   "MEDET": [
     "PLUDSELIG"
@@ -1979,7 +1993,8 @@
   "MØBEL": [
     "STOL",
     "ETAGESENG",
-    "REOL"
+    "REOL",
+    "SENG"
   ],
   "MØBLER": [
     "LÆNESTOLE",
@@ -2108,6 +2123,9 @@
   "ORIGINALER": [
     "ENERE"
   ],
+  "ORKE": [
+    "GIDE"
+  ],
   "ORKEDE": [
     "GAD"
   ],
@@ -2116,6 +2134,9 @@
   ],
   "OVER": [
     "VIA"
+  ],
+  "OVERGANG": [
+    "BRO"
   ],
   "OVERSET": [
     "GLEMT"
@@ -2260,6 +2281,12 @@
   "PULVER": [
     "MEL"
   ],
+  "PURERET": [
+    "MOSET"
+  ],
+  "PYNT": [
+    "NÆS"
+  ],
   "PYNTET": [
     "NETTET"
   ],
@@ -2276,6 +2303,9 @@
   ],
   "PÅVIRKE": [
     "MANIPULERE"
+  ],
+  "RADIERER": [
+    "UDSTRÅLER"
   ],
   "RAMMER": [
     "KARME"
@@ -2779,6 +2809,9 @@
   "STIKKERAF": [
     "DESERTERER"
   ],
+  "STIKTYPE": [
+    "USB"
+  ],
   "STILART": [
     "ROKOKO"
   ],
@@ -3038,7 +3071,8 @@
     "EIS"
   ],
   "TONEART": [
-    "EDUR"
+    "EDUR",
+    "FMOL"
   ],
   "TONEN": [
     "EET"
@@ -3260,6 +3294,9 @@
   ],
   "VEDRØRENDE": [
     "OM"
+  ],
+  "VEDVARENDE": [
+    "EVIG"
   ],
   "VEG": [
     "SLAP"
@@ -3548,6 +3585,9 @@
   "[IMG]FAIRY": [
     "FE"
   ],
+  "[IMG]FEATHER": [
+    "FJER"
+  ],
   "[IMG]FENCE": [
     "HEGN"
   ],
@@ -3782,6 +3822,9 @@
   ],
   "[IMG]TELEVISION": [
     "TV"
+  ],
+  "[IMG]TENT": [
+    "TELT"
   ],
   "[IMG]TREE": [
     "TRÆ"
