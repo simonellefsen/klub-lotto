@@ -66,6 +66,9 @@
     "ROER",
     "RUG"
   ],
+  "AFSLAG": [
+    "NEJ"
+  ],
   "AFSLØRE": [
     "RØBE"
   ],
@@ -383,6 +386,9 @@
   "BYTE": [
     "B"
   ],
+  "BÆGER": [
+    "KOP"
+  ],
   "BÆLTE": [
     "REM"
   ],
@@ -498,7 +504,8 @@
     "ØL",
     "CAPPUCCINO",
     "ORANGEADE",
-    "MOST"
+    "MOST",
+    "KIR"
   ],
   "DRØM": [
     "UTOPI"
@@ -543,7 +550,8 @@
     "ISBJØRN",
     "SÆLER",
     "KRONHJORT",
-    "DÅER"
+    "DÅER",
+    "VASKEBJØRN"
   ],
   "DYRKER": [
     "AVLER"
@@ -1039,6 +1047,9 @@
   "GLKARAKTR": [
     "UG"
   ],
+  "GLOSEN": [
+    "ORDET"
+  ],
   "GLOSER": [
     "ORD"
   ],
@@ -1053,6 +1064,9 @@
   ],
   "GODMODIG": [
     "MILD"
+  ],
+  "GODNATSANG": [
+    "VUGGEVISE"
   ],
   "GODT": [
     "VEL"
@@ -1213,6 +1227,9 @@
   "HJULDEL": [
     "EGER"
   ],
+  "HOLDEFRED": [
+    "ENES"
+  ],
   "HOLDEHVIL": [
     "RASTE"
   ],
@@ -1358,6 +1375,9 @@
   ],
   "INDTAGE": [
     "ÆDE"
+  ],
+  "INHABILE": [
+    "UEGNEDE"
   ],
   "INKLUSIVE": [
     "MED"
@@ -1574,7 +1594,11 @@
     "ES",
     "TREERE",
     "JOKER",
-    "ESSER"
+    "ESSER",
+    "SYVERE"
+  ],
+  "KORTBESØG": [
+    "AUDIENS"
   ],
   "KORTBOG": [
     "ATLAS"
@@ -1663,6 +1687,9 @@
   ],
   "KYLEDE": [
     "SMED"
+  ],
+  "KÆMPE": [
+    "DYSTE"
   ],
   "KÆMPEDE": [
     "STRED"
@@ -1891,7 +1918,8 @@
   ],
   "MATERIALE": [
     "GLAS",
-    "TRÆ"
+    "TRÆ",
+    "JERN"
   ],
   "MEDET": [
     "PLUDSELIG"
@@ -1964,7 +1992,8 @@
     "ROCK",
     "SOUL",
     "RAP",
-    "POP"
+    "POP",
+    "BLUES"
   ],
   "MÅLER": [
     "UR"
@@ -2116,6 +2145,9 @@
   ],
   "OPTEGNELSE": [
     "NOTE"
+  ],
+  "OPTEGNELSEN": [
+    "NOTEN"
   ],
   "ORGANISATION": [
     "NASA"
@@ -2687,6 +2719,9 @@
   "SOMMERUDSTYR": [
     "SOLBRILLER"
   ],
+  "SOVE": [
+    "SNUE"
+  ],
   "SPANIEN": [
     "E"
   ],
@@ -3193,7 +3228,8 @@
     "AV",
     "ØV",
     "UHA",
-    "HA"
+    "HA",
+    "GISP"
   ],
   "UDENINDHOLD": [
     "TOM"
@@ -3375,6 +3411,9 @@
   ],
   "VISER": [
     "PEGER"
+  ],
+  "VISION": [
+    "SYN"
   ],
   "VITAMIN": [
     "A",
@@ -3836,6 +3875,9 @@
     "ROE",
     "ROER"
   ],
+  "[IMG]TWOSEAGULLS": [
+    "MÅGER"
+  ],
   "[IMG]VEST": [
     "VEST"
   ],
@@ -3850,6 +3892,9 @@
   ],
   "[IMG]WINEGLASS": [
     "VIN"
+  ],
+  "[IMG]YELLOWSUBMARINE": [
+    "UBÅD"
   ],
   "ÅRE": [
     "AORTA"
