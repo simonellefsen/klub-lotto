@@ -891,3 +891,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-10 04:08 UTC] ingest | quiz | Hvem skrev børnebogen 'Pippi Langstrømpe'? | outcome=submitted
 
+## [2026-08-10 04:09 UTC] ingest | ordkløver | Category: `Dansk dokumentar`; answer pattern `9` | outcome=submitted
+
