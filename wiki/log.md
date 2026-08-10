@@ -889,3 +889,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-10 04:08 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-08-10 04:08 UTC] ingest | quiz | Hvem skrev børnebogen 'Pippi Langstrømpe'? | outcome=submitted
+
