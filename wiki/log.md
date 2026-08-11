@@ -901,3 +901,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-11 04:41 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-08-11 04:41 UTC] ingest | quiz | Hvilken Disney-klassiker introducerede karakteren Mufasa? | outcome=submitted
+
