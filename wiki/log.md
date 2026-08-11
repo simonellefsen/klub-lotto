@@ -903,3 +903,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-11 04:41 UTC] ingest | quiz | Hvilken Disney-klassiker introducerede karakteren Mufasa? | outcome=submitted
 
+## [2026-08-11 04:43 UTC] ingest | ordkløver | Category: `Ting`; answer pattern `13` | outcome=submitted
+
