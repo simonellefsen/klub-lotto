@@ -311,7 +311,8 @@
     "REDE"
   ],
   "BOLDKLUB": [
-    "AGF"
+    "AGF",
+    "OB"
   ],
   "BOLDUNION": [
     "DBU"
@@ -507,6 +508,9 @@
     "MOST",
     "KIR"
   ],
+  "DRIKKE": [
+    "DIE"
+  ],
   "DRØM": [
     "UTOPI"
   ],
@@ -616,6 +620,9 @@
   ],
   "ERHVERV": [
     "TURISME"
+  ],
+  "ERHVERVEDESIG": [
+    "KØBTE"
   ],
   "ETAGE": [
     "SAL"
@@ -730,6 +737,9 @@
   ],
   "FESTSAL": [
     "AULA"
+  ],
+  "FILEN": [
+    "RASPEN"
   ],
   "FILMFIGUR": [
     "ET",
@@ -902,6 +912,9 @@
   "FRED": [
     "RO"
   ],
+  "FREDEN": [
+    "ROEN"
+  ],
   "FREMRAGENDE": [
     "YPPERLIGT"
   ],
@@ -918,6 +931,9 @@
   ],
   "FRISKT": [
     "NYT"
+  ],
+  "FRISTEDER": [
+    "OASER"
   ],
   "FRUGT": [
     "DRUE",
@@ -1086,6 +1102,9 @@
   "GRAM": [
     "G"
   ],
+  "GRATIE": [
+    "YNDE"
+  ],
   "GRIBE": [
     "TY"
   ],
@@ -1113,6 +1132,9 @@
   ],
   "GRÆSMARK": [
     "ENG"
+  ],
+  "GRØN": [
+    "UNG"
   ],
   "GRØNTSAG": [
     "AGURK",
@@ -1312,6 +1334,9 @@
   ],
   "HÆLDE": [
     "ØSE"
+  ],
+  "HÆLDER": [
+    "ØSER"
   ],
   "HÆLDT": [
     "ØSET"
@@ -1930,8 +1955,14 @@
   "MEDIUM": [
     "M"
   ],
+  "MENNESKELIG": [
+    "HUMAN"
+  ],
   "MENUPUNKT": [
     "RET"
+  ],
+  "MERE": [
+    "YDERLIGERE"
   ],
   "MESTERKOK": [
     "GASTRONOM"
@@ -3059,7 +3090,8 @@
     "REKYL"
   ],
   "TILBEHØR": [
-    "GELE"
+    "GELE",
+    "PESTO"
   ],
   "TILBEREDT": [
     "STEGT"
@@ -3203,6 +3235,9 @@
   "TÅGE": [
     "DIS"
   ],
+  "TÅGEN": [
+    "GUSEN"
+  ],
   "TÆPPE": [
     "KELIM"
   ],
@@ -3229,7 +3264,8 @@
     "ØV",
     "UHA",
     "HA",
-    "GISP"
+    "GISP",
+    "IH"
   ],
   "UDENINDHOLD": [
     "TOM"
@@ -3272,6 +3308,9 @@
   ],
   "UNGE": [
     "LAM"
+  ],
+  "UNIKUM": [
+    "ENER"
   ],
   "UORDEN": [
     "ROD"
@@ -3400,6 +3439,9 @@
   "VIRKE": [
     "DU"
   ],
+  "VIRKEDE": [
+    "DUEDE"
+  ],
   "VIRKELIGE": [
     "REALE"
   ],
@@ -3491,6 +3533,9 @@
   ],
   "[IMG]BADMINTONRACKET": [
     "NET"
+  ],
+  "[IMG]BALLOFGREENYARN": [
+    "GARN"
   ],
   "[IMG]BATHROOMSCALE": [
     "ÆGGEUR"
@@ -3648,6 +3693,9 @@
   "[IMG]GRASS": [
     "GRÆS"
   ],
+  "[IMG]GREENARROWPOINTINGDOWNRIGHT": [
+    "PIL"
+  ],
   "[IMG]GRILL": [
     "GRILL"
   ],
@@ -3786,6 +3834,9 @@
   "[IMG]REDCHAIR": [
     "STOL"
   ],
+  "[IMG]REDDOOR": [
+    "DØR"
+  ],
   "[IMG]RING": [
     "RING"
   ],
@@ -3893,6 +3944,9 @@
   "[IMG]WINEGLASS": [
     "VIN"
   ],
+  "[IMG]WOODENBARREL": [
+    "TØNDE"
+  ],
   "[IMG]YELLOWSUBMARINE": [
     "UBÅD"
   ],
@@ -3944,5 +3998,8 @@
   ],
   "ØVEDE": [
     "RUTINEREDE"
+  ],
+  "ØVESTYKKER": [
+    "ETUDER"
   ]
 }
