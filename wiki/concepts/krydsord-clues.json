@@ -50,6 +50,9 @@
   "551": [
     "DLI"
   ],
+  "56": [
+    "LVI"
+  ],
   "ABC": [
     "BOGSTAVER"
   ],
@@ -169,6 +172,9 @@
     "ROE",
     "FÅR",
     "BØN"
+  ],
+  "BEGÆRE": [
+    "ATTRÅ"
   ],
   "BEGÆRET": [
     "ATTRÅET"
@@ -506,7 +512,8 @@
     "CAPPUCCINO",
     "ORANGEADE",
     "MOST",
-    "KIR"
+    "KIR",
+    "ÆBLECIDER"
   ],
   "DRIKKE": [
     "DIE"
@@ -684,6 +691,9 @@
   ],
   "FAGUDTRYK": [
     "TERM"
+  ],
+  "FALDE": [
+    "DALE"
   ],
   "FALSK": [
     "UREEL"
@@ -982,7 +992,8 @@
   ],
   "FYR": [
     "JAS",
-    "KARL"
+    "KARL",
+    "RAD"
   ],
   "FYRSTE": [
     "EMIR"
@@ -1179,6 +1190,9 @@
   ],
   "HANKE": [
     "ØRER"
+  ],
+  "HAR": [
+    "EJER"
   ],
   "HARMLØST": [
     "USKADELIGT"
@@ -1431,6 +1445,9 @@
   "INSTRUMENTER": [
     "TROMPETER"
   ],
+  "INTAKT": [
+    "HEL"
+  ],
   "IORDEN": [
     "OKAY"
   ],
@@ -1656,6 +1673,9 @@
   "KRIGSGUD": [
     "ARES"
   ],
+  "KRIKKE": [
+    "ØG"
+  ],
   "KRITIK": [
     "RIS"
   ],
@@ -1681,7 +1701,8 @@
     "BARE"
   ],
   "KUNSTVÆRK": [
-    "OLIEMALERI"
+    "OLIEMALERI",
+    "MALERI"
   ],
   "KUREDE": [
     "GLED"
@@ -2087,6 +2108,9 @@
   "NEMME": [
     "LETTE"
   ],
+  "NEMT": [
+    "LET"
+  ],
   "NEWTON": [
     "N"
   ],
@@ -2198,6 +2222,9 @@
   "OVER": [
     "VIA"
   ],
+  "OVERDEL": [
+    "TRØJE"
+  ],
   "OVERGANG": [
     "BRO"
   ],
@@ -2209,6 +2236,9 @@
   ],
   "OVERTAGET": [
     "ARVET"
+  ],
+  "OXIDERE": [
+    "IRRE"
   ],
   "PAGAJ": [
     "ÅRE"
@@ -2277,7 +2307,8 @@
     "ARALIE",
     "RAPS",
     "ALOE",
-    "EFEU"
+    "EFEU",
+    "URT"
   ],
   "PLANTEDEL": [
     "AKS",
@@ -2470,7 +2501,8 @@
     "NØK"
   ],
   "RYSTE": [
-    "VIRRE"
+    "VIRRE",
+    "BÆVE"
   ],
   "RYTMISKE": [
     "TAKTFASTE"
@@ -2536,7 +2568,8 @@
     "ÆGTER"
   ],
   "SIKKERT": [
-    "NOK"
+    "NOK",
+    "STØT"
   ],
   "SIMPEL": [
     "ENKEL"
@@ -3232,6 +3265,9 @@
   "TYSKLAND": [
     "D"
   ],
+  "TYVERI": [
+    "RAN"
+  ],
   "TÅGE": [
     "DIS"
   ],
@@ -3291,6 +3327,9 @@
   "UDVALG": [
     "NÆVN"
   ],
+  "UHYRE": [
+    "DRAGE"
+  ],
   "UJÆVN": [
     "RU"
   ],
@@ -3313,7 +3352,8 @@
     "ENER"
   ],
   "UORDEN": [
-    "ROD"
+    "ROD",
+    "RODERI"
   ],
   "URAN": [
     "U"
@@ -3752,6 +3792,9 @@
   ],
   "[IMG]MOUNTAINS": [
     "BJERG"
+  ],
+  "[IMG]MUG": [
+    "KRUS"
   ],
   "[IMG]MUSICALNOTE": [
     "NODE"
