@@ -913,3 +913,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-12 04:34 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-08-12 04:34 UTC] ingest | quiz | I hvilken schweizisk by grundlagde Rodolphe Lindt sin chokol… | outcome=submitted
+
