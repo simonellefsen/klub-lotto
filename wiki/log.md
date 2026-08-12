@@ -915,3 +915,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-12 04:34 UTC] ingest | quiz | I hvilken schweizisk by grundlagde Rodolphe Lindt sin chokol… | outcome=submitted
 
+## [2026-08-12 04:36 UTC] ingest | ordkløver | Category: `"Stilling"`; answer pattern `12` | outcome=submitted
+
