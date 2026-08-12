@@ -917,3 +917,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-12 04:36 UTC] ingest | ordkløver | Category: `"Stilling"`; answer pattern `12` | outcome=submitted
 
+## [2026-08-12 04:39 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
