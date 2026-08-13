@@ -927,3 +927,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-13 04:12 UTC] ingest | quiz | Hvilket hold vandt NBA-mesterskabet i 1996? | outcome=submitted
 
+## [2026-08-13 04:13 UTC] ingest | ordkløver | Category: `Ordsprog`; answer pattern `5 / 4 / 6 / 4 / 4`; vi… | outcome=submitted
+
