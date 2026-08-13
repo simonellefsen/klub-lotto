@@ -562,7 +562,8 @@
     "SÆLER",
     "KRONHJORT",
     "DÅER",
-    "VASKEBJØRN"
+    "VASKEBJØRN",
+    "ØRKENROTTE"
   ],
   "DYRKER": [
     "AVLER"
@@ -599,6 +600,9 @@
   ],
   "ENGELSKAFSLAG": [
     "NO"
+  ],
+  "ENGELSKSKOLEBY": [
+    "ETON"
   ],
   "ENGELSKTILSAGN": [
     "YES"
@@ -692,6 +696,9 @@
   "FAGUDTRYK": [
     "TERM"
   ],
+  "FAIR": [
+    "REEL"
+  ],
   "FALDE": [
     "DALE"
   ],
@@ -721,7 +728,8 @@
     "PINK",
     "ROSA",
     "ORANGE",
-    "BLÅ"
+    "BLÅ",
+    "GUL"
   ],
   "FARVELØS": [
     "BLEG"
@@ -975,7 +983,8 @@
     "STORK",
     "SVANE",
     "ALK",
-    "NATTERGAL"
+    "NATTERGAL",
+    "PELIKAN"
   ],
   "FUGLE": [
     "ØRNE",
@@ -1162,7 +1171,8 @@
   "GUDINDE": [
     "ATE",
     "EOS",
-    "LUNA"
+    "LUNA",
+    "EIR"
   ],
   "GUF": [
     "SLIK"
@@ -1507,7 +1517,8 @@
     "SENATER"
   ],
   "KANT": [
-    "BORT"
+    "BORT",
+    "RIB"
   ],
   "KAOS": [
     "ROD"
@@ -1958,6 +1969,9 @@
   ],
   "MASQUERADEMASK": [
     "MASKE"
+  ],
+  "MASSE": [
+    "GEL"
   ],
   "MASSERE": [
     "ÆLTE"
@@ -2606,6 +2620,9 @@
     "SS",
     "FEMMASTER"
   ],
+  "SKIBE": [
+    "TANKERE"
+  ],
   "SKIBSDEL": [
     "BOV",
     "DÆK",
@@ -2624,6 +2641,9 @@
   ],
   "SKIMTER": [
     "ANER"
+  ],
+  "SKINNE": [
+    "LYSE"
   ],
   "SKITSE": [
     "RIDS"
@@ -2791,6 +2811,9 @@
   ],
   "SPANSKTITEL": [
     "DON"
+  ],
+  "SPECIALISTER": [
+    "ØJENLÆGER"
   ],
   "SPEKULERE": [
     "RUGE"
@@ -3031,6 +3054,12 @@
   "SYN": [
     "SKUE"
   ],
+  "SYNE": [
+    "BESE"
+  ],
+  "SÅSSVAGT": [
+    "ANEDES"
+  ],
   "SÆLSOM": [
     "APARTE"
   ],
@@ -3132,6 +3161,9 @@
   "TILLØB": [
     "RUN"
   ],
+  "TILRETTELAGDE": [
+    "TIMEDE"
+  ],
   "TILSÆTTE": [
     "IRØRE"
   ],
@@ -3175,7 +3207,8 @@
     "FMOL"
   ],
   "TONEN": [
-    "EET"
+    "EET",
+    "AET"
   ],
   "TONER": [
     "EER"
@@ -3197,6 +3230,9 @@
   ],
   "TRANSPORTMIDDEL": [
     "TURISTBUS"
+  ],
+  "TRAVLHED": [
+    "JAG"
   ],
   "TRENDY": [
     "IN"
@@ -3601,6 +3637,9 @@
   "[IMG]BLACKDIEWITHONEPIP": [
     "ENER"
   ],
+  "[IMG]BLUERADIO": [
+    "RADIO"
+  ],
   "[IMG]BOOKS": [
     "BØGER"
   ],
@@ -3880,6 +3919,9 @@
   "[IMG]REDDOOR": [
     "DØR"
   ],
+  "[IMG]REDSQUIRREL": [
+    "EGERN"
+  ],
   "[IMG]RING": [
     "RING"
   ],
@@ -3907,6 +3949,9 @@
   ],
   "[IMG]SKELETON": [
     "SKELET"
+  ],
+  "[IMG]SLINGSHOT": [
+    "STYR"
   ],
   "[IMG]SMILEYFACE": [
     "SMILEY"
@@ -3968,6 +4013,9 @@
   "[IMG]TURNIP": [
     "ROE",
     "ROER"
+  ],
+  "[IMG]TWOREDROSES": [
+    "ROSER"
   ],
   "[IMG]TWOSEAGULLS": [
     "MÅGER"
