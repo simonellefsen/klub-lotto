@@ -281,6 +281,9 @@
   "BJÆFFE": [
     "GØ"
   ],
+  "BJÆFFET": [
+    "GØET"
+  ],
   "BLAD": [
     "AVIS"
   ],
@@ -345,7 +348,8 @@
     "IT"
   ],
   "BRAS": [
-    "MØG"
+    "MØG",
+    "HØ"
   ],
   "BRINGER": [
     "LEVERER"
@@ -388,7 +392,8 @@
     "TEGL"
   ],
   "BYGNING": [
-    "PALADS"
+    "PALADS",
+    "HUS"
   ],
   "BYTE": [
     "B"
@@ -958,7 +963,8 @@
     "ÆBLE",
     "AGERN",
     "MELON",
-    "BÆR"
+    "BÆR",
+    "NØD"
   ],
   "FRUGTER": [
     "ABRIKOSER",
@@ -992,6 +998,9 @@
     "KOLIBRIER",
     "ARAER",
     "GÆS"
+  ],
+  "FUGLEN": [
+    "UGLEN"
   ],
   "FURE": [
     "KEL"
@@ -2131,6 +2140,9 @@
   "NIT": [
     "N"
   ],
+  "NIVEAU": [
+    "LAG"
+  ],
   "NOPRET": [
     "RU"
   ],
@@ -2174,6 +2186,9 @@
   ],
   "OARS": [
     "ÅRER"
+  ],
+  "OASER": [
+    "ÅNDEHULLER"
   ],
   "OFTE": [
     "TIT"
@@ -2298,13 +2313,17 @@
     "ÅRTI",
     "ÅR",
     "NAT",
-    "UGE"
+    "UGE",
+    "ÆRA"
   ],
   "PERIODER": [
     "UGER"
   ],
   "PINE": [
     "NAGE"
+  ],
+  "PINER": [
+    "NAGER"
   ],
   "PINT": [
     "NAGET"
@@ -2418,6 +2437,9 @@
   "RAMMER": [
     "KARME"
   ],
+  "REALITET": [
+    "SANDHED"
+  ],
   "REDSKAB": [
     "LOMMEKNIV",
     "LE",
@@ -2450,6 +2472,9 @@
   ],
   "RENSEMIDDEL": [
     "SÆBE"
+  ],
+  "RESPIRERE": [
+    "ÅNDE"
   ],
   "REST": [
     "LEVN"
@@ -3057,6 +3082,9 @@
   "SYNE": [
     "BESE"
   ],
+  "SYNER": [
+    "BESER"
+  ],
   "SÅSSVAGT": [
     "ANEDES"
   ],
@@ -3114,6 +3142,9 @@
   ],
   "TANKE": [
     "IDE"
+  ],
+  "TANKETOM": [
+    "IDELØS"
   ],
   "TARA": [
     "T"
@@ -3265,7 +3296,8 @@
     "ESP",
     "AHORN",
     "ELM",
-    "ASK"
+    "ASK",
+    "RØN"
   ],
   "TRÆER": [
     "ASPE",
@@ -3312,6 +3344,9 @@
   ],
   "TÆPPE": [
     "KELIM"
+  ],
+  "TÆPPETYPE": [
+    "RYA"
   ],
   "TÆRE": [
     "ÆTSE"
@@ -3765,6 +3800,9 @@
   ],
   "[IMG]FROG": [
     "FRØ"
+  ],
+  "[IMG]GATE": [
+    "LÅGE"
   ],
   "[IMG]GRAPES": [
     "DRUER"
