@@ -939,3 +939,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-14 04:15 UTC] ingest | quiz | Hvilken ø er Danmarks østligste? | outcome=submitted
 
+## [2026-08-14 04:16 UTC] ingest | ordkløver | Category: `Mani`; answer pattern `11 / 6` | outcome=submitted
+
