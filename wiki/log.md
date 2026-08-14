@@ -941,3 +941,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-14 04:16 UTC] ingest | ordkløver | Category: `Mani`; answer pattern `11 / 6` | outcome=submitted
 
+## [2026-08-14 04:18 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
