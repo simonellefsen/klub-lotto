@@ -2,6 +2,9 @@
   "100": [
     "C"
   ],
+  "1002": [
+    "MII"
+  ],
   "101": [
     "CI"
   ],
@@ -101,6 +104,9 @@
   ],
   "ANGER": [
     "RUELSE"
+  ],
+  "ANGREB": [
+    "RAID"
   ],
   "ANKERPLADS": [
     "RED"
@@ -370,6 +376,9 @@
   "BRUMME": [
     "ARREST"
   ],
+  "BRUTAL": [
+    "RÅ"
+  ],
   "BUD": [
     "KURER"
   ],
@@ -430,6 +439,9 @@
   ],
   "CIRKUSSCENE": [
     "ARENA"
+  ],
+  "CITRUSFRUGT": [
+    "LIME"
   ],
   "COGNACBETEGN": [
     "VO"
@@ -926,6 +938,12 @@
   "FORTUMLET": [
     "ØR"
   ],
+  "FORTÆLLER": [
+    "BETROR"
+  ],
+  "FORTÆRET": [
+    "ÆDT"
+  ],
   "FRADUBLIN": [
     "IRSKE"
   ],
@@ -937,6 +955,9 @@
   ],
   "FREDEN": [
     "ROEN"
+  ],
+  "FRELSER": [
+    "REDDER"
   ],
   "FREMRAGENDE": [
     "YPPERLIGT"
@@ -1603,6 +1624,9 @@
   "KLOG": [
     "FORSTANDIG"
   ],
+  "KLUB": [
+    "LIGA"
+  ],
   "KLUDE": [
     "LASER"
   ],
@@ -1800,7 +1824,8 @@
   ],
   "LAND": [
     "KINA",
-    "USA"
+    "USA",
+    "IRAN"
   ],
   "LANGS": [
     "AD"
@@ -1855,6 +1880,9 @@
   ],
   "LEVER": [
     "BOR"
+  ],
+  "LEVERET": [
+    "BRAGT"
   ],
   "LEVN": [
     "RUIN"
@@ -2098,7 +2126,8 @@
     "STOL",
     "ETAGESENG",
     "REOL",
-    "SENG"
+    "SENG",
+    "BÆNK"
   ],
   "MØBLER": [
     "LÆNESTOLE",
@@ -2431,6 +2460,9 @@
   "PÅVIRKE": [
     "MANIPULERE"
   ],
+  "PØLSE": [
+    "SALAMI"
+  ],
   "RADIERER": [
     "UDSTRÅLER"
   ],
@@ -2566,6 +2598,9 @@
   ],
   "SALEN": [
     "ETAGEN"
+  ],
+  "SAMSTEMMENDE": [
+    "ENIGT"
   ],
   "SAMT": [
     "OG"
@@ -2919,6 +2954,9 @@
   "STAKKELS": [
     "ARME"
   ],
+  "STARTET": [
+    "IGANGSAT"
+  ],
   "STAT": [
     "EIRE"
   ],
@@ -3044,6 +3082,9 @@
     "S",
     "SMALL",
     "STR"
+  ],
+  "SUG": [
+    "DRAG"
   ],
   "SUNDE": [
     "RASKE"
@@ -3252,6 +3293,9 @@
   ],
   "TORN": [
     "PIG"
+  ],
+  "TOSSET": [
+    "GAL"
   ],
   "TOV": [
     "REB"
@@ -3591,7 +3635,8 @@
     "ETNA"
   ],
   "VÆGTENHED": [
-    "LOD"
+    "LOD",
+    "TON"
   ],
   "VÆGTFORK": [
     "KG"
@@ -3885,8 +3930,14 @@
   "[IMG]NESTWITHEGGS": [
     "REDE"
   ],
+  "[IMG]OAR": [
+    "ÅRE"
+  ],
   "[IMG]OMEGASYMBOL": [
     "OMEGA"
+  ],
+  "[IMG]OSTRICH": [
+    "EMU"
   ],
   "[IMG]PADDLE": [
     "ÅRE"
@@ -3914,7 +3965,8 @@
   ],
   "[IMG]PLAYINGCARD": [
     "ES",
-    "OTTER"
+    "OTTER",
+    "NIER"
   ],
   "[IMG]PLAYINGCARDCLUBS": [
     "ES"
@@ -4087,6 +4139,9 @@
   ],
   "ÅRTI": [
     "ENERNE"
+  ],
+  "ÆBLEREST": [
+    "SKROG"
   ],
   "ÆDELSTEN": [
     "JUVEL"
