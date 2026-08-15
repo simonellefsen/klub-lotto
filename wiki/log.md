@@ -949,3 +949,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-15 05:37 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-08-15 05:37 UTC] ingest | quiz | I hvilken by finder man katedralen Sagrada Família? | outcome=submitted
+
