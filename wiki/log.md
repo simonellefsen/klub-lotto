@@ -951,3 +951,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-15 05:37 UTC] ingest | quiz | I hvilken by finder man katedralen Sagrada Família? | outcome=submitted
 
+## [2026-08-15 05:38 UTC] ingest | ordkløver | Category: `(Ikke et) rejsemål`; answer pattern `11 / 4` | outcome=submitted
+
