@@ -325,6 +325,9 @@
     "LOGERE",
     "REDE"
   ],
+  "BOKS": [
+    "ÆSKE"
+  ],
   "BOLDKLUB": [
     "AGF",
     "OB"
@@ -845,6 +848,9 @@
   "FODTØJ": [
     "PLATEAUSKO"
   ],
+  "FOLD": [
+    "LÆG"
+  ],
   "FOLK": [
     "IRERE"
   ],
@@ -1352,6 +1358,9 @@
   "HUNDSE": [
     "HERSE"
   ],
+  "HUSREST": [
+    "RUIN"
+  ],
   "HVEDETYPE": [
     "SPELT"
   ],
@@ -1676,6 +1685,9 @@
   "KORRIGERE": [
     "RETTE"
   ],
+  "KORRIGERES": [
+    "RETTES"
+  ],
   "KORT": [
     "ES",
     "TREERE",
@@ -1779,7 +1791,8 @@
     "SMED"
   ],
   "KÆMPE": [
-    "DYSTE"
+    "DYSTE",
+    "TITAN"
   ],
   "KÆMPEDE": [
     "STRED"
@@ -1801,7 +1814,8 @@
     "HÅNDMIKSER",
     "KASSEROLLE",
     "JERNGRYDE",
-    "SKÆREBRÆT"
+    "SKÆREBRÆT",
+    "BRØDRISTER"
   ],
   "KØLEELEMENTER": [
     "ISKLUMPER"
@@ -1929,6 +1943,9 @@
   "LUGE": [
     "LEM"
   ],
+  "LUGER": [
+    "RENSER"
+  ],
   "LUKKET": [
     "NEDLAGT",
     "NEDRULLET"
@@ -2016,7 +2033,8 @@
   "MATERIALE": [
     "GLAS",
     "TRÆ",
-    "JERN"
+    "JERN",
+    "TIN"
   ],
   "MEDET": [
     "PLUDSELIG"
@@ -2581,7 +2599,8 @@
   "RÆKKE": [
     "KØ",
     "NÅ",
-    "RK"
+    "RK",
+    "SUITE"
   ],
   "RØG": [
     "OS",
@@ -2724,6 +2743,9 @@
   "SKRIVER": [
     "PEN"
   ],
+  "SKROTBUNKE": [
+    "VRAG"
+  ],
   "SKRYDERI": [
     "PRAL"
   ],
@@ -2756,7 +2778,8 @@
   ],
   "SKØR": [
     "TOSSET",
-    "GAK"
+    "GAK",
+    "GAKGAK"
   ],
   "SLAGERE": [
     "HITS"
@@ -3121,7 +3144,8 @@
     "SKUE"
   ],
   "SYNE": [
-    "BESE"
+    "BESE",
+    "BESIGTIGE"
   ],
   "SYNER": [
     "BESER"
@@ -3353,6 +3377,9 @@
     "ESPEN",
     "EGEN"
   ],
+  "TRÆG": [
+    "INERT"
+  ],
   "TRÆNE": [
     "ØVE"
   ],
@@ -3438,6 +3465,9 @@
   ],
   "UDSTÅ": [
     "SONE"
+  ],
+  "UDTALE": [
+    "SIGE"
   ],
   "UDVALG": [
     "NÆVN"
@@ -4031,6 +4061,9 @@
   "[IMG]SAW": [
     "SAV"
   ],
+  "[IMG]SCISSORS": [
+    "SAKS"
+  ],
   "[IMG]SCYTHE": [
     "LE"
   ],
@@ -4048,6 +4081,9 @@
   ],
   "[IMG]SNAIL": [
     "SNEGL"
+  ],
+  "[IMG]SNEAKERS": [
+    "SKO"
   ],
   "[IMG]SNOWGLOBE": [
     "ÆGGEUR"
