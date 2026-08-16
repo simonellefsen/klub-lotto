@@ -965,3 +965,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-16 05:35 UTC] ingest | ordkløver | Category: `Fiktivt sted`; answer pattern `10 / 4` | outcome=submitted
 
+## [2026-08-16 05:37 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
