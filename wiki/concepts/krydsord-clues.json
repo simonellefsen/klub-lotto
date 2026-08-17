@@ -29,6 +29,9 @@
   "2050": [
     "MML"
   ],
+  "4": [
+    "IV"
+  ],
   "50": [
     "L"
   ],
@@ -144,7 +147,8 @@
   ],
   "BAGVÆRK": [
     "ÆBLEKAGER",
-    "KAGER"
+    "KAGER",
+    "CROISSANT"
   ],
   "BAKKEDRAG": [
     "ÅS"
@@ -533,7 +537,8 @@
     "ORANGEADE",
     "MOST",
     "KIR",
-    "ÆBLECIDER"
+    "ÆBLECIDER",
+    "VIN"
   ],
   "DRIKKE": [
     "DIE"
@@ -583,7 +588,8 @@
     "KRONHJORT",
     "DÅER",
     "VASKEBJØRN",
-    "ØRKENROTTE"
+    "ØRKENROTTE",
+    "ULVE"
   ],
   "DYRKER": [
     "AVLER"
@@ -846,7 +852,8 @@
     "TRIT"
   ],
   "FODTØJ": [
-    "PLATEAUSKO"
+    "PLATEAUSKO",
+    "SKO"
   ],
   "FOLD": [
     "LÆG"
@@ -920,6 +927,9 @@
   "FORNEMME": [
     "ANE"
   ],
+  "FORNEMMET": [
+    "ANET"
+  ],
   "FORRÅDTE": [
     "SVEG"
   ],
@@ -991,7 +1001,8 @@
     "AGERN",
     "MELON",
     "BÆR",
-    "NØD"
+    "NØD",
+    "OLIVEN"
   ],
   "FRUGTER": [
     "ABRIKOSER",
@@ -1240,6 +1251,9 @@
   "HAR": [
     "EJER"
   ],
+  "HARISINDE": [
+    "VIL"
+  ],
   "HARMLØST": [
     "USKADELIGT"
   ],
@@ -1299,6 +1313,9 @@
   ],
   "HJEM": [
     "BO"
+  ],
+  "HJEMME": [
+    "INDE"
   ],
   "HJERNEKURVE": [
     "EEG"
@@ -1839,7 +1856,8 @@
   "LAND": [
     "KINA",
     "USA",
-    "IRAN"
+    "IRAN",
+    "UNGARN"
   ],
   "LANGS": [
     "AD"
@@ -1990,6 +2008,9 @@
   ],
   "LØBE": [
     "SPÆNE"
+  ],
+  "LØBET": [
+    "RALLYET"
   ],
   "LØBSDELE": [
     "HEATS"
@@ -2821,7 +2842,8 @@
     "ÆT"
   ],
   "SLÆGTNING": [
-    "NEVØ"
+    "NEVØ",
+    "SØSTER"
   ],
   "SLÆGTNINGEN": [
     "ONKLEN"
@@ -2963,6 +2985,9 @@
   ],
   "SPORTSUDØVEREN": [
     "ROEREN"
+  ],
+  "SPREDER": [
+    "STRØR"
   ],
   "SPROG": [
     "IRSK",
@@ -3404,6 +3429,9 @@
   "TYSKLAND": [
     "D"
   ],
+  "TYSKÆG": [
+    "EI"
+  ],
   "TYVERI": [
     "RAN"
   ],
@@ -3664,6 +3692,9 @@
   "VULKAN": [
     "ETNA"
   ],
+  "VÆG": [
+    "MUR"
+  ],
   "VÆGTENHED": [
     "LOD",
     "TON"
@@ -3761,6 +3792,9 @@
   ],
   "[IMG]BOUQUETOFFLOWERS": [
     "BUKET"
+  ],
+  "[IMG]BRANCHWITHLEAVES": [
+    "GREN"
   ],
   "[IMG]BRICKWALL": [
     "MUR"
@@ -4066,6 +4100,9 @@
   ],
   "[IMG]SCYTHE": [
     "LE"
+  ],
+  "[IMG]SHOPPINGBASKET": [
+    "KURV"
   ],
   "[IMG]SHOVEL": [
     "SPADE"
