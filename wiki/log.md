@@ -973,3 +973,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-17 04:20 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-08-17 04:21 UTC] ingest | quiz | Hvilken fugl er kendt for at kunne flyve baglæns? | outcome=submitted
+
