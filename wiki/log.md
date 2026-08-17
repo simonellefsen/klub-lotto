@@ -975,3 +975,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-17 04:21 UTC] ingest | quiz | Hvilken fugl er kendt for at kunne flyve baglæns? | outcome=submitted
 
+## [2026-08-17 04:21 UTC] ingest | ordkløver | Category: `Bolig`; answer pattern `9 / 9` | outcome=submitted
+
