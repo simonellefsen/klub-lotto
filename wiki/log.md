@@ -989,3 +989,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-18 04:39 UTC] ingest | ordkløver | Category: `Meningsløs samtale`; answer pattern `6 / 4 / 9` | outcome=submitted
 
+## [2026-08-18 04:41 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
