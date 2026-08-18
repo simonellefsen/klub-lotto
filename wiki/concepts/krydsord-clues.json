@@ -183,6 +183,9 @@
     "FÅR",
     "BØN"
   ],
+  "BEGIVENHED": [
+    "EVENT"
+  ],
   "BEGÆRE": [
     "ATTRÅ"
   ],
@@ -459,6 +462,9 @@
   "COOL": [
     "SEJE"
   ],
+  "COWBOYSTÆVNE": [
+    "RODEO"
+  ],
   "CYKELDEL": [
     "PEDAL"
   ],
@@ -467,6 +473,9 @@
   ],
   "DA": [
     "IDET"
+  ],
+  "DAGES": [
+    "GRY"
   ],
   "DAMP": [
     "EM"
@@ -995,6 +1004,9 @@
   "FRISTEDER": [
     "OASER"
   ],
+  "FRISTER": [
+    "DEADLINES"
+  ],
   "FRUGT": [
     "DRUE",
     "ÆBLE",
@@ -1364,7 +1376,8 @@
     "NUUK"
   ],
   "HUGGE": [
-    "NEME"
+    "NEME",
+    "NOLE"
   ],
   "HUGGET": [
     "RANET"
@@ -1710,7 +1723,8 @@
     "TREERE",
     "JOKER",
     "ESSER",
-    "SYVERE"
+    "SYVERE",
+    "SEKSERE"
   ],
   "KORTBESØG": [
     "AUDIENS"
@@ -1826,6 +1840,9 @@
   "KØD": [
     "SUL"
   ],
+  "KØKKENREDSKAB": [
+    "DEJSKRABER"
+  ],
   "KØKKENUDSTYR": [
     "OVN",
     "HÅNDMIKSER",
@@ -1842,7 +1859,8 @@
   ],
   "KØRETØJ": [
     "ELBIL",
-    "VOGN"
+    "VOGN",
+    "JEEP"
   ],
   "LABEL": [
     "ETIKET"
@@ -1864,6 +1882,9 @@
   ],
   "LANGSOM": [
     "SEN"
+  ],
+  "LANGTOMLÆNGE": [
+    "ENDELIG"
   ],
   "LARGE": [
     "L"
@@ -2742,6 +2763,9 @@
   "SKIMTER": [
     "ANER"
   ],
+  "SKIMTES": [
+    "ANES"
+  ],
   "SKINNE": [
     "LYSE"
   ],
@@ -2807,6 +2831,9 @@
   ],
   "SLANGE": [
     "SNOG"
+  ],
+  "SLAPPERAF": [
+    "DASER"
   ],
   "SLED": [
     "ASEDE"
@@ -3497,6 +3524,9 @@
   "UDTALE": [
     "SIGE"
   ],
+  "UDTRYKSMÅDE": [
+    "IRONI"
+  ],
   "UDVALG": [
     "NÆVN"
   ],
@@ -3611,6 +3641,9 @@
   "VELHAVENDE": [
     "RIG"
   ],
+  "VENLIG": [
+    "RAR"
+  ],
   "VENTE": [
     "BIE"
   ],
@@ -3679,6 +3712,9 @@
   ],
   "VOLT": [
     "V"
+  ],
+  "VOLTAMPERE": [
+    "VA"
   ],
   "VOVET": [
     "RISIKERET"
@@ -3934,6 +3970,9 @@
   "[IMG]HAT": [
     "HAT"
   ],
+  "[IMG]HOOK": [
+    "KROG"
+  ],
   "[IMG]ICECREAMCONE": [
     "IS"
   ],
@@ -4014,6 +4053,9 @@
   ],
   "[IMG]PAPERCLIPS": [
     "CLIPS"
+  ],
+  "[IMG]PARROT": [
+    "ARA"
   ],
   "[IMG]PEAR": [
     "PÆRE"
