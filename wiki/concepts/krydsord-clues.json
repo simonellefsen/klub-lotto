@@ -228,7 +228,8 @@
     "EJE"
   ],
   "BESKED": [
-    "SMS"
+    "SMS",
+    "MMS"
   ],
   "BESKIDT": [
     "NUSSET"
@@ -307,7 +308,8 @@
     "IRIS",
     "ROSE",
     "ORKIDE",
-    "VIOL"
+    "VIOL",
+    "NELLIKE"
   ],
   "BLOMSTEN": [
     "ROSEN"
@@ -318,6 +320,9 @@
   ],
   "BLUS": [
     "ILD"
+  ],
+  "BLUSSET": [
+    "ILDEN"
   ],
   "BLÆNDENDE": [
     "GENIAL"
@@ -403,6 +408,9 @@
   ],
   "BUNKE": [
     "LÆS"
+  ],
+  "BUSKEN": [
+    "ENEN"
   ],
   "BYERNESBY": [
     "PARIS"
@@ -560,6 +568,9 @@
   ],
   "DUO": [
     "PAR"
+  ],
+  "DURKDREVNE": [
+    "LUMSKE"
   ],
   "DYR": [
     "KO",
@@ -1078,6 +1089,9 @@
   "FØLGELIG": [
     "ERGO"
   ],
+  "FØLGER": [
+    "ESKORTERER"
+  ],
   "FØRES": [
     "LEDES"
   ],
@@ -1189,6 +1203,9 @@
   ],
   "GRINE": [
     "LE"
+  ],
+  "GRINEDE": [
+    "LO"
   ],
   "GRINER": [
     "LER"
@@ -1331,6 +1348,9 @@
   ],
   "HJERNEKURVE": [
     "EEG"
+  ],
+  "HJERTEKURVE": [
+    "EKG"
   ],
   "HJERTELØSE": [
     "ONDE"
@@ -1943,6 +1963,9 @@
   "LEVNING": [
     "REST"
   ],
+  "LEVNINGER": [
+    "RESTER"
+  ],
   "LIGE": [
     "RET"
   ],
@@ -2110,6 +2133,9 @@
   ],
   "MILLIMETER": [
     "MM"
+  ],
+  "MINDE": [
+    "ERINDRING"
   ],
   "MINUS": [
     "UDEN"
@@ -2642,7 +2668,8 @@
     "KØ",
     "NÅ",
     "RK",
-    "SUITE"
+    "SUITE",
+    "KOLONNE"
   ],
   "RØG": [
     "OS",
@@ -2966,6 +2993,9 @@
   ],
   "SPILDES": [
     "ØDES"
+  ],
+  "SPILLEBY": [
+    "RENO"
   ],
   "SPINDEREDSKAB": [
     "TEN"
@@ -4096,6 +4126,9 @@
   "[IMG]RADIO": [
     "RADIO"
   ],
+  "[IMG]RAINBOW": [
+    "REGNBUE"
+  ],
   "[IMG]RAINDROPS": [
     "REGN",
     "DRÅBER"
@@ -4188,6 +4221,9 @@
   "[IMG]STITCHES": [
     "AR"
   ],
+  "[IMG]SUN": [
+    "SOL"
+  ],
   "[IMG]SWEATER": [
     "TRØJE"
   ],
@@ -4224,6 +4260,9 @@
   ],
   "[IMG]TWOSEAGULLS": [
     "MÅGER"
+  ],
+  "[IMG]TWOWRISTWATCHES": [
+    "URE"
   ],
   "[IMG]VEST": [
     "VEST"
