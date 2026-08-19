@@ -999,3 +999,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-19 04:31 UTC] ingest | quiz | Hvilken arkitekt tegnede operahuset i Sydney? | outcome=submitted
 
+## [2026-08-19 04:32 UTC] ingest | ordkløver | Category: `Udtryk`; answer pattern `6 / 7 / 5` | outcome=submitted
+
