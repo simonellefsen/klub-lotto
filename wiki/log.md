@@ -997,3 +997,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-19 04:31 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-08-19 04:31 UTC] ingest | quiz | Hvilken arkitekt tegnede operahuset i Sydney? | outcome=submitted
+
