@@ -32,6 +32,9 @@
   "4": [
     "IV"
   ],
+  "5": [
+    "V"
+  ],
   "50": [
     "L"
   ],
@@ -191,6 +194,9 @@
   ],
   "BEGÆRET": [
     "ATTRÅET"
+  ],
+  "BEHAGELIG": [
+    "RAR"
   ],
   "BEHAGELIGE": [
     "RARE"
@@ -451,6 +457,9 @@
   ],
   "CAMPINGUDSTYR": [
     "TELTE"
+  ],
+  "CARDIGANEN": [
+    "TRØJEN"
   ],
   "CIFFER": [
     "TAL"
@@ -1051,7 +1060,8 @@
     "SVANE",
     "ALK",
     "NATTERGAL",
-    "PELIKAN"
+    "PELIKAN",
+    "MÅGE"
   ],
   "FUGLE": [
     "ØRNE",
@@ -1199,7 +1209,8 @@
     "YNDE"
   ],
   "GRIBE": [
-    "TY"
+    "TY",
+    "TAGE"
   ],
   "GRINE": [
     "LE"
@@ -1297,6 +1308,9 @@
   ],
   "HAV": [
     "UTAL"
+  ],
+  "HAVE": [
+    "EJE"
   ],
   "HAVGUD": [
     "ÆGIR"
@@ -1668,6 +1682,9 @@
   "KLARET": [
     "OVERSTÅET"
   ],
+  "KLARGØRE": [
+    "BEREDE"
+  ],
   "KLASSE": [
     "KL"
   ],
@@ -1729,6 +1746,9 @@
   "KORNBUNDT": [
     "NEG"
   ],
+  "KORNSORT": [
+    "RUG"
+  ],
   "KORPS": [
     "GARDE"
   ],
@@ -1744,7 +1764,8 @@
     "JOKER",
     "ESSER",
     "SYVERE",
-    "SEKSERE"
+    "SEKSERE",
+    "NIER"
   ],
   "KORTBESØG": [
     "AUDIENS"
@@ -1871,6 +1892,9 @@
     "SKÆREBRÆT",
     "BRØDRISTER"
   ],
+  "KØKKENUDSTYRET": [
+    "OVNEN"
+  ],
   "KØLEELEMENTER": [
     "ISKLUMPER"
   ],
@@ -1887,6 +1911,9 @@
   ],
   "LAGRE": [
     "ARSENALER"
+  ],
+  "LAGTSAMMEN": [
+    "FUSIONERET"
   ],
   "LAMPEMAGER": [
     "PH"
@@ -2348,6 +2375,9 @@
   "OPTEGNELSEN": [
     "NOTEN"
   ],
+  "ORGAN": [
+    "NYRE"
+  ],
   "ORGANISATION": [
     "NASA"
   ],
@@ -2463,7 +2493,8 @@
     "BÆR",
     "FRØ",
     "LØG",
-    "ROD"
+    "ROD",
+    "STRÅ"
   ],
   "PLAYINGCARD": [
     "TREER"
@@ -2543,6 +2574,9 @@
     "SPEGEPØLSE",
     "OSTE"
   ],
+  "PÅVIDGAB": [
+    "ÅBENT"
+  ],
   "PÅVIRKE": [
     "MANIPULERE"
   ],
@@ -2575,6 +2609,9 @@
   "REDSKABET": [
     "ÅBNEREN",
     "TRAGTEN"
+  ],
+  "REGNERMED": [
+    "FORVENTER"
   ],
   "REJSE": [
     "ODYSSE"
@@ -2713,6 +2750,9 @@
   ],
   "SENGETØJ": [
     "LINNED"
+  ],
+  "SENGEUDSTYR": [
+    "DYNE"
   ],
   "SERVICE": [
     "STEL"
@@ -2910,7 +2950,8 @@
   ],
   "SMYKKE": [
     "RING",
-    "DIADEM"
+    "DIADEM",
+    "TIARA"
   ],
   "SMYKKESTEN": [
     "OPAL"
@@ -3104,6 +3145,9 @@
   ],
   "STILART": [
     "ROKOKO"
+  ],
+  "STILLE": [
+    "TAVS"
   ],
   "STILLET": [
     "SAT"
@@ -3352,7 +3396,8 @@
     "INSPEKTØR",
     "PRINS",
     "ZAR",
-    "JARL"
+    "JARL",
+    "NAVN"
   ],
   "TJAVS": [
     "LOK"
@@ -3902,6 +3947,9 @@
   "[IMG]CINNAMONROLL": [
     "REB"
   ],
+  "[IMG]CLAYPOT": [
+    "VASE"
+  ],
   "[IMG]CLOCK": [
     "UR"
   ],
@@ -4214,6 +4262,9 @@
   ],
   "[IMG]SQUIRREL": [
     "EGERN"
+  ],
+  "[IMG]STACKOFBOOKS": [
+    "BØGER"
   ],
   "[IMG]STEERINGWHEEL": [
     "RAT"
