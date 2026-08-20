@@ -1011,3 +1011,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-20 04:41 UTC] ingest | quiz | Hvilken skuespiller spillede robotten T-1000 i filmen 'Termi… | outcome=submitted
 
+## [2026-08-20 04:43 UTC] ingest | ordkløver | Category: `Skældud af Egon…`; answer pattern `4 / 6 / 7` | outcome=submitted
+
