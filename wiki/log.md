@@ -1009,3 +1009,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-20 04:41 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-08-20 04:41 UTC] ingest | quiz | Hvilken skuespiller spillede robotten T-1000 i filmen 'Termi… | outcome=submitted
+
