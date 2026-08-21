@@ -307,6 +307,9 @@
   "BLAD": [
     "AVIS"
   ],
+  "BLADE": [
+    "AVISER"
+  ],
   "BLIK": [
     "KIG"
   ],
@@ -874,6 +877,9 @@
   "FLÅ": [
     "RIVE"
   ],
+  "FLÅEDE": [
+    "REV"
+  ],
   "FODDELE": [
     "TÆER"
   ],
@@ -953,6 +959,9 @@
     "TOM",
     "ÅSE"
   ],
+  "FORNEM": [
+    "ADELIG"
+  ],
   "FORNEMME": [
     "ANE"
   ],
@@ -989,11 +998,17 @@
   "FORTÆRET": [
     "ÆDT"
   ],
+  "FOTOUDSTYR": [
+    "ZOOM"
+  ],
   "FRADUBLIN": [
     "IRSKE"
   ],
   "FRANKRIG": [
     "F"
+  ],
+  "FRASTØDENDE": [
+    "ODIØS"
   ],
   "FRED": [
     "RO"
@@ -1079,6 +1094,9 @@
   "FURER": [
     "RILLER"
   ],
+  "FUT": [
+    "PEP"
+  ],
   "FYR": [
     "JAS",
     "KARL",
@@ -1162,6 +1180,9 @@
   ],
   "GITTER": [
     "RIST"
+  ],
+  "GIVE": [
+    "YDE"
   ],
   "GLKARAKTR": [
     "UG"
@@ -1564,6 +1585,9 @@
   "IORDEN": [
     "OKAY"
   ],
+  "ITALIEN": [
+    "I"
+  ],
   "IX": [
     "NI"
   ],
@@ -1712,6 +1736,9 @@
   "KNEB": [
     "NEV"
   ],
+  "KNIBE": [
+    "NIVE"
+  ],
   "KNOB": [
     "KN"
   ],
@@ -1797,6 +1824,9 @@
   ],
   "KREBS": [
     "RUR"
+  ],
+  "KREERET": [
+    "SKABT"
   ],
   "KRIGSGUD": [
     "ARES"
@@ -1961,7 +1991,8 @@
   "LEGETØJ": [
     "YOYO",
     "RANGLE",
-    "LEGO"
+    "LEGO",
+    "GYNGEHEST"
   ],
   "LEGITIMATION": [
     "ID"
@@ -2322,6 +2353,9 @@
   "NYVASKET": [
     "REN"
   ],
+  "NÆSE": [
+    "TUD"
+  ],
   "NÆSTE": [
     "RI",
     "SY"
@@ -2369,6 +2403,9 @@
   "OPREGNET": [
     "TALT"
   ],
+  "OPSÆTNING": [
+    "REDT"
+  ],
   "OPTEGNELSE": [
     "NOTE"
   ],
@@ -2391,7 +2428,8 @@
     "GAD"
   ],
   "OST": [
-    "BRIE"
+    "BRIE",
+    "GORGONZOLA"
   ],
   "OVER": [
     "VIA"
@@ -2860,6 +2898,9 @@
   ],
   "SKRYDERI": [
     "PRAL"
+  ],
+  "SKRÅ": [
+    "SNED"
   ],
   "SKRÅNING": [
     "LI"
@@ -3365,7 +3406,8 @@
     "SEN"
   ],
   "TIDSRUM": [
-    "EPOKE"
+    "EPOKE",
+    "EPOKER"
   ],
   "TILATREGULERE": [
     "JUSTERBARE"
@@ -3573,7 +3615,9 @@
     "UHA",
     "HA",
     "GISP",
-    "IH"
+    "IH",
+    "AHA",
+    "OH"
   ],
   "UDENINDHOLD": [
     "TOM"
@@ -3663,6 +3707,9 @@
   ],
   "VANDLØBET": [
     "ÅEN"
+  ],
+  "VANDMAND": [
+    "GOPLE"
   ],
   "VANDRE": [
     "GÅ"
@@ -3846,6 +3893,9 @@
   ],
   "[IMG]ACORN": [
     "AGERN"
+  ],
+  "[IMG]ALARMCLOCK": [
+    "UR"
   ],
   "[IMG]ANCHOR": [
     "ANKER"
