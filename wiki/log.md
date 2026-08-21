@@ -1021,3 +1021,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-21 04:25 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-08-21 04:26 UTC] ingest | quiz | I hvilket årti faldt Berlinmuren? | outcome=submitted
+
