@@ -467,6 +467,9 @@
   "CIFFER": [
     "TAL"
   ],
+  "CIRKUSARTIST": [
+    "KLOVN"
+  ],
   "CIRKUSSCENE": [
     "ARENA"
   ],
@@ -963,7 +966,8 @@
     "ADELIG"
   ],
   "FORNEMME": [
-    "ANE"
+    "ANE",
+    "ÆDLE"
   ],
   "FORNEMMET": [
     "ANET"
@@ -1374,6 +1378,9 @@
   ],
   "HISTORIESKRIVER": [
     "SAXO"
+  ],
+  "HITTET": [
+    "FUNDET"
   ],
   "HJEM": [
     "BO"
@@ -1952,7 +1959,8 @@
     "KINA",
     "USA",
     "IRAN",
-    "UNGARN"
+    "UNGARN",
+    "NATION"
   ],
   "LANGS": [
     "AD"
@@ -1980,6 +1988,9 @@
   ],
   "LED": [
     "KNO"
+  ],
+  "LEDE": [
+    "ÆKLE"
   ],
   "LEDIG": [
     "FRI"
@@ -2144,6 +2155,9 @@
   "MASKETYPE": [
     "VRANG"
   ],
+  "MASKINE": [
+    "HAVEFRÆSER"
+  ],
   "MASQUERADEMASK": [
     "MASKE"
   ],
@@ -2224,6 +2238,9 @@
   ],
   "MOREDESIG": [
     "FNES"
+  ],
+  "MORETSIG": [
+    "LEET"
   ],
   "MOTORSKIB": [
     "MS"
@@ -2586,6 +2603,9 @@
   "PSYKEDEL": [
     "EGO"
   ],
+  "PUDEFYLD": [
+    "DUN"
+  ],
   "PUKLE": [
     "ASE"
   ],
@@ -2623,6 +2643,9 @@
   ],
   "RADIERER": [
     "UDSTRÅLER"
+  ],
+  "RADIOTYPE": [
+    "FM"
   ],
   "RAMMER": [
     "KARME"
@@ -3703,7 +3726,8 @@
   ],
   "VANDLØB": [
     "ÅER",
-    "Å"
+    "Å",
+    "ELV"
   ],
   "VANDLØBET": [
     "ÅEN"
@@ -3728,6 +3752,9 @@
   ],
   "VARME": [
     "HEDE"
+  ],
+  "VARMEGIVER": [
+    "SOL"
   ],
   "VED": [
     "ANER"
@@ -3863,6 +3890,9 @@
   "VÆKST": [
     "TRÆ",
     "GRÆS"
+  ],
+  "VÆLGER": [
+    "UDSER"
   ],
   "VÆRK": [
     "EPOS"
@@ -4008,6 +4038,9 @@
   ],
   "[IMG]CLOUD": [
     "SKY"
+  ],
+  "[IMG]CLOUDS": [
+    "SKYER"
   ],
   "[IMG]CLOVER": [
     "KLØVER"
@@ -4252,6 +4285,9 @@
   "[IMG]RING": [
     "RING"
   ],
+  "[IMG]RINGS": [
+    "RINGE"
+  ],
   "[IMG]ROCKET": [
     "RAKET"
   ],
@@ -4365,6 +4401,9 @@
   "[IMG]TWOWRISTWATCHES": [
     "URE"
   ],
+  "[IMG]UFO": [
+    "UFO"
+  ],
   "[IMG]VEST": [
     "VEST"
   ],
@@ -4437,6 +4476,9 @@
   ],
   "ØVEDE": [
     "RUTINEREDE"
+  ],
+  "ØVESTYKKE": [
+    "ETUDE"
   ],
   "ØVESTYKKER": [
     "ETUDER"
