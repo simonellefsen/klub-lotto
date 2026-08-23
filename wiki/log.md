@@ -1049,3 +1049,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-23 05:44 UTC] ingest | ordkløver | Category: `Tungnem gentagelse`; answer pattern `2 / 4 / 3 / … | outcome=submitted
 
+## [2026-08-23 05:46 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
