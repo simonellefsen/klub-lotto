@@ -165,6 +165,9 @@
   "BALLADE": [
     "URO"
   ],
+  "BANDELEDER": [
+    "EGON"
+  ],
   "BANDEORD": [
     "EDER",
     "ED"
@@ -675,6 +678,9 @@
   "ENILONDON": [
     "ONE"
   ],
+  "ENS": [
+    "IDENTISKE"
+  ],
   "ENTERTAINER": [
     "NAR"
   ],
@@ -897,7 +903,8 @@
     "LÆG"
   ],
   "FOLK": [
-    "IRERE"
+    "IRERE",
+    "ITALIENERE"
   ],
   "FOR": [
     "THI"
@@ -1212,6 +1219,9 @@
   "GODNATSANG": [
     "VUGGEVISE"
   ],
+  "GODS": [
+    "LEN"
+  ],
   "GODT": [
     "VEL"
   ],
@@ -1462,6 +1472,9 @@
   "HVILEDE": [
     "LÅ"
   ],
+  "HVÆSSEDE": [
+    "SLEB"
+  ],
   "HYL": [
     "VRÆL"
   ],
@@ -1469,7 +1482,8 @@
     "ETUI"
   ],
   "HYRE": [
-    "MÅNEDSLØN"
+    "MÅNEDSLØN",
+    "LØN"
   ],
   "HYREN": [
     "ÅRSLØNNEN"
@@ -1652,7 +1666,8 @@
   ],
   "KANT": [
     "BORT",
-    "RIB"
+    "RIB",
+    "RAND"
   ],
   "KAOS": [
     "ROD"
@@ -2385,6 +2400,9 @@
   ],
   "OFTE": [
     "TIT"
+  ],
+  "OKSE": [
+    "YAK"
   ],
   "OMRÅDE": [
     "SOGN",
@@ -3698,7 +3716,8 @@
   ],
   "UORDEN": [
     "ROD",
-    "RODERI"
+    "RODERI",
+    "KAOS"
   ],
   "URAN": [
     "U"
@@ -3893,6 +3912,9 @@
   ],
   "VÆLGER": [
     "UDSER"
+  ],
+  "VÆREPÅBENENE": [
+    "STÅ"
   ],
   "VÆRK": [
     "EPOS"
@@ -4122,6 +4144,9 @@
   "[IMG]GRILL": [
     "GRILL"
   ],
+  "[IMG]GUITAR": [
+    "GUITAR"
+  ],
   "[IMG]HAMBURGER": [
     "BURGER"
   ],
@@ -4327,6 +4352,9 @@
   ],
   "[IMG]SNAIL": [
     "SNEGL"
+  ],
+  "[IMG]SNAKE": [
+    "SLANGE"
   ],
   "[IMG]SNEAKERS": [
     "SKO"
