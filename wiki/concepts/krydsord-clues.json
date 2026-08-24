@@ -144,6 +144,9 @@
   "ATOL": [
     "REV"
   ],
+  "ATOMSKIB": [
+    "NS"
+  ],
   "BABYUDSTYR": [
     "BLE",
     "SUT"
@@ -406,6 +409,9 @@
   "BRUTAL": [
     "RÅ"
   ],
+  "BRÆKKE": [
+    "BRYDE"
+  ],
   "BUD": [
     "KURER"
   ],
@@ -577,6 +583,9 @@
   ],
   "DRIKKE": [
     "DIE"
+  ],
+  "DRONNING": [
+    "MARY"
   ],
   "DRØM": [
     "UTOPI"
@@ -982,6 +991,9 @@
   "FORRÅDTE": [
     "SVEG"
   ],
+  "FORSKELLIGE": [
+    "UENS"
+  ],
   "FORSKERE": [
     "GENETIKERE"
   ],
@@ -1172,7 +1184,8 @@
     "EKKO"
   ],
   "GENSTAND": [
-    "GLAS"
+    "GLAS",
+    "TING"
   ],
   "GIDE": [
     "ORKE"
@@ -1288,7 +1301,8 @@
   "GUD": [
     "AS",
     "AMOR",
-    "EROS"
+    "EROS",
+    "THOR"
   ],
   "GUDINDE": [
     "ATE",
@@ -1338,6 +1352,9 @@
   "HASTER": [
     "ILER"
   ],
+  "HASTVÆRK": [
+    "IL"
+  ],
   "HAT": [
     "BØR"
   ],
@@ -1361,6 +1378,9 @@
   ],
   "HEJSEVÆRK": [
     "KRAN"
+  ],
+  "HEL": [
+    "AL"
   ],
   "HELE": [
     "AL",
@@ -1630,7 +1650,8 @@
     "HVERV",
     "TANDPLEJER",
     "EKSPEDIENT",
-    "TJENER"
+    "TJENER",
+    "JOURNALIST"
   ],
   "JORDTYPE": [
     "LER"
@@ -1696,6 +1717,9 @@
   ],
   "KIGGER": [
     "SER"
+  ],
+  "KIKSET": [
+    "USMART"
   ],
   "KILO": [
     "K"
@@ -2252,7 +2276,8 @@
     "ETIK"
   ],
   "MOREDESIG": [
-    "FNES"
+    "FNES",
+    "LO"
   ],
   "MORETSIG": [
     "LEET"
@@ -2550,6 +2575,9 @@
     "LP",
     "EP"
   ],
+  "PLADS": [
+    "TORV"
+  ],
   "PLAGE": [
     "GENERE"
   ],
@@ -2667,6 +2695,9 @@
   ],
   "RAMMER": [
     "KARME"
+  ],
+  "RANGORDNER": [
+    "SEEDER"
   ],
   "REALITET": [
     "SANDHED"
@@ -3237,6 +3268,9 @@
   "STIRRE": [
     "GLO"
   ],
+  "STIVNAKKET": [
+    "RIGID"
+  ],
   "STOF": [
     "KAKI",
     "SATIN"
@@ -3463,6 +3497,9 @@
   "TILBEREDT": [
     "STEGT"
   ],
+  "TILBYGNING": [
+    "ANNEKS"
+  ],
   "TILLØB": [
     "RUN"
   ],
@@ -3474,6 +3511,9 @@
   ],
   "TILSÆTTER": [
     "IRØRER"
+  ],
+  "TIP": [
+    "RÅD"
   ],
   "TITEL": [
     "INSPEKTØR",
@@ -3490,6 +3530,12 @@
     "TT",
     "LL",
     "PP"
+  ],
+  "TOG": [
+    "GREB"
+  ],
+  "TOGFIRMA": [
+    "DSB"
   ],
   "TOGTAG": [
     "ROEDE"
@@ -3708,6 +3754,9 @@
   "UNDERTRYKKE": [
     "KUE"
   ],
+  "UNGARN": [
+    "H"
+  ],
   "UNGE": [
     "LAM"
   ],
@@ -3736,6 +3785,9 @@
   ],
   "VALUTA": [
     "EURO"
+  ],
+  "VALUTAKODE": [
+    "DKK"
   ],
   "VANDHUL": [
     "SØ"
@@ -3952,6 +4004,9 @@
   "[IMG]ANCHOR": [
     "ANKER"
   ],
+  "[IMG]ANTS": [
+    "MYRER"
+  ],
   "[IMG]APPLE": [
     "ÆBLE"
   ],
@@ -4023,6 +4078,9 @@
   ],
   "[IMG]CAMERA": [
     "KAMERA"
+  ],
+  "[IMG]CAMPFIRE": [
+    "ILD"
   ],
   "[IMG]CARROT": [
     "GULEROD"
@@ -4208,7 +4266,8 @@
     "KRUS"
   ],
   "[IMG]MUSICALNOTE": [
-    "NODE"
+    "NODE",
+    "NODER"
   ],
   "[IMG]MUSICALNOTES": [
     "NODER"
@@ -4221,6 +4280,9 @@
   ],
   "[IMG]OAR": [
     "ÅRE"
+  ],
+  "[IMG]OARS": [
+    "ÅRER"
   ],
   "[IMG]OMEGASYMBOL": [
     "OMEGA"
