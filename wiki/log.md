@@ -1059,3 +1059,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-24 04:16 UTC] ingest | quiz | Hvilket band udgav sangen “Smoke on the Water”? | outcome=submitted
 
+## [2026-08-24 04:17 UTC] ingest | ordkløver | Category: `Mad & drikke`; answer pattern `6 / 8` | outcome=submitted
+
