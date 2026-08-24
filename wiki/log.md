@@ -1057,3 +1057,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-24 04:16 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-08-24 04:16 UTC] ingest | quiz | Hvilket band udgav sangen “Smoke on the Water”? | outcome=submitted
+
