@@ -1073,3 +1073,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-25 05:15 UTC] ingest | ordkløver | Category: `Eventyr`; answer pattern `3 / 5 / 7`; visual layo… | outcome=submitted
 
+## [2026-08-25 05:16 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
