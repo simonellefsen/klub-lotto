@@ -271,6 +271,9 @@
     "NT",
     "GT"
   ],
+  "BIFALD": [
+    "OVATION"
+  ],
   "BIJOB": [
     "BEN",
     "JOB",
@@ -476,6 +479,9 @@
   "CIFFER": [
     "TAL"
   ],
+  "CIFRE": [
+    "TAL"
+  ],
   "CIRKUSARTIST": [
     "KLOVN"
   ],
@@ -636,7 +642,9 @@
     "DÅER",
     "VASKEBJØRN",
     "ØRKENROTTE",
-    "ULVE"
+    "ULVE",
+    "KROKODILLE",
+    "OKSE"
   ],
   "DYRKER": [
     "AVLER"
@@ -1168,6 +1176,9 @@
   "GANG": [
     "STI"
   ],
+  "GANGE": [
+    "ENTREER"
+  ],
   "GARN": [
     "NET"
   ],
@@ -1269,6 +1280,9 @@
   "GRINER": [
     "LER"
   ],
+  "GRINET": [
+    "LEET"
+  ],
   "GRUNDE": [
     "ÅRSAGER"
   ],
@@ -1302,7 +1316,8 @@
     "AS",
     "AMOR",
     "EROS",
-    "THOR"
+    "THOR",
+    "ODIN"
   ],
   "GUDINDE": [
     "ATE",
@@ -1666,7 +1681,8 @@
     "GIEN"
   ],
   "JÆVN": [
-    "EGAL"
+    "EGAL",
+    "GLAT"
   ],
   "JÆVNE": [
     "LIERE",
@@ -1882,6 +1898,9 @@
   ],
   "KRITIK": [
     "RIS"
+  ],
+  "KRITISERE": [
+    "RISE"
   ],
   "KROMOSOM": [
     "Y"
@@ -3273,7 +3292,8 @@
   ],
   "STOF": [
     "KAKI",
-    "SATIN"
+    "SATIN",
+    "DENIM"
   ],
   "STOLEDEL": [
     "ARMLÆN"
@@ -3465,6 +3485,12 @@
   ],
   "TEGNET": [
     "NODEN"
+  ],
+  "TEINT": [
+    "LØD"
+  ],
+  "TELEVISION": [
+    "TV"
   ],
   "TEMA": [
     "EMNE"
@@ -4327,7 +4353,8 @@
   ],
   "[IMG]PLAYINGCARDS": [
     "ESSER",
-    "NIER"
+    "NIER",
+    "TREERE"
   ],
   "[IMG]PLIERS": [
     "TANG"
@@ -4471,6 +4498,9 @@
   ],
   "[IMG]TENT": [
     "TELT"
+  ],
+  "[IMG]TOMATO": [
+    "TOMAT"
   ],
   "[IMG]TREE": [
     "TRÆ"
