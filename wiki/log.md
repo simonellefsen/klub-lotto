@@ -1069,3 +1069,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-25 05:14 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-08-25 05:14 UTC] ingest | quiz | Hvilken ørken strækker sig over store dele af Mongoliet og… | outcome=submitted
+
