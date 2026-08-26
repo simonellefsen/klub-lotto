@@ -1081,3 +1081,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-26 04:38 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-08-26 04:38 UTC] ingest | quiz | I hvilket år blev den allerførste nobelpris uddelt? | outcome=submitted
+
