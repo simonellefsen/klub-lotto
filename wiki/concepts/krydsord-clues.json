@@ -230,6 +230,9 @@
     "NB",
     "OBS"
   ],
+  "BERØMTE": [
+    "KENDTE"
+  ],
   "BESAD": [
     "EJEDE"
   ],
@@ -520,6 +523,9 @@
   ],
   "DAMPE": [
     "EMME"
+  ],
+  "DAMPET": [
+    "EMMET"
   ],
   "DAMPSKIB": [
     "SS"
@@ -857,6 +863,9 @@
     "SI",
     "TESI"
   ],
+  "FINDE": [
+    "LOKALISERE"
+  ],
   "FINDES": [
     "ER"
   ],
@@ -931,6 +940,9 @@
   ],
   "FORBLØFFE": [
     "UNDRE"
+  ],
+  "FORBUD": [
+    "VETO"
   ],
   "FORBUND": [
     "EU",
@@ -1197,6 +1209,9 @@
   "GENSTAND": [
     "GLAS",
     "TING"
+  ],
+  "GIB": [
+    "SÆT"
   ],
   "GIDE": [
     "ORKE"
@@ -1548,6 +1563,9 @@
   "HÆNDT": [
     "SKET"
   ],
+  "HÆNDTE": [
+    "SKETE"
+  ],
   "HØFLIGTILTALE": [
     "DE"
   ],
@@ -1568,6 +1586,9 @@
   ],
   "IFORHOLDTIL": [
     "END"
+  ],
+  "IGEN": [
+    "OM"
   ],
   "IGNORERE": [
     "OVERSE"
@@ -1613,7 +1634,8 @@
   ],
   "INSEKT": [
     "BI",
-    "LOPPE"
+    "LOPPE",
+    "MØL"
   ],
   "INSEKTERNE": [
     "BIERNE"
@@ -1639,7 +1661,8 @@
     "HEL"
   ],
   "IORDEN": [
-    "OKAY"
+    "OKAY",
+    "OK"
   ],
   "ITALIEN": [
     "I"
@@ -1954,6 +1977,9 @@
   "KVIKT": [
     "RAPT"
   ],
+  "KVITTERING": [
+    "BON"
+  ],
   "KYLEDE": [
     "SMED"
   ],
@@ -2045,7 +2071,8 @@
     "EBBE"
   ],
   "LED": [
-    "KNO"
+    "KNO",
+    "ÆKEL"
   ],
   "LEDE": [
     "ÆKLE"
@@ -2119,6 +2146,9 @@
   ],
   "LOVLIGE": [
     "LEGALE"
+  ],
+  "LOVORD": [
+    "ROS"
   ],
   "LOYAL": [
     "TRO"
@@ -2712,6 +2742,9 @@
   "RADIOTYPE": [
     "FM"
   ],
+  "RAMME": [
+    "KARM"
+  ],
   "RAMMER": [
     "KARME"
   ],
@@ -3023,7 +3056,8 @@
   "SKØR": [
     "TOSSET",
     "GAK",
-    "GAKGAK"
+    "GAKGAK",
+    "GAL"
   ],
   "SLAGERE": [
     "HITS"
@@ -3538,6 +3572,9 @@
   "TILSÆTTER": [
     "IRØRER"
   ],
+  "TINDE": [
+    "TOP"
+  ],
   "TIP": [
     "RÅD"
   ],
@@ -3797,6 +3834,9 @@
   "URAN": [
     "U"
   ],
+  "UVEJR": [
+    "ORKANER"
+  ],
   "VADE": [
     "GÅ"
   ],
@@ -3974,6 +4014,9 @@
   "VULKAN": [
     "ETNA"
   ],
+  "VÅGEN": [
+    "KVIK"
+  ],
   "VÆG": [
     "MUR"
   ],
@@ -4041,6 +4084,9 @@
   ],
   "[IMG]APPLES": [
     "ÆBLER"
+  ],
+  "[IMG]AXE": [
+    "ØKSE"
   ],
   "[IMG]BADMINTONRACKET": [
     "NET"
@@ -4586,6 +4632,9 @@
     "SE"
   ],
   "ØLSORT": [
+    "ALE"
+  ],
+  "ØLTYPE": [
     "ALE"
   ],
   "ØRKENLUND": [
