@@ -1083,3 +1083,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-26 04:38 UTC] ingest | quiz | I hvilket år blev den allerførste nobelpris uddelt? | outcome=submitted
 
+## [2026-08-26 04:39 UTC] ingest | ordkløver | Category: `Udtryk`; answer pattern `2 / 2 / 8 / 3`; visual l… | outcome=submitted
+
