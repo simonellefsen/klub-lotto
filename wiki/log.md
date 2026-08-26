@@ -1085,3 +1085,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-26 04:39 UTC] ingest | ordkløver | Category: `Udtryk`; answer pattern `2 / 2 / 8 / 3`; visual l… | outcome=submitted
 
+## [2026-08-26 04:41 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
