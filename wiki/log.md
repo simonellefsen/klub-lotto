@@ -1095,3 +1095,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-27 04:35 UTC] ingest | quiz | Hvilken farve har flamingoens fjer naturligt før den får s… | outcome=submitted
 
+## [2026-08-27 04:36 UTC] ingest | ordkløver | Category: `Jobtitel`; answer pattern `7 / 6 / 6` | outcome=submitted
+
