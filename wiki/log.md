@@ -1097,3 +1097,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-27 04:36 UTC] ingest | ordkløver | Category: `Jobtitel`; answer pattern `7 / 6 / 6` | outcome=submitted
 
+## [2026-08-27 04:37 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
