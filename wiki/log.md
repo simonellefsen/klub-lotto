@@ -1107,3 +1107,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-28 04:36 UTC] ingest | quiz | Hvilket bilmærke bruger en rasende tyr som logo? | outcome=submitted
 
+## [2026-08-28 04:36 UTC] ingest | ordkløver | Category: `Hus & have`; answer pattern `10` | outcome=submitted
+
