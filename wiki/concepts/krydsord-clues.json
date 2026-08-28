@@ -215,7 +215,8 @@
     "VASE",
     "DÅSE",
     "KANDE",
-    "TERMOKANDE"
+    "TERMOKANDE",
+    "ÆSKE"
   ],
   "BEHOLDERE": [
     "TØNDER"
@@ -263,6 +264,9 @@
   ],
   "BESVÆR": [
     "BØVL"
+  ],
+  "BETRAGTE": [
+    "ANSE"
   ],
   "BETRAGTET": [
     "ANSET"
@@ -362,7 +366,8 @@
     "REDE"
   ],
   "BOKS": [
-    "ÆSKE"
+    "ÆSKE",
+    "KASSE"
   ],
   "BOLDKLUB": [
     "AGF",
@@ -571,6 +576,9 @@
   "DIGTERVÆRK": [
     "EDDA"
   ],
+  "DIREKTE": [
+    "LUKT"
+  ],
   "DIRRER": [
     "RYSTER"
   ],
@@ -657,7 +665,8 @@
     "ØRKENROTTE",
     "ULVE",
     "KROKODILLE",
-    "OKSE"
+    "OKSE",
+    "LAMA"
   ],
   "DYRKER": [
     "AVLER"
@@ -890,7 +899,8 @@
     "TUN",
     "ULK",
     "ØRRED",
-    "ABORRE"
+    "ABORRE",
+    "LAKS"
   ],
   "FISKE": [
     "MEDE"
@@ -912,6 +922,9 @@
   ],
   "FLEKSIBEL": [
     "ELASTISK"
+  ],
+  "FLOD": [
+    "PO"
   ],
   "FLYVE": [
     "SUSE"
@@ -1244,6 +1257,9 @@
   ],
   "GIVE": [
     "YDE"
+  ],
+  "GIVET": [
+    "YDET"
   ],
   "GLKARAKTR": [
     "UG"
@@ -2435,6 +2451,9 @@
   "NEWTON": [
     "N"
   ],
+  "NIST": [
+    "PRIK"
+  ],
   "NIT": [
     "N"
   ],
@@ -3140,6 +3159,9 @@
   "SMELTE": [
     "TØ"
   ],
+  "SMUTTER": [
+    "UHELD"
+  ],
   "SMYKKE": [
     "RING",
     "DIADEM",
@@ -3289,6 +3311,9 @@
   "SPÆDBARN": [
     "BABY"
   ],
+  "SPØRGELYSTEN": [
+    "NYSGERRIG"
+  ],
   "STAKKELS": [
     "ARME"
   ],
@@ -3393,6 +3418,9 @@
   ],
   "STUMPER": [
     "LØSDELE"
+  ],
+  "STYG": [
+    "GRIM"
   ],
   "STYR": [
     "RAT"
@@ -3775,6 +3803,9 @@
   "TÆRING": [
     "RUST"
   ],
+  "TÆT": [
+    "NÆR"
+  ],
   "TÆTTE": [
     "NÆRE"
   ],
@@ -3878,6 +3909,9 @@
   "VAKLE": [
     "NØLE"
   ],
+  "VALGTE": [
+    "UDTOG"
+  ],
   "VALUTA": [
     "EURO"
   ],
@@ -3939,6 +3973,9 @@
   ],
   "VEJDEL": [
     "BANE"
+  ],
+  "VEJE": [
+    "GADER"
   ],
   "VEJLEDER": [
     "GURU"
@@ -4402,6 +4439,9 @@
   ],
   "[IMG]OSTRICH": [
     "EMU"
+  ],
+  "[IMG]OWL": [
+    "UGLE"
   ],
   "[IMG]PADDLE": [
     "ÅRE"
