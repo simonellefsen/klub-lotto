@@ -811,6 +811,9 @@
   "FALSK": [
     "UREEL"
   ],
+  "FANDT": [
+    "OPSPOREDE"
+  ],
   "FANDTES": [
     "VAR"
   ],
@@ -1079,6 +1082,9 @@
   "FREDEN": [
     "ROEN"
   ],
+  "FRELSE": [
+    "REDDE"
+  ],
   "FRELSER": [
     "REDDER"
   ],
@@ -1241,7 +1247,8 @@
     "ORKE"
   ],
   "GIFT": [
-    "DDT"
+    "DDT",
+    "EDDER"
   ],
   "GIFTET": [
     "VIET"
@@ -1502,6 +1509,9 @@
   "HOLDERMEGETAF": [
     "ELSKER"
   ],
+  "HOLDETÆT": [
+    "TIE"
+  ],
   "HOLDTTÆT": [
     "TIET"
   ],
@@ -1667,6 +1677,9 @@
     "LOPPE",
     "MØL",
     "MARIEHØNE"
+  ],
+  "INSEKTER": [
+    "BIER"
   ],
   "INSEKTERNE": [
     "BIERNE"
@@ -2430,6 +2443,9 @@
   "MØNTFORK": [
     "KR"
   ],
+  "NATRIUMKLORID": [
+    "SALT"
+  ],
   "NATTØJ": [
     "PY"
   ],
@@ -2580,6 +2596,9 @@
   "OST": [
     "BRIE",
     "GORGONZOLA"
+  ],
+  "OVENIKØBET": [
+    "ENDDA"
   ],
   "OVER": [
     "VIA"
@@ -2795,6 +2814,9 @@
   "RANGORDNER": [
     "SEEDER"
   ],
+  "RASTLØS": [
+    "UROLIG"
+  ],
   "REALITET": [
     "SANDHED"
   ],
@@ -2967,6 +2989,9 @@
   "SERVICEDEL": [
     "ØLGLAS"
   ],
+  "SET": [
+    "OBSERVERET"
+  ],
   "SHOWS": [
     "REVYER"
   ],
@@ -3065,6 +3090,9 @@
   "SKROTBUNKE": [
     "VRAG"
   ],
+  "SKRYDER": [
+    "PRALER"
+  ],
   "SKRYDERI": [
     "PRAL"
   ],
@@ -3130,6 +3158,9 @@
   ],
   "SLOT": [
     "ROSENBORG"
+  ],
+  "SLUDDERET": [
+    "VÅSET"
   ],
   "SLUDRE": [
     "ÆVLE"
@@ -3244,7 +3275,8 @@
     "DOMINO",
     "DART",
     "SKAK",
-    "UNO"
+    "UNO",
+    "DAM"
   ],
   "SPILDES": [
     "ØDES"
@@ -4458,6 +4490,9 @@
   "[IMG]PARROT": [
     "ARA"
   ],
+  "[IMG]PASTRY": [
+    "SNEGL"
+  ],
   "[IMG]PEAR": [
     "PÆRE"
   ],
@@ -4469,6 +4504,9 @@
   ],
   "[IMG]PINEAPPLE": [
     "ANANAS"
+  ],
+  "[IMG]PISYMBOL": [
+    "PI"
   ],
   "[IMG]PLAYINGCARD": [
     "ES",
