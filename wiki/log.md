@@ -1119,3 +1119,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-29 04:24 UTC] ingest | quiz | Hvilken romersk gudinde svarer til den græske Afrodite? | outcome=submitted
 
+## [2026-08-29 04:25 UTC] ingest | ordkløver | Category: `Udtryk`; answer pattern `4 / 1 / 3 / 4 / 4`; visu… | outcome=submitted
+
