@@ -1117,3 +1117,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-29 04:24 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-08-29 04:24 UTC] ingest | quiz | Hvilken romersk gudinde svarer til den græske Afrodite? | outcome=submitted
+
