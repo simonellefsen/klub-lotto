@@ -1131,3 +1131,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-30 06:26 UTC] ingest | quiz | Hvilken flod løber gennem Bratislava? | outcome=submitted
 
+## [2026-08-30 06:27 UTC] ingest | ordkløver | Category: `Set på kontoret`; answer pattern `11` | outcome=submitted
+
