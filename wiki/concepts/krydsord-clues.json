@@ -290,7 +290,8 @@
     "AUTO"
   ],
   "BILLEDE": [
-    "FOTO"
+    "FOTO",
+    "IKON"
   ],
   "BILUDSTYR": [
     "PSKIVE"
@@ -459,6 +460,9 @@
   ],
   "BYTE": [
     "B"
+  ],
+  "BÅD": [
+    "EGE"
   ],
   "BÆGER": [
     "KOP"
@@ -1156,7 +1160,8 @@
     "STÆRE",
     "KOLIBRIER",
     "ARAER",
-    "GÆS"
+    "GÆS",
+    "PAPEGØJER"
   ],
   "FUGLEN": [
     "UGLEN"
@@ -2327,6 +2332,9 @@
   "MESTERKOK": [
     "GASTRONOM"
   ],
+  "METAL": [
+    "JERN"
+  ],
   "METER": [
     "M"
   ],
@@ -2393,6 +2401,9 @@
     "POP",
     "BLUES"
   ],
+  "MUSIKSTYKKE": [
+    "RONDO"
+  ],
   "MÅLER": [
     "UR"
   ],
@@ -2422,7 +2433,8 @@
     "ETAGESENG",
     "REOL",
     "SENG",
-    "BÆNK"
+    "BÆNK",
+    "PLANKEBORD"
   ],
   "MØBLER": [
     "LÆNESTOLE",
@@ -2443,6 +2455,9 @@
   "MØNTFORK": [
     "KR"
   ],
+  "NABOLAG": [
+    "OMEGN"
+  ],
   "NATRIUMKLORID": [
     "SALT"
   ],
@@ -2455,6 +2470,9 @@
   "NEDBØR": [
     "SNE"
   ],
+  "NEGL": [
+    "KLO"
+  ],
   "NEJ": [
     "NIKS"
   ],
@@ -2463,6 +2481,9 @@
   ],
   "NEMT": [
     "LET"
+  ],
+  "NET": [
+    "GARN"
   ],
   "NEWTON": [
     "N"
@@ -2490,6 +2511,9 @@
   ],
   "NORGE": [
     "N"
+  ],
+  "NORSKAFSLAG": [
+    "NEI"
   ],
   "NUL": [
     "O",
@@ -2578,6 +2602,9 @@
   "OPTEGNELSEN": [
     "NOTEN"
   ],
+  "ORD": [
+    "GLOSE"
+  ],
   "ORGAN": [
     "NYRE"
   ],
@@ -2607,7 +2634,8 @@
     "TRØJE"
   ],
   "OVERGANG": [
-    "BRO"
+    "BRO",
+    "TRÆBRO"
   ],
   "OVERSET": [
     "GLEMT"
@@ -2732,6 +2760,9 @@
   ],
   "POPGRUPPE": [
     "ABBA"
+  ],
+  "POTE": [
+    "LAB"
   ],
   "PRESSEDE": [
     "NØDTE"
@@ -3260,6 +3291,9 @@
   "SPECIALISTER": [
     "ØJENLÆGER"
   ],
+  "SPECIEL": [
+    "SÆRLIG"
+  ],
   "SPEKULERE": [
     "RUGE"
   ],
@@ -3563,8 +3597,14 @@
   "TAGRYG": [
     "KIP"
   ],
+  "TAKKER": [
+    "GEVIR"
+  ],
   "TALENT": [
     "EVNE"
+  ],
+  "TALENTFULDE": [
+    "EVNERIGE"
   ],
   "TALJE": [
     "GI"
@@ -4328,6 +4368,9 @@
     "ENER"
   ],
   "[IMG]DIE": [
+    "ENER"
+  ],
+  "[IMG]DOMINOTILE": [
     "ENER"
   ],
   "[IMG]DRUM": [
