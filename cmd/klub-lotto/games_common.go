@@ -294,6 +294,14 @@ func promptYesNo(question string, defaultYes bool) bool {
 // because every remaining guess is precious.
 const ordKloeverReasoningAttempts = 7
 
+// ordKloeverFallbackProbeTimeout bounds ONE salvage probe-letter call made after
+// the Ordkløver decision LLM has exhausted its own retries. It is deliberately
+// far tighter than the 540s a normal probe-letter call is allowed: we only reach
+// that path because a model is already stalling, and the point of the salvage is
+// to convert a dead round into a cheap revealed letter — quickly — rather than
+// to extend the stall.
+const ordKloeverFallbackProbeTimeout = 90 * time.Second
+
 type pagePoint struct {
 	OK    bool   `json:"ok"`
 	X     int    `json:"x"`

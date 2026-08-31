@@ -9,6 +9,18 @@ import (
 	"time"
 )
 
+// ordnetReadLimit bounds how much of a DDO page we read looking for the entry
+// marker. It must be generous: the marker is NOT near the top of the document.
+// Measured 2026-08-31 across real entries, `class="modern-match"` consistently
+// lands around 64–67 KB in (flittiglise 64098, cykel 64819, år 64524, bil 66716,
+// søn 66722, hus 67235) because DDO emits its nav/search chrome first. Whole
+// pages run 73 KB (the "no results" page) to ~275 KB.
+//
+// This limit was 32 KB until 2026-08-31, which sat BELOW every real marker
+// offset — so CheckOrdnet reported "not found" for every word ever passed to it,
+// real or invented. 512 KB clears the largest observed page with room to spare.
+const ordnetReadLimit = 512 * 1024
+
 // CheckOrdnet returns true if the word has a direct entry in Den Danske Ordbog
 // (DDO) at ordnet.dk. Non-existent words still get a 200 response but the page
 // body contains no `class="modern-match"` element — that marker is the reliable
@@ -47,15 +59,17 @@ func CheckOrdnet(ctx context.Context, word string) (found bool, err error) {
 		return false, fmt.Errorf("ordnet: http %d for %q", resp.StatusCode, clean)
 	}
 
-	// Read the first 32 KB — enough to find the match marker without downloading
-	// the whole page (DDO pages are ~200 KB each).
-	body, err := io.ReadAll(io.LimitReader(resp.Body, 32*1024))
+	body, err := io.ReadAll(io.LimitReader(resp.Body, ordnetReadLimit))
 	if err != nil {
 		return false, fmt.Errorf("ordnet: read body: %w", err)
 	}
+	return ordnetHasEntry(body), nil
+}
 
-	// `class="modern-match"` is present exactly once when the word has a DDO entry.
-	// It is absent (zero occurrences) when ordnet.dk returns an empty-results page
-	// for an unknown word.
-	return strings.Contains(string(body), `class="modern-match"`), nil
+// ordnetHasEntry reports whether a DDO page body is a real dictionary entry.
+// `class="modern-match"` is present exactly once when the word has an entry and
+// absent entirely on the empty-results page an unknown word returns (that page
+// is served with HTTP 200, so the status code cannot be used to tell them apart).
+func ordnetHasEntry(body []byte) bool {
+	return strings.Contains(string(body), `class="modern-match"`)
 }

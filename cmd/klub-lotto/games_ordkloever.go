@@ -278,11 +278,7 @@ func runOrdKloever(ctx context.Context, args []string) error {
 		}
 		// Dry-run / listing path: ask for candidates and print them.
 		fmt.Println("[3/4] asking provider for ranked Danish candidates...")
-		remaining := 12 - st.Attempts
-		maxProbe := remaining - 1
-		if maxProbe > 2 {
-			maxProbe = 2
-		}
+		maxProbe := ordKloeverMaxProbe(12 - st.Attempts)
 		cands, err := ordKloeverCandidates(ctx, cfg, *providerFlag, st, maxProbe)
 		if err != nil {
 			if *dryRun {
@@ -516,13 +512,66 @@ Svar med præcis dette JSON (ingen anden tekst):
 	return out, nil
 }
 
-// endgameInstruction returns the bullet-point strategy line for the decision prompt,
-// escalating urgency as attempts run out. maxProbe = min(2, remaining-1).
-func endgameInstruction(remaining int) string {
+// ordKloeverMaxProbe is THE endgame probe-budget rule, stated once: how many
+// letters we may still buy with `remaining` attempts in hand. One attempt is
+// always reserved for submitting the answer, and we never probe more than 2 in a
+// single round (each probe costs an attempt, so a wider round would strand us).
+//
+//	remaining 4+ → 2   (e.g. 8/12: probe 2, then guess)
+//	remaining 3  → 2   (9/12)
+//	remaining 2  → 1   (10/12: one letter, then guess)
+//	remaining 1  → 0   (11/12: the last attempt MUST be the answer)
+//
+// Every caller — the prompt builders, the decision loop, and the salvage path
+// after a decision-LLM failure — goes through here so the reserve can never be
+// spent by one of them disagreeing with the others.
+func ordKloeverMaxProbe(remaining int) int {
 	maxProbe := remaining - 1
 	if maxProbe > 2 {
 		maxProbe = 2
 	}
+	if maxProbe < 0 {
+		maxProbe = 0
+	}
+	return maxProbe
+}
+
+// ordKloeverFallbackProbeLetters buys information when askOrdKloeverDecision has
+// burned all three of its attempts (in practice: 3× "context deadline exceeded"
+// from a stalled reasoning model). It asks only for n probe letters — a far
+// cheaper ranking task than the full guess-or-probe decision — and bounds each
+// call to ordKloeverFallbackProbeTimeout instead of the 540s a normal
+// probe-letter call may take. Two short attempts, then the caller gives up and
+// guesses. n is the caller's live probe budget, so the "always keep one attempt
+// for the final guess" rule still holds.
+func ordKloeverFallbackProbeLetters(ctx context.Context, cfg *config.Config, provider string, st klublotto.OrdKloeverState, n int, alreadyTried string) ([]string, error) {
+	const attempts = 2
+	var lastErr error
+	for attempt := 1; attempt <= attempts; attempt++ {
+		fbCtx, cancel := context.WithTimeout(ctx, ordKloeverFallbackProbeTimeout)
+		letters, err := askOrdKloeverProbeLetters(fbCtx, cfg, provider, st, n, alreadyTried)
+		cancel()
+		if err == nil && len(letters) > 0 {
+			return letters, nil
+		}
+		if ctx.Err() != nil {
+			return nil, ctx.Err() // interrupted — not a provider problem
+		}
+		if err == nil {
+			err = fmt.Errorf("no unused letters returned")
+		}
+		lastErr = err
+		if attempt < attempts {
+			fmt.Printf("   [fallback probe retry %d/%d]: %v\n", attempt+1, attempts, lastErr)
+		}
+	}
+	return nil, lastErr
+}
+
+// endgameInstruction returns the bullet-point strategy line for the decision prompt,
+// escalating urgency as attempts run out. maxProbe = min(2, remaining-1).
+func endgameInstruction(remaining int) string {
+	maxProbe := ordKloeverMaxProbe(remaining)
 	switch {
 	case maxProbe <= 0:
 		return "• SIDSTE FORSØG — du SKAL gætte frasen nu. Probe er IKKE tilladt."
@@ -537,10 +586,7 @@ func endgameInstruction(remaining int) string {
 // When only 1 attempt remains, option B (probe) is removed entirely.
 // When 2 remain, probe is limited to 1 letter.
 func endgameActionBlock(remaining int) string {
-	maxProbe := remaining - 1
-	if maxProbe > 2 {
-		maxProbe = 2
-	}
+	maxProbe := ordKloeverMaxProbe(remaining)
 	switch {
 	case maxProbe <= 0:
 		return `DETTE ER DIT SIDSTE FORSØG. Du SKAL gætte hele frasen:
@@ -622,10 +668,7 @@ func askOrdKloeverDecision(ctx context.Context, cfg *config.Config, provider str
 	}
 
 	// Build the top-level ask line matching the probe budget.
-	maxProbeForPrompt := remaining - 1
-	if maxProbeForPrompt > 2 {
-		maxProbeForPrompt = 2
-	}
+	maxProbeForPrompt := ordKloeverMaxProbe(remaining)
 	var askLine string
 	switch {
 	case maxProbeForPrompt <= 0:
@@ -737,6 +780,17 @@ func runOrdKloeverProbe(ctx context.Context, cfg *config.Config, br *browser.Cli
 			lastTier = tier
 		}
 		return p
+	}
+
+	// probeFallbackProvider is the model asked for letters when the main decision
+	// call has already failed. It stays on the FAST tier even inside the reasoning
+	// window: picking letters is a cheap ranking task, and the reasoning model has
+	// just proven it is stalling — re-asking it would most likely stall the same way.
+	probeFallbackProvider := func() string {
+		if provider != "" {
+			return provider
+		}
+		return finalProvider
 	}
 
 	// Ensure we're on the Ordkløver parent page.
@@ -1069,21 +1123,15 @@ func runOrdKloeverProbe(ctx context.Context, cfg *config.Config, br *browser.Cli
 	}
 
 	// ── Phase 2: Solve-or-probe decision loop ───────────────────────────────────
-	// Endgame probe budget: always keep 1 attempt for the final guess.
-	//   remaining=1  → maxProbe=0 → break immediately, guess now
-	//   remaining=2  → maxProbe=1 → probe at most 1 letter, then guess   (9/12 → 10/12 → guess)
-	//   remaining=3  → maxProbe=2 → probe at most 2 letters, then guess  (wait, this is 10/12)
-	// Rule summary: 11/12 → guess; 10/12 → 1 letter then guess; 9/12 → 2 letters then guess.
+	// The endgame probe budget (always keep one attempt for the final guess) is
+	// ordKloeverMaxProbe — see its doc for the per-attempt table.
 	const maxDecisionRounds = 10
 	for round := 1; round <= maxDecisionRounds && st.Attempts < 12; round++ {
 		if ctx.Err() != nil {
 			return ctx.Err() // interrupted
 		}
 		remaining := 12 - st.Attempts
-		maxProbe := remaining - 1 // letters we can still probe before final guess
-		if maxProbe > 2 {
-			maxProbe = 2
-		}
+		maxProbe := ordKloeverMaxProbe(remaining) // letters we can still buy before the final guess
 		fmt.Printf("[phase-2 round %d] FORSØG: %d/12 (%d remaining, max probe: %d) | Board: %s\n",
 			round, st.Attempts, remaining, maxProbe, st.Board)
 
@@ -1099,8 +1147,31 @@ func runOrdKloeverProbe(ctx context.Context, cfg *config.Config, br *browser.Cli
 			if ctx.Err() != nil {
 				return ctx.Err() // interrupted — must not fall through to a real guess
 			}
-			fmt.Printf("   decision LLM failed (%v); falling back to top candidate\n", err)
-			break
+			// The decision call exhausted all of its own retries — typically 3×
+			// "context deadline exceeded" from a stalled reasoning model. That is a
+			// PROVIDER failure, not knowledge about the puzzle, so it must not be
+			// treated as "time to guess": breaking here throws away probe budget we
+			// still hold and hands the mask to the final-crunch model, which will
+			// happily invent a word to fill it (2026-08-31: failed at 8/12 with two
+			// probes in hand and burned 9/12 on "SMITTITTISE"). Spend the budget on
+			// real information instead. The maxProbe guard above already guarantees
+			// there is budget here, so the answer attempt stays reserved.
+			fmt.Printf("   decision LLM failed (%v)\n", err)
+			fmt.Printf("   [salvage] asking %s for %d more letter(s) instead of guessing blind\n",
+				probeFallbackProvider(), maxProbe)
+			letters, probeErr := ordKloeverFallbackProbeLetters(ctx, cfg, probeFallbackProvider(), st, maxProbe, used)
+			if probeErr != nil {
+				if ctx.Err() != nil {
+					return ctx.Err()
+				}
+				fmt.Printf("   [salvage] fallback probe also failed (%v); falling back to top candidate\n", probeErr)
+				break
+			}
+			decision = OrdKloeverDecision{
+				Action:    "probe",
+				Letters:   letters,
+				Rationale: "salvage probe after decision-LLM failure",
+			}
 		}
 
 		fmt.Printf("   LLM decision: action=%q phrase=%q letters=%v conf=%s\n   rationale: %s\n",
