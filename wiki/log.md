@@ -1143,3 +1143,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-31 05:57 UTC] ingest | quiz | Hvilken planet har ringe af is og sten? | outcome=submitted
 
+## [2026-08-31 06:09 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
