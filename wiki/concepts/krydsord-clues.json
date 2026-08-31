@@ -190,7 +190,8 @@
   "BEDE": [
     "ROE",
     "FÅR",
-    "BØN"
+    "BØN",
+    "ANMODE"
   ],
   "BEGIVENHED": [
     "EVENT"
@@ -348,6 +349,7 @@
     "DRÆ"
   ],
   "BLUS": [
+    "BÅL",
     "ILD"
   ],
   "BLUSSET": [
@@ -869,6 +871,9 @@
   "FESTSAL": [
     "AULA"
   ],
+  "FIGUR": [
+    "REKTANGEL"
+  ],
   "FILEN": [
     "RASPEN"
   ],
@@ -891,6 +896,9 @@
   ],
   "FINDES": [
     "ER"
+  ],
+  "FINSTAND": [
+    "ADEL"
   ],
   "FINTITEL": [
     "ÆRESDOKTOR"
@@ -1436,6 +1444,9 @@
   "HAVGUD": [
     "ÆGIR"
   ],
+  "HAVN": [
+    "MARINA"
+  ],
   "HEDEN": [
     "VARMEN"
   ],
@@ -1501,6 +1512,9 @@
   ],
   "HJULDEL": [
     "EGER"
+  ],
+  "HOLDE": [
+    "VARE"
   ],
   "HOLDEFRED": [
     "ENES"
@@ -1713,6 +1727,9 @@
   "IORDEN": [
     "OKAY",
     "OK"
+  ],
+  "IRRITERE": [
+    "ÆRGRE"
   ],
   "ITALIEN": [
     "I"
@@ -2147,7 +2164,8 @@
     "LEASER"
   ],
   "LEKTION": [
-    "IDRÆTSTIME"
+    "IDRÆTSTIME",
+    "TIME"
   ],
   "LET": [
     "NEM"
@@ -2222,11 +2240,15 @@
   "LUNS": [
     "BID"
   ],
+  "LUTTER": [
+    "BAR"
+  ],
   "LYS": [
     "KERTE"
   ],
   "LYSKILDE": [
-    "SPOT"
+    "SPOT",
+    "LAMPE"
   ],
   "LYTTEUDSTYR": [
     "STETOSKOP"
@@ -2789,6 +2811,9 @@
   "PRÆSTEDRAGT": [
     "ORNAT"
   ],
+  "PRØVE": [
+    "TEST"
+  ],
   "PSYKEDEL": [
     "EGO"
   ],
@@ -2980,6 +3005,9 @@
   ],
   "SAL": [
     "ETAGE"
+  ],
+  "SALE": [
+    "ETAGER"
   ],
   "SALEN": [
     "ETAGEN"
@@ -3318,6 +3346,9 @@
   "SPILLEBY": [
     "RENO"
   ],
+  "SPILLEUDSTYR": [
+    "RAFLEBÆGER"
+  ],
   "SPINDEREDSKAB": [
     "TEN"
   ],
@@ -3570,6 +3601,9 @@
   "SÅSSVAGT": [
     "ANEDES"
   ],
+  "SÆK": [
+    "POSE"
+  ],
   "SÆLSOM": [
     "APARTE"
   ],
@@ -3747,7 +3781,8 @@
   ],
   "TONEART": [
     "EDUR",
-    "FMOL"
+    "FMOL",
+    "EMOL"
   ],
   "TONEN": [
     "EET",
@@ -4612,6 +4647,9 @@
   ],
   "[IMG]ROCKET": [
     "RAKET"
+  ],
+  "[IMG]ROOF": [
+    "TAG"
   ],
   "[IMG]ROPE": [
     "REB",
