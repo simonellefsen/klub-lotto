@@ -1149,3 +1149,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-31 06:27 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
 
+## [2026-08-31 06:44 UTC] ingest | ordkløver | Category: `Udtryk`; answer pattern `11` | outcome=submitted
+
