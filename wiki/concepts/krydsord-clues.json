@@ -132,6 +132,9 @@
   "APPEL": [
     "BØN"
   ],
+  "ARBEJDE": [
+    "JOB"
+  ],
   "ARRANGEMENT": [
     "KLASSEFEST"
   ],
@@ -367,6 +370,9 @@
   "BO": [
     "LOGERE",
     "REDE"
+  ],
+  "BOBLER": [
+    "BRUSER"
   ],
   "BOKS": [
     "ÆSKE",
@@ -672,7 +678,8 @@
     "ULVE",
     "KROKODILLE",
     "OKSE",
-    "LAMA"
+    "LAMA",
+    "ORME"
   ],
   "DYRKER": [
     "AVLER"
@@ -1438,6 +1445,9 @@
   "HAV": [
     "UTAL"
   ],
+  "HAVDYR": [
+    "SØSTJERNE"
+  ],
   "HAVE": [
     "EJE"
   ],
@@ -1685,6 +1695,9 @@
   "INDTAGE": [
     "ÆDE"
   ],
+  "INDTRÆK": [
+    "FOR"
+  ],
   "INHABILE": [
     "UEGNEDE"
   ],
@@ -1756,7 +1769,8 @@
     "TANDPLEJER",
     "EKSPEDIENT",
     "TJENER",
-    "JOURNALIST"
+    "JOURNALIST",
+    "SKOLELÆRER"
   ],
   "JORDTYPE": [
     "LER"
@@ -2056,6 +2070,9 @@
   ],
   "KÆMPEDE": [
     "STRED"
+  ],
+  "KÆPHØJ": [
+    "KRY"
   ],
   "KÆRLIG": [
     "ØM"
@@ -2531,6 +2548,9 @@
   "NORDVEST": [
     "NV"
   ],
+  "NORDØST": [
+    "NØ"
+  ],
   "NORGE": [
     "N"
   ],
@@ -2644,7 +2664,8 @@
   ],
   "OST": [
     "BRIE",
-    "GORGONZOLA"
+    "GORGONZOLA",
+    "ESROM"
   ],
   "OVENIKØBET": [
     "ENDDA"
@@ -2664,6 +2685,9 @@
   ],
   "OVERSIGT": [
     "MENU"
+  ],
+  "OVERSÆTTER": [
+    "TOLK"
   ],
   "OVERTAGET": [
     "ARVET"
@@ -2689,6 +2713,9 @@
   ],
   "PARTIKEL": [
     "ION"
+  ],
+  "PASSE": [
+    "ANSTÅ"
   ],
   "PASSWORDS": [
     "KODER"
@@ -2893,7 +2920,8 @@
   ],
   "REDSKABET": [
     "ÅBNEREN",
-    "TRAGTEN"
+    "TRAGTEN",
+    "LEEN"
   ],
   "REGNERMED": [
     "FORVENTER"
@@ -3676,7 +3704,8 @@
   ],
   "TEGN": [
     "NODE",
-    "NODER"
+    "NODER",
+    "RUNER"
   ],
   "TEGNET": [
     "NODEN"
@@ -3897,6 +3926,9 @@
   ],
   "TÅGEN": [
     "GUSEN"
+  ],
+  "TÆNDT": [
+    "ON"
   ],
   "TÆPPE": [
     "KELIM"
@@ -4414,6 +4446,9 @@
   "[IMG]DUCK": [
     "AND"
   ],
+  "[IMG]EGGTIMER": [
+    "ÆGGEUR"
+  ],
   "[IMG]ENVELOPE": [
     "BREV"
   ],
@@ -4787,6 +4822,9 @@
   ],
   "[IMG]WOODENBARREL": [
     "TØNDE"
+  ],
+  "[IMG]YARNBALL": [
+    "GARN"
   ],
   "[IMG]YELLOWSUBMARINE": [
     "UBÅD"
