@@ -17,10 +17,17 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-# Stage only docs/wiki paths.
-git add -A wiki/ README.md RUN.md 2>/dev/null || true
+# The only paths this script may commit. Everything else — source especially —
+# is off-limits, per the contract in the header comment.
+DOC_PATHS=(wiki/ README.md RUN.md)
 
-if git diff --cached --quiet; then
+# Stage only docs/wiki paths.
+git add -A -- "${DOC_PATHS[@]}" 2>/dev/null || true
+
+# Scope the "anything to do?" check to those same paths. An unscoped check sees
+# files somebody else has staged and falls through to the commit below, which is
+# half of how unrelated work used to get swept up.
+if git diff --cached --quiet -- "${DOC_PATHS[@]}"; then
   echo "sync: nothing to commit"
   exit 0
 fi
@@ -34,7 +41,13 @@ if [[ -f wiki/log.md ]]; then
   fi
 fi
 
-git commit -m "$subject" --no-verify >/dev/null
+# Commit ONLY the doc paths. Without this pathspec `git commit` writes the whole
+# index, so any source file a human or agent happened to have staged when a game
+# run fired would ride along into a "docs:" commit and get pushed — which is
+# exactly what happened on 2026-09-01, when cd5e506 ("docs: … ingest | sudoku")
+# swallowed six unrelated Go files mid-review. The pathspec form leaves anything
+# staged outside DOC_PATHS staged and uncommitted, as the header promises.
+git commit -m "$subject" --no-verify -- "${DOC_PATHS[@]}" >/dev/null
 echo "sync: committed — $subject"
 
 if git remote get-url origin >/dev/null 2>&1; then
