@@ -96,3 +96,36 @@ func TestOpenAICompatibleHTTPError(t *testing.T) {
 		t.Fatalf("expected http 500 error, got %v", err)
 	}
 }
+
+func TestChatCompletionsURL(t *testing.T) {
+	const fallback = "https://www.gdprchat.eu/api/v1"
+	cases := []struct{ base, want string }{
+		{"https://www.gdprchat.eu/api/v1", "https://www.gdprchat.eu/api/v1/chat/completions"},
+		{"https://www.gdprchat.eu/api/v1/", "https://www.gdprchat.eu/api/v1/chat/completions"},
+		{"  https://www.gdprchat.eu/api/v1  ", "https://www.gdprchat.eu/api/v1/chat/completions"},
+		// A base that already names the endpoint must not get it appended twice.
+		{"https://www.gdprchat.eu/api/v1/chat/completions", "https://www.gdprchat.eu/api/v1/chat/completions"},
+		// Empty base falls back rather than producing "/chat/completions".
+		{"", fallback + "/chat/completions"},
+		{"https://self-hosted.example/v1", "https://self-hosted.example/v1/chat/completions"},
+	}
+	for _, c := range cases {
+		if got := chatCompletionsURL(c.base, fallback); got != c.want {
+			t.Errorf("chatCompletionsURL(%q) = %q, want %q", c.base, got, c.want)
+		}
+	}
+}
+
+func TestNewGDPRChatDefaults(t *testing.T) {
+	p := NewGDPRChat("key", "", "")
+	if p.Model != "mistral-large-latest" {
+		t.Errorf("default model = %q, want mistral-large-latest", p.Model)
+	}
+	if p.Name() != "gdprchat:mistral-large-latest" {
+		t.Errorf("Name() = %q", p.Name())
+	}
+	// An explicit eu_direct id must survive untouched.
+	if p := NewGDPRChat("key", "https://x/v1", "qwen3.5-397b-a17b"); p.Model != "qwen3.5-397b-a17b" {
+		t.Errorf("explicit model = %q", p.Model)
+	}
+}

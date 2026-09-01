@@ -20,6 +20,9 @@ type Keys struct {
 	OpenRouterReasoning string // reasoning effort for OpenRouter thinking models (high|medium|low)
 	ZAI                 string
 	ZAIModel            string // default model for the "zai" keyword ("" → NewZAI default)
+	GDPRChat            string // GDPRchat.eu API key
+	GDPRChatBaseURL     string // GDPRchat API root ("" → NewGDPRChat default)
+	GDPRChatModel       string // default model for the "gdprchat" keyword ("" → NewGDPRChat default)
 }
 
 // Resolve maps a word-provider name to a JSONGenerator, pulling the matching key
@@ -58,6 +61,21 @@ func Resolve(name string, keys Keys) (JSONGenerator, error) {
 			model = name
 		}
 		return NewZAI(keys.ZAI, model), nil
+	}
+
+	// GDPRchat (gdprchat.eu) — EU-hosted OpenAI-compatible gateway. "gdprchat"
+	// takes the configured/default model; "gdprchat:<model>" picks one, e.g.
+	// "gdprchat:qwen3.5-397b-a17b". Checked before the '/' OpenRouter routing so a
+	// model id is never mistaken for an OpenRouter slug.
+	if low := strings.ToLower(name); low == "gdprchat" || low == "gdpr" || strings.HasPrefix(low, "gdprchat:") {
+		if keys.GDPRChat == "" {
+			return nil, fmt.Errorf("GDPRCHAT_OPENAI_API_KEY is required for word provider %q", name)
+		}
+		model := keys.GDPRChatModel
+		if i := strings.IndexByte(name, ':'); i >= 0 { // gdprchat:mistral-large-latest
+			model = strings.TrimSpace(name[i+1:])
+		}
+		return NewGDPRChat(keys.GDPRChat, keys.GDPRChatBaseURL, model), nil
 	}
 
 	// Native Gemini (Google Generative Language API) via your own GEMINI_API_KEY.
@@ -119,7 +137,7 @@ func Resolve(name string, keys Keys) (JSONGenerator, error) {
 		}
 		return newOpenRouterWithReasoning(keys.OpenRouter, keys.OpenRouterModel, keys.OpenRouterReasoning), nil
 	default:
-		return nil, fmt.Errorf("unknown word provider %q — use a keyword (gemini|openai|xai|anthropic|openrouter|zai) or a model slug (zai:glm-5.2, or a full OpenRouter slug e.g. google/gemini-3.1-pro-preview)", name)
+		return nil, fmt.Errorf("unknown word provider %q — use a keyword (gemini|openai|xai|anthropic|openrouter|zai|gdprchat) or a model slug (zai:glm-5.2, gdprchat:mistral-large-latest, or a full OpenRouter slug e.g. google/gemini-3.1-pro-preview)", name)
 	}
 }
 

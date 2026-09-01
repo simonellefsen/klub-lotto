@@ -258,6 +258,9 @@ func providerKeys(cfg *config.Config) llm.Keys {
 		OpenRouterReasoning: cfg.OpenRouterReasoning,
 		ZAI:                 cfg.ZAIKey,
 		ZAIModel:            cfg.ZAIModel,
+		GDPRChat:            cfg.GDPRChatKey,
+		GDPRChatBaseURL:     cfg.GDPRChatBaseURL,
+		GDPRChatModel:       cfg.GDPRChatModel,
 	}
 }
 

@@ -120,6 +120,54 @@ func NewZAI(apiKey, model string) *OpenAICompatible {
 	}
 }
 
+// NewGDPRChat returns a GDPRchat (gdprchat.eu) provider — an EU-hosted,
+// OpenAI-compatible gateway that fronts European models (Mistral in Paris,
+// Qwen via Scaleway on Hetzner infrastructure). Despite serving OpenAI-shaped
+// model ids, nothing is sent to OpenAI, which is the point of routing through it.
+//
+// baseURL is the API root (GDPRCHAT_OPENAI_BASE_URL, e.g.
+// https://www.gdprchat.eu/api/v1); the /chat/completions path is appended.
+//
+// Empty model → "mistral-large-latest". Prefer these explicit "eu_direct" ids
+// (mistral-*-latest, qwen3.5-397b-a17b, …) over the "openai_substitute" aliases
+// the same API also accepts (gpt-4o, o1, …): the aliases re-point to whichever
+// European model currently benchmarks best and change weekly, so a vote cast by
+// one is not reproducible from the recorded name alone.
+//
+// response_format=json_object is left off — the JSON instruction rides in the
+// shared system prompt and the response is parsed defensively, matching how
+// NewXAI/NewZAI handle endpoints whose JSON-mode support varies by model.
+func NewGDPRChat(apiKey, baseURL, model string) *OpenAICompatible {
+	model = strings.TrimSpace(model)
+	if model == "" {
+		model = "mistral-large-latest"
+	}
+	return &OpenAICompatible{
+		label:  "gdprchat",
+		APIKey: apiKey,
+		Model:  model,
+		URL:    chatCompletionsURL(baseURL, "https://www.gdprchat.eu/api/v1"),
+		HTTP:   &http.Client{Timeout: 90 * time.Second},
+	}
+}
+
+// chatCompletionsURL joins an OpenAI-compatible API root with the
+// /chat/completions path. It tolerates a trailing slash, an empty base (falls
+// back to fallbackBase), and a base that already names the full endpoint — so a
+// .env value of ".../api/v1", ".../api/v1/" or ".../api/v1/chat/completions"
+// all resolve to the same URL.
+func chatCompletionsURL(base, fallbackBase string) string {
+	base = strings.TrimSpace(base)
+	if base == "" {
+		base = fallbackBase
+	}
+	base = strings.TrimRight(base, "/")
+	if strings.HasSuffix(base, "/chat/completions") {
+		return base
+	}
+	return base + "/chat/completions"
+}
+
 // --- shared OpenAI wire types + HTTP helper (used here and by OpenRouter) -----
 
 type openAIRequest struct {

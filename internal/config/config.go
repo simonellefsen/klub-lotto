@@ -28,6 +28,9 @@ type Config struct {
 	OpenRouterKey           string
 	ZAIKey                  string // Z.AI (Zhipu) — OpenAI-compatible GLM models; cheaper than OpenRouter fused models
 	ZAIModel                string // Z.AI model slug, default glm-5.2
+	GDPRChatKey             string // GDPRchat.eu — EU-hosted OpenAI-compatible gateway fronting European models
+	GDPRChatBaseURL         string // GDPRchat API root, e.g. https://www.gdprchat.eu/api/v1
+	GDPRChatModel           string // GDPRchat model id; "" → mistral-large-latest
 	OpenAIModel             string
 	OpenRouterModel         string
 	OpenRouterReasoning     string // reasoning effort for OpenRouter thinking models (high|medium|low); default medium so gemini-pro answers in web-UI time instead of thinking unbounded
@@ -107,6 +110,9 @@ func Load(repoRoot string) (*Config, error) {
 		OpenRouterKey:           get("OPENROUTER_API_KEY"),
 		ZAIKey:                  get("ZAI_API_KEY"),
 		ZAIModel:                zaiModel,
+		GDPRChatKey:             get("GDPRCHAT_OPENAI_API_KEY"),
+		GDPRChatBaseURL:         get("GDPRCHAT_OPENAI_BASE_URL"),
+		GDPRChatModel:           get("GDPRCHAT_MODEL"),
 		OpenAIModel:             get("OPENAI_MODEL"),
 		OpenRouterModel:         get("OPENROUTER_MODEL"),
 		OpenRouterReasoning:     openRouterReasoning,

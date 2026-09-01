@@ -1151,3 +1151,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-08-31 06:44 UTC] ingest | ordkløver | Category: `Udtryk`; answer pattern `11` | outcome=submitted
 
+## [2026-09-01 05:18 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+

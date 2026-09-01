@@ -512,12 +512,30 @@ var quizOpenRouterModels = []string{
 	"~anthropic/claude-sonnet-latest",
 	"~google/gemini-flash-latest",
 	"mistralai/mistral-small-2603",
+	"z-ai/glm-5.3-flash",
 }
 
-// providers returns the LLM voting panel for the quiz. Four models via
-// OpenRouter (quizOpenRouterModels) plus xAI's grok-4-fast direct. Order
-// matters: the first provider wins ties in majority voting — reorder the list
-// above (or the grok append) to change tie-break priority.
+// quizGDPRChatModel is the GDPRchat model the quiz panel votes with, used unless
+// GDPRCHAT_MODEL overrides it. Qwen rather than GDPRchat's own default of
+// mistral-large-latest: the panel already votes with Mistral via OpenRouter
+// (mistralai/mistral-small-2603 above), and two Mistrals would correlate on
+// close calls while adding little — which matters because majority ties break
+// toward the first provider in the panel.
+//
+// This is an "eu_direct" id, so it names the model that actually answers.
+// GDPRchat's OpenAI-shaped aliases (gpt-4o, o1, …) re-point weekly and would
+// make a recorded vote name a model that never ran.
+const quizGDPRChatModel = "qwen3.5-397b-a17b"
+
+// providers returns the LLM voting panel for the quiz: the OpenRouter models in
+// quizOpenRouterModels, xAI's grok-4-fast direct, and — when configured —
+// GDPRchat, an EU-hosted route to a European model (see llm.NewGDPRChat).
+// Every provider is optional: each block is skipped when its key is absent, so
+// the panel shrinks rather than failing.
+//
+// Order matters: the first provider wins ties in majority voting, so the list
+// above leads with the strongest general models and the direct-API providers
+// are appended after them.
 func providers(cfg *config.Config) []llm.Provider {
 	var out []llm.Provider
 	if cfg.OpenRouterKey != "" {
@@ -527,6 +545,13 @@ func providers(cfg *config.Config) []llm.Provider {
 	}
 	if cfg.XAIKey != "" {
 		out = append(out, llm.NewXAI(cfg.XAIKey, "grok-4-fast"))
+	}
+	if cfg.GDPRChatKey != "" {
+		model := cfg.GDPRChatModel // GDPRCHAT_MODEL wins when set
+		if model == "" {
+			model = quizGDPRChatModel
+		}
+		out = append(out, llm.NewGDPRChat(cfg.GDPRChatKey, cfg.GDPRChatBaseURL, model))
 	}
 	return out
 }
@@ -602,6 +627,18 @@ func maskedReport(cfg *config.Config) {
 		fmt.Println("- OPENROUTER_MODEL: (default google/gemini-2.5-flash)")
 	} else {
 		fmt.Println("- OPENROUTER_MODEL:", cfg.OpenRouterModel)
+	}
+	mask("GDPRCHAT_OPENAI_API_KEY", cfg.GDPRChatKey)
+	if cfg.GDPRChatBaseURL == "" {
+		fmt.Println("- GDPRCHAT_OPENAI_BASE_URL: (default https://www.gdprchat.eu/api/v1)")
+	} else {
+		fmt.Println("- GDPRCHAT_OPENAI_BASE_URL:", cfg.GDPRChatBaseURL)
+	}
+	if cfg.GDPRChatModel == "" {
+		fmt.Printf("- GDPRCHAT_MODEL: (unset — quiz panel uses %s; other callers get the provider default)\n",
+			quizGDPRChatModel)
+	} else {
+		fmt.Println("- GDPRCHAT_MODEL:", cfg.GDPRChatModel)
 	}
 	if cfg.WordProvider == "" {
 		fmt.Println("- WORD_PROVIDER: (default gemini)")
