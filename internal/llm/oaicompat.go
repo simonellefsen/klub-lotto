@@ -196,8 +196,17 @@ type openAIRespFormat struct {
 }
 
 type openAIResponse struct {
-	Choices []struct {
-		Message struct {
+	// Provider names the upstream that actually served the request. OpenRouter
+	// fans one model slug out across several hosts, so this is the only way to
+	// tell which of them answered — and which one is misbehaving.
+	Provider string `json:"provider,omitempty"`
+	Choices  []struct {
+		// NativeFinishReason is the upstream's own reason, before OpenRouter
+		// normalises it into finish_reason. They disagree in the case that
+		// matters: an upstream "network_error" is reported as finish_reason
+		// "stop" with null content, i.e. a failure wearing a success's clothes.
+		NativeFinishReason string `json:"native_finish_reason,omitempty"`
+		Message            struct {
 			Content string `json:"content"`
 		} `json:"message"`
 	} `json:"choices"`

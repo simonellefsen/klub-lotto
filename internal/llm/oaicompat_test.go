@@ -129,3 +129,25 @@ func TestNewGDPRChatDefaults(t *testing.T) {
 		t.Errorf("explicit model = %q", p.Model)
 	}
 }
+
+func TestDescribeEmptyCompletion(t *testing.T) {
+	// The 2026-09-01 case: OpenRouter dresses an upstream network failure as a
+	// successful "stop", so the error must name the host and its own reason.
+	var r openAIResponse
+	r.Provider = "Z.AI"
+	r.Choices = append(r.Choices, struct {
+		NativeFinishReason string `json:"native_finish_reason,omitempty"`
+		Message            struct {
+			Content string `json:"content"`
+		} `json:"message"`
+	}{NativeFinishReason: "network_error"})
+	if got, want := describeEmptyCompletion(&r), "Z.AI: network_error"; got != want {
+		t.Errorf("describeEmptyCompletion = %q, want %q", got, want)
+	}
+
+	// Degrade gracefully when the envelope carries neither field.
+	var bare openAIResponse
+	if got, want := describeEmptyCompletion(&bare), "unknown provider"; got != want {
+		t.Errorf("describeEmptyCompletion(bare) = %q, want %q", got, want)
+	}
+}

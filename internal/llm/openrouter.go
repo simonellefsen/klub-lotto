@@ -126,6 +126,12 @@ func (o *OpenRouter) ChooseOne(ctx context.Context, q Question) (Answer, error) 
 	return parseChoiceJSON(raw, len(q.Options))
 }
 
+// openRouterEmptyRetries is how many extra attempts GenerateJSON makes when a
+// 200 response carries no content. OpenRouter picks an upstream host per
+// request, so re-asking usually lands on a different, healthy one — see the
+// empty-content handling in GenerateJSON for why that is the right response.
+const openRouterEmptyRetries = 2
+
 func (o *OpenRouter) GenerateJSON(ctx context.Context, prompt string, temperature float64) (string, error) {
 	body := openAIRequest{
 		Model: o.Model,
@@ -139,25 +145,72 @@ func (o *OpenRouter) GenerateJSON(ctx context.Context, prompt string, temperatur
 	if o.ReasoningEffort != "" {
 		body.Reasoning = &openAIReasoning{Effort: o.ReasoningEffort}
 	}
-	raw, err := postJSON(ctx, o.HTTP, o.URL, o.APIKey, body)
-	if err != nil {
-		return "", err
+
+	var lastNote string
+	for attempt := 0; attempt <= openRouterEmptyRetries; attempt++ {
+		if attempt > 0 {
+			select {
+			case <-ctx.Done():
+				return "", ctx.Err()
+			case <-time.After(time.Duration(attempt) * time.Second):
+			}
+		}
+		raw, err := postJSON(ctx, o.HTTP, o.URL, o.APIKey, body)
+		if err != nil {
+			return "", err
+		}
+		var resp openAIResponse
+		if err := json.Unmarshal(raw, &resp); err != nil {
+			return "", fmt.Errorf("openrouter: parse response: %w", err)
+		}
+		if resp.Error != nil {
+			return "", fmt.Errorf("openrouter: api error: %s", resp.Error.Message)
+		}
+		if len(resp.Choices) == 0 {
+			return "", fmt.Errorf("openrouter: empty choices")
+		}
+		// Surface actual usage against the requested cap — the only way to tell
+		// whether MaxTokens is sized right instead of guessing (see the 2026-07-17
+		// credits-gate incident: the cap had never been measured against reality).
+		if resp.Usage != nil {
+			fmt.Printf("   [llm] %s used %d completion tokens (cap %d)\n", o.Name(), resp.Usage.CompletionTokens, o.MaxTokens)
+		}
+		if content := resp.Choices[0].Message.Content; strings.TrimSpace(content) != "" {
+			return content, nil
+		}
+
+		// Empty content on an HTTP 200. This is an upstream failure that OpenRouter
+		// normalises into a successful-looking envelope: when the host it routed to
+		// is unreachable it still returns finish_reason "stop", but with null
+		// content, no usage, and native_finish_reason "network_error". Left
+		// unhandled it surfaced downstream as the misleading "no JSON object in
+		// response:" (2026-09-01 quiz, z-ai/glm-5.3-flash served by Z.AI, while the
+		// same slug served by Parasail answered fine).
+		//
+		// Routing is chosen per request, so simply asking again usually lands on a
+		// healthy host — a far better answer than losing the vote.
+		lastNote = describeEmptyCompletion(&resp)
+		fmt.Printf("   [llm] %s returned empty content (%s) — attempt %d/%d\n",
+			o.Name(), lastNote, attempt+1, openRouterEmptyRetries+1)
 	}
-	var resp openAIResponse
-	if err := json.Unmarshal(raw, &resp); err != nil {
-		return "", fmt.Errorf("openrouter: parse response: %w", err)
+	return "", fmt.Errorf("openrouter: %s returned empty content after %d attempts (%s)",
+		o.Model, openRouterEmptyRetries+1, lastNote)
+}
+
+// describeEmptyCompletion summarises who served an empty completion and what
+// they called it, so the error names the failing upstream instead of leaving a
+// bare parse failure.
+func describeEmptyCompletion(resp *openAIResponse) string {
+	provider := resp.Provider
+	if provider == "" {
+		provider = "unknown provider"
 	}
-	if resp.Error != nil {
-		return "", fmt.Errorf("openrouter: api error: %s", resp.Error.Message)
+	reason := ""
+	if len(resp.Choices) > 0 {
+		reason = resp.Choices[0].NativeFinishReason
 	}
-	if len(resp.Choices) == 0 {
-		return "", fmt.Errorf("openrouter: empty choices")
+	if reason == "" {
+		return provider
 	}
-	// Surface actual usage against the requested cap — the only way to tell
-	// whether MaxTokens is sized right instead of guessing (see the 2026-07-17
-	// credits-gate incident: the cap had never been measured against reality).
-	if resp.Usage != nil {
-		fmt.Printf("   [llm] %s used %d completion tokens (cap %d)\n", o.Name(), resp.Usage.CompletionTokens, o.MaxTokens)
-	}
-	return resp.Choices[0].Message.Content, nil
+	return provider + ": " + reason
 }
