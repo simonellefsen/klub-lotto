@@ -1153,3 +1153,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-01 05:18 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-09-01 05:19 UTC] ingest | quiz | Hvad kaldes en blanding af smør og mel, der bruges til at j… | outcome=submitted
+
