@@ -1167,3 +1167,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-02 05:56 UTC] ingest | quiz | Hvilken ingrediens giver den klassiske risotto alla milanese… | outcome=submitted
 
+## [2026-09-02 05:57 UTC] ingest | ordkløver | Category: `Ferie & fritid`; answer pattern `12` | outcome=submitted
+
