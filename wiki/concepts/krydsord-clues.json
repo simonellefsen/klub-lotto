@@ -68,6 +68,9 @@
   "ACEOFDIAMONDSPLAYINGCARD": [
     "ES"
   ],
+  "AD": [
+    "LANGS"
+  ],
   "ADELSMÆND": [
     "GREVER"
   ],
@@ -101,6 +104,9 @@
   ],
   "AGITERE": [
     "IVRE"
+  ],
+  "ALDRIGIBONN": [
+    "NIE"
   ],
   "ALTSÅ": [
     "ERGO"
@@ -339,7 +345,8 @@
     "ROSE",
     "ORKIDE",
     "VIOL",
-    "NELLIKE"
+    "NELLIKE",
+    "TUSINDFRYD"
   ],
   "BLOMSTEN": [
     "ROSEN"
@@ -402,6 +409,9 @@
   ],
   "BOWLER": [
     "SKÅLE"
+  ],
+  "BRAG": [
+    "DRØN"
   ],
   "BRANCHE": [
     "IT"
@@ -562,6 +572,9 @@
   "DANS": [
     "JITTERBUG"
   ],
+  "DECILITER": [
+    "DL"
+  ],
   "DEJLIGT": [
     "RART"
   ],
@@ -618,7 +631,8 @@
     "KIR",
     "ÆBLECIDER",
     "VIN",
-    "ROM"
+    "ROM",
+    "ISTE"
   ],
   "DRIKKE": [
     "DIE"
@@ -710,6 +724,9 @@
   ],
   "ENDEN": [
     "AFSLUTNING"
+  ],
+  "ENDEVÆGGE": [
+    "GAVLE"
   ],
   "ENFOLDIG": [
     "GODTROENDE"
@@ -904,6 +921,9 @@
   "FINDES": [
     "ER"
   ],
+  "FINGER": [
+    "TOMMELTOT"
+  ],
   "FINSTAND": [
     "ADEL"
   ],
@@ -1096,7 +1116,8 @@
     "ODIØS"
   ],
   "FRED": [
-    "RO"
+    "RO",
+    "IDYL"
   ],
   "FREDEN": [
     "ROEN"
@@ -1566,6 +1587,9 @@
     "OSLO",
     "NUUK"
   ],
+  "HOVSA": [
+    "UPS"
+  ],
   "HUGGE": [
     "NEME",
     "NOLE"
@@ -2018,6 +2042,10 @@
   "KRUMME": [
     "BUEDE"
   ],
+  "KRYDDERDEL": [
+    "OVER",
+    "UNDER"
+  ],
   "KRYDDERDELE": [
     "OVERE"
   ],
@@ -2047,7 +2075,8 @@
     "ØST",
     "NORD",
     "VEST",
-    "RUTE"
+    "RUTE",
+    "NNØ"
   ],
   "KURSIST": [
     "ELEV"
@@ -2632,6 +2661,9 @@
   "OPHÆNG": [
     "URO"
   ],
+  "OPLYSNINGER": [
+    "INFO"
+  ],
   "OPREGNET": [
     "TALT"
   ],
@@ -2789,6 +2821,9 @@
   "PLAYINGCARD": [
     "TREER"
   ],
+  "PLET": [
+    "NIST"
+  ],
   "PLUDSELIGT": [
     "BRAT"
   ],
@@ -2908,7 +2943,9 @@
     "LE",
     "FIL",
     "NÅL",
+    "ROK",
     "DÅSEÅBNER",
+    "DOLK",
     "FORK",
     "SYNÅL",
     "MEJSEL",
@@ -3087,6 +3124,9 @@
   ],
   "SIGERJATIL": [
     "ÆGTER"
+  ],
+  "SIGNAL": [
+    "TEGN"
   ],
   "SIKKERT": [
     "NOK",
@@ -3514,6 +3554,9 @@
   "STOLTHED": [
     "ÆRE"
   ],
+  "STORK": [
+    "IBIS"
+  ],
   "STRAKS": [
     "NU"
   ],
@@ -3911,6 +3954,9 @@
   ],
   "TYRKIET": [
     "TR"
+  ],
+  "TYSKHAV": [
+    "SEE"
   ],
   "TYSKLAND": [
     "D"
@@ -4341,6 +4387,9 @@
   "[IMG]BOUQUETOFFLOWERS": [
     "BUKET"
   ],
+  "[IMG]BRANCH": [
+    "GREN"
+  ],
   "[IMG]BRANCHWITHLEAVES": [
     "GREN"
   ],
@@ -4463,6 +4512,9 @@
   ],
   "[IMG]FISHINGHOOK": [
     "KROG"
+  ],
+  "[IMG]FLY": [
+    "FLUE"
   ],
   "[IMG]FORKANDKNIFE": [
     "BESTIK"
