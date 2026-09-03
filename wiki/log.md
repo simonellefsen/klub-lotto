@@ -1179,3 +1179,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-03 05:04 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-09-03 05:04 UTC] ingest | quiz | Hvilken ø i Danmark er kendt for sine kalkklinter og kaldes… | outcome=submitted
+
