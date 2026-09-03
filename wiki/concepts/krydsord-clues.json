@@ -473,6 +473,9 @@
     "PALADS",
     "HUS"
   ],
+  "BYGNINGER": [
+    "HUSE"
+  ],
   "BYRDE": [
     "ÅG"
   ],
@@ -622,6 +625,9 @@
   "DRAGT": [
     "TOGA"
   ],
+  "DRENG": [
+    "GUT"
+  ],
   "DRIK": [
     "TE",
     "ØL",
@@ -693,7 +699,8 @@
     "KROKODILLE",
     "OKSE",
     "LAMA",
-    "ORME"
+    "ORME",
+    "RÆVE"
   ],
   "DYRKER": [
     "AVLER"
@@ -1132,7 +1139,8 @@
     "YPPERLIGT"
   ],
   "FRI": [
-    "LEDIG"
+    "LEDIG",
+    "LØS"
   ],
   "FRISERES": [
     "REDES"
@@ -1197,7 +1205,8 @@
     "KOLIBRIER",
     "ARAER",
     "GÆS",
-    "PAPEGØJER"
+    "PAPEGØJER",
+    "RAVNE"
   ],
   "FUGLEN": [
     "UGLEN"
@@ -1293,6 +1302,9 @@
   ],
   "GIFTET": [
     "VIET"
+  ],
+  "GIGA": [
+    "G"
   ],
   "GIGABYTE": [
     "GB"
@@ -2124,7 +2136,8 @@
     "KASSEROLLE",
     "JERNGRYDE",
     "SKÆREBRÆT",
-    "BRØDRISTER"
+    "BRØDRISTER",
+    "OVNE"
   ],
   "KØKKENUDSTYRET": [
     "OVNEN"
@@ -2670,6 +2683,9 @@
   "OPSÆTNING": [
     "REDT"
   ],
+  "OPSÆTNINGEN": [
+    "REGIET"
+  ],
   "OPTEGNELSE": [
     "NOTE"
   ],
@@ -2879,6 +2895,9 @@
   "PSYKEDEL": [
     "EGO"
   ],
+  "PUBLIKATION": [
+    "UGESKRIFT"
+  ],
   "PUDEFYLD": [
     "DUN"
   ],
@@ -2949,7 +2968,8 @@
     "FORK",
     "SYNÅL",
     "MEJSEL",
-    "SI"
+    "SI",
+    "LINEAL"
   ],
   "REDSKABER": [
     "ØKSER",
@@ -3056,7 +3076,8 @@
     "NÅ",
     "RK",
     "SUITE",
-    "KOLONNE"
+    "KOLONNE",
+    "SERIE"
   ],
   "RØG": [
     "OS",
@@ -3211,6 +3232,9 @@
   "SKOVNAVN": [
     "ROLD"
   ],
+  "SKRIG": [
+    "RÅB"
+  ],
   "SKRIVER": [
     "PEN"
   ],
@@ -3231,6 +3255,9 @@
   ],
   "SKRÆMME": [
     "TRUE"
+  ],
+  "SKRÆMMENDE": [
+    "UHYGGELIGE"
   ],
   "SKRÆMMES": [
     "TRUES"
@@ -3309,7 +3336,8 @@
     "SØSTER"
   ],
   "SLÆGTNINGEN": [
-    "ONKLEN"
+    "ONKLEN",
+    "NEVØEN"
   ],
   "SMALL": [
     "S"
@@ -3361,6 +3389,9 @@
   ],
   "SNYLTER": [
     "IGLE"
+  ],
+  "SOBER": [
+    "ÆDRU"
   ],
   "SOL": [
     "G"
@@ -3560,6 +3591,9 @@
   "STRAKS": [
     "NU"
   ],
+  "STRANDFUND": [
+    "RAV"
+  ],
   "STRUDS": [
     "EMU"
   ],
@@ -3712,7 +3746,8 @@
     "EVNERIGE"
   ],
   "TALJE": [
-    "GI"
+    "GI",
+    "LIV"
   ],
   "TALORD": [
     "EN",
@@ -4253,6 +4288,9 @@
   "VOLTAMPERE": [
     "VA"
   ],
+  "VOVEDE": [
+    "TURDE"
+  ],
   "VOVET": [
     "RISIKERET"
   ],
@@ -4738,6 +4776,9 @@
   "[IMG]ROOF": [
     "TAG"
   ],
+  "[IMG]ROOSTER": [
+    "HANE"
+  ],
   "[IMG]ROPE": [
     "REB",
     "TOV"
@@ -4926,6 +4967,9 @@
   ],
   "ØLTYPE": [
     "ALE"
+  ],
+  "ØNSKE": [
+    "HÅBE"
   ],
   "ØRKENLUND": [
     "OASE"
