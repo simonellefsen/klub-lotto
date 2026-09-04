@@ -5,6 +5,9 @@
   "1002": [
     "MII"
   ],
+  "1005": [
+    "MV"
+  ],
   "101": [
     "CI"
   ],
@@ -186,6 +189,9 @@
   ],
   "BANDS": [
     "JAZZTRIOER"
+  ],
+  "BARE": [
+    "KUN"
   ],
   "BARSKT": [
     "RÅT"
@@ -401,6 +407,9 @@
   "BOR": [
     "B"
   ],
+  "BORNHOLMER": [
+    "UR"
+  ],
   "BORTE": [
     "VÆK"
   ],
@@ -483,7 +492,8 @@
     "B"
   ],
   "BÅD": [
-    "EGE"
+    "EGE",
+    "KANO"
   ],
   "BÆGER": [
     "KOP"
@@ -702,6 +712,9 @@
     "ORME",
     "RÆVE"
   ],
+  "DYRET": [
+    "DÅEN"
+  ],
   "DYRKER": [
     "AVLER"
   ],
@@ -844,6 +857,9 @@
   ],
   "FALDE": [
     "DALE"
+  ],
+  "FALDT": [
+    "DALEDE"
   ],
   "FALSK": [
     "UREEL"
@@ -1166,7 +1182,8 @@
     "MELON",
     "BÆR",
     "NØD",
-    "OLIVEN"
+    "OLIVEN",
+    "VANDMELON"
   ],
   "FRUGTER": [
     "ABRIKOSER",
@@ -1368,6 +1385,9 @@
   ],
   "GRATIE": [
     "YNDE"
+  ],
+  "GREB": [
+    "TAG"
   ],
   "GRIBE": [
     "TY",
@@ -2880,6 +2900,9 @@
   "PRODUKTIVE": [
     "YDEDYGTIGE"
   ],
+  "PROFET": [
+    "SEER"
+  ],
   "PROPPET": [
     "FYLDT"
   ],
@@ -2995,6 +3018,9 @@
   "REMME": [
     "BÆLTER"
   ],
+  "RENDER": [
+    "LØBER"
+  ],
   "RENSEMIDDEL": [
     "SÆBE"
   ],
@@ -3053,7 +3079,8 @@
     "TRONE"
   ],
   "RUM": [
-    "LO"
+    "LO",
+    "VINKELSTUE"
   ],
   "RUMORGANISATION": [
     "ESA"
@@ -3142,6 +3169,9 @@
   ],
   "SIDE": [
     "KANT"
+  ],
+  "SIDER": [
+    "KANTER"
   ],
   "SIGERJATIL": [
     "ÆGTER"
@@ -4091,6 +4121,9 @@
   "ULMET": [
     "GÆRET"
   ],
+  "UNDERHOLDNING": [
+    "GØGL"
+  ],
   "UNDERLIG": [
     "SÆR"
   ],
@@ -4197,6 +4230,9 @@
   "VEJE": [
     "GADER"
   ],
+  "VEJFÆLLE": [
+    "NABO"
+  ],
   "VEJLEDER": [
     "GURU"
   ],
@@ -4302,6 +4338,9 @@
   ],
   "VULKAN": [
     "ETNA"
+  ],
+  "VÅBEN": [
+    "BUE"
   ],
   "VÅGEN": [
     "KVIK"
@@ -4578,6 +4617,9 @@
   "[IMG]GREENARROWPOINTINGDOWNRIGHT": [
     "PIL"
   ],
+  "[IMG]GREENSNEAKERS": [
+    "SKO"
+  ],
   "[IMG]GRILL": [
     "GRILL"
   ],
@@ -4788,6 +4830,9 @@
   ],
   "[IMG]RUNES": [
     "RUNER"
+  ],
+  "[IMG]SAILBOAT": [
+    "SKIB"
   ],
   "[IMG]SAW": [
     "SAV"
