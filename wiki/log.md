@@ -1195,3 +1195,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-04 05:54 UTC] ingest | ordkløver | Category: `Medier`; answer pattern `3 / 2 / 6`; visual layou… | outcome=submitted
 
+## [2026-09-04 05:56 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
