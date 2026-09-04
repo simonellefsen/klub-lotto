@@ -1193,3 +1193,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-04 05:52 UTC] ingest | quiz | Hvilken svømmedisciplin kræver at svømmeren berører væg… | outcome=submitted
 
+## [2026-09-04 05:54 UTC] ingest | ordkløver | Category: `Medier`; answer pattern `3 / 2 / 6`; visual layou… | outcome=submitted
+
