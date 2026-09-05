@@ -1207,3 +1207,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-05 06:31 UTC] ingest | ordkløver | Category: `På danmarkskortet`; answer pattern `11 / 4 / 8` | outcome=submitted
 
+## [2026-09-05 06:33 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
