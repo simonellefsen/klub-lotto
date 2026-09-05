@@ -43,10 +43,23 @@ type Client struct {
 
 // New builds a Client with sensible defaults.
 // The binary is resolved from AGENT_BROWSER_BIN env var if set, else "agent-browser" on PATH.
+//
+// Which binary is used matters more than it looks. agent-browser keys its daemon
+// to the CLI version and kills a daemon whose version differs (or that predates
+// version tracking), taking the browser — and the logged-in Chrome profile —
+// with it. So mixing binaries across entry points silently logs the session out:
+// the Makefile targets pass AGENT_BROWSER_BIN, but anything invoking the CLI
+// directly falls through to PATH, which on this machine is a much older build.
+// The fallback is announced rather than silent for that reason.
 func New(session string, headed bool) *Client {
 	bin := os.Getenv("AGENT_BROWSER_BIN")
 	if bin == "" {
 		bin = "agent-browser"
+		if resolved, err := exec.LookPath(bin); err == nil {
+			fmt.Printf("   [agent-browser] AGENT_BROWSER_BIN unset — using %s from PATH. "+
+				"If that is a different version than the one that started the %q daemon, "+
+				"it will restart the daemon and drop the logged-in browser session.\n", resolved, session)
+		}
 	}
 	return &Client{
 		Binary:         bin,
@@ -102,9 +115,22 @@ func (c *Client) run(ctx context.Context, args ...string) (*rawResponse, error) 
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
-	if err := cmd.Run(); err != nil {
+	runErr := cmd.Run()
+
+	// Surface agent-browser's stderr even when the command SUCCEEDS. It is
+	// normally empty, and the things it does print are the ones we most need to
+	// see — above all "Daemon version mismatch detected, restarting...", which
+	// agent-browser emits just before it kills the daemon and its browser. That
+	// restart discards the logged-in Chrome profile, so the next command lands on
+	// about:blank and the game fails for reasons nothing in our log explains.
+	// Swallowing it (as this function did until 2026-09-04, reporting stderr only
+	// on a non-zero exit) made a self-explaining failure look like a mystery.
+	if s := strings.TrimSpace(stderr.String()); s != "" && runErr == nil {
+		fmt.Printf("   [agent-browser] %s\n", truncate(s, 500))
+	}
+	if runErr != nil {
 		return nil, fmt.Errorf("agent-browser %s: %w (stdout=%s stderr=%s)",
-			strings.Join(full, " "), err, truncate(strings.TrimSpace(stdout.String()), 1000), truncate(strings.TrimSpace(stderr.String()), 1000))
+			strings.Join(full, " "), runErr, truncate(strings.TrimSpace(stdout.String()), 1000), truncate(strings.TrimSpace(stderr.String()), 1000))
 	}
 
 	out := stdout.Bytes()

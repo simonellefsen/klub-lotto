@@ -11,7 +11,13 @@ AGENT_BROWSER_HEADED ?= true
 # Point at the local Rust build of agent-browser that can see embedded iframe elements.
 # Override with: make sudoku AGENT_BROWSER_BIN=agent-browser (to use PATH version instead)
 AGENT_BROWSER_BIN ?= /Users/lindau/codex/agent-browser/cli/target/release/agent-browser
-LOCAL_BROWSER_ENV := AGENT_BROWSER_SESSION=$(AGENT_BROWSER_SESSION) AGENT_BROWSER_SESSION_NAME=$(AGENT_BROWSER_SESSION_NAME) AGENT_BROWSER_HEADED=$(AGENT_BROWSER_HEADED) AGENT_BROWSER_BIN=$(AGENT_BROWSER_BIN)
+# Set AGENT_BROWSER_DEBUG=1 to make the agent-browser daemon write
+# ~/.agent-browser/$(AGENT_BROWSER_SESSION).log instead of sending its stderr to
+# /dev/null. The daemon reads this only when it SPAWNS, so it takes effect on the
+# next daemon start — kill the running one first (see `make browser-debug-restart`).
+# That log is the only place the reason for a browser relaunch is recorded.
+AGENT_BROWSER_DEBUG ?=
+LOCAL_BROWSER_ENV := AGENT_BROWSER_SESSION=$(AGENT_BROWSER_SESSION) AGENT_BROWSER_SESSION_NAME=$(AGENT_BROWSER_SESSION_NAME) AGENT_BROWSER_HEADED=$(AGENT_BROWSER_HEADED) AGENT_BROWSER_BIN=$(AGENT_BROWSER_BIN) $(if $(AGENT_BROWSER_DEBUG),AGENT_BROWSER_DEBUG=$(AGENT_BROWSER_DEBUG))
 # Vision model for reading the Ordkløver/Krydsord board. A "~"-prefixed slug is
 # a valid OpenRouter floating alias (resolves to the current concrete model).
 # Override the vision model with either VISION_MODEL=... or
@@ -113,6 +119,22 @@ doctor: $(BIN)
 
 login: $(BIN)
 	$(LOCAL_BROWSER_ENV) $(BIN) login
+
+# Restart the browser daemon with debug logging on, then log in. Costs one
+# login (the daemon owns the Chrome profile, so it goes with it) and buys a
+# ~/.agent-browser/<session>.log that records WHY the daemon relaunches the
+# browser — the question "make sudoku killed my session" cannot be answered
+# without it, because the daemon otherwise discards its own stderr.
+.PHONY: browser-debug-restart browser-log
+browser-debug-restart: $(BIN)
+	-$(AGENT_BROWSER_BIN) --session $(AGENT_BROWSER_SESSION) close 2>/dev/null
+	-pkill -f "agent-browser" 2>/dev/null; sleep 1
+	$(MAKE) login AGENT_BROWSER_DEBUG=1
+
+# Show the daemon log (empty unless the daemon was started with AGENT_BROWSER_DEBUG=1).
+browser-log:
+	@tail -n 60 $$HOME/.agent-browser/$(AGENT_BROWSER_SESSION).log 2>/dev/null \
+		|| echo "no daemon log — start the daemon via 'make browser-debug-restart' first"
 
 # Solve the quiz with a visible browser, then commit the new wiki state and
 # push. Every other real-play game target (sudoku/ordkloever/ordknude/
