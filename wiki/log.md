@@ -1205,3 +1205,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-05 06:30 UTC] ingest | quiz | Hvilken film vandt Oscar for bedste film ved Oscaruddelingen… | outcome=submitted
 
+## [2026-09-05 06:31 UTC] ingest | ordkløver | Category: `På danmarkskortet`; answer pattern `11 / 4 / 8` | outcome=submitted
+
