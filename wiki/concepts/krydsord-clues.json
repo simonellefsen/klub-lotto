@@ -725,7 +725,8 @@
     "ALIAS"
   ],
   "DÆKNING": [
-    "LÆ"
+    "LÆ",
+    "LY"
   ],
   "DØRSLAG": [
     "SI"
@@ -1123,6 +1124,9 @@
   "FORTÆLLER": [
     "BETROR"
   ],
+  "FORTÆRE": [
+    "ÆDE"
+  ],
   "FORTÆRET": [
     "ÆDT"
   ],
@@ -1374,6 +1378,9 @@
   "GOLFUDSTYR": [
     "TEE"
   ],
+  "GRACIØS": [
+    "YNDEFULDT"
+  ],
   "GRACIØST": [
     "YNDEFULDT"
   ],
@@ -1407,6 +1414,9 @@
   ],
   "GRUNDE": [
     "ÅRSAGER"
+  ],
+  "GRUNDSTOF": [
+    "NEON"
   ],
   "GRUPPE": [
     "KOR"
@@ -1858,6 +1868,9 @@
   "KAMMERTONEN": [
     "A"
   ],
+  "KAMPÅND": [
+    "SISU"
+  ],
   "KAMRE": [
     "SENATER"
   ],
@@ -1902,6 +1915,9 @@
   ],
   "KILOMETER": [
     "KM"
+  ],
+  "KIME": [
+    "RINGE"
   ],
   "KIMONO": [
     "MORGENKÅBE"
@@ -2273,6 +2289,9 @@
   "LIGEPRÆCIS": [
     "NETOP"
   ],
+  "LIGETIL": [
+    "NEMT"
+  ],
   "LILLE": [
     "LL"
   ],
@@ -2364,6 +2383,9 @@
   "LØBET": [
     "RALLYET"
   ],
+  "LØBSDEL": [
+    "ETAPE"
+  ],
   "LØBSDELE": [
     "HEATS"
   ],
@@ -2403,6 +2425,9 @@
   "MASSE": [
     "GEL"
   ],
+  "MASSER": [
+    "UTAL"
+  ],
   "MASSERE": [
     "ÆLTE"
   ],
@@ -2432,6 +2457,9 @@
   ],
   "MESTERKOK": [
     "GASTRONOM"
+  ],
+  "MESTERSKAB": [
+    "DM"
   ],
   "METAL": [
     "JERN"
@@ -2682,6 +2710,9 @@
   "OPFINDER": [
     "EDISON"
   ],
+  "OPFINDSOM": [
+    "IDERIG"
+  ],
   "OPFØRE": [
     "TE"
   ],
@@ -2693,6 +2724,9 @@
   ],
   "OPHÆNG": [
     "URO"
+  ],
+  "OPHØJET": [
+    "ADLET"
   ],
   "OPLYSNINGER": [
     "INFO"
@@ -2781,6 +2815,9 @@
   ],
   "PARTIKEL": [
     "ION"
+  ],
+  "PASNINGAFUNGER": [
+    "YNGELPLEJE"
   ],
   "PASSE": [
     "ANSTÅ"
@@ -3899,6 +3936,9 @@
   "TOGFIRMA": [
     "DSB"
   ],
+  "TOGRUM": [
+    "KUPE"
+  ],
   "TOGTAG": [
     "ROEDE"
   ],
@@ -4372,7 +4412,8 @@
     "MURRE"
   ],
   "VÆSEN": [
-    "FE"
+    "FE",
+    "NISSE"
   ],
   "VÆSKE": [
     "ÆTER"
@@ -4487,6 +4528,9 @@
   ],
   "[IMG]CAMPFIRE": [
     "ILD"
+  ],
+  "[IMG]CANDLE": [
+    "LYS"
   ],
   "[IMG]CARROT": [
     "GULEROD"
