@@ -1217,3 +1217,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-06 06:16 UTC] ingest | quiz | Hvad kaldes teknikken hvor man hurtigt afkøler grøntsager … | outcome=submitted
 
+## [2026-09-06 06:17 UTC] ingest | ordkløver | Category: `Transport mm.`; answer pattern `9 / 4` | outcome=submitted
+
