@@ -65,6 +65,9 @@
   "56": [
     "LVI"
   ],
+  "ABBAHIT": [
+    "SOS"
+  ],
   "ABC": [
     "BOGSTAVER"
   ],
@@ -620,6 +623,9 @@
   "DIRRER": [
     "RYSTER"
   ],
+  "DITTO": [
+    "DO"
+  ],
   "DIVIDERE": [
     "DELE"
   ],
@@ -710,7 +716,8 @@
     "OKSE",
     "LAMA",
     "ORME",
-    "RÆVE"
+    "RÆVE",
+    "HUND"
   ],
   "DYRET": [
     "DÅEN"
@@ -1695,6 +1702,9 @@
   "HÆLDT": [
     "ØSET"
   ],
+  "HÆNDER": [
+    "SKER"
+  ],
   "HÆNDT": [
     "SKET"
   ],
@@ -1795,7 +1805,8 @@
     "SITAR",
     "CELLO",
     "ORGEL",
-    "ELBAS"
+    "ELBAS",
+    "TUBA"
   ],
   "INSTRUMENTER": [
     "TROMPETER"
@@ -1849,6 +1860,9 @@
   ],
   "JUDODRAGTEN": [
     "GIEN"
+  ],
+  "JUVELEN": [
+    "ÆDELSTENEN"
   ],
   "JÆVN": [
     "EGAL",
@@ -2044,6 +2058,9 @@
   "KORTKULØR": [
     "KLØR"
   ],
+  "KORTSPIL": [
+    "UNO"
+  ],
   "KOSTBAR": [
     "DYR"
   ],
@@ -2191,6 +2208,9 @@
   ],
   "LABEL": [
     "ETIKET"
+  ],
+  "LADE": [
+    "DOVNE"
   ],
   "LAGRE": [
     "ARSENALER"
@@ -2490,6 +2510,9 @@
   ],
   "MODERNE": [
     "IN"
+  ],
+  "MOMENT": [
+    "NU"
   ],
   "MONETER": [
     "PENGE"
@@ -2982,6 +3005,9 @@
   "PÅDETTESTED": [
     "HER"
   ],
+  "PÅHITTET": [
+    "IDEEN"
+  ],
   "PÅLÆG": [
     "OST",
     "SPEGEPØLSE",
@@ -2992,6 +3018,9 @@
   ],
   "PÅVIRKE": [
     "MANIPULERE"
+  ],
+  "PÆN": [
+    "NOBEL"
   ],
   "PØLSE": [
     "SALAMI"
@@ -3210,6 +3239,9 @@
   "SIDER": [
     "KANTER"
   ],
+  "SIGE": [
+    "YTRE"
+  ],
   "SIGERJATIL": [
     "ÆGTER"
   ],
@@ -3406,6 +3438,9 @@
     "ONKLEN",
     "NEVØEN"
   ],
+  "SMAGFULDE": [
+    "ÆSTETISKE"
+  ],
   "SMALL": [
     "S"
   ],
@@ -3450,6 +3485,9 @@
   ],
   "SNILDE": [
     "LIST"
+  ],
+  "SNUPPEDE": [
+    "TOG"
   ],
   "SNYLTE": [
     "NASSE"
@@ -4549,7 +4587,8 @@
     "OSTE"
   ],
   "[IMG]CHERRIES": [
-    "KIRSEBÆR"
+    "KIRSEBÆR",
+    "BÆR"
   ],
   "[IMG]CHICKEN": [
     "HØNE"
