@@ -1215,3 +1215,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-06 06:16 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-09-06 06:16 UTC] ingest | quiz | Hvad kaldes teknikken hvor man hurtigt afkøler grøntsager … | outcome=submitted
+
