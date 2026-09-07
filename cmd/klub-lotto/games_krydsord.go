@@ -1516,7 +1516,14 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 	// several slots and seeds candidates, so low effort is usually enough.
 	const maxAttempts = 3
 	const attemptTimeout = 300 * time.Second
+	// Upper bound on how many disagreeing slots targeted repair will take on. Far
+	// enough above a typical few-bad-words grid to catch it, low enough that a
+	// wholesale-wrong attempt still falls through to a full retry.
+	const maxRepairSlots = 12
 	var lastErr error
+	// The previous attempt's answers, so a retry can be told which letters the
+	// crossings already corroborated instead of starting from a blank slate.
+	var prevAnswers map[string]string
 	for attempt := 1; attempt <= maxAttempts; attempt++ {
 		// Rebuild from the CURRENT knownAnswers/clues — a stale prompt carries
 		// mønster= patterns for dict answers that were dropped as untrusted.
@@ -1524,6 +1531,17 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 		prompt := buildPrompt()
 		if lastErr != nil {
 			prompt += fmt.Sprintf("\nForrige forsøg var forkert: %v\nRet svarene: hvert slot skal have et svar med korrekt længde, og delte celler skal have samme bogstav.\n", lastErr)
+			// Tell the retry which letters the previous attempt already got RIGHT.
+			// Without this the model re-derives the whole grid from the clues and
+			// happily discards a well-corroborated word: on 2026-09-06 it replaced
+			// A1=ØVELSESAL — whose Ø, V, E and L were each confirmed by a different
+			// crossing down — with SPILLEHAL, which contradicts all four. Only
+			// letters both sides of a crossing agree on are asserted; disputed
+			// cells stay '.' so the model is still free to fix what is actually
+			// broken.
+			if agreed := confirmedPatternLines(slots, prevAnswers); agreed != "" {
+				prompt += "\nDisse bogstaver er BEKRÆFTET af krydsende ord i forrige forsøg — svaret for hvert slot SKAL matche mønsteret ('.' = frit):\n" + agreed
+			}
 		}
 		modelCtx, cancel := context.WithTimeout(ctx, attemptTimeout)
 		raw, genErr := p.GenerateJSON(modelCtx, prompt, 0.05)
@@ -1599,7 +1617,15 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 		// (e.g. A10=OL where D1/D3 demand E,M → A10 should be EM). Re-prompting all
 		// 75 cells is slow and the model tends to regress; instead ask it to fix ONLY
 		// the conflicting slots, telling it the exact letters their crossings demand.
-		if check.FilledN == check.AnswerN && len(conflicts) > 0 && len(conflicts) <= 8 {
+		// Gate on how many SLOTS disagree, not how many cells do. A single wrong
+		// long word collides with every word it crosses, so a handful of bad
+		// answers routinely produces 20+ cell conflicts — the old `len(conflicts)
+		// <= 8` cap then skipped targeted repair exactly when the grid was most
+		// nearly right. On the 2026-09-06 puzzle 23 cell conflicts came from a
+		// few slots, and skipping repair sent it into a whole-grid retry that
+		// discarded the correct A1 (ØVELSESAL → SPILLEHAL).
+		involvedSlots, _ := klublotto.KrydsordConflictSlots(slots, answers)
+		if check.FilledN == check.AnswerN && len(conflicts) > 0 && len(involvedSlots) <= maxRepairSlots {
 			// A dict answer that participates in a crossing conflict is likely WRONG
 			// for this puzzle — e.g. an ambiguous short clue (FUGL→ØRN, or VITAMIN
 			// where A and D are both valid answers) whose only learned answer isn't
@@ -1689,6 +1715,7 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 			errs = append(errs[:8], "…")
 		}
 		lastErr = fmt.Errorf("filled %d/%d answer cells, %d crossing conflicts: %v", check.FilledN, check.AnswerN, len(conflicts), errs)
+		prevAnswers = answers
 		fmt.Printf("       [assemble] attempt %d/%d invalid: %v\n", attempt, maxAttempts, lastErr)
 	}
 	return nil, fmt.Errorf("krydsord assembly failed after %d attempts: %w", maxAttempts, lastErr)
@@ -1859,4 +1886,31 @@ func repairKrydsordConflictsLLM(ctx context.Context, p llm.JSONGenerator, slots 
 		}
 	}
 	return out, changed
+}
+
+// confirmedPatternLines renders the letters of the previous attempt that the
+// crossings corroborate, as one "ID: mønster" line per slot, for feeding back
+// into a whole-grid retry. Slots with nothing confirmed are omitted, so the
+// block stays short even on a large grid. Returns "" when there is nothing to
+// assert, in which case the caller adds no section at all.
+func confirmedPatternLines(slots []klublotto.KrydsordSlot, answers map[string]string) string {
+	if len(answers) == 0 {
+		return ""
+	}
+	pats := klublotto.KrydsordAgreedPatterns(slots, answers)
+	ids := make([]string, 0, len(pats))
+	for id, pat := range pats {
+		if klublotto.KrydsordAgreementScore(pat) > 0 {
+			ids = append(ids, id)
+		}
+	}
+	if len(ids) == 0 {
+		return ""
+	}
+	sort.Strings(ids)
+	var b strings.Builder
+	for _, id := range ids {
+		fmt.Fprintf(&b, "  %s: %s\n", id, pats[id])
+	}
+	return b.String()
 }

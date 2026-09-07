@@ -440,3 +440,84 @@ func KrydsordConflictSlots(slots []KrydsordSlot, answers map[string]string) (inv
 	sort.Strings(involved)
 	return involved, patternByID
 }
+
+// KrydsordAgreedPatterns returns, for every slot, the letters of its current
+// answer that are CORROBORATED by the words crossing it: position k is filled
+// only when the slot and every crossing word sharing that cell propose the same
+// letter. Disputed positions, and positions with no crossing, are '.'.
+//
+// This is the letter-level evidence a human uses to decide what survives a bad
+// attempt. On the 2026-09-06 puzzle A1 was ØVELSESAL: its Ø, V, E and L were each
+// confirmed by a different down word, and only the cells shared with two wrong
+// downs disagreed. The retry nonetheless replaced the whole word with SPILLEHAL,
+// which contradicts every one of those confirmed letters. Handing the model
+// "A1 must match ØVEL....." makes that class of answer impossible to propose,
+// without pretending the disputed cells are settled.
+//
+// Slots whose answer is missing or the wrong length are skipped.
+func KrydsordAgreedPatterns(slots []KrydsordSlot, answers map[string]string) map[string]string {
+	type ref struct {
+		id  string
+		pos int
+	}
+	cellRefs := map[[2]int][]ref{}
+	byID := map[string]KrydsordSlot{}
+	for _, s := range slots {
+		byID[s.ID] = s
+		for k, cell := range s.Cells {
+			cellRefs[[2]int{cell.Row, cell.Col}] = append(cellRefs[[2]int{cell.Row, cell.Col}], ref{s.ID, k})
+		}
+	}
+	letterAt := func(id string, pos int) (rune, bool) {
+		a := []rune(NormalizeDanishLetters(answers[id]))
+		if len(a) != byID[id].Length || pos < 0 || pos >= len(a) {
+			return 0, false
+		}
+		return a[pos], true
+	}
+
+	out := map[string]string{}
+	for _, s := range slots {
+		mine := []rune(NormalizeDanishLetters(answers[s.ID]))
+		if len(mine) != s.Length {
+			continue
+		}
+		pat := make([]rune, s.Length)
+		for k, cell := range s.Cells {
+			pat[k] = '.'
+			crossed, agreed := false, true
+			for _, r := range cellRefs[[2]int{cell.Row, cell.Col}] {
+				if r.id == s.ID {
+					continue
+				}
+				ch, has := letterAt(r.id, r.pos)
+				if !has {
+					continue
+				}
+				crossed = true
+				if ch != mine[k] {
+					agreed = false
+				}
+			}
+			if crossed && agreed {
+				pat[k] = mine[k]
+			}
+		}
+		out[s.ID] = string(pat)
+	}
+	return out
+}
+
+// KrydsordAgreementScore counts, for one slot, how many of its letters are
+// corroborated by a crossing word. Used to rank which side of a disagreement to
+// keep: a long word confirmed at many positions is far likelier to be right than
+// the short word contradicting it at one.
+func KrydsordAgreementScore(pattern string) int {
+	n := 0
+	for _, r := range pattern {
+		if r != '.' {
+			n++
+		}
+	}
+	return n
+}
