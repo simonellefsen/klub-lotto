@@ -1227,3 +1227,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-07 05:33 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-09-07 05:33 UTC] ingest | quiz | Hvilken dansk domkirke er gravkirke for de danske monarker? | outcome=submitted
+
