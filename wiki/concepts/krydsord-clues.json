@@ -97,7 +97,8 @@
     "ÅBENBARER"
   ],
   "AFSNIT": [
-    "AKT"
+    "AKT",
+    "EPISODE"
   ],
   "AFSPÆRRING": [
     "BOM"
@@ -238,7 +239,8 @@
     "ÆSKE"
   ],
   "BEHOLDERE": [
-    "TØNDER"
+    "TØNDER",
+    "DUNKE"
   ],
   "BEKENDTGØRE": [
     "DEKLARERE"
@@ -1226,7 +1228,8 @@
     "NATTERGAL",
     "PELIKAN",
     "MÅGE",
-    "RAVN"
+    "RAVN",
+    "KALKUN"
   ],
   "FUGLE": [
     "ØRNE",
@@ -1235,7 +1238,8 @@
     "ARAER",
     "GÆS",
     "PAPEGØJER",
-    "RAVNE"
+    "RAVNE",
+    "GØGE"
   ],
   "FUGLEN": [
     "UGLEN"
@@ -1402,7 +1406,8 @@
     "YNDE"
   ],
   "GREB": [
-    "TAG"
+    "TAG",
+    "TOG"
   ],
   "GRIBE": [
     "TY",
@@ -1428,6 +1433,9 @@
   ],
   "GRUPPE": [
     "KOR"
+  ],
+  "GRÆKENLAND": [
+    "GR"
   ],
   "GRÆSKBOGSTAV": [
     "BETA"
@@ -2877,6 +2885,9 @@
     "UGE",
     "ÆRA"
   ],
+  "PERIODEN": [
+    "UGEN"
+  ],
   "PERIODER": [
     "UGER"
   ],
@@ -3150,7 +3161,8 @@
     "VINKELSTUE"
   ],
   "RUMORGANISATION": [
-    "ESA"
+    "ESA",
+    "NASA"
   ],
   "RYGE": [
     "OSE"
@@ -3448,6 +3460,12 @@
   "SMELTE": [
     "TØ"
   ],
+  "SMINKE": [
+    "ØJENSKYGGE"
+  ],
+  "SMULE": [
+    "KLAT"
+  ],
   "SMUTTER": [
     "UHELD"
   ],
@@ -3550,6 +3568,9 @@
   ],
   "SPILLEBY": [
     "RENO"
+  ],
+  "SPILLESTED": [
+    "ØVELOKALE"
   ],
   "SPILLEUDSTYR": [
     "RAFLEBÆGER"
@@ -3826,6 +3847,9 @@
   ],
   "SØDEMIDDEL": [
     "ROESUKKER"
+  ],
+  "SØGTE": [
+    "LEDTE"
   ],
   "SØLV": [
     "AG"
@@ -4359,6 +4383,9 @@
   ],
   "VIGEN": [
     "NORET"
+  ],
+  "VIKLE": [
+    "SNO"
   ],
   "VINDERE": [
     "ETTERE"
