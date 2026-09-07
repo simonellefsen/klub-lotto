@@ -1229,3 +1229,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-07 05:33 UTC] ingest | quiz | Hvilken dansk domkirke er gravkirke for de danske monarker? | outcome=submitted
 
+## [2026-09-07 05:34 UTC] ingest | ordkløver | Category: `Kontor & uddannelse`; answer pattern `6 / 7` | outcome=submitted
+
