@@ -1241,3 +1241,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-08 05:51 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-09-08 05:51 UTC] ingest | quiz | Hvad mangler ifølge det danske ordsprog: 'Man skal ikke sæ… | outcome=submitted
+
