@@ -1247,3 +1247,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-08 05:54 UTC] ingest | ordkløver | Category: `Hus og have`; answer pattern `6 / 5` | outcome=submitted
 
+## [2026-09-08 06:09 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
+
