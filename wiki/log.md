@@ -1245,3 +1245,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-08 05:54 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
 
+## [2026-09-08 05:54 UTC] ingest | ordkløver | Category: `Hus og have`; answer pattern `6 / 5` | outcome=submitted
+
