@@ -1243,3 +1243,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-08 05:51 UTC] ingest | quiz | Hvad mangler ifølge det danske ordsprog: 'Man skal ikke sæ… | outcome=submitted
 
+## [2026-09-08 05:54 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
