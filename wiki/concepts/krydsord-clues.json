@@ -140,7 +140,8 @@
     "IMOD"
   ],
   "APPARAT": [
-    "TV"
+    "TV",
+    "RADAR"
   ],
   "APPEL": [
     "BØN"
@@ -286,6 +287,9 @@
   "BESVÆR": [
     "BØVL"
   ],
+  "BETEGNELSER": [
+    "NAVNE"
+  ],
   "BETRAGTE": [
     "ANSE"
   ],
@@ -428,7 +432,8 @@
     "DRØN"
   ],
   "BRANCHE": [
-    "IT"
+    "IT",
+    "FAG"
   ],
   "BRAS": [
     "MØG",
@@ -499,6 +504,9 @@
   "BÅD": [
     "EGE",
     "KANO"
+  ],
+  "BÅDUDSTYR": [
+    "ÅREGAFLER"
   ],
   "BÆGER": [
     "KOP"
@@ -758,6 +766,9 @@
   "ENDEVÆGGE": [
     "GAVLE"
   ],
+  "ENEBOER": [
+    "EREMIT"
+  ],
   "ENFOLDIG": [
     "GODTROENDE"
   ],
@@ -838,6 +849,9 @@
   ],
   "EVENTYRLAND": [
     "OZ"
+  ],
+  "EVIG": [
+    "ALTID"
   ],
   "EVIGHED": [
     "ÆON"
@@ -953,6 +967,9 @@
   ],
   "FINDES": [
     "ER"
+  ],
+  "FINDRIK": [
+    "ÅRGANGSVIN"
   ],
   "FINGER": [
     "TOMMELTOT"
@@ -1650,7 +1667,8 @@
   ],
   "HUGGE": [
     "NEME",
-    "NOLE"
+    "NOLE",
+    "NEGLE"
   ],
   "HUGGET": [
     "RANET"
@@ -1698,6 +1716,9 @@
   ],
   "HÅNDTAG": [
     "HANK"
+  ],
+  "HÅRDTVEJR": [
+    "RUSK"
   ],
   "HÅRPRODUKT": [
     "GEL"
@@ -2078,6 +2099,9 @@
   ],
   "KRADSE": [
     "KLØ"
+  ],
+  "KRAFT": [
+    "VÆGT"
   ],
   "KRAFTESLØSE": [
     "SLAPPE"
@@ -3017,6 +3041,9 @@
   "PÅDETTESTED": [
     "HER"
   ],
+  "PÅHIT": [
+    "IDE"
+  ],
   "PÅHITTET": [
     "IDEEN"
   ],
@@ -3589,6 +3616,9 @@
   ],
   "SPISEKORT": [
     "MENU"
+  ],
+  "SPISER": [
+    "ÆDER"
   ],
   "SPISESTED": [
     "RESTAURANT"
@@ -4787,6 +4817,9 @@
   ],
   "[IMG]LLAMA": [
     "LAMA"
+  ],
+  "[IMG]MASK": [
+    "MASKE"
   ],
   "[IMG]MOONANDSTARS": [
     "NAT"
