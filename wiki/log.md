@@ -1257,3 +1257,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-09 06:01 UTC] ingest | ordkløver | Category: `Den tid på året`; answer pattern `6 / 5` | outcome=submitted
 
+## [2026-09-09 06:03 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
