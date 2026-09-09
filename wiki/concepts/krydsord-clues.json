@@ -196,7 +196,8 @@
     "JAZZTRIOER"
   ],
   "BARE": [
-    "KUN"
+    "KUN",
+    "BLOT"
   ],
   "BARSKT": [
     "RÅT"
@@ -264,6 +265,9 @@
   ],
   "BESIDDE": [
     "EJE"
+  ],
+  "BESIDDELSE": [
+    "EJENDEL"
   ],
   "BESKED": [
     "SMS",
@@ -500,6 +504,9 @@
   ],
   "BYTE": [
     "B"
+  ],
+  "BYTTE": [
+    "ROV"
   ],
   "BÅD": [
     "EGE",
@@ -905,7 +912,8 @@
   ],
   "FARTØJ": [
     "LUFTBALLON",
-    "UBÅD"
+    "UBÅD",
+    "ARK"
   ],
   "FARTØJER": [
     "UBÅDE"
@@ -1296,6 +1304,9 @@
   "FØRES": [
     "LEDES"
   ],
+  "FØRMIDDAG": [
+    "AM"
+  ],
   "FØRÆ": [
     "Z"
   ],
@@ -1678,6 +1689,9 @@
   ],
   "HUNDSE": [
     "HERSE"
+  ],
+  "HURTIGT": [
+    "TJEPT"
   ],
   "HUSREST": [
     "RUIN"
@@ -2535,6 +2549,9 @@
   "MINUS": [
     "UDEN"
   ],
+  "MISTEDE": [
+    "TABTE"
+  ],
   "MISTER": [
     "MR"
   ],
@@ -2594,6 +2611,9 @@
   ],
   "MÅLERE": [
     "URE"
+  ],
+  "MÅLESTOK": [
+    "SKALA"
   ],
   "MÅLFORK": [
     "KM"
@@ -3061,6 +3081,9 @@
   "PÆN": [
     "NOBEL"
   ],
+  "PØL": [
+    "SØ"
+  ],
   "PØLSE": [
     "SALAMI"
   ],
@@ -3221,6 +3244,9 @@
   ],
   "RØNTGEN": [
     "R"
+  ],
+  "SAGNKONGE": [
+    "LEAR"
   ],
   "SAL": [
     "ETAGE"
@@ -3981,7 +4007,8 @@
   "TILBEHØR": [
     "GELE",
     "PESTO",
-    "ASIER"
+    "ASIER",
+    "SOJA"
   ],
   "TILBEREDT": [
     "STEGT"
@@ -4000,6 +4027,9 @@
   ],
   "TILSÆTTER": [
     "IRØRER"
+  ],
+  "TILTRÆKKENDE": [
+    "ATTRAKTIVE"
   ],
   "TINDE": [
     "TOP"
@@ -4214,6 +4244,9 @@
   ],
   "UDENINDHOLD": [
     "TOM"
+  ],
+  "UDFLUGTER": [
+    "TURE"
   ],
   "UDGIFT": [
     "RENTE"
@@ -4507,6 +4540,9 @@
   "VÆRKE": [
     "MURRE"
   ],
+  "VÆRKSTEDET": [
+    "ATELIERET"
+  ],
   "VÆSEN": [
     "FE",
     "NISSE"
@@ -4600,6 +4636,9 @@
   ],
   "[IMG]BOUQUETOFFLOWERS": [
     "BUKET"
+  ],
+  "[IMG]BOXINGGLOVE": [
+    "VANTE"
   ],
   "[IMG]BRANCH": [
     "GREN"
