@@ -1259,3 +1259,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-09 06:03 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
 
+## [2026-09-09 06:07 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
+
