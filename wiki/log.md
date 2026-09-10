@@ -1267,3 +1267,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-10 05:23 UTC] ingest | quiz | HvilkeN skakbrik kan kun flytte diagonalt? | outcome=submitted
 
+## [2026-09-10 05:23 UTC] ingest | ordkløver | Category: `Personlig pleje`; answer pattern `8` | outcome=submitted
+
