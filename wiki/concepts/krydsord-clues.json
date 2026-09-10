@@ -141,7 +141,8 @@
   ],
   "APPARAT": [
     "TV",
-    "RADAR"
+    "RADAR",
+    "BRØDRISTER"
   ],
   "APPEL": [
     "BØN"
@@ -640,6 +641,9 @@
   "DIRRER": [
     "RYSTER"
   ],
+  "DISKUSSION": [
+    "DEBAT"
+  ],
   "DITTO": [
     "DO"
   ],
@@ -737,7 +741,8 @@
     "HUND"
   ],
   "DYRET": [
-    "DÅEN"
+    "DÅEN",
+    "RENEN"
   ],
   "DYRKER": [
     "AVLER"
@@ -951,7 +956,8 @@
     "AULA"
   ],
   "FIGUR": [
-    "REKTANGEL"
+    "REKTANGEL",
+    "TIKANT"
   ],
   "FILEN": [
     "RASPEN"
@@ -1513,6 +1519,9 @@
   "GÅDE": [
     "ENIGMA"
   ],
+  "GÅEFTER": [
+    "HENTE"
+  ],
   "GÆRER": [
     "ULMER"
   ],
@@ -1687,6 +1696,9 @@
   "HUL": [
     "ØJE"
   ],
+  "HUMLEBI": [
+    "BRUMBASSE"
+  ],
   "HUNDSE": [
     "HERSE"
   ],
@@ -1800,6 +1812,9 @@
   "IMAGET": [
     "RYET"
   ],
+  "INDEN": [
+    "FØR"
+  ],
   "INDHAK": [
     "SLIDS"
   ],
@@ -1815,6 +1830,9 @@
   "INDTAGE": [
     "ÆDE"
   ],
+  "INDTAGET": [
+    "ÆDT"
+  ],
   "INDTRÆK": [
     "FOR"
   ],
@@ -1824,11 +1842,15 @@
   "INKLUSIVE": [
     "MED"
   ],
+  "INNOVATION": [
+    "NYHED"
+  ],
   "INSEKT": [
     "BI",
     "LOPPE",
     "MØL",
-    "MARIEHØNE"
+    "MARIEHØNE",
+    "TÆGE"
   ],
   "INSEKTER": [
     "BIER"
@@ -1915,6 +1937,9 @@
   "JÆVNE": [
     "LIERE",
     "EGALE"
+  ],
+  "JÆVNT": [
+    "EGALT"
   ],
   "KAGE": [
     "LINSE",
@@ -3696,6 +3721,9 @@
   "STAKKELS": [
     "ARME"
   ],
+  "STANK": [
+    "ODØR"
+  ],
   "STARTET": [
     "IGANGSAT"
   ],
@@ -3966,6 +3994,9 @@
   "TARIF": [
     "SATS"
   ],
+  "TEATERFIGUR": [
+    "ROMEO"
+  ],
   "TEGN": [
     "NODE",
     "NODER",
@@ -4110,7 +4141,8 @@
     "TM"
   ],
   "TRANSPORTMIDDEL": [
-    "TURISTBUS"
+    "TURISTBUS",
+    "ELTOG"
   ],
   "TRAVLHED": [
     "JAG"
@@ -4545,7 +4577,8 @@
   ],
   "VÆSEN": [
     "FE",
-    "NISSE"
+    "NISSE",
+    "MARE"
   ],
   "VÆSKE": [
     "ÆTER"
