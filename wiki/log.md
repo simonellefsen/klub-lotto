@@ -1279,3 +1279,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-11 04:57 UTC] ingest | quiz | Hvad er hovedstaden i Jamaica? | outcome=submitted
 
+## [2026-09-11 04:57 UTC] ingest | ordkløver | Category: `Den danske sangskat`; answer pattern `1 / 2 / 5 /… | outcome=submitted
+
