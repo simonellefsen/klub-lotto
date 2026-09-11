@@ -352,7 +352,8 @@
     "GØET"
   ],
   "BLAD": [
-    "AVIS"
+    "AVIS",
+    "ARK"
   ],
   "BLADE": [
     "AVISER"
@@ -659,6 +660,9 @@
   "DOPING": [
     "EPO"
   ],
+  "DRAG": [
+    "SUG"
+  ],
   "DRAGT": [
     "TOGA"
   ],
@@ -738,7 +742,8 @@
     "LAMA",
     "ORME",
     "RÆVE",
-    "HUND"
+    "HUND",
+    "KRÆ"
   ],
   "DYRET": [
     "DÅEN",
@@ -954,6 +959,9 @@
   ],
   "FESTSAL": [
     "AULA"
+  ],
+  "FIASKO": [
+    "FLOP"
   ],
   "FIGUR": [
     "REKTANGEL",
@@ -1313,6 +1321,9 @@
   "FØRMIDDAG": [
     "AM"
   ],
+  "FØRSTEDAME": [
+    "EVA"
+  ],
   "FØRÆ": [
     "Z"
   ],
@@ -1487,6 +1498,9 @@
   "GRØN": [
     "UNG"
   ],
+  "GRØNNE": [
+    "UMODNE"
+  ],
   "GRØNTSAG": [
     "AGURK",
     "SALAT"
@@ -1602,7 +1616,8 @@
     "IDOLET"
   ],
   "HILSE": [
-    "NIKKE"
+    "NIKKE",
+    "NEJE"
   ],
   "HILSEN": [
     "DAV",
@@ -1778,6 +1793,9 @@
   ],
   "IDAG": [
     "DD"
+  ],
+  "IDENTISKE": [
+    "ENS"
   ],
   "IDET": [
     "DA"
@@ -2237,6 +2255,9 @@
   "KÆMPEDE": [
     "STRED"
   ],
+  "KÆMPESTOR": [
+    "ENORM"
+  ],
   "KÆPHØJ": [
     "KRY"
   ],
@@ -2387,6 +2408,9 @@
   "LILLE": [
     "LL"
   ],
+  "LILLEBID": [
+    "NIP"
+  ],
   "LILLEGUD": [
     "EROT"
   ],
@@ -2471,6 +2495,9 @@
   ],
   "LØBE": [
     "SPÆNE"
+  ],
+  "LØBERUNDT": [
+    "CIRKULERE"
   ],
   "LØBET": [
     "RALLYET"
@@ -2914,6 +2941,9 @@
   "PART": [
     "DEL"
   ],
+  "PARTI": [
+    "SF"
+  ],
   "PARTIKEL": [
     "ION"
   ],
@@ -3209,6 +3239,9 @@
   ],
   "RINGE": [
     "USLE"
+  ],
+  "RITUALET": [
+    "CEREMONIEN"
   ],
   "RIVE": [
     "FLÅ"
@@ -4091,7 +4124,8 @@
     "DSB"
   ],
   "TOGRUM": [
-    "KUPE"
+    "KUPE",
+    "KUPEER"
   ],
   "TOGTAG": [
     "ROEDE"
@@ -4525,6 +4559,9 @@
   "VOLTAMPERE": [
     "VA"
   ],
+  "VOMMEN": [
+    "MAVEN"
+  ],
   "VOVEDE": [
     "TURDE"
   ],
@@ -4939,6 +4976,9 @@
   "[IMG]PADDLE": [
     "ÅRE"
   ],
+  "[IMG]PADLOCK": [
+    "LÅS"
+  ],
   "[IMG]PAINTBUCKET": [
     "MALING"
   ],
@@ -5018,6 +5058,9 @@
   ],
   "[IMG]REDDOOR": [
     "DØR"
+  ],
+  "[IMG]REDHANDBAG": [
+    "TASKE"
   ],
   "[IMG]REDSQUIRREL": [
     "EGERN"
@@ -5158,6 +5201,9 @@
   ],
   "[IMG]UFO": [
     "UFO"
+  ],
+  "[IMG]VASE": [
+    "VASE"
   ],
   "[IMG]VEST": [
     "VEST"
