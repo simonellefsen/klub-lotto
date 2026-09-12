@@ -1291,3 +1291,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-12 12:19 UTC] ingest | quiz | Hvad er formålet med brætspillet Cluedo? | outcome=submitted
 
+## [2026-09-12 12:22 UTC] ingest | ordkløver | Category: `Kunst & kultur`; answer pattern `6 / 6 / 4` | outcome=submitted
+
