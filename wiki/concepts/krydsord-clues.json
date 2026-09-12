@@ -177,6 +177,9 @@
   "BAKKEDRAG": [
     "ÅS"
   ],
+  "BAKKEDRAGET": [
+    "ÅSEN"
+  ],
   "BALANCE": [
     "RO"
   ],
@@ -257,6 +260,9 @@
   ],
   "BERØMTE": [
     "KENDTE"
+  ],
+  "BERØMTLADY": [
+    "GAGA"
   ],
   "BESAD": [
     "EJEDE"
@@ -467,6 +473,9 @@
   "BRUTAL": [
     "RÅ"
   ],
+  "BRYDER": [
+    "KERER"
+  ],
   "BRÆKKE": [
     "BRYDE"
   ],
@@ -660,6 +669,9 @@
   "DOPING": [
     "EPO"
   ],
+  "DOSER": [
+    "RATIONER"
+  ],
   "DRAG": [
     "SUG"
   ],
@@ -743,7 +755,8 @@
     "ORME",
     "RÆVE",
     "HUND",
-    "KRÆ"
+    "KRÆ",
+    "GNUER"
   ],
   "DYRET": [
     "DÅEN",
@@ -1902,6 +1915,9 @@
     "OKAY",
     "OK"
   ],
+  "IRRITATION": [
+    "KLØE"
+  ],
   "IRRITERE": [
     "ÆRGRE"
   ],
@@ -1979,6 +1995,9 @@
     "BORT",
     "RIB",
     "RAND"
+  ],
+  "KANTER": [
+    "RANDE"
   ],
   "KAOS": [
     "ROD"
@@ -2476,6 +2495,9 @@
   "LÆGGEPÅKØL": [
     "ISE"
   ],
+  "LÆGGESPÅKØL": [
+    "ISES"
+  ],
   "LÆKKERI": [
     "NOUGAT"
   ],
@@ -2668,7 +2690,8 @@
     "SKALA"
   ],
   "MÅLFORK": [
-    "KM"
+    "KM",
+    "TSK"
   ],
   "MÅNEDSFORK": [
     "AUG"
@@ -3794,6 +3817,9 @@
   "STERILT": [
     "RENT"
   ],
+  "STIKKEAF": [
+    "DESERTERE"
+  ],
   "STIKKERAF": [
     "DESERTERER"
   ],
@@ -3888,7 +3914,8 @@
     "OL",
     "EM",
     "NM",
-    "VM"
+    "VM",
+    "SM"
   ],
   "STØJE": [
     "LARME"
@@ -3988,6 +4015,9 @@
   ],
   "TALENT": [
     "EVNE"
+  ],
+  "TALENTET": [
+    "EVNEN"
   ],
   "TALENTFULDE": [
     "EVNERIGE"
@@ -4362,6 +4392,9 @@
   "UNDERTRYKKE": [
     "KUE"
   ],
+  "UNDERVISER": [
+    "DANSELÆRER"
+  ],
   "UNGARN": [
     "H"
   ],
@@ -4596,6 +4629,9 @@
   "VÆKST": [
     "TRÆ",
     "GRÆS"
+  ],
+  "VÆLGE": [
+    "UDSE"
   ],
   "VÆLGER": [
     "UDSER"
@@ -4866,6 +4902,9 @@
   ],
   "[IMG]GREENARROWPOINTINGDOWNRIGHT": [
     "PIL"
+  ],
+  "[IMG]GREENGRASS": [
+    "GRÆS"
   ],
   "[IMG]GREENSNEAKERS": [
     "SKO"
