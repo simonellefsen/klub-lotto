@@ -1301,3 +1301,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-13 05:10 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-09-13 05:10 UTC] ingest | quiz | Hvad hedder hovedstaden i Ghana? | outcome=submitted
+
