@@ -1253,7 +1253,8 @@
   ],
   "FRUGTER": [
     "ABRIKOSER",
-    "NEKTARINER"
+    "NEKTARINER",
+    "DRUER"
   ],
   "FRYGTER": [
     "GRUER"
@@ -1361,6 +1362,9 @@
   ],
   "GANGE": [
     "ENTREER"
+  ],
+  "GANGEN": [
+    "ENTREEN"
   ],
   "GARN": [
     "NET"
@@ -1733,6 +1737,9 @@
   "HURTIGT": [
     "TJEPT"
   ],
+  "HUSERET": [
+    "RASET"
+  ],
   "HUSREST": [
     "RUIN"
   ],
@@ -1800,6 +1807,9 @@
   ],
   "HØJTGRIN": [
     "LATTERBRØL"
+  ],
+  "IBUND": [
+    "NEDE"
   ],
   "IBYEN": [
     "UDE"
@@ -1929,6 +1939,9 @@
   ],
   "JAG": [
     "VE"
+  ],
+  "JAGET": [
+    "VEEN"
   ],
   "JAKKEDELE": [
     "ÆRMER"
@@ -2225,6 +2238,9 @@
   ],
   "KRYDDERURT": [
     "BASILIKUM"
+  ],
+  "KRÆNKELSE": [
+    "TORT"
   ],
   "KUN": [
     "BARE"
@@ -3260,6 +3276,9 @@
   "REX": [
     "R"
   ],
+  "RIGELIG": [
+    "NOK"
+  ],
   "RINGE": [
     "USLE"
   ],
@@ -3349,6 +3368,9 @@
   ],
   "SANGER": [
     "TENOR"
+  ],
+  "SATTEISTEDET": [
+    "ERSTATTEDE"
   ],
   "SCENE": [
     "ARENA"
@@ -3992,6 +4014,9 @@
   "SØDEMIDDEL": [
     "ROESUKKER"
   ],
+  "SØGE": [
+    "LEDE"
+  ],
   "SØGTE": [
     "LEDTE"
   ],
@@ -4279,6 +4304,9 @@
   "TYRKIET": [
     "TR"
   ],
+  "TYSKAFSLAG": [
+    "NEIN"
+  ],
   "TYSKHAV": [
     "SEE"
   ],
@@ -4379,6 +4407,9 @@
   ],
   "UKENDT": [
     "NN"
+  ],
+  "ULEMPE": [
+    "GENE"
   ],
   "ULMET": [
     "GÆRET"
@@ -4566,6 +4597,9 @@
   ],
   "VIRKELIGE": [
     "REALE"
+  ],
+  "VIRKNINGSFULDT": [
+    "EFFEKTIVT"
   ],
   "VIS": [
     "KLOG"
