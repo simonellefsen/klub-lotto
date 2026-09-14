@@ -212,6 +212,9 @@
   "BATTERITYPE": [
     "AA"
   ],
+  "BEARBEJDET": [
+    "ÆLTET"
+  ],
   "BEDE": [
     "ROE",
     "FÅR",
@@ -1425,6 +1428,9 @@
   "GLOSER": [
     "ORD"
   ],
+  "GLØD": [
+    "GNIST"
+  ],
   "GNAVEDE": [
     "BED"
   ],
@@ -1498,6 +1504,9 @@
   ],
   "GRÆKENLAND": [
     "GR"
+  ],
+  "GRÆNSE": [
+    "SKEL"
   ],
   "GRÆSKBOGSTAV": [
     "BETA"
@@ -1874,6 +1883,9 @@
   "INDTAGET": [
     "ÆDT"
   ],
+  "INDTOG": [
+    "ÅD"
+  ],
   "INDTRÆK": [
     "FOR"
   ],
@@ -2186,6 +2198,9 @@
   "KOSTBARE": [
     "DYRE"
   ],
+  "KOSTTILSKUD": [
+    "FISKEOLIE"
+  ],
   "KRADSE": [
     "KLØ"
   ],
@@ -2409,6 +2424,9 @@
   "LEKTION": [
     "IDRÆTSTIME",
     "TIME"
+  ],
+  "LEMPET": [
+    "LIRKET"
   ],
   "LET": [
     "NEM"
@@ -2702,6 +2720,9 @@
   "MÅLERE": [
     "URE"
   ],
+  "MÅLEREN": [
+    "URET"
+  ],
   "MÅLESTOK": [
     "SKALA"
   ],
@@ -2792,6 +2813,9 @@
   ],
   "NIVEAU": [
     "LAG"
+  ],
+  "NOBLE": [
+    "ÆDLE"
   ],
   "NOPRET": [
     "RU"
@@ -3345,6 +3369,9 @@
   "RØNTGEN": [
     "R"
   ],
+  "SAGNFIGUR": [
+    "ISOLDE"
+  ],
   "SAGNKONGE": [
     "LEAR"
   ],
@@ -3660,6 +3687,9 @@
   ],
   "SNILDE": [
     "LIST"
+  ],
+  "SNUE": [
+    "FORKØLELSE"
   ],
   "SNUPPEDE": [
     "TOG"
@@ -4396,6 +4426,9 @@
   "UDTRYKSMÅDE": [
     "IRONI"
   ],
+  "UDTRÆK": [
+    "ESSENS"
+  ],
   "UDVALG": [
     "NÆVN"
   ],
@@ -4438,7 +4471,8 @@
   "UORDEN": [
     "ROD",
     "RODERI",
-    "KAOS"
+    "KAOS",
+    "KUK"
   ],
   "URAN": [
     "U"
@@ -4738,6 +4772,9 @@
   "[IMG]BALLOFGREENYARN": [
     "GARN"
   ],
+  "[IMG]BARREL": [
+    "TØNDE"
+  ],
   "[IMG]BATHROOMSCALE": [
     "ÆGGEUR"
   ],
@@ -4856,6 +4893,9 @@
   ],
   "[IMG]COLANDER": [
     "SI"
+  ],
+  "[IMG]COMPUTERMOUSE": [
+    "MUS"
   ],
   "[IMG]CROW": [
     "RAVN"
@@ -5261,6 +5301,9 @@
   ],
   "[IMG]TURNIP": [
     "ROE",
+    "ROER"
+  ],
+  "[IMG]TURNIPS": [
     "ROER"
   ],
   "[IMG]TWOREDROSES": [
