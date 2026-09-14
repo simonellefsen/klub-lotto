@@ -1315,3 +1315,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-14 04:19 UTC] ingest | quiz | Hvilken verdensrekord satte Robert Wadlow, der levede fra 19… | outcome=submitted
 
+## [2026-09-14 04:19 UTC] ingest | ordkløver | Category: `På danmarkskortet`; answer pattern `3 / 8 / 5` | outcome=submitted
+
