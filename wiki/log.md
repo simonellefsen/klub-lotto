@@ -1329,3 +1329,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-16 17:53 UTC] ingest | ordkløver | Category: `Transportmiddel`; answer pattern `10 / 3` | outcome=submitted
 
+## [2026-09-16 17:54 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
