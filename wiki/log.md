@@ -1327,3 +1327,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-16 17:52 UTC] ingest | quiz | Hvilken dansk badmintonspiller vandt OL-guld i herresingle i… | outcome=submitted
 
+## [2026-09-16 17:53 UTC] ingest | ordkløver | Category: `Transportmiddel`; answer pattern `10 / 3` | outcome=submitted
+
