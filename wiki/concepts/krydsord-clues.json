@@ -412,6 +412,9 @@
   "BOBLER": [
     "BRUSER"
   ],
+  "BOG": [
+    "ROMAN"
+  ],
   "BOKS": [
     "ÆSKE",
     "KASSE"
@@ -764,7 +767,8 @@
   ],
   "DYRET": [
     "DÅEN",
-    "RENEN"
+    "RENEN",
+    "ELGEN"
   ],
   "DYRKER": [
     "AVLER"
@@ -1041,6 +1045,9 @@
   ],
   "FJENDE": [
     "ÆRKERIVAL"
+  ],
+  "FJOLS": [
+    "FÆ"
   ],
   "FLAGRE": [
     "VIFTE"
@@ -1768,6 +1775,9 @@
   "HVILEDE": [
     "LÅ"
   ],
+  "HVILESTED": [
+    "LEJE"
+  ],
   "HVÆSSEDE": [
     "SLEB"
   ],
@@ -2249,6 +2259,9 @@
   "KROP": [
     "LEGEME"
   ],
+  "KROPSMÅL": [
+    "BMI"
+  ],
   "KRUMME": [
     "BUEDE"
   ],
@@ -2416,6 +2429,9 @@
   "LEGEMSDEL": [
     "BEN",
     "ARM"
+  ],
+  "LEGEMSDELE": [
+    "FINGRE"
   ],
   "LEGETØJ": [
     "YOYO",
@@ -2773,6 +2789,9 @@
   ],
   "MØNT": [
     "TIER"
+  ],
+  "MØNTEN": [
+    "TIEREN"
   ],
   "MØNTENHED": [
     "PESO"
@@ -3279,6 +3298,9 @@
   "REMME": [
     "BÆLTER"
   ],
+  "REMSE": [
+    "LIRE"
+  ],
   "RENDER": [
     "LØBER"
   ],
@@ -3512,7 +3534,8 @@
     "DELT"
   ],
   "SKILTETEKST": [
-    "P"
+    "P",
+    "STÅ"
   ],
   "SKIMTE": [
     "ANE"
@@ -3979,6 +4002,9 @@
   "STÆNGERNE": [
     "BENENE"
   ],
+  "STÆNK": [
+    "DRÅBER"
+  ],
   "STÆR": [
     "BEO",
     "DYR"
@@ -4030,6 +4056,9 @@
   ],
   "SVINGOM": [
     "DANS"
+  ],
+  "SVÆRE": [
+    "INDVIKLEDE"
   ],
   "SYD": [
     "S"
@@ -4152,6 +4181,9 @@
   ],
   "TEMA": [
     "EMNE"
+  ],
+  "TEMAER": [
+    "EMNER"
   ],
   "TEMAET": [
     "EMNET"
@@ -4354,6 +4386,9 @@
   ],
   "TYDELIG": [
     "KLAR"
+  ],
+  "TYGGE": [
+    "GUMLE"
   ],
   "TYRKIET": [
     "TR"
@@ -4991,6 +5026,9 @@
   ],
   "[IMG]GATE": [
     "LÅGE"
+  ],
+  "[IMG]GLASSES": [
+    "BRILLER"
   ],
   "[IMG]GRAPES": [
     "DRUER"
