@@ -1339,3 +1339,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-17 04:34 UTC] ingest | quiz | Hvilken dinosaur er kendt for sine tre horn i ansigtet? | outcome=submitted
 
+## [2026-09-17 04:34 UTC] ingest | ordkløver | Category: `Begivenhed`; answer pattern `9 / 5` | outcome=submitted
+
