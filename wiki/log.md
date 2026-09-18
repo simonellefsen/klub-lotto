@@ -1351,3 +1351,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-18 04:24 UTC] ingest | quiz | Hvad hedder Danmarks nationalfugl? | outcome=submitted
 
+## [2026-09-18 04:32 UTC] ingest | ordkløver | Category: `Profession`; answer pattern `6` | outcome=submitted
+
