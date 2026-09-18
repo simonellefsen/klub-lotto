@@ -1349,3 +1349,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-18 04:24 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-09-18 04:24 UTC] ingest | quiz | Hvad hedder Danmarks nationalfugl? | outcome=submitted
+
