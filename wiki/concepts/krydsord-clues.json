@@ -314,6 +314,9 @@
   "BEVIS": [
     "ATTEST"
   ],
+  "BEVÆGELIGE": [
+    "AGILE"
+  ],
   "BIBELFORK": [
     "NT",
     "GT"
@@ -486,6 +489,9 @@
   "BRÆKKE": [
     "BRYDE"
   ],
+  "BRØDTYPE": [
+    "PITA"
+  ],
   "BUD": [
     "KURER"
   ],
@@ -541,6 +547,9 @@
   ],
   "BÆR": [
     "RIBS"
+  ],
+  "BØDE": [
+    "BET"
   ],
   "BØJE": [
     "EKSE"
@@ -698,7 +707,8 @@
     "ÆBLECIDER",
     "VIN",
     "ROM",
-    "ISTE"
+    "ISTE",
+    "TODDY"
   ],
   "DRIKKE": [
     "DIE"
@@ -964,6 +974,9 @@
   ],
   "FASTE": [
     "UROKKELIGE"
+  ],
+  "FEDTET": [
+    "GERRIG"
   ],
   "FEDTSTOF": [
     "OLIE",
@@ -1296,7 +1309,8 @@
     "PELIKAN",
     "MÅGE",
     "RAVN",
-    "KALKUN"
+    "KALKUN",
+    "SVALE"
   ],
   "FUGLE": [
     "ØRNE",
@@ -1592,7 +1606,8 @@
     "EJER"
   ],
   "HARISINDE": [
-    "VIL"
+    "VIL",
+    "AGTER"
   ],
   "HARMLØST": [
     "USKADELIGT"
@@ -1687,6 +1702,9 @@
   ],
   "HJERTEKURVE": [
     "EKG"
+  ],
+  "HJERTELØS": [
+    "OND"
   ],
   "HJERTELØSE": [
     "ONDE"
@@ -1990,7 +2008,8 @@
     "EKSPEDIENT",
     "TJENER",
     "JOURNALIST",
-    "SKOLELÆRER"
+    "SKOLELÆRER",
+    "JAGERPILOT"
   ],
   "JORDTYPE": [
     "LER"
@@ -2139,6 +2158,9 @@
   ],
   "KNIBE": [
     "NIVE"
+  ],
+  "KNIRKEDE": [
+    "PEB"
   ],
   "KNOB": [
     "KN"
@@ -2885,7 +2907,8 @@
     "NETTE"
   ],
   "NYHEDSKILDE": [
-    "RB"
+    "RB",
+    "AP"
   ],
   "NYVASKET": [
     "REN"
@@ -3483,7 +3506,8 @@
   ],
   "SIKKERT": [
     "NOK",
-    "STØT"
+    "STØT",
+    "TRYGT"
   ],
   "SIMPEL": [
     "ENKEL"
@@ -3807,6 +3831,9 @@
   ],
   "SPINDEREDSKAB": [
     "TEN"
+  ],
+  "SPINDEREDSKABER": [
+    "TENE"
   ],
   "SPIRE": [
     "GRO"
@@ -4500,6 +4527,9 @@
   "UKENDT": [
     "NN"
   ],
+  "UKLAR": [
+    "MAT"
+  ],
   "ULEMPE": [
     "GENE"
   ],
@@ -4522,7 +4552,8 @@
     "H"
   ],
   "UNGE": [
-    "LAM"
+    "LAM",
+    "KID"
   ],
   "UNIKUM": [
     "ENER"
@@ -5198,7 +5229,8 @@
   "[IMG]PLAYINGCARDS": [
     "ESSER",
     "NIER",
-    "TREERE"
+    "TREERE",
+    "TIERE"
   ],
   "[IMG]PLIERS": [
     "TANG"
@@ -5424,6 +5456,9 @@
   ],
   "ÆDELSTEN": [
     "JUVEL"
+  ],
+  "ÆGFORMEDE": [
+    "OVALE"
   ],
   "ÆGTE": [
     "AUTENTISK"
