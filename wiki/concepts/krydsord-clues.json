@@ -80,6 +80,9 @@
   "ADELSMÆND": [
     "GREVER"
   ],
+  "AFDRAG": [
+    "RATE"
+  ],
   "AFFÆRE": [
     "SAG"
   ],
@@ -716,6 +719,9 @@
   "DRONNING": [
     "MARY"
   ],
+  "DRÅBER": [
+    "TÅRER"
+  ],
   "DRØM": [
     "UTOPI"
   ],
@@ -1346,7 +1352,8 @@
     "MADEN"
   ],
   "FØDEVARE": [
-    "TOFU"
+    "TOFU",
+    "RISMEL"
   ],
   "FØJ": [
     "UF"
@@ -1961,7 +1968,8 @@
     "ORGEL",
     "ELBAS",
     "TUBA",
-    "HARMONIKA"
+    "HARMONIKA",
+    "BASUN"
   ],
   "INSTRUMENTER": [
     "TROMPETER"
@@ -2376,7 +2384,8 @@
     "JERNGRYDE",
     "SKÆREBRÆT",
     "BRØDRISTER",
-    "OVNE"
+    "OVNE",
+    "KAGERULLER"
   ],
   "KØKKENUDSTYRET": [
     "OVNEN"
@@ -2913,6 +2922,9 @@
   "NYVASKET": [
     "REN"
   ],
+  "NÆRT": [
+    "TÆT"
+  ],
   "NÆSE": [
     "TUD"
   ],
@@ -3127,6 +3139,9 @@
   ],
   "PLAGE": [
     "GENERE"
+  ],
+  "PLANET": [
+    "URANUS"
   ],
   "PLANTE": [
     "BLÅBÆRBUSK",
@@ -3699,6 +3714,9 @@
     "ONKLEN",
     "NEVØEN"
   ],
+  "SLØVHED": [
+    "APATI"
+  ],
   "SMAGFULDE": [
     "ÆSTETISKE"
   ],
@@ -4022,6 +4040,9 @@
   ],
   "STYRESYSTEM": [
     "IOS"
+  ],
+  "STÅÅBEN": [
+    "GABE"
   ],
   "STÆDIG": [
     "UFORSONLIG"
@@ -4497,6 +4518,9 @@
   "UDKIG": [
     "VAGT"
   ],
+  "UDREGNE": [
+    "KALKULERE"
+  ],
   "UDSEENDE": [
     "LOOK"
   ],
@@ -4642,7 +4666,8 @@
     "SLAP"
   ],
   "VEJ": [
-    "RUTE"
+    "RUTE",
+    "ALLE"
   ],
   "VEJDEL": [
     "BANE"
@@ -4707,6 +4732,9 @@
   "VINDERE": [
     "ETTERE"
   ],
+  "VINDUE": [
+    "RUDE"
+  ],
   "VINE": [
     "ROSEER"
   ],
@@ -4764,6 +4792,9 @@
   ],
   "VRISSE": [
     "SNERRE"
+  ],
+  "VRØVLEDE": [
+    "ÆVLEDE"
   ],
   "VULKAN": [
     "ETNA"
@@ -5502,6 +5533,9 @@
   ],
   "ØVEDE": [
     "RUTINEREDE"
+  ],
+  "ØVELSER": [
+    "YOGA"
   ],
   "ØVESTYKKE": [
     "ETUDE"
