@@ -14,6 +14,9 @@
   "1050": [
     "ML"
   ],
+  "1051": [
+    "MLI"
+  ],
   "11": [
     "XI"
   ],
@@ -799,6 +802,9 @@
     "LÆ",
     "LY"
   ],
+  "DØJER": [
+    "LIDER"
+  ],
   "DØRSLAG": [
     "SI"
   ],
@@ -1145,7 +1151,8 @@
     "REVY"
   ],
   "FORKERT": [
-    "USAND"
+    "USAND",
+    "GALT"
   ],
   "FORKERTE": [
     "UKORREKTE"
@@ -1640,6 +1647,9 @@
   "HAVE": [
     "EJE"
   ],
+  "HAVEMØBLER": [
+    "LIGGESTOLE"
+  ],
   "HAVGUD": [
     "ÆGIR"
   ],
@@ -1736,6 +1746,9 @@
   ],
   "HOLDETÆT": [
     "TIE"
+  ],
+  "HOLDTMUND": [
+    "TAV"
   ],
   "HOLDTTÆT": [
     "TIET"
@@ -1930,6 +1943,9 @@
   ],
   "INDTRÆK": [
     "FOR"
+  ],
+  "INGENTING": [
+    "NUL"
   ],
   "INHABILE": [
     "UEGNEDE"
@@ -2223,7 +2239,8 @@
     "ESSER",
     "SYVERE",
     "SEKSERE",
-    "NIER"
+    "NIER",
+    "TREER"
   ],
   "KORTBESØG": [
     "AUDIENS"
@@ -2459,10 +2476,14 @@
   ],
   "LEGEMSDEL": [
     "BEN",
-    "ARM"
+    "ARM",
+    "TÅ"
   ],
   "LEGEMSDELE": [
     "FINGRE"
+  ],
+  "LEGEMSDELEN": [
+    "ARMEN"
   ],
   "LEGETØJ": [
     "YOYO",
@@ -2650,7 +2671,8 @@
     "VRANG"
   ],
   "MASKINE": [
-    "HAVEFRÆSER"
+    "HAVEFRÆSER",
+    "APPARAT"
   ],
   "MASQUERADEMASK": [
     "MASKE"
@@ -2748,6 +2770,9 @@
   "MOREDESIG": [
     "FNES",
     "LO"
+  ],
+  "MORESIG": [
+    "LE"
   ],
   "MORETSIG": [
     "LEET"
@@ -3467,6 +3492,9 @@
   ],
   "SANG": [
     "ARIE"
+  ],
+  "SANGE": [
+    "ARIER"
   ],
   "SANGER": [
     "TENOR"
@@ -4281,6 +4309,9 @@
   "TILSÆTTER": [
     "IRØRER"
   ],
+  "TILTRO": [
+    "LID"
+  ],
   "TILTRÆKKENDE": [
     "ATTRAKTIVE"
   ],
@@ -4491,6 +4522,9 @@
   ],
   "TØVE": [
     "NØLE"
+  ],
+  "UBEREGNELIGT": [
+    "LUNEFULDT"
   ],
   "UDBRUD": [
     "AV",
@@ -5399,6 +5433,9 @@
   ],
   "[IMG]SWEATER": [
     "TRØJE"
+  ],
+  "[IMG]SWIRL": [
+    "SPIRAL"
   ],
   "[IMG]TABLETENNISPADDLE": [
     "BAT"
