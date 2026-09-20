@@ -1373,3 +1373,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-20 05:13 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-09-20 05:13 UTC] ingest | quiz | Hvilken film har den danske titel En verden udenfor? | outcome=submitted
+
