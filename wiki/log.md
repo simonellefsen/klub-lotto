@@ -1387,3 +1387,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-21 04:13 UTC] ingest | quiz | Hvor mange runder består en professionel boksekamp typisk a… | outcome=submitted
 
+## [2026-09-21 04:14 UTC] ingest | ordkløver | Category: `Person`; answer pattern `8` | outcome=submitted
+
