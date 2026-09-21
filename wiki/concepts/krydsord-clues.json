@@ -342,6 +342,9 @@
     "FOTO",
     "IKON"
   ],
+  "BILMÆRKE": [
+    "MG"
+  ],
   "BILUDSTYR": [
     "PSKIVE"
   ],
@@ -2466,7 +2469,8 @@
   ],
   "LED": [
     "KNO",
-    "ÆKEL"
+    "ÆKEL",
+    "ALBUER"
   ],
   "LEDE": [
     "ÆKLE"
@@ -3293,7 +3297,8 @@
     "MANIPULERE"
   ],
   "PÆN": [
-    "NOBEL"
+    "NOBEL",
+    "NYDELIG"
   ],
   "PØL": [
     "SØ"
@@ -3508,6 +3513,9 @@
   "SEDDEL": [
     "LAP"
   ],
+  "SEJE": [
+    "SENEDE"
+  ],
   "SEKEL": [
     "ÅRHUNDREDE"
   ],
@@ -3670,6 +3678,9 @@
   ],
   "SKYNDESIG": [
     "ILE"
+  ],
+  "SKYNDTSIG": [
+    "ILET"
   ],
   "SKÆR": [
     "REN"
@@ -4110,6 +4121,9 @@
   "SUNDE": [
     "RASKE"
   ],
+  "SUPPE": [
+    "MINESTRONE"
+  ],
   "SURE": [
     "TVÆRE"
   ],
@@ -4413,6 +4427,9 @@
   "TRISTE": [
     "KEDE"
   ],
+  "TRISTHED": [
+    "SORG"
+  ],
   "TROLDMANDSUDSTYR": [
     "TRYLLESTAV"
   ],
@@ -4513,6 +4530,9 @@
   ],
   "TÆTTE": [
     "NÆRE"
+  ],
+  "TÆTVED": [
+    "NÆR"
   ],
   "TØJDYR": [
     "BAMSE"
@@ -4874,7 +4894,8 @@
   "VÆSEN": [
     "FE",
     "NISSE",
-    "MARE"
+    "MARE",
+    "ENGEL"
   ],
   "VÆSKE": [
     "ÆTER"
@@ -5283,7 +5304,8 @@
   "[IMG]PLAYINGCARD": [
     "ES",
     "OTTER",
-    "NIER"
+    "NIER",
+    "TOER"
   ],
   "[IMG]PLAYINGCARD3OFHEARTS": [
     "TREER"
