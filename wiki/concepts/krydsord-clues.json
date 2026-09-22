@@ -581,6 +581,12 @@
   "CARDIGANEN": [
     "TRØJEN"
   ],
+  "CENTIMETER": [
+    "CM"
+  ],
+  "CHECKTAL": [
+    "NITI"
+  ],
   "CIFFER": [
     "TAL"
   ],
@@ -670,6 +676,9 @@
   "DIGTERVÆRK": [
     "EDDA"
   ],
+  "DIMS": [
+    "DUT"
+  ],
   "DIREKTE": [
     "LUKT"
   ],
@@ -733,6 +742,9 @@
   ],
   "DRØMMEAGTIG": [
     "UVIRKELIG"
+  ],
+  "DUFT": [
+    "AROMA"
   ],
   "DUO": [
     "PAR"
@@ -822,6 +834,9 @@
   ],
   "EKSAMEN": [
     "HF"
+  ],
+  "ELLIPTISKE": [
+    "OVALE"
   ],
   "ENDEN": [
     "AFSLUTNING"
@@ -2696,6 +2711,9 @@
     "JERN",
     "TIN"
   ],
+  "MEDDELELSE": [
+    "BESKED"
+  ],
   "MEDET": [
     "PLUDSELIG"
   ],
@@ -2843,6 +2861,9 @@
   "MØBLER": [
     "LÆNESTOLE",
     "SENGE"
+  ],
+  "MØBLET": [
+    "NATBORDET"
   ],
   "MØDES": [
     "SES"
@@ -3070,6 +3091,9 @@
     "BRO",
     "TRÆBRO"
   ],
+  "OVERLEGEN": [
+    "NONCHALANT"
+  ],
   "OVERSET": [
     "GLEMT"
   ],
@@ -3149,6 +3173,9 @@
   ],
   "PERIODER": [
     "UGER"
+  ],
+  "PERSONALE": [
+    "STAB"
   ],
   "PINE": [
     "NAGE"
@@ -3918,6 +3945,9 @@
   ],
   "SPOLERER": [
     "ØDELÆGGER"
+  ],
+  "SPORT": [
+    "IDRÆT"
   ],
   "SPORTSGREN": [
     "TENNIS"
@@ -5380,6 +5410,9 @@
   "[IMG]ROPE": [
     "REB",
     "TOV"
+  ],
+  "[IMG]ROSE": [
+    "ROSE"
   ],
   "[IMG]ROSES": [
     "ROSER"
