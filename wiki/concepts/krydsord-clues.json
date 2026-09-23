@@ -159,6 +159,9 @@
   "ARRANGEMENT": [
     "KLASSEFEST"
   ],
+  "ARTIKEL": [
+    "ESSAY"
+  ],
   "ARVEANLÆG": [
     "GEN"
   ],
@@ -328,7 +331,8 @@
     "GT"
   ],
   "BIFALD": [
-    "OVATION"
+    "OVATION",
+    "OVATIONER"
   ],
   "BIJOB": [
     "BEN",
@@ -955,7 +959,8 @@
     "TERM"
   ],
   "FAIR": [
-    "REEL"
+    "REEL",
+    "REELT"
   ],
   "FALDE": [
     "DALE"
@@ -1121,6 +1126,9 @@
   ],
   "FODDELE": [
     "TÆER"
+  ],
+  "FODDELEN": [
+    "TÅEN"
   ],
   "FODSLAG": [
     "TRIT"
@@ -1702,6 +1710,9 @@
   "HELTEN": [
     "IDOLET"
   ],
+  "HENSIGT": [
+    "AGT"
+  ],
   "HIERARKI": [
     "HAKKEORDEN"
   ],
@@ -1815,6 +1826,9 @@
   ],
   "HURTIGT": [
     "TJEPT"
+  ],
+  "HUSDELEN": [
+    "OVERETAGEN"
   ],
   "HUSERET": [
     "RASET"
@@ -2949,6 +2963,9 @@
   "NORSKAFSLAG": [
     "NEI"
   ],
+  "NOTEREDE": [
+    "SKREV"
+  ],
   "NUL": [
     "O",
     "INGEN"
@@ -3658,6 +3675,9 @@
     "DVD",
     "CD"
   ],
+  "SKODEL": [
+    "SÅL"
+  ],
   "SKOVEN": [
     "LUNDEN"
   ],
@@ -3732,6 +3752,9 @@
   ],
   "SLANGE": [
     "SNOG"
+  ],
+  "SLANGER": [
+    "SNOGE"
   ],
   "SLAPPERAF": [
     "DASER"
@@ -4347,6 +4370,9 @@
   "TILRETTELAGDE": [
     "TIMEDE"
   ],
+  "TILSATTE": [
+    "IRØRTE"
+  ],
   "TILSÆTTE": [
     "IRØRE"
   ],
@@ -4374,6 +4400,9 @@
   ],
   "TJAVS": [
     "LOK"
+  ],
+  "TO": [
+    "II"
   ],
   "TOENS": [
     "OO",
@@ -4466,6 +4495,9 @@
   "TRONEDE": [
     "SAD"
   ],
+  "TROSKYLDIG": [
+    "NAIV"
+  ],
   "TRÅD": [
     "SENE"
   ],
@@ -4480,7 +4512,8 @@
     "AHORN",
     "ELM",
     "ASK",
-    "RØN"
+    "RØN",
+    "BØG"
   ],
   "TRÆER": [
     "ASPE",
@@ -4585,7 +4618,8 @@
     "IH",
     "AHA",
     "OH",
-    "ÆV"
+    "ÆV",
+    "NYS"
   ],
   "UDENINDHOLD": [
     "TOM"
@@ -4809,6 +4843,9 @@
   ],
   "VIGEN": [
     "NORET"
+  ],
+  "VIGTIGE": [
+    "VITALE"
   ],
   "VIKLE": [
     "SNO"
@@ -5359,7 +5396,8 @@
     "STIK"
   ],
   "[IMG]RABBIT": [
-    "HARE"
+    "HARE",
+    "KANIN"
   ],
   "[IMG]RADIO": [
     "RADIO"
