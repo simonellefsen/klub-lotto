@@ -1409,3 +1409,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-23 04:19 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-09-23 04:19 UTC] ingest | quiz | Hvad kaldes det franske brød, der traditionelt bages i en l… | outcome=submitted
+
