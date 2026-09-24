@@ -1425,3 +1425,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-24 04:39 UTC] ingest | ordkløver | Category: `Den danske sangskat`; answer pattern `3 / 2 / 2 /… | outcome=submitted
 
+## [2026-09-24 04:40 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
