@@ -983,6 +983,9 @@
   "FANTASI": [
     "DRØM"
   ],
+  "FARE": [
+    "RISIKO"
+  ],
   "FARER": [
     "DRØNER"
   ],
@@ -1083,7 +1086,8 @@
     "ULK",
     "ØRRED",
     "ABORRE",
-    "LAKS"
+    "LAKS",
+    "SARDINER"
   ],
   "FISKE": [
     "MEDE"
@@ -1159,7 +1163,8 @@
   "FORBUND": [
     "EU",
     "NATO",
-    "FN"
+    "FN",
+    "HK"
   ],
   "FORDELE": [
     "STRØ"
@@ -1288,6 +1293,9 @@
   "FRI": [
     "LEDIG",
     "LØS"
+  ],
+  "FRIKVARTERET": [
+    "PAUSEN"
   ],
   "FRISERES": [
     "REDES"
@@ -1418,6 +1426,9 @@
   "GAL": [
     "OLM",
     "ARRIG"
+  ],
+  "GALOPPEREDE": [
+    "RED"
   ],
   "GAMMEL": [
     "GL"
@@ -1682,6 +1693,9 @@
   "HAVN": [
     "MARINA"
   ],
+  "HAVNEANLÆG": [
+    "MOLE"
+  ],
   "HEDEN": [
     "VARMEN"
   ],
@@ -1689,7 +1703,8 @@
     "EF"
   ],
   "HEGN": [
-    "GÆRDE"
+    "GÆRDE",
+    "STAKIT"
   ],
   "HEJSEVÆRK": [
     "KRAN"
@@ -3329,6 +3344,9 @@
   "PÅHITTET": [
     "IDEEN"
   ],
+  "PÅLINJE": [
+    "ENIG"
+  ],
   "PÅLÆG": [
     "OST",
     "SPEGEPØLSE",
@@ -3827,7 +3845,8 @@
   "SMYKKE": [
     "RING",
     "DIADEM",
-    "TIARA"
+    "TIARA",
+    "PERLEKRANS"
   ],
   "SMYKKESTEN": [
     "OPAL"
@@ -4074,6 +4093,9 @@
   "STIVNAKKET": [
     "RIGID"
   ],
+  "STJERNE": [
+    "DIVA"
+  ],
   "STOF": [
     "KAKI",
     "SATIN",
@@ -4208,6 +4230,9 @@
   ],
   "SYDVEST": [
     "SV"
+  ],
+  "SYGDOM": [
+    "SOT"
   ],
   "SYN": [
     "SKUE"
@@ -4451,6 +4476,9 @@
   ],
   "TOP": [
     "ELITE"
+  ],
+  "TOPPEN": [
+    "ELITEN"
   ],
   "TOPTEAM": [
     "ELITEHOLD"
@@ -4817,6 +4845,9 @@
   ],
   "VENTE": [
     "BIE"
+  ],
+  "VERDENSDEL": [
+    "ASIEN"
   ],
   "VERDENSHJØRNE": [
     "N",
@@ -5426,6 +5457,9 @@
   ],
   "[IMG]REDHANDBAG": [
     "TASKE"
+  ],
+  "[IMG]REDSHOPPINGBASKET": [
+    "KURV"
   ],
   "[IMG]REDSQUIRREL": [
     "EGERN"
