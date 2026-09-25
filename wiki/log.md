@@ -1435,3 +1435,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-25 04:44 UTC] ingest | quiz | Hvad er hovedingrediensen i den klassiske danske dessert rø… | outcome=submitted
 
+## [2026-09-25 04:44 UTC] ingest | ordkløver | Category: `Danske "delikatesser"`; answer pattern `10 / 5` | outcome=submitted
+
