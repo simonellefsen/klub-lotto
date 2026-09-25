@@ -1437,3 +1437,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-25 04:44 UTC] ingest | ordkløver | Category: `Danske "delikatesser"`; answer pattern `10 / 5` | outcome=submitted
 
+## [2026-09-25 04:46 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
