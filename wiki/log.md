@@ -1447,3 +1447,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-26 05:57 UTC] ingest | quiz | Hvilken københavnsk bygning huser Folketinget? | outcome=submitted
 
+## [2026-09-26 05:57 UTC] ingest | ordkløver | Category: `På danmarkskortet`; answer pattern `9 / 4` | outcome=submitted
+
