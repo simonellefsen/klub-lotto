@@ -181,7 +181,8 @@
   "BAGVÆRK": [
     "ÆBLEKAGER",
     "KAGER",
-    "CROISSANT"
+    "CROISSANT",
+    "KAGE"
   ],
   "BAKKEDRAG": [
     "ÅS"
@@ -255,7 +256,8 @@
     "KANDE",
     "TERMOKANDE",
     "ÆSKE",
-    "DUNK"
+    "DUNK",
+    "TØNDE"
   ],
   "BEHOLDERE": [
     "TØNDER",
@@ -416,7 +418,8 @@
     "GENIAL"
   ],
   "BLÆSER": [
-    "VENTILATOR"
+    "VENTILATOR",
+    "RUS"
   ],
   "BLÆST": [
     "SUS"
@@ -1035,6 +1038,9 @@
   "FERNIS": [
     "LAK"
   ],
+  "FEST": [
+    "BAL"
+  ],
   "FESTKJOLE": [
     "ROBE"
   ],
@@ -1369,7 +1375,8 @@
     "MÅGE",
     "RAVN",
     "KALKUN",
-    "SVALE"
+    "SVALE",
+    "AND"
   ],
   "FUGLE": [
     "ØRNE",
@@ -1964,6 +1971,9 @@
   "IGNORERE": [
     "OVERSE"
   ],
+  "IGODTHUMØR": [
+    "LEENDE"
+  ],
   "IKKE": [
     "EJ"
   ],
@@ -1984,6 +1994,9 @@
   ],
   "INDEN": [
     "FØR"
+  ],
+  "INDGANG": [
+    "DØR"
   ],
   "INDHAK": [
     "SLIDS"
@@ -2135,6 +2148,9 @@
   ],
   "KAMMERTONEN": [
     "A"
+  ],
+  "KAMPSPORT": [
+    "KARATE"
   ],
   "KAMPÅND": [
     "SISU"
@@ -2382,6 +2398,9 @@
   ],
   "KRUMME": [
     "BUEDE"
+  ],
+  "KRYBDYR": [
+    "SKILDPADDE"
   ],
   "KRYDDERDEL": [
     "OVER",
@@ -3018,6 +3037,9 @@
   "NUMMER": [
     "NR"
   ],
+  "NUTTET": [
+    "SØD"
+  ],
   "NY": [
     "NEO"
   ],
@@ -3186,6 +3208,9 @@
   ],
   "PARADIS": [
     "EDEN"
+  ],
+  "PARAT": [
+    "REDE"
   ],
   "PART": [
     "DEL"
@@ -3396,6 +3421,9 @@
     "NOBEL",
     "NYDELIG"
   ],
+  "PÆNT": [
+    "KØNT"
+  ],
   "PØL": [
     "SØ"
   ],
@@ -3494,7 +3522,8 @@
     "UDAD",
     "NEDAD",
     "NED",
-    "INDAD"
+    "INDAD",
+    "IND"
   ],
   "RETTEN": [
     "RISOTTOEN"
@@ -3623,7 +3652,8 @@
     "APS"
   ],
   "SENGETØJ": [
-    "LINNED"
+    "LINNED",
+    "LAGEN"
   ],
   "SENGEUDSTYR": [
     "DYNE"
@@ -3720,6 +3750,9 @@
   ],
   "SKIMTES": [
     "ANES"
+  ],
+  "SKIND": [
+    "PELS"
   ],
   "SKINNE": [
     "LYSE"
@@ -3919,6 +3952,9 @@
   ],
   "SNILDE": [
     "LIST"
+  ],
+  "SNOR": [
+    "TRÅD"
   ],
   "SNUE": [
     "FORKØLELSE"
@@ -4712,6 +4748,9 @@
   "UDSMYKKER": [
     "SIRER"
   ],
+  "UDSTRÅLING": [
+    "AURA"
+  ],
   "UDSTÅ": [
     "SONE"
   ],
@@ -4775,6 +4814,9 @@
   ],
   "URAN": [
     "U"
+  ],
+  "URO": [
+    "RØRE"
   ],
   "UVEJR": [
     "ORKANER"
@@ -5254,6 +5296,9 @@
   "[IMG]DUCK": [
     "AND"
   ],
+  "[IMG]EAGLE": [
+    "ØRN"
+  ],
   "[IMG]EGGTIMER": [
     "ÆGGEUR"
   ],
@@ -5283,6 +5328,9 @@
   ],
   "[IMG]FOX": [
     "RÆV"
+  ],
+  "[IMG]FRIEDEGG": [
+    "ÆG"
   ],
   "[IMG]FROG": [
     "FRØ"
@@ -5499,6 +5547,9 @@
   ],
   "[IMG]REDBAG": [
     "TASKE"
+  ],
+  "[IMG]REDBOWL": [
+    "SKÅL"
   ],
   "[IMG]REDCHAIR": [
     "STOL"
