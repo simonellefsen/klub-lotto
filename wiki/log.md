@@ -1445,3 +1445,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-26 05:57 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-09-26 05:57 UTC] ingest | quiz | Hvilken københavnsk bygning huser Folketinget? | outcome=submitted
+
