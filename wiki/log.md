@@ -1459,3 +1459,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-27 05:04 UTC] ingest | quiz | Hvilket land vandt Eurovision Song Contest i 1974 med sangen… | outcome=submitted
 
+## [2026-09-27 05:05 UTC] ingest | ordkløver | Category: `Set i Silvan`; answer pattern `6 / 7` | outcome=submitted
+
