@@ -1457,3 +1457,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-27 05:04 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-09-27 05:04 UTC] ingest | quiz | Hvilket land vandt Eurovision Song Contest i 1974 med sangen… | outcome=submitted
+
