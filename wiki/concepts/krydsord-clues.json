@@ -83,6 +83,9 @@
   "ADELSMÆND": [
     "GREVER"
   ],
+  "AFBRYDER": [
+    "RELÆ"
+  ],
   "AFDRAG": [
     "RATE"
   ],
@@ -245,6 +248,9 @@
   ],
   "BEHAGELIGE": [
     "RARE"
+  ],
+  "BEHANDLERE": [
+    "TERAPEUTER"
   ],
   "BEHANDLING": [
     "TERAPI"
@@ -430,6 +436,9 @@
   ],
   "BOBLER": [
     "BRUSER"
+  ],
+  "BOET": [
+    "REDEN"
   ],
   "BOG": [
     "ROMAN"
@@ -810,7 +819,8 @@
     "RÆVE",
     "HUND",
     "KRÆ",
-    "GNUER"
+    "GNUER",
+    "TUSINDBEN"
   ],
   "DYRET": [
     "DÅEN",
@@ -838,6 +848,9 @@
   ],
   "EFTER": [
     "BAG"
+  ],
+  "EFTERSKAT": [
+    "NETTO"
   ],
   "EFTERSKRIFT": [
     "PS"
@@ -1004,7 +1017,8 @@
   "FARTØJ": [
     "LUFTBALLON",
     "UBÅD",
-    "ARK"
+    "ARK",
+    "SKIB"
   ],
   "FARTØJER": [
     "UBÅDE"
@@ -1907,6 +1921,9 @@
   ],
   "HÅNDARBEJDE": [
     "SYTØJ"
+  ],
+  "HÅNDEN": [
+    "NÆVEN"
   ],
   "HÅNDTAG": [
     "HANK"
@@ -3764,6 +3781,9 @@
     "DVD",
     "CD"
   ],
+  "SKJULE": [
+    "GEMME"
+  ],
   "SKODEL": [
     "SÅL"
   ],
@@ -4640,6 +4660,9 @@
   "TRÆT": [
     "DØSIG"
   ],
+  "TURDE": [
+    "VOVE"
+  ],
   "TVEKAMP": [
     "DUEL"
   ],
@@ -5341,6 +5364,9 @@
   "[IMG]GLASSES": [
     "BRILLER"
   ],
+  "[IMG]GLOBE": [
+    "GLOBUS"
+  ],
   "[IMG]GRAPES": [
     "DRUER"
   ],
@@ -5382,6 +5408,9 @@
   ],
   "[IMG]ISLANDWITHPALMTREE": [
     "Ø"
+  ],
+  "[IMG]KEYS": [
+    "NØGLER"
   ],
   "[IMG]KITE": [
     "DRAGE"
