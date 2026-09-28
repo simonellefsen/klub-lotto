@@ -1471,3 +1471,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-28 04:18 UTC] ingest | quiz | Hvor mange knogler har et voksent menneske typisk? | outcome=submitted
 
+## [2026-09-28 04:18 UTC] ingest | ordkløver | Category: `Mad & drikke`; answer pattern `5 / 6 / 6` | outcome=submitted
+
