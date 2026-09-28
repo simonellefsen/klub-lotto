@@ -263,7 +263,8 @@
     "TERMOKANDE",
     "ÆSKE",
     "DUNK",
-    "TØNDE"
+    "TØNDE",
+    "URTEPOTTE"
   ],
   "BEHOLDERE": [
     "TØNDER",
@@ -1039,6 +1040,9 @@
   "FASTE": [
     "UROKKELIGE"
   ],
+  "FATTIG": [
+    "ARM"
+  ],
   "FEDTET": [
     "GERRIG"
   ],
@@ -1421,6 +1425,9 @@
   ],
   "FYRSTE": [
     "EMIR"
+  ],
+  "FÆSTNING": [
+    "BORG"
   ],
   "FØDEN": [
     "MADEN"
@@ -1992,7 +1999,8 @@
     "LEENDE"
   ],
   "IKKE": [
-    "EJ"
+    "EJ",
+    "NON"
   ],
   "IKKENOGET": [
     "INTET"
@@ -2002,6 +2010,9 @@
   ],
   "ILT": [
     "O"
+  ],
+  "ILTKÆVENDE": [
+    "AEROB"
   ],
   "IMAGE": [
     "RY"
@@ -2666,6 +2677,9 @@
   "LOKALE": [
     "RUM"
   ],
+  "LOKKER": [
+    "HÅR"
+  ],
   "LOVLIGE": [
     "LEGALE"
   ],
@@ -2804,7 +2818,8 @@
     "GLAS",
     "TRÆ",
     "JERN",
-    "TIN"
+    "TIN",
+    "NYLON"
   ],
   "MEDDELELSE": [
     "BESKED"
@@ -3213,6 +3228,9 @@
   "OXIDERE": [
     "IRRE"
   ],
+  "PADDEL": [
+    "ÅRE"
+  ],
   "PAGAJ": [
     "ÅRE"
   ],
@@ -3359,6 +3377,9 @@
   "PRIS": [
     "ROS"
   ],
+  "PRIST": [
+    "ROST"
+  ],
   "PRIVAT": [
     "EGEN",
     "EGET"
@@ -3481,7 +3502,8 @@
     "MEJSEL",
     "SI",
     "LINEAL",
-    "KAM"
+    "KAM",
+    "TANG"
   ],
   "REDSKABER": [
     "ØKSER",
@@ -3601,6 +3623,9 @@
   ],
   "RYTMISKE": [
     "TAKTFASTE"
+  ],
+  "RÅ": [
+    "UBEHANDLET"
   ],
   "RÆKKE": [
     "KØ",
@@ -4007,6 +4032,9 @@
   "SOVE": [
     "SNUE"
   ],
+  "SOVEDYR": [
+    "BAMSE"
+  ],
   "SPANIEN": [
     "E"
   ],
@@ -4320,6 +4348,9 @@
   "SVÆRE": [
     "INDVIKLEDE"
   ],
+  "SVÆRGEN": [
+    "ED"
+  ],
   "SYD": [
     "S"
   ],
@@ -4353,6 +4384,9 @@
   ],
   "SÆTTEOP": [
     "ØGE"
+  ],
+  "SÆTTEROP": [
+    "ØGER"
   ],
   "SØDEMIDDEL": [
     "ROESUKKER"
@@ -4567,7 +4601,8 @@
     "AET"
   ],
   "TONER": [
-    "EER"
+    "EER",
+    "LAER"
   ],
   "TOP": [
     "ELITE"
@@ -4745,7 +4780,8 @@
     "AHA",
     "OH",
     "ÆV",
-    "NYS"
+    "NYS",
+    "PUH"
   ],
   "UDENINDHOLD": [
     "TOM"
@@ -5376,6 +5412,9 @@
   "[IMG]GREENARROWPOINTINGDOWNRIGHT": [
     "PIL"
   ],
+  "[IMG]GREENCIRCLE": [
+    "RING"
+  ],
   "[IMG]GREENGRASS": [
     "GRÆS"
   ],
@@ -5496,6 +5535,9 @@
   ],
   "[IMG]PADLOCK": [
     "LÅS"
+  ],
+  "[IMG]PAINTBRUSH": [
+    "PENSEL"
   ],
   "[IMG]PAINTBUCKET": [
     "MALING"
@@ -5752,6 +5794,9 @@
   ],
   "[IMG]WATERMELONSLICE": [
     "MELON"
+  ],
+  "[IMG]WHITEPICKETFENCE": [
+    "HEGN"
   ],
   "[IMG]WINDTURBINE": [
     "MØLLE"
