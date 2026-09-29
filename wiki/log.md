@@ -1481,3 +1481,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-29 04:29 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-09-29 04:29 UTC] ingest | quiz | Hvilket berømt bygningsværk blev opført som et tempel for… | outcome=submitted
+
