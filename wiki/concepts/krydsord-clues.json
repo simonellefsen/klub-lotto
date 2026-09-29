@@ -151,7 +151,8 @@
   "APPARAT": [
     "TV",
     "RADAR",
-    "BRØDRISTER"
+    "BRØDRISTER",
+    "NODER"
   ],
   "APPEL": [
     "BØN"
@@ -733,7 +734,8 @@
     "SUG"
   ],
   "DRAGT": [
-    "TOGA"
+    "TOGA",
+    "SARI"
   ],
   "DRENG": [
     "GUT"
@@ -849,6 +851,9 @@
   ],
   "EFTER": [
     "BAG"
+  ],
+  "EFTERMIDDAG": [
+    "PM"
   ],
   "EFTERSKAT": [
     "NETTO"
@@ -979,7 +984,8 @@
     "KEMI"
   ],
   "FAGPERSON": [
-    "CYKELSMED"
+    "CYKELSMED",
+    "SMED"
   ],
   "FAGUDTRYK": [
     "TERM"
@@ -1229,6 +1235,9 @@
   ],
   "FORLANGER": [
     "KRÆVER"
+  ],
+  "FORLIGE": [
+    "MÆGLE"
   ],
   "FORLYSTELSE": [
     "RUTSJEBANE"
@@ -1780,7 +1789,8 @@
   ],
   "HILSEN": [
     "DAV",
-    "HONNØR"
+    "HONNØR",
+    "DAVS"
   ],
   "HILSTE": [
     "NEJEDE"
@@ -2140,6 +2150,9 @@
     "JOURNALIST",
     "SKOLELÆRER",
     "JAGERPILOT"
+  ],
+  "JOKKEDE": [
+    "TRÅDTE"
   ],
   "JORDTYPE": [
     "LER"
@@ -2650,6 +2663,9 @@
   "LIGE": [
     "RET"
   ],
+  "LIGELEDES": [
+    "OGSÅ"
+  ],
   "LIGEPRÆCIS": [
     "NETOP"
   ],
@@ -2792,6 +2808,9 @@
   "MARINADE": [
     "LAGE"
   ],
+  "MARKER": [
+    "AGRE"
+  ],
   "MAS": [
     "BESVÆR"
   ],
@@ -2880,6 +2899,9 @@
   ],
   "MODERNE": [
     "IN"
+  ],
+  "MODTAGER": [
+    "RADIO"
   ],
   "MOMENT": [
     "NU"
@@ -3113,9 +3135,13 @@
   "OKSE": [
     "YAK"
   ],
+  "OM": [
+    "VEDRØRENDE"
+  ],
   "OMRÅDE": [
     "SOGN",
-    "EGN"
+    "EGN",
+    "AREAL"
   ],
   "OMRÅDER": [
     "EGNE"
@@ -3549,7 +3575,8 @@
     "SUPPE",
     "LINSESUPPE",
     "SUSHI",
-    "RANK"
+    "RANK",
+    "OMELET"
   ],
   "RETNING": [
     "NV",
@@ -4459,6 +4486,9 @@
   "TARIF": [
     "SATS"
   ],
+  "TAVLEVASKER": [
+    "DUKS"
+  ],
   "TEATERFIGUR": [
     "ROMEO"
   ],
@@ -5323,6 +5353,9 @@
   "[IMG]CROW": [
     "RAVN"
   ],
+  "[IMG]CROWN": [
+    "KRONE"
+  ],
   "[IMG]CUPCAKE": [
     "KAGE"
   ],
@@ -5504,7 +5537,8 @@
     "NODER"
   ],
   "[IMG]MUSICALNOTES": [
-    "NODER"
+    "NODER",
+    "TV"
   ],
   "[IMG]MUSICNOTES": [
     "NODER"
