@@ -1495,3 +1495,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-30 04:46 UTC] ingest | quiz | Hvilken by er hjemsted for bilproducenten BMW? | outcome=submitted
 
+## [2026-09-30 04:46 UTC] ingest | ordkløver | Category: `Sted`; answer pattern `8 / 5` | outcome=submitted
+
