@@ -1493,3 +1493,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-09-30 04:45 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-09-30 04:46 UTC] ingest | quiz | Hvilken by er hjemsted for bilproducenten BMW? | outcome=submitted
+
