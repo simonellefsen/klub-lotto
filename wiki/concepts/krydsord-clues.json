@@ -127,6 +127,9 @@
   "ALTSÅ": [
     "ERGO"
   ],
+  "ANDEL": [
+    "LOD"
+  ],
   "ANERKENDELSEN": [
     "ÆRESPRISEN"
   ],
@@ -298,6 +301,9 @@
   ],
   "BESIDDELSE": [
     "EJENDEL"
+  ],
+  "BESK": [
+    "RAM"
   ],
   "BESKED": [
     "SMS",
@@ -1049,6 +1055,9 @@
   "FATTIG": [
     "ARM"
   ],
+  "FEDTE": [
+    "LEFLE"
+  ],
   "FEDTET": [
     "GERRIG"
   ],
@@ -1307,11 +1316,17 @@
   "FOTOUDSTYR": [
     "ZOOM"
   ],
+  "FRA": [
+    "AF"
+  ],
   "FRADUBLIN": [
     "IRSKE"
   ],
   "FRANKRIG": [
     "F"
+  ],
+  "FRANSKØ": [
+    "RE"
   ],
   "FRASTØDENDE": [
     "ODIØS"
@@ -2048,6 +2063,9 @@
   "INDLEDTE": [
     "ÅBNEDE"
   ],
+  "INDSPILLE": [
+    "OPTAGE"
+  ],
   "INDTAGE": [
     "ÆDE"
   ],
@@ -2523,7 +2541,8 @@
     "SUL"
   ],
   "KØKKENREDSKAB": [
-    "DEJSKRABER"
+    "DEJSKRABER",
+    "SLEV"
   ],
   "KØKKENUDSTYR": [
     "OVN",
@@ -2612,7 +2631,8 @@
     "TÅ"
   ],
   "LEGEMSDELE": [
-    "FINGRE"
+    "FINGRE",
+    "ARME"
   ],
   "LEGEMSDELEN": [
     "ARMEN"
@@ -2805,6 +2825,9 @@
   "MANGE": [
     "ADSKILLIGE"
   ],
+  "MAPPE": [
+    "TASKE"
+  ],
   "MARINADE": [
     "LAGE"
   ],
@@ -2966,6 +2989,9 @@
   "MÅLFORK": [
     "KM",
     "TSK"
+  ],
+  "MÅNED": [
+    "MARTS"
   ],
   "MÅNEDSFORK": [
     "AUG"
@@ -3294,6 +3320,9 @@
   "PASTASTYKKE": [
     "NUDEL"
   ],
+  "PASTATYPE": [
+    "PENNE"
+  ],
   "PATINA": [
     "IR"
   ],
@@ -3381,6 +3410,9 @@
   ],
   "POKAL": [
     "CUP"
+  ],
+  "POLEN": [
+    "PL"
   ],
   "POLERE": [
     "PUDSE"
@@ -3652,7 +3684,8 @@
     "TAKTFASTE"
   ],
   "RÅ": [
-    "UBEHANDLET"
+    "UBEHANDLET",
+    "BARSK"
   ],
   "RÆKKE": [
     "KØ",
@@ -3803,6 +3836,9 @@
     "KØL",
     "ROR",
     "STÆVN"
+  ],
+  "SKILLE": [
+    "DELE"
   ],
   "SKILT": [
     "DELT"
@@ -4811,7 +4847,8 @@
     "OH",
     "ÆV",
     "NYS",
-    "PUH"
+    "PUH",
+    "AVRA"
   ],
   "UDENINDHOLD": [
     "TOM"
@@ -5710,6 +5747,9 @@
   ],
   "[IMG]SCYTHE": [
     "LE"
+  ],
+  "[IMG]SEAGULL": [
+    "MÅGE"
   ],
   "[IMG]SHOPPINGBASKET": [
     "KURV"
