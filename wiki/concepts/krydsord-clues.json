@@ -465,6 +465,9 @@
   "BOLIG": [
     "TELT"
   ],
+  "BOMULD": [
+    "VAT"
+  ],
   "BOPLADS": [
     "BYGD"
   ],
@@ -515,6 +518,9 @@
   ],
   "BRUTAL": [
     "RÅ"
+  ],
+  "BRYDE": [
+    "KERE"
   ],
   "BRYDER": [
     "KERER"
@@ -683,6 +689,9 @@
   "DEKANTERE": [
     "ILTE"
   ],
+  "DER": [
+    "SOM"
+  ],
   "DES": [
     "JO"
   ],
@@ -762,6 +771,9 @@
   "DRIKKE": [
     "DIE"
   ],
+  "DRIKKEN": [
+    "ÆBLEMOSTEN"
+  ],
   "DRONNING": [
     "MARY"
   ],
@@ -829,7 +841,8 @@
     "HUND",
     "KRÆ",
     "GNUER",
-    "TUSINDBEN"
+    "TUSINDBEN",
+    "UROKSE"
   ],
   "DYRET": [
     "DÅEN",
@@ -1541,6 +1554,9 @@
     "DDT",
     "EDDER"
   ],
+  "GIFTES": [
+    "VIES"
+  ],
   "GIFTET": [
     "VIET"
   ],
@@ -2015,7 +2031,8 @@
     "END"
   ],
   "IGEN": [
-    "OM"
+    "OM",
+    "ATTER"
   ],
   "IGNORERE": [
     "OVERSE"
@@ -2186,6 +2203,9 @@
   ],
   "JUVELEN": [
     "ÆDELSTENEN"
+  ],
+  "JUVELER": [
+    "ÆDELSTENE"
   ],
   "JÆVN": [
     "EGAL",
@@ -2882,7 +2902,8 @@
     "RET"
   ],
   "MERE": [
-    "YDERLIGERE"
+    "YDERLIGERE",
+    "EKSTRA"
   ],
   "MESTERKOK": [
     "GASTRONOM"
@@ -3199,6 +3220,9 @@
   "OPGAVE": [
     "REBUS"
   ],
+  "OPHAV": [
+    "MOR"
+  ],
   "OPHÆNG": [
     "URO"
   ],
@@ -3394,7 +3418,8 @@
     "FRØ",
     "LØG",
     "ROD",
-    "STRÅ"
+    "STRÅ",
+    "STILK"
   ],
   "PLAYINGCARD": [
     "TREER"
@@ -3565,7 +3590,8 @@
   ],
   "REDSKABER": [
     "ØKSER",
-    "SKEER"
+    "SKEER",
+    "LEER"
   ],
   "REDSKABET": [
     "ÅBNEREN",
@@ -3633,6 +3659,9 @@
     "R"
   ],
   "RIGELIG": [
+    "NOK"
+  ],
+  "RIGELIGT": [
     "NOK"
   ],
   "RINGE": [
@@ -4187,7 +4216,8 @@
   ],
   "SPORTSUDSTYR": [
     "SKATEBOARD",
-    "GOLFKØLLE"
+    "GOLFKØLLE",
+    "SKI"
   ],
   "SPORTSUDØVER": [
     "ROER"
@@ -5383,6 +5413,9 @@
   ],
   "[IMG]COLANDER": [
     "SI"
+  ],
+  "[IMG]COMB": [
+    "KAM"
   ],
   "[IMG]COMPUTERMOUSE": [
     "MUS"
