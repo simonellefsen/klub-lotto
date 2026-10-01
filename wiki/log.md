@@ -1509,3 +1509,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-01 05:11 UTC] ingest | ordkløver | Category: `Skole og fritid`; answer pattern `7 / 5` | outcome=submitted
 
+## [2026-10-01 05:13 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
