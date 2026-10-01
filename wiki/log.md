@@ -1505,3 +1505,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-01 05:09 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-10-01 05:09 UTC] ingest | quiz | Hvilken krimiforfatter skabte detektiven Kurt Wallander? | outcome=submitted
+
