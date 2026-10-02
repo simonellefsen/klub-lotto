@@ -1519,3 +1519,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-02 04:16 UTC] ingest | quiz | Hvilken spiritus danner basis i en Negroni? | outcome=submitted
 
+## [2026-10-02 04:18 UTC] ingest | ordkløver | Category: `Person`; answer pattern `9` | outcome=submitted
+
