@@ -442,6 +442,9 @@
     "LOGERE",
     "REDE"
   ],
+  "BOBLE": [
+    "SYDE"
+  ],
   "BOBLER": [
     "BRUSER"
   ],
@@ -1081,6 +1084,9 @@
   "FEDTSTOFFET": [
     "OLIEN"
   ],
+  "FEM": [
+    "V"
+  ],
   "FERNIS": [
     "LAK"
   ],
@@ -1176,6 +1182,9 @@
   ],
   "FLOD": [
     "PO"
+  ],
+  "FLYTTER": [
+    "ROKKER"
   ],
   "FLYVE": [
     "SUSE"
@@ -1301,6 +1310,9 @@
   ],
   "FORSMAG": [
     "DEMO"
+  ],
+  "FORSØG": [
+    "TEST"
   ],
   "FORSØMME": [
     "NEGLIGERE"
@@ -1536,6 +1548,9 @@
   ],
   "GENERT": [
     "SKY"
+  ],
+  "GENGÆLD": [
+    "TAK"
   ],
   "GENLYD": [
     "EKKO"
@@ -1896,6 +1911,9 @@
   "HORNLYD": [
     "DYT"
   ],
+  "HOSE": [
+    "SOK"
+  ],
   "HOT": [
     "IN"
   ],
@@ -2153,6 +2171,9 @@
   ],
   "IRRITERE": [
     "ÆRGRE"
+  ],
+  "ISOLATION": [
+    "ENRUM"
   ],
   "ITALIEN": [
     "I"
@@ -3057,7 +3078,8 @@
     "PESO"
   ],
   "MØNTER": [
-    "TIERE"
+    "TIERE",
+    "TYVERE"
   ],
   "MØNTFORK": [
     "KR"
@@ -3169,6 +3191,9 @@
   ],
   "NÆSTER": [
     "RIER"
+  ],
+  "NØJAGTIG": [
+    "EKSAKT"
   ],
   "OARS": [
     "ÅRER"
@@ -3586,7 +3611,8 @@
     "SI",
     "LINEAL",
     "KAM",
-    "TANG"
+    "TANG",
+    "SAV"
   ],
   "REDSKABER": [
     "ØKSER",
@@ -3903,6 +3929,9 @@
   ],
   "SKODEL": [
     "SÅL"
+  ],
+  "SKOLEUDSTYR": [
+    "TAVLE"
   ],
   "SKOVEN": [
     "LUNDEN"
@@ -4232,6 +4261,9 @@
     "IRSK",
     "TYSK"
   ],
+  "SPRÆNGSTOF": [
+    "TNT"
+  ],
   "SPÅR": [
     "FORUDSIGER"
   ],
@@ -4277,6 +4309,9 @@
   "STEMME": [
     "ALT",
     "BAS"
+  ],
+  "STEN": [
+    "RAL"
   ],
   "STERIL": [
     "REN"
@@ -4417,6 +4452,9 @@
   ],
   "SURE": [
     "TVÆRE"
+  ],
+  "SVAMP": [
+    "ØSTERSHAT"
   ],
   "SVAR": [
     "JA",
@@ -5741,6 +5779,9 @@
   "[IMG]REDSQUIRREL": [
     "EGERN"
   ],
+  "[IMG]REDVEST": [
+    "VEST"
+  ],
   "[IMG]RING": [
     "RING"
   ],
@@ -5877,6 +5918,9 @@
   ],
   "[IMG]TURNIPS": [
     "ROER"
+  ],
+  "[IMG]TWOBEANIES": [
+    "HUER"
   ],
   "[IMG]TWOREDROSES": [
     "ROSER"
