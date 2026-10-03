@@ -1531,3 +1531,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-03 05:27 UTC] ingest | quiz | Fra hvilket land stammer bilmærket SEAT? | outcome=submitted
 
+## [2026-10-03 05:27 UTC] ingest | ordkløver | Category: `Udtryk`; answer pattern `5 / 5 / 4 / 5`; visual l… | outcome=submitted
+
