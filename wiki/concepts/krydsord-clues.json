@@ -874,6 +874,9 @@
   "EFTER": [
     "BAG"
   ],
+  "EFTERLADE": [
+    "LEVNE"
+  ],
   "EFTERMIDDAG": [
     "PM"
   ],
@@ -1777,7 +1780,8 @@
     "UTAL"
   ],
   "HAVDYR": [
-    "SØSTJERNE"
+    "SØSTJERNE",
+    "HVAL"
   ],
   "HAVE": [
     "EJE"
@@ -2555,6 +2559,9 @@
   ],
   "KYLEDE": [
     "SMED"
+  ],
+  "KYS": [
+    "MARENGS"
   ],
   "KÆMPE": [
     "DYSTE",
@@ -3617,7 +3624,8 @@
   "REDSKABER": [
     "ØKSER",
     "SKEER",
-    "LEER"
+    "LEER",
+    "NÅLE"
   ],
   "REDSKABET": [
     "ÅBNEREN",
@@ -3975,6 +3983,9 @@
   "SKRØBELIGE": [
     "SKØRE"
   ],
+  "SKUD": [
+    "GÆT"
+  ],
   "SKURE": [
     "UDHUSE"
   ],
@@ -4112,6 +4123,9 @@
   ],
   "SNAKKESALIG": [
     "ÅBENMUNDET"
+  ],
+  "SNAVSET": [
+    "UREN"
   ],
   "SNEDIG": [
     "SNU"
@@ -4272,6 +4286,9 @@
   ],
   "SPØRGELYSTEN": [
     "NYSGERRIG"
+  ],
+  "STAD": [
+    "BY"
   ],
   "STAKKELS": [
     "ARME"
@@ -4619,6 +4636,9 @@
   "TEMAET": [
     "EMNET"
   ],
+  "TEMMELIG": [
+    "RET"
+  ],
   "TERN": [
     "RUDE"
   ],
@@ -4884,7 +4904,8 @@
     "RUST"
   ],
   "TÆT": [
-    "NÆR"
+    "NÆR",
+    "NÆRT"
   ],
   "TÆTTE": [
     "NÆRE"
@@ -5076,6 +5097,9 @@
   ],
   "VED": [
     "ANER"
+  ],
+  "VEDRØRE": [
+    "ANGÅ"
   ],
   "VEDRØRENDE": [
     "OM"
@@ -5939,6 +5963,9 @@
   ],
   "[IMG]VEST": [
     "VEST"
+  ],
+  "[IMG]WATCHES": [
+    "URE"
   ],
   "[IMG]WATERMELON": [
     "MELON"
