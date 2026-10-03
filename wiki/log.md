@@ -1529,3 +1529,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-03 05:26 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-10-03 05:27 UTC] ingest | quiz | Fra hvilket land stammer bilmærket SEAT? | outcome=submitted
+
