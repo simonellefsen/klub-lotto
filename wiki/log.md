@@ -1543,3 +1543,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-04 06:04 UTC] ingest | quiz | Hvilken europæisk flod løber gennem Prag? | outcome=submitted
 
+## [2026-10-04 06:10 UTC] ingest | ordkløver | Category: `Hus og have`; answer pattern `9` | outcome=submitted
+
