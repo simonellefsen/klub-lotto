@@ -445,6 +445,9 @@
   "BOBLE": [
     "SYDE"
   ],
+  "BOBLEDE": [
+    "SOV"
+  ],
   "BOBLER": [
     "BRUSER"
   ],
@@ -845,7 +848,8 @@
     "KRÆ",
     "GNUER",
     "TUSINDBEN",
-    "UROKSE"
+    "UROKSE",
+    "ANTILOPER"
   ],
   "DYRET": [
     "DÅEN",
@@ -886,6 +890,9 @@
   "EFTERSKRIFT": [
     "PS"
   ],
+  "EJENDOM": [
+    "GODS"
+  ],
   "EJER": [
     "HAR"
   ],
@@ -908,6 +915,9 @@
     "GODTROENDE"
   ],
   "ENGELSKAFSLAG": [
+    "NO"
+  ],
+  "ENGELSKKURV": [
     "NO"
   ],
   "ENGELSKSKOLEBY": [
@@ -1416,7 +1426,8 @@
   "FRUGTER": [
     "ABRIKOSER",
     "NEKTARINER",
-    "DRUER"
+    "DRUER",
+    "APPELSINER"
   ],
   "FRYGTER": [
     "GRUER"
@@ -1777,7 +1788,8 @@
     "BØR"
   ],
   "HAV": [
-    "UTAL"
+    "UTAL",
+    "OCEAN"
   ],
   "HAVDYR": [
     "SØSTJERNE",
@@ -2106,10 +2118,12 @@
     "OPTAGE"
   ],
   "INDTAGE": [
-    "ÆDE"
+    "ÆDE",
+    "E"
   ],
   "INDTAGET": [
-    "ÆDT"
+    "ÆDT",
+    "NYDT"
   ],
   "INDTOG": [
     "ÅD"
@@ -2326,6 +2340,9 @@
   "KIRKEJOB": [
     "DEGN"
   ],
+  "KIRKEUDSTYR": [
+    "ALTER"
+  ],
   "KLAGESANG": [
     "ELEGI"
   ],
@@ -2431,7 +2448,8 @@
     "SYVERE",
     "SEKSERE",
     "NIER",
-    "TREER"
+    "TREER",
+    "NIERE"
   ],
   "KORTBESØG": [
     "AUDIENS"
@@ -2555,7 +2573,8 @@
     "RAPT"
   ],
   "KVITTERING": [
-    "BON"
+    "BON",
+    "NOTA"
   ],
   "KYLEDE": [
     "SMED"
@@ -2946,7 +2965,8 @@
     "M"
   ],
   "MI": [
-    "E"
+    "E",
+    "EROBRE"
   ],
   "MIDTERLINJE": [
     "AKSE"
@@ -2959,6 +2979,9 @@
   ],
   "MINUS": [
     "UDEN"
+  ],
+  "MISTE": [
+    "TABE"
   ],
   "MISTEDE": [
     "TABTE"
@@ -3286,7 +3309,8 @@
     "NYRE"
   ],
   "ORGANISATION": [
-    "NASA"
+    "NASA",
+    "ESA"
   ],
   "ORIGINALER": [
     "ENERE"
@@ -3356,7 +3380,8 @@
     "REDE"
   ],
   "PART": [
-    "DEL"
+    "DEL",
+    "LED"
   ],
   "PARTI": [
     "SF"
@@ -4732,7 +4757,8 @@
     "ROEDE"
   ],
   "TOGTYPE": [
-    "IC"
+    "IC",
+    "S"
   ],
   "TON": [
     "T"
@@ -5118,7 +5144,8 @@
     "BANE"
   ],
   "VEJE": [
-    "GADER"
+    "GADER",
+    "RUTER"
   ],
   "VEJFÆLLE": [
     "NABO"
@@ -5632,7 +5659,8 @@
     "BLADE"
   ],
   "[IMG]LEMON": [
-    "ROE"
+    "ROE",
+    "CITRON"
   ],
   "[IMG]LETTUCE": [
     "SALAT"
@@ -5860,6 +5888,9 @@
   ],
   "[IMG]SLINGSHOT": [
     "STYR"
+  ],
+  "[IMG]SMALLROUNDTABLE": [
+    "BORD"
   ],
   "[IMG]SMILEYFACE": [
     "SMILEY"
