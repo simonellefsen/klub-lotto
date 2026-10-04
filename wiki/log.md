@@ -1541,3 +1541,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-04 06:04 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-10-04 06:04 UTC] ingest | quiz | Hvilken europæisk flod løber gennem Prag? | outcome=submitted
+
