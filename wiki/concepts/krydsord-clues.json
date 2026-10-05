@@ -702,12 +702,14 @@
     "JO"
   ],
   "DESSERT": [
-    "IS"
+    "IS",
+    "TRIFLI"
   ],
   "DIGT": [
     "ODE",
     "RIM",
-    "ORD"
+    "ORD",
+    "EPOS"
   ],
   "DIGTER": [
     "POET"
@@ -854,7 +856,8 @@
   "DYRET": [
     "DÅEN",
     "RENEN",
-    "ELGEN"
+    "ELGEN",
+    "RÅEN"
   ],
   "DYRKER": [
     "AVLER"
@@ -932,6 +935,9 @@
   ],
   "ENILONDON": [
     "ONE"
+  ],
+  "ENKELTE": [
+    "FÅ"
   ],
   "ENS": [
     "IDENTISKE"
@@ -1222,7 +1228,8 @@
   ],
   "FODTØJ": [
     "PLATEAUSKO",
-    "SKO"
+    "SKO",
+    "TRÆSKO"
   ],
   "FOLD": [
     "LÆG"
@@ -1388,6 +1395,9 @@
   "FRI": [
     "LEDIG",
     "LØS"
+  ],
+  "FRIE": [
+    "LEDIGE"
   ],
   "FRIKVARTERET": [
     "PAUSEN"
@@ -1933,6 +1943,9 @@
   "HOT": [
     "IN"
   ],
+  "HOVEDPART": [
+    "KIND"
+  ],
   "HOVEDSTAD": [
     "OSLO",
     "NUUK"
@@ -2042,6 +2055,9 @@
   ],
   "HØJTGRIN": [
     "LATTERBRØL"
+  ],
+  "HØSTER": [
+    "MEJER"
   ],
   "IBUND": [
     "NEDE"
@@ -2655,7 +2671,8 @@
     "USA",
     "IRAN",
     "UNGARN",
-    "NATION"
+    "NATION",
+    "NORGE"
   ],
   "LANGS": [
     "AD"
@@ -2796,7 +2813,8 @@
     "VANTE"
   ],
   "LUFTART": [
-    "OZON"
+    "OZON",
+    "ILT"
   ],
   "LUGE": [
     "LEM"
@@ -2838,6 +2856,9 @@
   ],
   "LÆKKERI": [
     "NOUGAT"
+  ],
+  "LÆNGERE": [
+    "MERE"
   ],
   "LÆNKER": [
     "KÆDER"
@@ -4418,6 +4439,9 @@
   "STRYGE": [
     "AE"
   ],
+  "STRYGER": [
+    "AER"
+  ],
   "STRÆBE": [
     "HIGE"
   ],
@@ -5789,6 +5813,9 @@
   ],
   "[IMG]POWERPLUG": [
     "STIK"
+  ],
+  "[IMG]PUMPKIN": [
+    "GRÆSKAR"
   ],
   "[IMG]RABBIT": [
     "HARE",
