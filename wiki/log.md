@@ -1555,3 +1555,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-05 04:57 UTC] ingest | quiz | Hvad hed den amerikanske præsident, der i 1962 beordrede en… | outcome=submitted
 
+## [2026-10-05 04:58 UTC] ingest | ordkløver | Category: `Begreb`; answer pattern `7 / 2 / 6 / 1 / 3 / 4`; … | outcome=submitted
+
