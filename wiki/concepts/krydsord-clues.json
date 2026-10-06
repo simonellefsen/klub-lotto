@@ -148,6 +148,9 @@
   "ANONYM": [
     "NN"
   ],
+  "ANSPORE": [
+    "ILDNE"
+  ],
   "ANTI": [
     "IMOD"
   ],
@@ -162,6 +165,9 @@
   ],
   "ARBEJDE": [
     "JOB"
+  ],
+  "ARBEJDER": [
+    "VIRKER"
   ],
   "ARRANGEMENT": [
     "KLASSEFEST"
@@ -1271,6 +1277,9 @@
   "FORESTILLING": [
     "REVY"
   ],
+  "FORFÆDRE": [
+    "ANER"
+  ],
   "FORKERT": [
     "USAND",
     "GALT"
@@ -2283,6 +2292,9 @@
   "KAMMERTONEN": [
     "A"
   ],
+  "KAMP": [
+    "DYST"
+  ],
   "KAMPSPORT": [
     "KARATE"
   ],
@@ -2502,7 +2514,8 @@
   ],
   "KRAFTIG": [
     "FED",
-    "TYK"
+    "TYK",
+    "STÆRK"
   ],
   "KREBS": [
     "RUR"
@@ -3684,6 +3697,9 @@
   "REJSE": [
     "ODYSSE"
   ],
+  "REJSEDEL": [
+    "UDTUR"
+  ],
   "REJSELÆNGSEL": [
     "UDVE"
   ],
@@ -4280,7 +4296,8 @@
     "ÆDER"
   ],
   "SPISESTED": [
-    "RESTAURANT"
+    "RESTAURANT",
+    "CAFETERIA"
   ],
   "SPIST": [
     "ÆDT"
@@ -4713,13 +4730,17 @@
     "GELE",
     "PESTO",
     "ASIER",
-    "SOJA"
+    "SOJA",
+    "CHILISAUCE"
   ],
   "TILBEREDT": [
     "STEGT"
   ],
   "TILBYGNING": [
     "ANNEKS"
+  ],
+  "TILHÆNGER": [
+    "FAN"
   ],
   "TILLØB": [
     "RUN"
@@ -5145,6 +5166,9 @@
   "VARMEGIVER": [
     "SOL"
   ],
+  "VARMEKILDE": [
+    "ELOVN"
+  ],
   "VED": [
     "ANER"
   ],
@@ -5420,6 +5444,9 @@
   "[IMG]BEETLE": [
     "BILLE"
   ],
+  "[IMG]BINOCULARS": [
+    "KIKKERT"
+  ],
   "[IMG]BLACKBIRD": [
     "SOLSORT"
   ],
@@ -5483,6 +5510,9 @@
   "[IMG]CASTLE": [
     "SLOT",
     "BORG"
+  ],
+  "[IMG]CD": [
+    "CD"
   ],
   "[IMG]CHAIR": [
     "STOL"
@@ -5603,6 +5633,9 @@
   ],
   "[IMG]FOX": [
     "RÆV"
+  ],
+  "[IMG]FRENCHHORN": [
+    "TUBA"
   ],
   "[IMG]FRIEDEGG": [
     "ÆG"
