@@ -1567,3 +1567,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-06 04:51 UTC] ingest | quiz | Hvilken dansk tv-serie følger livet på et hospital og havd… | outcome=submitted
 
+## [2026-10-06 04:51 UTC] ingest | ordkløver | Category: `Vores verden`; answer pattern `8 / 8` | outcome=submitted
+
