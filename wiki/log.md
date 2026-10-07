@@ -1581,3 +1581,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-07 05:10 UTC] ingest | ordkløver | Category: `Kunst og kultur`; answer pattern `8 / 8` | outcome=submitted
 
+## [2026-10-07 05:12 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
