@@ -195,7 +195,8 @@
     "ÆBLEKAGER",
     "KAGER",
     "CROISSANT",
-    "KAGE"
+    "KAGE",
+    "SNEGLE"
   ],
   "BAKKEDRAG": [
     "ÅS"
@@ -660,7 +661,8 @@
     "RODEO"
   ],
   "CYKELDEL": [
-    "PEDAL"
+    "PEDAL",
+    "SADEL"
   ],
   "CYKELUDSTYR": [
     "GEAR"
@@ -1170,7 +1172,8 @@
     "IV"
   ],
   "FIRMA": [
-    "VIRKSOMHED"
+    "VIRKSOMHED",
+    "DSB"
   ],
   "FISK": [
     "ÅL",
@@ -1684,6 +1687,9 @@
     "TAG",
     "TOG"
   ],
+  "GREENARROW": [
+    "PIL"
+  ],
   "GRIBE": [
     "TY",
     "TAGE"
@@ -1777,6 +1783,9 @@
   ],
   "HADER": [
     "AFSKYR"
+  ],
+  "HANDEL": [
+    "KØB"
   ],
   "HANK": [
     "ØRE"
@@ -2748,7 +2757,8 @@
   ],
   "LEKTION": [
     "IDRÆTSTIME",
-    "TIME"
+    "TIME",
+    "DANSKTIME"
   ],
   "LEMPET": [
     "LIRKET"
@@ -2907,6 +2917,9 @@
   ],
   "LØFTE": [
     "ED"
+  ],
+  "LØNNINGER": [
+    "GAGER"
   ],
   "LØSEN": [
     "SESAM"
@@ -3924,6 +3937,9 @@
     "ALENE",
     "ENLIG"
   ],
+  "SINGLER": [
+    "ENLIGE"
+  ],
   "SINGULARIS": [
     "ENTAL"
   ],
@@ -4336,7 +4352,8 @@
   ],
   "SPROG": [
     "IRSK",
-    "TYSK"
+    "TYSK",
+    "URDU"
   ],
   "SPRÆNGSTOF": [
     "TNT"
@@ -4603,10 +4620,14 @@
     "ØGER"
   ],
   "SØDEMIDDEL": [
-    "ROESUKKER"
+    "ROESUKKER",
+    "DRUESUKKER"
   ],
   "SØGE": [
     "LEDE"
+  ],
+  "SØGT": [
+    "LEDT"
   ],
   "SØGTE": [
     "LEDTE"
@@ -4667,6 +4688,9 @@
   "TANKETOM": [
     "IDELØS"
   ],
+  "TAPPERHED": [
+    "MOD"
+  ],
   "TARA": [
     "T"
   ],
@@ -4719,6 +4743,9 @@
   "TIDSRUM": [
     "EPOKE",
     "EPOKER"
+  ],
+  "TIL": [
+    "A"
   ],
   "TILATREGULERE": [
     "JUSTERBARE"
@@ -5087,7 +5114,8 @@
   ],
   "UNGE": [
     "LAM",
-    "KID"
+    "KID",
+    "FØL"
   ],
   "UNIKUM": [
     "ENER"
