@@ -1591,3 +1591,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-08 04:31 UTC] ingest | quiz | Hvilken berømt operasanger blev kendt som 'Den svenske natt… | outcome=submitted
 
+## [2026-10-08 04:35 UTC] ingest | ordkløver | Category: `Hus og have`; answer pattern `8` | outcome=submitted
+
