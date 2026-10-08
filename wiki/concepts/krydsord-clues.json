@@ -586,7 +586,8 @@
   ],
   "BÅD": [
     "EGE",
-    "KANO"
+    "KANO",
+    "ENERKAJAK"
   ],
   "BÅDUDSTYR": [
     "ÅREGAFLER"
@@ -859,7 +860,8 @@
     "GNUER",
     "TUSINDBEN",
     "UROKSE",
-    "ANTILOPER"
+    "ANTILOPER",
+    "KATTE"
   ],
   "DYRET": [
     "DÅEN",
@@ -912,6 +914,9 @@
   ],
   "ELLIPTISKE": [
     "OVALE"
+  ],
+  "EMBALLAGE": [
+    "TARA"
   ],
   "ENDEN": [
     "AFSLUTNING"
@@ -1095,6 +1100,9 @@
   "FASTE": [
     "UROKKELIGE"
   ],
+  "FASTFOOD": [
+    "BURGER"
+  ],
   "FATTIG": [
     "ARM"
   ],
@@ -1189,6 +1197,9 @@
   ],
   "FISKEGARN": [
     "NOT"
+  ],
+  "FISKEN": [
+    "TUNEN"
   ],
   "FJENDE": [
     "ÆRKERIVAL"
@@ -1334,6 +1345,9 @@
   "FORRÅDTE": [
     "SVEG"
   ],
+  "FORSIGTIG": [
+    "NÆN"
+  ],
   "FORSKELLIGE": [
     "UENS"
   ],
@@ -1374,7 +1388,8 @@
     "ZOOM"
   ],
   "FRA": [
-    "AF"
+    "AF",
+    "AB"
   ],
   "FRADUBLIN": [
     "IRSKE"
@@ -2419,6 +2434,9 @@
   "KLUNS": [
     "TØJ"
   ],
+  "KLÆDE": [
+    "DUG"
+  ],
   "KNEB": [
     "NEV"
   ],
@@ -3164,6 +3182,9 @@
   "NABOLAG": [
     "OMEGN"
   ],
+  "NARRESTREG": [
+    "UNODE"
+  ],
   "NATRIUMKLORID": [
     "SALT"
   ],
@@ -3442,6 +3463,9 @@
   "PASSE": [
     "ANSTÅ"
   ],
+  "PASSERPÅ": [
+    "VOGTER"
+  ],
   "PASSWORDS": [
     "KODER"
   ],
@@ -3579,6 +3603,9 @@
   ],
   "PROFET": [
     "SEER"
+  ],
+  "PRONOMEN": [
+    "DE"
   ],
   "PROPPET": [
     "FYLDT"
@@ -4437,6 +4464,9 @@
   "STIRRE": [
     "GLO"
   ],
+  "STIVNAKKEDE": [
+    "RIGIDE"
+  ],
   "STIVNAKKET": [
     "RIGID"
   ],
@@ -4505,6 +4535,9 @@
   ],
   "STYRESYSTEM": [
     "IOS"
+  ],
+  "STYRKE": [
+    "MAGT"
   ],
   "STÅÅBEN": [
     "GABE"
