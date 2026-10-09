@@ -693,7 +693,8 @@
     "PLI"
   ],
   "DANS": [
-    "JITTERBUG"
+    "JITTERBUG",
+    "TANGO"
   ],
   "DECILITER": [
     "DL"
@@ -718,7 +719,8 @@
     "ODE",
     "RIM",
     "ORD",
-    "EPOS"
+    "EPOS",
+    "VERS"
   ],
   "DIGTER": [
     "POET"
@@ -790,6 +792,9 @@
   ],
   "DRIKKEN": [
     "ÆBLEMOSTEN"
+  ],
+  "DRILLE": [
+    "ÅLE"
   ],
   "DRONNING": [
     "MARY"
@@ -1288,6 +1293,9 @@
   "FOREDRAG": [
     "TALE"
   ],
+  "FOREKOMMET": [
+    "SKET"
+  ],
   "FORESTILLING": [
     "REVY"
   ],
@@ -1695,6 +1703,9 @@
   "GRAM": [
     "G"
   ],
+  "GRANIT": [
+    "STEN"
+  ],
   "GRATIE": [
     "YNDE"
   ],
@@ -1814,6 +1825,9 @@
   "HARISINDE": [
     "VIL",
     "AGTER"
+  ],
+  "HARLOV": [
+    "MÅ"
   ],
   "HARMLØST": [
     "USKADELIGT"
@@ -2675,7 +2689,8 @@
     "SKÆREBRÆT",
     "BRØDRISTER",
     "OVNE",
-    "KAGERULLER"
+    "KAGERULLER",
+    "ELOVN"
   ],
   "KØKKENUDSTYRET": [
     "OVNEN"
@@ -2748,6 +2763,9 @@
   ],
   "LEDIG": [
     "FRI"
+  ],
+  "LEGEME": [
+    "KROP"
   ],
   "LEGEMSDEL": [
     "BEN",
@@ -3488,7 +3506,8 @@
     "GO"
   ],
   "PERFEKT": [
-    "IDEEL"
+    "IDEEL",
+    "FULDKOMMEN"
   ],
   "PERFEKTBEGYNDELSE": [
     "ØNSKESTART"
@@ -3814,6 +3833,9 @@
   ],
   "ROD": [
     "UREDE"
+  ],
+  "RODET": [
+    "UREDT"
   ],
   "ROGN": [
     "ÆG"
@@ -4162,6 +4184,9 @@
   ],
   "SLUTTET": [
     "ENDT"
+  ],
+  "SLÅSAMMEN": [
+    "FUSIONERE"
   ],
   "SLÆGT": [
     "ÆT"
@@ -4729,6 +4754,9 @@
   ],
   "TARIF": [
     "SATS"
+  ],
+  "TAST": [
+    "KNAP"
   ],
   "TAVLEVASKER": [
     "DUKS"
@@ -6034,6 +6062,9 @@
   "[IMG]SPADESUIT": [
     "SPAR"
   ],
+  "[IMG]SPADESUITSYMBOL": [
+    "SPAR"
+  ],
   "[IMG]SPIDER": [
     "EDDERKOP"
   ],
@@ -6045,6 +6076,9 @@
   ],
   "[IMG]STACKOFBOOKS": [
     "BØGER"
+  ],
+  "[IMG]STAIRS": [
+    "TRAPPE"
   ],
   "[IMG]STEERINGWHEEL": [
     "RAT"
