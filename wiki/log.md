@@ -1613,3 +1613,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-10 05:28 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-10-10 05:28 UTC] ingest | quiz | Hvilken kontinent ligger Sahara-ørkenen i? | outcome=submitted
+
