@@ -553,6 +553,9 @@
   "BULDER": [
     "TORDEN"
   ],
+  "BUNDNE": [
+    "UFRIE"
+  ],
   "BUNDT": [
     "NEG"
   ],
@@ -1302,6 +1305,9 @@
   "FORFÆDRE": [
     "ANER"
   ],
+  "FORKASTE": [
+    "VRAGE"
+  ],
   "FORKERT": [
     "USAND",
     "GALT"
@@ -1570,6 +1576,9 @@
   ],
   "GAD": [
     "ORKEDE"
+  ],
+  "GADEKUNST": [
+    "GAVLMALERI"
   ],
   "GAL": [
     "OLM",
@@ -1997,6 +2006,9 @@
     "OSLO",
     "NUUK"
   ],
+  "HOVEDTØJ": [
+    "TURBAN"
+  ],
   "HOVSA": [
     "UPS"
   ],
@@ -2084,6 +2096,9 @@
   ],
   "HÆLDT": [
     "ØSET"
+  ],
+  "HÆNDE": [
+    "SKE"
   ],
   "HÆNDER": [
     "SKER"
@@ -2238,7 +2253,8 @@
     "BASUN"
   ],
   "INSTRUMENTER": [
-    "TROMPETER"
+    "TROMPETER",
+    "TUBAER"
   ],
   "INTAKT": [
     "HEL"
@@ -2588,6 +2604,9 @@
   "KROPSMÅL": [
     "BMI"
   ],
+  "KRUKKE": [
+    "URNE"
+  ],
   "KRUMME": [
     "BUEDE"
   ],
@@ -2862,6 +2881,9 @@
   "LOVLIGE": [
     "LEGALE"
   ],
+  "LOVLØSHED": [
+    "ANARKI"
+  ],
   "LOVORD": [
     "ROS"
   ],
@@ -3117,6 +3139,9 @@
   ],
   "MUSEUM": [
     "LOUVRE"
+  ],
+  "MUSIKER": [
+    "GUITARIST"
   ],
   "MUSIKGENRE": [
     "FOLK",
@@ -3443,6 +3468,9 @@
   "OVERTAGET": [
     "ARVET"
   ],
+  "OVERVEJENDE": [
+    "MEST"
+  ],
   "OXIDERE": [
     "IRRE"
   ],
@@ -3597,6 +3625,9 @@
   ],
   "POPGRUPPE": [
     "ABBA"
+  ],
+  "POSTYR": [
+    "RØRE"
   ],
   "POTE": [
     "LAB"
@@ -4502,7 +4533,8 @@
     "KAKI",
     "SATIN",
     "DENIM",
-    "TYL"
+    "TYL",
+    "LIN"
   ],
   "STOLEDEL": [
     "ARMLÆN"
@@ -5352,6 +5384,9 @@
   ],
   "VINE": [
     "ROSEER"
+  ],
+  "VINEN": [
+    "ROSEEN"
   ],
   "VINTERLEJE": [
     "HI"
