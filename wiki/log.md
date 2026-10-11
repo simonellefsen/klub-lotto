@@ -1629,3 +1629,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-11 06:03 UTC] ingest | ordkløver | Category: `Person`; answer pattern `8 / 6` | outcome=submitted
 
+## [2026-10-11 06:06 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
