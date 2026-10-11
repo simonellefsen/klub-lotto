@@ -275,7 +275,8 @@
     "ÆSKE",
     "DUNK",
     "TØNDE",
-    "URTEPOTTE"
+    "URTEPOTTE",
+    "KEDEL"
   ],
   "BEHOLDERE": [
     "TØNDER",
@@ -332,7 +333,8 @@
     "DÅNE"
   ],
   "BESVÆR": [
-    "BØVL"
+    "BØVL",
+    "MAS"
   ],
   "BETEGNELSER": [
     "NAVNE"
@@ -416,7 +418,8 @@
     "ORKIDE",
     "VIOL",
     "NELLIKE",
-    "TUSINDFRYD"
+    "TUSINDFRYD",
+    "ASTERS"
   ],
   "BLOMSTEN": [
     "ROSEN"
@@ -1483,6 +1486,9 @@
   "FRYGTER": [
     "GRUER"
   ],
+  "FRYSENDE": [
+    "HUNDEKOLDT"
+  ],
   "FRØ": [
     "ÆRT"
   ],
@@ -1622,6 +1628,9 @@
   ],
   "GENLYD": [
     "EKKO"
+  ],
+  "GENNEDE": [
+    "DREV"
   ],
   "GENSTAND": [
     "GLAS",
@@ -1933,6 +1942,9 @@
   "HITTET": [
     "FUNDET"
   ],
+  "HIVERT": [
+    "DRAM"
+  ],
   "HJEM": [
     "BO"
   ],
@@ -2000,7 +2012,8 @@
     "IN"
   ],
   "HOVEDPART": [
-    "KIND"
+    "KIND",
+    "ISSE"
   ],
   "HOVEDSTAD": [
     "OSLO",
@@ -2111,6 +2124,9 @@
   ],
   "HÆRGET": [
     "RAMPONERET"
+  ],
+  "HÆVELSER": [
+    "ØDEMER"
   ],
   "HØFLIGTILTALE": [
     "DE"
@@ -2687,6 +2703,9 @@
   "KÆRLIG": [
     "ØM"
   ],
+  "KÆRLIGT": [
+    "ØMT"
+  ],
   "KÆRTEGNE": [
     "AE"
   ],
@@ -2781,7 +2800,8 @@
     "ÆKLE"
   ],
   "LEDIG": [
-    "FRI"
+    "FRI",
+    "UBESAT"
   ],
   "LEGEME": [
     "KROP"
@@ -3002,6 +3022,9 @@
   ],
   "MARINADE": [
     "LAGE"
+  ],
+  "MARK": [
+    "AGER"
   ],
   "MARKER": [
     "AGRE"
@@ -3402,7 +3425,8 @@
     "TALT"
   ],
   "OPSÆTNING": [
-    "REDT"
+    "REDT",
+    "REGI"
   ],
   "OPSÆTNINGEN": [
     "REGIET"
@@ -5151,6 +5175,9 @@
   "UDSEENDE": [
     "LOOK"
   ],
+  "UDSIGT": [
+    "VUE"
+  ],
   "UDSMYKKER": [
     "SIRER"
   ],
@@ -6166,6 +6193,9 @@
   ],
   "[IMG]TWOBEANIES": [
     "HUER"
+  ],
+  "[IMG]TWOBLACKDICE": [
+    "ENERE"
   ],
   "[IMG]TWOREDROSES": [
     "ROSER"
