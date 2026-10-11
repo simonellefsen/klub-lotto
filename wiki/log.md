@@ -1625,3 +1625,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-11 06:02 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-10-11 06:02 UTC] ingest | quiz | Hvilken fransk kejser blev besejret ved Waterloo i 1815? | outcome=submitted
+
