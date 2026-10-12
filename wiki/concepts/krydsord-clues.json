@@ -172,6 +172,9 @@
   "ARRANGEMENT": [
     "KLASSEFEST"
   ],
+  "ARRIVEREDE": [
+    "KOM"
+  ],
   "ARTIKEL": [
     "ESSAY"
   ],
@@ -905,6 +908,9 @@
   "EFTERLADE": [
     "LEVNE"
   ],
+  "EFTERLIGNING": [
+    "IMITATION"
+  ],
   "EFTERMIDDAG": [
     "PM"
   ],
@@ -937,6 +943,9 @@
   ],
   "ENEBOER": [
     "EREMIT"
+  ],
+  "ENERGI": [
+    "EL"
   ],
   "ENFOLDIG": [
     "GODTROENDE"
@@ -1514,7 +1523,8 @@
     "RAVN",
     "KALKUN",
     "SVALE",
-    "AND"
+    "AND",
+    "RÅGE"
   ],
   "FUGLE": [
     "ØRNE",
@@ -1528,6 +1538,9 @@
   ],
   "FUGLEN": [
     "UGLEN"
+  ],
+  "FUPPE": [
+    "NARRE"
   ],
   "FURE": [
     "KEL"
@@ -1965,6 +1978,9 @@
   ],
   "HJULDEL": [
     "EGER"
+  ],
+  "HJULPET": [
+    "LETTET"
   ],
   "HOLDE": [
     "VARE"
@@ -2797,7 +2813,8 @@
     "ALBUER"
   ],
   "LEDE": [
-    "ÆKLE"
+    "ÆKLE",
+    "ONDE"
   ],
   "LEDIG": [
     "FRI",
@@ -3066,6 +3083,9 @@
   ],
   "MEDIEHUS": [
     "DR"
+  ],
+  "MEDITATIONSFORM": [
+    "TM"
   ],
   "MEDIUM": [
     "M"
@@ -3437,6 +3457,9 @@
   "OPTEGNELSEN": [
     "NOTEN"
   ],
+  "OPTEGNELSER": [
+    "NOTER"
+  ],
   "ORD": [
     "GLOSE"
   ],
@@ -3736,6 +3759,9 @@
     "OST",
     "SPEGEPØLSE",
     "OSTE"
+  ],
+  "PÅNY": [
+    "IGEN"
   ],
   "PÅVIDGAB": [
     "ÅBENT"
@@ -4225,6 +4251,10 @@
   "SLOT": [
     "ROSENBORG"
   ],
+  "SLUDDER": [
+    "VRØVL",
+    "VÅS"
+  ],
   "SLUDDERET": [
     "VÅSET"
   ],
@@ -4253,6 +4283,9 @@
   "SLÆGTNINGEN": [
     "ONKLEN",
     "NEVØEN"
+  ],
+  "SLØVE": [
+    "DOVNE"
   ],
   "SLØVHED": [
     "APATI"
@@ -5222,6 +5255,9 @@
   ],
   "UNDERLIG": [
     "SÆR"
+  ],
+  "UNDERORDNET": [
+    "IRRELEVANT"
   ],
   "UNDERTRYKKE": [
     "KUE"
@@ -6196,6 +6232,12 @@
   ],
   "[IMG]TWOBLACKDICE": [
     "ENERE"
+  ],
+  "[IMG]TWOPEARS": [
+    "PÆRER"
+  ],
+  "[IMG]TWOREDAPPLES": [
+    "ÆBLER"
   ],
   "[IMG]TWOREDROSES": [
     "ROSER"
