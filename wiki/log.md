@@ -1637,3 +1637,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-12 04:19 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-10-12 04:20 UTC] ingest | quiz | Hvilken dansk forfatter skrev krimiserien om afdeling Q? | outcome=submitted
+
