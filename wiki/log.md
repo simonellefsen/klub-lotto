@@ -1639,3 +1639,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-12 04:20 UTC] ingest | quiz | Hvilken dansk forfatter skrev krimiserien om afdeling Q? | outcome=submitted
 
+## [2026-10-12 04:21 UTC] ingest | ordkløver | Category: `Sted`; answer pattern `6 / 6` | outcome=submitted
+
