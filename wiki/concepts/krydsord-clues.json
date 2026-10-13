@@ -50,6 +50,9 @@
   "501": [
     "DI"
   ],
+  "502": [
+    "DII"
+  ],
   "505": [
     "DV"
   ],
@@ -422,7 +425,8 @@
     "VIOL",
     "NELLIKE",
     "TUSINDFRYD",
-    "ASTERS"
+    "ASTERS",
+    "LILJE"
   ],
   "BLOMSTEN": [
     "ROSEN"
@@ -875,7 +879,8 @@
     "TUSINDBEN",
     "UROKSE",
     "ANTILOPER",
-    "KATTE"
+    "KATTE",
+    "KAT"
   ],
   "DYRET": [
     "DÅEN",
@@ -1365,6 +1370,9 @@
     "ANE",
     "ÆDLE"
   ],
+  "FORNEMMELSE": [
+    "SANS"
+  ],
   "FORNEMMET": [
     "ANET"
   ],
@@ -1682,6 +1690,9 @@
   ],
   "GIVET": [
     "YDET"
+  ],
+  "GLIDE": [
+    "RUTSJE"
   ],
   "GLKARAKTR": [
     "UG"
@@ -2088,6 +2099,9 @@
   "HYL": [
     "VRÆL"
   ],
+  "HYLET": [
+    "TUDET"
+  ],
   "HYLSTER": [
     "ETUI"
   ],
@@ -2229,7 +2243,8 @@
   ],
   "INDTAGE": [
     "ÆDE",
-    "E"
+    "E",
+    "EROBRE"
   ],
   "INDTAGET": [
     "ÆDT",
@@ -2891,6 +2906,9 @@
   "LIGETIL": [
     "NEMT"
   ],
+  "LIGEVÆRDIG": [
+    "JÆVNBYRDIG"
+  ],
   "LILLE": [
     "LL"
   ],
@@ -3344,6 +3362,9 @@
   "NUMMER": [
     "NR"
   ],
+  "NUTTEDE": [
+    "SØDE"
+  ],
   "NUTTET": [
     "SØD"
   ],
@@ -3421,7 +3442,8 @@
     "IDERIG"
   ],
   "OPFØRE": [
-    "TE"
+    "TE",
+    "ARTE"
   ],
   "OPFØRER": [
     "TER"
@@ -4922,6 +4944,9 @@
   "TILLØB": [
     "RUN"
   ],
+  "TILPASSEDE": [
+    "JUSTEREDE"
+  ],
   "TILRETTELAGDE": [
     "TIMEDE"
   ],
@@ -5201,6 +5226,9 @@
   ],
   "UDKIG": [
     "VAGT"
+  ],
+  "UDLØBERE": [
+    "GRENE"
   ],
   "UDREGNE": [
     "KALKULERE"
@@ -5789,6 +5817,9 @@
     "AND"
   ],
   "[IMG]EAGLE": [
+    "ØRN"
+  ],
+  "[IMG]EAGLEFLYING": [
     "ØRN"
   ],
   "[IMG]EGGTIMER": [
