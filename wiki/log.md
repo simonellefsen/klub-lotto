@@ -1665,3 +1665,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-14 04:34 UTC] ingest | quiz | Hvad betyder det tyske ord 'Krankenhaus' på dansk? | outcome=submitted
 
+## [2026-10-14 04:34 UTC] ingest | ordkløver | Category: `Hus og have`; answer pattern `7 / 6` | outcome=submitted
+
