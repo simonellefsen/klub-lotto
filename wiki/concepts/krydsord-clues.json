@@ -383,6 +383,9 @@
   "BILUDSTYR": [
     "PSKIVE"
   ],
+  "BILUDSTYRET": [
+    "KOFANGEREN"
+  ],
   "BIND": [
     "BD"
   ],
@@ -798,7 +801,8 @@
     "VIN",
     "ROM",
     "ISTE",
-    "TODDY"
+    "TODDY",
+    "KAMILLETE"
   ],
   "DRIKKE": [
     "DIE"
@@ -823,6 +827,9 @@
   ],
   "DUFT": [
     "AROMA"
+  ],
+  "DUFTMIDDEL": [
+    "RØGELSE"
   ],
   "DUO": [
     "PAR"
@@ -933,6 +940,9 @@
   ],
   "EKSAMEN": [
     "HF"
+  ],
+  "ELENDIGHED": [
+    "YNK"
   ],
   "ELLIPTISKE": [
     "OVALE"
@@ -1165,6 +1175,9 @@
   "FIGUR": [
     "REKTANGEL",
     "TIKANT"
+  ],
+  "FIKSE": [
+    "ORDNE"
   ],
   "FILEN": [
     "RASPEN"
@@ -2432,6 +2445,9 @@
     "RNA",
     "DNA"
   ],
+  "KERTE": [
+    "LYS"
+  ],
   "KIGGE": [
     "SE"
   ],
@@ -2513,6 +2529,9 @@
   ],
   "KLÆDE": [
     "DUG"
+  ],
+  "KLÆG": [
+    "LERET"
   ],
   "KNEB": [
     "NEV"
@@ -3108,6 +3127,9 @@
   "MEDIUM": [
     "M"
   ],
+  "MEJERIPRODUKT": [
+    "SKYR"
+  ],
   "MENNESKELIG": [
     "HUMAN"
   ],
@@ -3480,7 +3502,8 @@
     "NOTEN"
   ],
   "OPTEGNELSER": [
-    "NOTER"
+    "NOTER",
+    "NOTATER"
   ],
   "ORD": [
     "GLOSE"
@@ -4252,6 +4275,9 @@
   "SLANGER": [
     "SNOGE"
   ],
+  "SLANK": [
+    "TYND"
+  ],
   "SLAPPERAF": [
     "DASER"
   ],
@@ -4263,6 +4289,9 @@
   ],
   "SLET": [
     "ILDE"
+  ],
+  "SLEV": [
+    "SKE"
   ],
   "SLIK": [
     "GUF"
@@ -4415,6 +4444,9 @@
   ],
   "SPANSKTITEL": [
     "DON"
+  ],
+  "SPARK": [
+    "LOS"
   ],
   "SPECIALISTER": [
     "ØJENLÆGER"
@@ -5728,6 +5760,9 @@
   ],
   "[IMG]CD": [
     "CD"
+  ],
+  "[IMG]CHAINLINKS": [
+    "KÆDE"
   ],
   "[IMG]CHAIR": [
     "STOL"

@@ -1669,3 +1669,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-14 04:36 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
 
+## [2026-10-14 04:38 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
+
