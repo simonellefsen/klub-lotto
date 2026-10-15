@@ -378,7 +378,8 @@
     "IKON"
   ],
   "BILMÆRKE": [
-    "MG"
+    "MG",
+    "SEAT"
   ],
   "BILUDSTYR": [
     "PSKIVE"
@@ -553,6 +554,9 @@
   ],
   "BRÆKKE": [
     "BRYDE"
+  ],
+  "BRØD": [
+    "KEREDE"
   ],
   "BRØDTYPE": [
     "PITA"
@@ -1299,6 +1303,9 @@
   "FOR": [
     "THI"
   ],
+  "FORBEDRER": [
+    "OPPER"
+  ],
   "FORBI": [
     "OMME"
   ],
@@ -1846,6 +1853,9 @@
   ],
   "GUITAR": [
     "GUITAR"
+  ],
+  "GYSE": [
+    "ISNE"
   ],
   "GYST": [
     "ISNET"
@@ -2548,6 +2558,9 @@
   "KNOGLE": [
     "BEN"
   ],
+  "KNOKLEDE": [
+    "SLED"
+  ],
   "KNOLD": [
     "TUE"
   ],
@@ -2794,6 +2807,9 @@
     "VOGN",
     "JEEP"
   ],
+  "KØRETØJET": [
+    "LASTVOGNEN"
+  ],
   "LABEL": [
     "ETIKET"
   ],
@@ -2936,6 +2952,9 @@
   ],
   "LILLEGUD": [
     "EROT"
+  ],
+  "LILLETÅR": [
+    "SIP"
   ],
   "LINE": [
     "SNOR"
@@ -3222,6 +3241,9 @@
   ],
   "MUSEUM": [
     "LOUVRE"
+  ],
+  "MUSICALNOTES": [
+    "NODER"
   ],
   "MUSIKER": [
     "GUITARIST"
@@ -3935,6 +3957,9 @@
   ],
   "REV": [
     "ATOL"
+  ],
+  "REVOLTE": [
+    "OPRØR"
   ],
   "REX": [
     "R"
@@ -4762,6 +4787,9 @@
     "JEP",
     "RESPONS"
   ],
+  "SVARET": [
+    "LØSNINGEN"
+  ],
   "SVENSKKILDE": [
     "TT"
   ],
@@ -5242,7 +5270,8 @@
     "ÆV",
     "NYS",
     "PUH",
-    "AVRA"
+    "AVRA",
+    "AK"
   ],
   "UDENINDHOLD": [
     "TOM"
@@ -6096,6 +6125,9 @@
   ],
   "[IMG]POT": [
     "GRYDE"
+  ],
+  "[IMG]POTTEDPLANT": [
+    "PLANTE"
   ],
   "[IMG]POWERPLUG": [
     "STIK"
