@@ -1677,3 +1677,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-15 04:21 UTC] ingest | quiz | Hvilket forhistorisk dyr havde en karakteristisk kølle for … | outcome=submitted
 
+## [2026-10-15 04:22 UTC] ingest | ordkløver | Category: `Begreb`; answer pattern `4 / 2 / 5 / 3`; visual l… | outcome=submitted
+
