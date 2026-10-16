@@ -1693,3 +1693,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-16 04:18 UTC] ingest | ordkløver | Category: `Kontor`; answer pattern `7 / 8` | outcome=submitted
 
+## [2026-10-16 04:20 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
