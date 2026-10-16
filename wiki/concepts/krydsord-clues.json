@@ -286,7 +286,8 @@
   ],
   "BEHOLDERE": [
     "TØNDER",
-    "DUNKE"
+    "DUNKE",
+    "DÅSER"
   ],
   "BEKENDTGØRE": [
     "DEKLARERE"
@@ -430,7 +431,8 @@
     "NELLIKE",
     "TUSINDFRYD",
     "ASTERS",
-    "LILJE"
+    "LILJE",
+    "SYREN"
   ],
   "BLOMSTEN": [
     "ROSEN"
@@ -458,6 +460,9 @@
   ],
   "BLÆST": [
     "SUS"
+  ],
+  "BLØDDYR": [
+    "MUSLINGER"
   ],
   "BO": [
     "LOGERE",
@@ -1291,7 +1296,8 @@
   "FODTØJ": [
     "PLATEAUSKO",
     "SKO",
-    "TRÆSKO"
+    "TRÆSKO",
+    "MOKKASINER"
   ],
   "FOLD": [
     "LÆG"
@@ -1451,6 +1457,9 @@
   "FRANKRIG": [
     "F"
   ],
+  "FRANSKVEN": [
+    "AMI"
+  ],
   "FRANSKØ": [
     "RE"
   ],
@@ -1589,6 +1598,9 @@
   ],
   "FÆSTNING": [
     "BORG"
+  ],
+  "FØDE": [
+    "KOST"
   ],
   "FØDEN": [
     "MADEN"
@@ -1821,6 +1833,9 @@
   ],
   "GRÆSMARK": [
     "ENG"
+  ],
+  "GRÆSMARKER": [
+    "ENGE"
   ],
   "GRØN": [
     "UNG"
@@ -2419,6 +2434,9 @@
   "KAMP": [
     "DYST"
   ],
+  "KAMPPLADS": [
+    "VAL"
+  ],
   "KAMPSPORT": [
     "KARATE"
   ],
@@ -2733,6 +2751,9 @@
   ],
   "KURSIST": [
     "ELEV"
+  ],
+  "KURSISTEN": [
+    "ELEVEN"
   ],
   "KURSTED": [
     "SPA"
@@ -3594,6 +3615,9 @@
   "PAGAJ": [
     "ÅRE"
   ],
+  "PAGAJER": [
+    "ÅRER"
+  ],
   "PALADS": [
     "SLOT"
   ],
@@ -3864,6 +3888,9 @@
   "RANGORDNER": [
     "SEEDER"
   ],
+  "RASKE": [
+    "SUNDE"
+  ],
   "RASTLØS": [
     "UROLIG"
   ],
@@ -4032,6 +4059,9 @@
     "SUITE",
     "KOLONNE",
     "SERIE"
+  ],
+  "RÆKKER": [
+    "SERIER"
   ],
   "RØG": [
     "OS",
@@ -5723,6 +5753,9 @@
   "[IMG]BINOCULARS": [
     "KIKKERT"
   ],
+  "[IMG]BIRDNESTWITHEGGS": [
+    "REDE"
+  ],
   "[IMG]BLACKBIRD": [
     "SOLSORT"
   ],
@@ -5886,6 +5919,9 @@
   "[IMG]EAGLEFLYING": [
     "ØRN"
   ],
+  "[IMG]EARTHWORM": [
+    "ORM"
+  ],
   "[IMG]EGGTIMER": [
     "ÆGGEUR"
   ],
@@ -6047,6 +6083,9 @@
   ],
   "[IMG]NIGHTSKYWITHSTARS": [
     "SNE"
+  ],
+  "[IMG]NINEOFDIAMONDSPLAYINGCARD": [
+    "NIER"
   ],
   "[IMG]OAR": [
     "ÅRE"
