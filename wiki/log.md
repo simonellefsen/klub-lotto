@@ -1689,3 +1689,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-16 04:17 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-10-16 04:17 UTC] ingest | quiz | Hvilken dansk mønt blev indført i 1875 som led i den skand… | outcome=submitted
+
