@@ -127,6 +127,9 @@
   "ALDRIGIBONN": [
     "NIE"
   ],
+  "ALENE": [
+    "SOLO"
+  ],
   "ALTSÅ": [
     "ERGO"
   ],
@@ -898,6 +901,9 @@
     "KATTE",
     "KAT"
   ],
+  "DYRELIV": [
+    "FAUNA"
+  ],
   "DYRET": [
     "DÅEN",
     "RENEN",
@@ -1571,7 +1577,8 @@
     "GÆS",
     "PAPEGØJER",
     "RAVNE",
-    "GØGE"
+    "GØGE",
+    "NATTERGALE"
   ],
   "FUGLEN": [
     "UGLEN"
@@ -3226,6 +3233,9 @@
   "MODTAGER": [
     "RADIO"
   ],
+  "MODVILJE": [
+    "TRODS"
+  ],
   "MOMENT": [
     "NU"
   ],
@@ -3320,7 +3330,8 @@
     "REOL",
     "SENG",
     "BÆNK",
-    "PLANKEBORD"
+    "PLANKEBORD",
+    "SOFA"
   ],
   "MØBLER": [
     "LÆNESTOLE",
@@ -3694,6 +3705,9 @@
   "PERSONALE": [
     "STAB"
   ],
+  "PIANO": [
+    "P"
+  ],
   "PINE": [
     "NAGE"
   ],
@@ -3896,6 +3910,9 @@
   ],
   "REALITET": [
     "SANDHED"
+  ],
+  "REDHANDBAG": [
+    "TASKE"
   ],
   "REDSKAB": [
     "LOMMEKNIV",
@@ -4827,7 +4844,8 @@
     "ØR"
   ],
   "SVINDEL": [
-    "FUSK"
+    "FUSK",
+    "LUSK"
   ],
   "SVING": [
     "DREJ"
@@ -5172,6 +5190,9 @@
   ],
   "TROSKYLDIG": [
     "NAIV"
+  ],
+  "TROSSE": [
+    "REB"
   ],
   "TRÅD": [
     "SENE"
@@ -5750,6 +5771,9 @@
   "[IMG]BEETLE": [
     "BILLE"
   ],
+  "[IMG]BICYCLEHANDLEBARS": [
+    "STYR"
+  ],
   "[IMG]BINOCULARS": [
     "KIKKERT"
   ],
@@ -5939,6 +5963,9 @@
   ],
   "[IMG]FISHINGHOOK": [
     "KROG"
+  ],
+  "[IMG]FLASHLIGHT": [
+    "LYGTE"
   ],
   "[IMG]FLY": [
     "FLUE"
