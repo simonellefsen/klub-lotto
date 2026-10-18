@@ -1717,3 +1717,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-18 05:43 UTC] ingest | ordkløver | Category: `Begreb`; answer pattern `2 / 7 / 6`; visual layou… | outcome=submitted
 
+## [2026-10-18 05:44 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
