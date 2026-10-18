@@ -1164,7 +1164,8 @@
   ],
   "FEDTSTOF": [
     "OLIE",
-    "SMØR"
+    "SMØR",
+    "OLIVENOLIE"
   ],
   "FEDTSTOFFET": [
     "OLIEN"
@@ -1692,6 +1693,9 @@
   "GENNEDE": [
     "DREV"
   ],
+  "GENPART": [
+    "KOPI"
+  ],
   "GENSTAND": [
     "GLAS",
     "TING"
@@ -2038,6 +2042,9 @@
   "HJULPET": [
     "LETTET"
   ],
+  "HJÆLPEMIDDEL": [
+    "LUP"
+  ],
   "HOLDE": [
     "VARE"
   ],
@@ -2252,6 +2259,9 @@
   ],
   "ILDSTED": [
     "ESSE"
+  ],
+  "ILINGEN": [
+    "GYSET"
   ],
   "ILT": [
     "O"
@@ -2606,6 +2616,9 @@
   ],
   "KONTINENT": [
     "AFRIKA"
+  ],
+  "KONTRA": [
+    "IMOD"
   ],
   "KOPIERE": [
     "KLONE"
@@ -3157,7 +3170,11 @@
     "TRÆ",
     "JERN",
     "TIN",
-    "NYLON"
+    "NYLON",
+    "ULD"
+  ],
+  "MAVE": [
+    "VOM"
   ],
   "MEDDELELSE": [
     "BESKED"
@@ -3271,7 +3288,8 @@
     "JORD"
   ],
   "MUSEUM": [
-    "LOUVRE"
+    "LOUVRE",
+    "AROS"
   ],
   "MUSICALNOTES": [
     "NODER"
@@ -3893,6 +3911,9 @@
   "RADIOTYPE": [
     "FM"
   ],
+  "RAM": [
+    "BESK"
+  ],
   "RAMME": [
     "KARM"
   ],
@@ -3935,7 +3956,8 @@
     "ØKSER",
     "SKEER",
     "LEER",
-    "NÅLE"
+    "NÅLE",
+    "SYLE"
   ],
   "REDSKABET": [
     "ÅBNEREN",
@@ -4180,6 +4202,9 @@
   "SIMPEL": [
     "ENKEL"
   ],
+  "SIND": [
+    "NATUR"
+  ],
   "SINGLE": [
     "ALENE",
     "ENLIG"
@@ -4313,6 +4338,9 @@
   ],
   "SKURE": [
     "UDHUSE"
+  ],
+  "SKYNDERSIG": [
+    "ILER"
   ],
   "SKYNDESIG": [
     "ILE"
@@ -4496,7 +4524,8 @@
     "G"
   ],
   "SOLGUD": [
-    "RA"
+    "RA",
+    "RÅ"
   ],
   "SOLO": [
     "ENE",
@@ -5591,6 +5620,9 @@
   "VINEN": [
     "ROSEEN"
   ],
+  "VINTERFÆNOMEN": [
+    "ISTAP"
+  ],
   "VINTERLEJE": [
     "HI"
   ],
@@ -5778,6 +5810,9 @@
     "KIKKERT"
   ],
   "[IMG]BIRDNESTWITHEGGS": [
+    "REDE"
+  ],
+  "[IMG]BIRDSNESTWITHEGGS": [
     "REDE"
   ],
   "[IMG]BLACKBIRD": [
