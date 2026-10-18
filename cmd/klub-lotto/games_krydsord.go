@@ -13,6 +13,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/simonellefsen/klub-lotto/internal/browser"
@@ -132,6 +133,10 @@ func runKrydsord(ctx context.Context, args []string) error {
 	// solveClues carries the vision-extracted clues (slot id + clue text) out of the
 	// solve branch so we can auto-learn clue→answer mappings after a confirmed submit.
 	var solveClues []klublotto.KrydsordClue
+	// Kept from the solve so a rejected submission can be re-assembled without
+	// redoing vision + candidate generation.
+	var solveCands map[string][]klublotto.WordCandidate
+	var solveAllClues []string
 	if strings.TrimSpace(*gridPath) != "" {
 		fmt.Println()
 		fmt.Println("[grid] validating proposed grid:", *gridPath)
@@ -324,11 +329,13 @@ func runKrydsord(ctx context.Context, args []string) error {
 					allClueTexts = append(allClueTexts, cl.Clue)
 				}
 			}
-			grid, err := assembleKrydsordSolutionGrid(ctx, cfg, *providerFlag, data, clues, slotCands, allClueTexts, knownAnswers)
+			grid, err := assembleKrydsordSolutionGrid(ctx, cfg, *providerFlag, data, clues, slotCands, allClueTexts, knownAnswers, nil)
 			if err != nil {
 				return fmt.Errorf("solve krydsord: %w", err)
 			}
 			solveClues = clues // remember for post-submit auto-learn
+			solveCands = slotCands
+			solveAllClues = allClueTexts
 			solvedGrid = grid
 			_ = saveDebug(cfg.DataDir, "krydsord-solution.txt", strings.Join(solvedGrid, "\n")+"\n")
 			fmt.Println()
@@ -357,6 +364,63 @@ func runKrydsord(ctx context.Context, args []string) error {
 	submitCtx, cancel := context.WithTimeout(ctx, 3*time.Minute)
 	err = submitKrydsord(submitCtx, br, cfg.DataDir, data, solvedGrid)
 	cancel()
+
+	// A rejection used to end the run. But a rejected grid is usually a few wrong
+	// words in an otherwise right solution (2026-10-18: D14 Redskaber=SILE, D21
+	// Vinterfænomen=ISNAP, A14 Ilingen=GISEN — two of them not even words), and
+	// Danske Spil accepts another "Tjek løsning". So review the answers, ban the
+	// ones that are wrong, re-assemble around the rest, and resubmit.
+	banned := map[string]map[string]bool{}
+	for retry := 1; retry <= krydsordRejectRetries && errors.Is(err, errKrydsordNotSolved) && len(solveClues) > 0; retry++ {
+		fmt.Printf("\n[retry %d/%d] grid rejected — reviewing answers for words that are wrong...\n", retry, krydsordRejectRetries)
+		answers := krydsordSlotAnswers(data, solvedGrid)
+		suspects := reviewKrydsordAnswers(ctx, cfg, *providerFlag, solveClues, answers)
+		if len(suspects) == 0 {
+			fmt.Println("       review found nothing to change — giving up")
+			break
+		}
+		// Ban the suspects and offer the reviewer's alternatives; pin everything
+		// else as a crossing constraint. A pinned answer that turns out to conflict
+		// is dropped by the assembler's existing conflict handling, so a wrong word
+		// the review missed can still move.
+		known := map[string]string{}
+		for id, a := range answers {
+			if _, bad := suspects[id]; !bad {
+				known[id] = a
+			}
+		}
+		for id, alts := range suspects {
+			if banned[id] == nil {
+				banned[id] = map[string]bool{}
+			}
+			banned[id][answers[id]] = true
+			var keep []klublotto.WordCandidate
+			for _, alt := range alts {
+				keep = append(keep, klublotto.WordCandidate{Answer: klublotto.NormalizeDanishLetters(alt), Confidence: "medium", Rationale: "answer review"})
+			}
+			for _, c := range solveCands[id] {
+				if !banned[id][klublotto.NormalizeDanishLetters(c.Answer)] {
+					keep = append(keep, c)
+				}
+			}
+			solveCands[id] = keep
+		}
+		grid, aerr := assembleKrydsordSolutionGrid(ctx, cfg, *providerFlag, data, solveClues, solveCands, solveAllClues, known, banned)
+		if aerr != nil {
+			fmt.Printf("       re-assembly failed: %v\n", aerr)
+			break
+		}
+		solvedGrid = grid
+		_ = saveDebug(cfg.DataDir, "krydsord-solution.txt", strings.Join(solvedGrid, "\n")+"\n")
+		fmt.Println("== Revised Grid ==")
+		for _, row := range solvedGrid {
+			fmt.Println(row)
+		}
+		fmt.Println("       resubmitting...")
+		submitCtx, cancel = context.WithTimeout(ctx, 3*time.Minute)
+		err = submitKrydsord(submitCtx, br, cfg.DataDir, data, solvedGrid)
+		cancel()
+	}
 	if err != nil {
 		snap, _ := br.Snapshot(ctx)
 		_ = saveDebug(cfg.DataDir, "krydsord-submit-fail.txt", snap)
@@ -1133,6 +1197,10 @@ func submitKrydsord(ctx context.Context, br *browser.Client, dataDir string, dat
 	// receives gameCompleted etc and awards the daily lod. We deliberately do NOT
 	// navigate to the standalone iframe URL — that URL carries a single-use launcher
 	// token and, loaded directly, hangs forever on the red loading spinner.
+	// A previous run that died inside the game frame can leave the daemon pointed
+	// at a frame that no longer exists: eval then silently falls back to the main
+	// page while snapshot fails or hangs on the dead frame id. Start from main.
+	klublotto.LeaveFrame(br)
 	fmt.Println("       opening parent page (iframe embedded for registration)...")
 	if err := br.Open(ctx, klublotto.KrydsordURL); err != nil {
 		return fmt.Errorf("open parent for krydsord submit: %w", err)
@@ -1193,19 +1261,43 @@ func submitKrydsord(ctx context.Context, br *browser.Client, dataDir string, dat
 		n = len(letters)
 	}
 	fmt.Printf("       filling %d answer cells by coordinate (iframe at %.0f,%.0f)...\n", n, ifr.X, ifr.Y)
-	for i := 0; i < n; i++ {
+	fillStart := time.Now()
+	fillCell := func(i int, settle time.Duration) {
 		absX := int(ifr.X) + cells[i].X
 		absY := int(ifr.Y) + cells[i].Y
 		if err := br.MouseClick(ctx, absX, absY); err != nil {
-			continue
+			return
 		}
-		time.Sleep(60 * time.Millisecond) // let the click select the cell
+		time.Sleep(settle) // let the click select the cell
 		// The game captures document-level keydowns, so Press works for every
 		// letter — including Æ/Ø/Å.
 		_ = br.Press(ctx, letters[i])
-		time.Sleep(50 * time.Millisecond)
 	}
-	time.Sleep(1200 * time.Millisecond) // let the grid commit the typed letters
+	// Fill fast, then read the board back and redo only the cells that did not
+	// take. The old fixed 110ms per cell (8s+ of pure sleep on a 74-cell grid)
+	// was a guess at how long the game needs; reading back replaces the guess
+	// with a check, so speed no longer risks a silently mis-typed cell.
+	for i := 0; i < n; i++ {
+		fillCell(i, krydsordFastCellSettle)
+	}
+	for pass := 1; pass <= 2; pass++ {
+		time.Sleep(250 * time.Millisecond)
+		bad, readable := krydsordMismatchedCells(ctx, br, letters[:n])
+		if !readable {
+			// Can't read letters back from this board's DOM — fall back to a
+			// conservative settle rather than trusting the fast pass blindly.
+			time.Sleep(1200 * time.Millisecond)
+			break
+		}
+		if len(bad) == 0 {
+			break
+		}
+		fmt.Printf("       %d cell(s) did not take on pass %d — refilling slowly\n", len(bad), pass)
+		for _, i := range bad {
+			fillCell(i, 120*time.Millisecond)
+		}
+	}
+	fmt.Printf("       filled in %.1fs\n", time.Since(fillStart).Seconds())
 
 	// Screenshot the FILLED grid before checking — the only way to visually tell
 	// a wrong-content submission from a right-content/wrong-cell-mapping one
@@ -1215,27 +1307,30 @@ func submitKrydsord(ctx context.Context, br *browser.Client, dataDir string, dat
 	_ = br.Screenshot(ctx, filledShot)
 	fmt.Println("       filled-grid screenshot:", filledShot)
 
-	// Find the "TJEK LØSNING" button — the buttons DO carry roles, so they appear
-	// in the in-frame interactive snapshot as refs.
-	snap, _ := br.SnapshotInteractive(ctx)
-	tjekRef := klublotto.FindRefByName(snap, []string{"TJEK LØSNING", "TJEK LOSNING"})
-	gemRef := klublotto.FindRefByName(snap, []string{"GEM"})
-
-	// Click "TJEK LØSNING" via ref (preferred) or fall back to name search.
+	// Click "TJEK LØSNING" by coordinate, exactly like the cells: locate the button
+	// with an in-frame eval and send a real mouse click at its centre. This used to
+	// go through an accessibility snapshot to find a ref, and on 2026-10-18 that
+	// snapshot hung inside the game frame while eval and mouse clicks there worked
+	// fine — two 60s stalls that ate the whole submit budget with the grid filled.
 	fmt.Println("       clicking Tjek løsning...")
-	var checkErr error
-	switch {
-	case tjekRef != "":
-		checkErr = br.Click(ctx, tjekRef)
-	case gemRef != "":
-		checkErr = br.Click(ctx, gemRef)
-	default:
-		checkErr = clickInteractiveByName(ctx, br, "Tjek løsning", "Tjek løsning", "GEM", "Tjek")
+	if bx, by, ok := krydsordButtonCenter(ctx, br, "tjek løsning", "tjek losning"); ok {
+		if err := br.MouseClick(ctx, int(ifr.X)+bx, int(ifr.Y)+by); err != nil {
+			return fmt.Errorf("click Tjek løsning: %w", err)
+		}
+	} else {
+		// Fallback: the snapshot route, but bounded so it cannot eat the budget.
+		snapCtx, cancel := context.WithTimeout(ctx, 15*time.Second)
+		snap, _ := br.SnapshotInteractive(snapCtx)
+		cancel()
+		tjekRef := klublotto.FindRefByName(snap, []string{"TJEK LØSNING", "TJEK LOSNING"})
+		if tjekRef == "" {
+			return fmt.Errorf("click Tjek løsning: button not found in game frame")
+		}
+		if err := br.Click(ctx, tjekRef); err != nil {
+			return fmt.Errorf("click Tjek løsning: %w", err)
+		}
 	}
-	if checkErr != nil {
-		return fmt.Errorf("click Tjek løsning: %w", checkErr)
-	}
-	time.Sleep(1500 * time.Millisecond)
+	time.Sleep(300 * time.Millisecond) // waitForKrydsordSuccess polls from here
 
 	// Check for the success banner. We're still inside the game frame, so the eval
 	// reads the game iframe's body — where "hvor er du vild"/"ordmester" render.
@@ -1320,7 +1415,10 @@ func pickASCIIFixCell(data klublotto.KrydsordData, grid []string) (klublotto.Kry
 	return klublotto.KrydsordCell{}, 0
 }
 
-func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provider string, data klublotto.KrydsordData, clues []klublotto.KrydsordClue, perSlot map[string][]klublotto.WordCandidate, allClueTexts []string, knownAnswers map[string]string) ([]string, error) {
+// banned lists answers per slot that must never be used — typically words a
+// post-rejection review identified as wrong. They seed the same droppedAnswers
+// mechanism that already strips dropped dictionary answers from every attempt.
+func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provider string, data klublotto.KrydsordData, clues []klublotto.KrydsordClue, perSlot map[string][]klublotto.WordCandidate, allClueTexts []string, knownAnswers map[string]string, banned map[string]map[string]bool) ([]string, error) {
 	p, err := wordProvider(cfg, provider)
 	if err != nil {
 		return nil, err
@@ -1385,6 +1483,12 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 	// alternative NÆ).
 	droppedSlots := map[string]bool{}
 	droppedAnswers := map[string]map[string]bool{}
+	for id, words := range banned {
+		droppedAnswers[id] = map[string]bool{}
+		for w := range words {
+			droppedAnswers[id][klublotto.NormalizeDanishLetters(w)] = true
+		}
+	}
 
 	// slotPattern returns the crossing pattern for a slot ("." = unknown), plus
 	// the count of fixed letters in it. matchesPattern tests a candidate rune-wise.
@@ -1913,4 +2017,209 @@ func confirmedPatternLines(slots []klublotto.KrydsordSlot, answers map[string]st
 		fmt.Fprintf(&b, "  %s: %s\n", id, pats[id])
 	}
 	return b.String()
+}
+
+// krydsordRejectRetries is how many review-and-resubmit rounds a rejected grid
+// gets. Each round costs one review call plus a re-assembly, and a grid that is
+// still wrong after two focused rounds is unlikely to be saved by a third.
+const krydsordRejectRetries = 2
+
+// krydsordSlotAnswers reads every slot's answer back out of a solved grid.
+// Slots whose cells fall outside the grid are omitted.
+func krydsordSlotAnswers(data klublotto.KrydsordData, grid []string) map[string]string {
+	out := map[string]string{}
+	for _, s := range klublotto.BuildKrydsordSlots(data) {
+		var ans []rune
+		for _, cell := range s.Cells {
+			if cell.Row-1 < 0 || cell.Row-1 >= len(grid) {
+				break
+			}
+			row := []rune(grid[cell.Row-1])
+			if cell.Col-1 < 0 || cell.Col-1 >= len(row) {
+				break
+			}
+			ans = append(ans, row[cell.Col-1])
+		}
+		if len(ans) == s.Length {
+			out[s.ID] = string(ans)
+		}
+	}
+	return out
+}
+
+// reviewKrydsordAnswers asks the model to audit a rejected grid slot by slot and
+// returns the slots it judges wrong, each with alternative answers to try.
+//
+// The assembler optimises for a consistent grid, and a consistent grid can
+// still contain invented words that happen to cross well (ISNAP, GISEN). That
+// is a different question from "does this fit", so it gets its own call, asked
+// directly: is each answer a real Danish word, and does it answer its clue?
+//
+// Each answer of 4+ letters is first looked up in Den Danske Ordbog and the
+// result is given to the reviewer as evidence, not as a verdict — DDO lacks
+// many inflected forms, and a missing entry alone must not condemn a correct
+// answer (it reported FLITTIGLISE missing on 2026-08-31). Returns nil if the
+// review call fails or flags nothing.
+func reviewKrydsordAnswers(ctx context.Context, cfg *config.Config, provider string, clues []klublotto.KrydsordClue, answers map[string]string) map[string][]string {
+	type item struct {
+		id, clue, answer string
+		length           int
+		inDDO            string
+	}
+	var items []item
+	for _, cl := range clues {
+		a, ok := answers[cl.SlotID]
+		if !ok || strings.TrimSpace(cl.Clue) == "" {
+			continue
+		}
+		clue := cl.Clue
+		if cl.IsImage {
+			clue = "billede af " + clue
+		}
+		items = append(items, item{id: cl.SlotID, clue: clue, answer: a, length: cl.Length})
+	}
+	sort.Slice(items, func(i, j int) bool { return items[i].id < items[j].id })
+
+	// DDO lookups, bounded in parallel so ~40 slots take seconds, not minutes.
+	var wg sync.WaitGroup
+	sem := make(chan struct{}, 6)
+	for i := range items {
+		if len([]rune(items[i].answer)) < 4 {
+			continue // short answers are mostly abbreviations DDO won't have
+		}
+		wg.Add(1)
+		go func(it *item) {
+			defer wg.Done()
+			sem <- struct{}{}
+			defer func() { <-sem }()
+			lctx, cancel := context.WithTimeout(ctx, 15*time.Second)
+			defer cancel()
+			if found, err := klublotto.CheckOrdnet(lctx, it.answer); err == nil {
+				if found {
+					it.inDDO = "ja"
+				} else {
+					it.inDDO = "NEJ"
+				}
+			}
+		}(&items[i])
+	}
+	wg.Wait()
+
+	var b strings.Builder
+	b.WriteString("Et dansk krydsord blev udfyldt, men Danske Spil AFVISTE løsningen: mindst ét svar er forkert, selvom alle krydsninger passer sammen.\n")
+	b.WriteString("Gennemgå hvert svar. Markér et svar som forkert hvis (a) det ikke er et rigtigt dansk ord eller en gængs forkortelse, eller (b) det ikke er et rimeligt svar på ledetråden.\n")
+	b.WriteString("'DDO' angiver om ordet findes som opslag i Den Danske Ordbog. NEJ er et stærkt tegn på et opdigtet ord, men bøjningsformer (fx bestemt form, flertal) mangler ofte i DDO, så vurdér selv.\n")
+	b.WriteString("Vær præcis: markér kun svar du mener er forkerte. Foreslå for hvert op til 3 rigtige danske ord med PRÆCIS samme længde.\n\n")
+	for _, it := range items {
+		ddo := it.inDDO
+		if ddo == "" {
+			ddo = "-"
+		}
+		fmt.Fprintf(&b, "%s | ledetråd: %s | længde %d | svar: %s | DDO: %s\n", it.id, it.clue, it.length, it.answer, ddo)
+	}
+	b.WriteString("\nSvar med præcis dette JSON (ingen anden tekst):\n")
+	b.WriteString(`{"wrong":[{"slot":"D14","answer":"SILE","reason":"kort begrundelse","alternatives":["ORD1","ORD2"]}]}`)
+
+	raw, err := wordCandidatesRawJSON(ctx, cfg, provider, b.String())
+	if err != nil {
+		fmt.Printf("       answer review failed: %v\n", err)
+		return nil
+	}
+	var res struct {
+		Wrong []struct {
+			Slot         string   `json:"slot"`
+			Answer       string   `json:"answer"`
+			Reason       string   `json:"reason"`
+			Alternatives []string `json:"alternatives"`
+		} `json:"wrong"`
+	}
+	if err := json.Unmarshal([]byte(klublotto.ExtractJSONObject(raw)), &res); err != nil {
+		fmt.Printf("       answer review unparseable: %v\n", err)
+		return nil
+	}
+	lengths := map[string]int{}
+	for _, it := range items {
+		lengths[it.id] = it.length
+	}
+	out := map[string][]string{}
+	for _, w := range res.Wrong {
+		n, ok := lengths[w.Slot]
+		if !ok {
+			continue // reviewer named a slot that does not exist
+		}
+		var alts []string
+		for _, a := range w.Alternatives {
+			a = klublotto.NormalizeDanishLetters(a)
+			if len([]rune(a)) == n && a != answers[w.Slot] {
+				alts = append(alts, a)
+			}
+		}
+		out[w.Slot] = alts
+		fmt.Printf("       ✗ %s=%s — %s (try: %s)\n", w.Slot, answers[w.Slot], w.Reason, strings.Join(alts, ", "))
+	}
+	return out
+}
+
+// krydsordFastCellSettle is the pause between selecting a cell and typing into
+// it on the fast pass. Small on purpose: krydsordMismatchedCells checks the
+// result afterwards, and any cell that did not take is redone slowly.
+const krydsordFastCellSettle = 15 * time.Millisecond
+
+// krydsordMismatchedCells reads the letters currently shown in the board's
+// answer cells (same row-major order the fill uses) and returns the indexes
+// whose letter differs from want. readable is false when the cells expose no
+// letters at all, so the caller can tell "all wrong" from "can't check".
+func krydsordMismatchedCells(ctx context.Context, br *browser.Client, want []string) (bad []int, readable bool) {
+	raw, err := br.Eval(ctx, `JSON.stringify((()=>{const cs=Array.from(document.querySelectorAll(".cell"));const p=cs.map(c=>{const r=c.getBoundingClientRect();return {t:parseFloat(c.style.top)||r.y,l:parseFloat(c.style.left)||r.x,v:((c.querySelector("input")||{}).value||c.innerText||c.textContent||"").trim().toUpperCase()};});p.sort((a,b)=>Math.abs(a.t-b.t)>5?a.t-b.t:a.l-b.l);return p.map(o=>o.v);})())`)
+	if err != nil {
+		return nil, false
+	}
+	var got []string
+	if json.Unmarshal([]byte(raw), &got) != nil || len(got) < len(want) {
+		return nil, false
+	}
+	any := false
+	for i, w := range want {
+		g := []rune(got[i])
+		if len(g) > 0 {
+			any = true
+		}
+		// A cell may also carry a clue number; the typed letter is its last rune.
+		if len(g) == 0 || string(g[len(g)-1]) != strings.ToUpper(w) {
+			bad = append(bad, i)
+		}
+	}
+	if !any {
+		return nil, false
+	}
+	return bad, true
+}
+
+// krydsordButtonCenter finds a button in the current frame whose text matches
+// one of names (case-insensitive) and returns its centre in frame coordinates.
+func krydsordButtonCenter(ctx context.Context, br *browser.Client, names ...string) (x, y int, ok bool) {
+	raw, err := br.Eval(ctx, `JSON.stringify(Array.from(document.querySelectorAll("button,[role=button],a")).map(b=>{const r=b.getBoundingClientRect();return {t:(b.innerText||b.textContent||"").trim().toLowerCase(),x:Math.round(r.x+r.width/2),y:Math.round(r.y+r.height/2),w:r.width};}))`)
+	if err != nil {
+		return 0, 0, false
+	}
+	var btns []struct {
+		T string  `json:"t"`
+		X int     `json:"x"`
+		Y int     `json:"y"`
+		W float64 `json:"w"`
+	}
+	if json.Unmarshal([]byte(raw), &btns) != nil {
+		return 0, 0, false
+	}
+	for _, b := range btns {
+		if b.W <= 0 {
+			continue // hidden
+		}
+		for _, n := range names {
+			if strings.Contains(b.T, n) {
+				return b.X, b.Y, true
+			}
+		}
+	}
+	return 0, 0, false
 }
