@@ -347,10 +347,22 @@ func mdEscape(s string) string {
 	return strings.TrimSpace(s)
 }
 
+// trimOne collapses newlines and shortens s to at most n CHARACTERS.
+//
+// It counts runes, not bytes. Slicing a Go string by byte index cuts straight
+// through a multi-byte character, and the dangling lead byte left behind is
+// invalid UTF-8 — which poisons every downstream consumer of wiki/log.md. On
+// 2026-10-18 a quiz subject ("…når man rører…") was cut inside its "ø" at byte
+// 60, leaving 0xC3 followed by the ellipsis; scripts/sync.sh then died with
+// "sed: RE error: illegal byte sequence" and the day's result went uncommitted.
+//
+// Converting via []rune also sanitises: any invalid byte already present in the
+// input becomes U+FFFD rather than being passed through into the log.
 func trimOne(s string, n int) string {
 	s = strings.ReplaceAll(s, "\n", " ")
-	if len(s) <= n {
-		return s
+	r := []rune(s)
+	if len(r) <= n {
+		return string(r)
 	}
-	return s[:n] + "…"
+	return string(r[:n]) + "…"
 }

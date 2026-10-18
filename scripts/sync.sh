@@ -35,7 +35,14 @@ fi
 # Pick the latest log entry as commit subject when available.
 subject="docs: wiki/repo sync $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 if [[ -f wiki/log.md ]]; then
-  latest=$(grep '^## \[' wiki/log.md | tail -n 1 | sed 's/^## //;s/[[:space:]]\{2,\}/ /g')
+  # LC_ALL=C makes grep and sed treat the log as plain bytes. Under a UTF-8
+  # locale both reject any invalid byte outright — BSD sed with "illegal byte
+  # sequence", aborting this script under `set -e` — and the day's results go
+  # uncommitted over what is only a cosmetic commit subject. That happened on
+  # 2026-10-18 when a byte-truncated quiz subject split a Danish "ø". The writer
+  # is fixed (wiki.trimOne counts runes); this keeps any future bad byte from
+  # being able to block a sync at all. Valid UTF-8 passes through unchanged.
+  latest=$(LC_ALL=C grep '^## \[' wiki/log.md | tail -n 1 | LC_ALL=C sed 's/^## //;s/[[:space:]]\{2,\}/ /g')
   if [[ -n "$latest" ]]; then
     subject="docs: ${latest}"
   fi
