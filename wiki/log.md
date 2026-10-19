@@ -1729,3 +1729,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-19 04:22 UTC] ingest | quiz | Hvilken ø er verdens største? | outcome=submitted
 
+## [2026-10-19 04:23 UTC] ingest | ordkløver | Category: `Mad og drikke`; answer pattern `8 / 7` | outcome=submitted
+
