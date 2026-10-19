@@ -830,6 +830,7 @@ func solveKrydsord(ctx context.Context, cfg *config.Config, br *browser.Client, 
 		// candidate-list default.
 		if or, ok := p.(*llm.OpenRouter); ok {
 			or.MaxTokens = defaultOpenRouterMaxTokensGrid
+			or.ReasoningEffort = krydsordGridReasoningEffort
 		}
 		solveSource = p.Name()
 		fmt.Printf("   [solve] model: %s\n", p.Name())
@@ -1427,6 +1428,7 @@ func assembleKrydsordSolutionGrid(ctx context.Context, cfg *config.Config, provi
 	// candidate-list default.
 	if or, ok := p.(*llm.OpenRouter); ok {
 		or.MaxTokens = defaultOpenRouterMaxTokensGrid
+		or.ReasoningEffort = krydsordGridReasoningEffort
 	}
 	// Ask the model for ONE answer per slot id, NOT the whole grid. Go then
 	// places the letters deterministically from each slot's known cells, so the
@@ -2223,3 +2225,17 @@ func krydsordButtonCenter(ctx context.Context, br *browser.Client, names ...stri
 	}
 	return 0, 0, false
 }
+
+// krydsordGridReasoningEffort is the reasoning effort for the full-grid solve,
+// overriding the global OPENROUTER_REASONING_EFFORT (default "medium").
+//
+// "medium" was chosen in July to stop the then gemini-pro from thinking past its
+// timeout. The ~google/gemini-pro-latest alias has since moved to
+// google/gemini-4-argon, which at "medium" does not reason at all — it returns
+// the JSON straight away. Measured on the 2026-10-19 grid with the identical
+// saved prompt: "medium" took 17s and 280 completion tokens and left 7 crossing
+// conflicts (non-words like HUMA, ORNEN, ILløb); "high" took 47s and 4,982 tokens
+// and produced a fully consistent grid, including OKSER, which was not even in
+// that slot's candidate list. Interlocking 40+ slots is the one step that needs
+// the model to actually think, and it fits comfortably in the 300s attempt budget.
+const krydsordGridReasoningEffort = "high"
