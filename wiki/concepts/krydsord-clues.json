@@ -290,7 +290,8 @@
   "BEHOLDERE": [
     "TØNDER",
     "DUNKE",
-    "DÅSER"
+    "DÅSER",
+    "TUBER"
   ],
   "BEKENDTGØRE": [
     "DEKLARERE"
@@ -767,7 +768,8 @@
     "DUT"
   ],
   "DIREKTE": [
-    "LUKT"
+    "LUKT",
+    "LIVE"
   ],
   "DIRRER": [
     "RYSTER"
@@ -1117,6 +1119,9 @@
   ],
   "FANDTES": [
     "VAR"
+  ],
+  "FANGER": [
+    "GRIBER"
   ],
   "FANTASERER": [
     "DAGDRØMMER"
@@ -1584,7 +1589,8 @@
     "PAPEGØJER",
     "RAVNE",
     "GØGE",
-    "NATTERGALE"
+    "NATTERGALE",
+    "UGLER"
   ],
   "FUGLEN": [
     "UGLEN"
@@ -2055,6 +2061,9 @@
   ],
   "HOLDEFRED": [
     "ENES"
+  ],
+  "HOLDEGILDE": [
+    "FESTE"
   ],
   "HOLDEHVIL": [
     "RASTE"
@@ -2586,6 +2595,9 @@
   ],
   "KLÆG": [
     "LERET"
+  ],
+  "KLØVE": [
+    "TODELE"
   ],
   "KNEB": [
     "NEV"
@@ -3362,7 +3374,8 @@
     "SENG",
     "BÆNK",
     "PLANKEBORD",
-    "SOFA"
+    "SOFA",
+    "SKAB"
   ],
   "MØBLER": [
     "LÆNESTOLE",
@@ -3679,7 +3692,8 @@
     "LED"
   ],
   "PARTI": [
-    "SF"
+    "SF",
+    "ROLLE"
   ],
   "PARTIKEL": [
     "ION"
@@ -4245,7 +4259,8 @@
     "TER"
   ],
   "SKALDYR": [
-    "KREBS"
+    "KREBS",
+    "REJE"
   ],
   "SKIB": [
     "MF",
@@ -4361,6 +4376,9 @@
   ],
   "SKYNDTSIG": [
     "ILET"
+  ],
+  "SKÆLDEUD": [
+    "RASE"
   ],
   "SKÆR": [
     "REN"
@@ -4945,7 +4963,8 @@
   ],
   "SØDEMIDDEL": [
     "ROESUKKER",
-    "DRUESUKKER"
+    "DRUESUKKER",
+    "RØRSUKKER"
   ],
   "SØGE": [
     "LEDE"
@@ -6506,6 +6525,9 @@
   ],
   "ÅRE": [
     "AORTA"
+  ],
+  "ÅRHUNDREDE": [
+    "SEKEL"
   ],
   "ÅRLIGT": [
     "PA"
