@@ -1741,3 +1741,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-20 03:54 UTC] ingest | quiz | Hvem holdt talen 'Jeg har en drøm' i 1963? | outcome=submitted
 
+## [2026-10-20 03:54 UTC] ingest | ordkløver | Category: `På danmarkskortet`; answer pattern `3 / 9 / 6` | outcome=submitted
+
