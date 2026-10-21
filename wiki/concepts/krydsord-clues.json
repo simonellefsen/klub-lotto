@@ -619,6 +619,9 @@
     "KANO",
     "ENERKAJAK"
   ],
+  "BÅDBYGGER": [
+    "NOA"
+  ],
   "BÅDUDSTYR": [
     "ÅREGAFLER"
   ],
@@ -820,7 +823,8 @@
     "ROM",
     "ISTE",
     "TODDY",
-    "KAMILLETE"
+    "KAMILLETE",
+    "SOLBÆRSAFT"
   ],
   "DRIKKE": [
     "DIE"
@@ -1096,7 +1100,8 @@
   ],
   "FAGPERSON": [
     "CYKELSMED",
-    "SMED"
+    "SMED",
+    "BAGER"
   ],
   "FAGUDTRYK": [
     "TERM"
@@ -2272,7 +2277,8 @@
     "INTET"
   ],
   "ILDSTED": [
-    "ESSE"
+    "ESSE",
+    "ARNE"
   ],
   "ILINGEN": [
     "GYSET"
@@ -3410,6 +3416,9 @@
   "NARRESTREG": [
     "UNODE"
   ],
+  "NATION": [
+    "RIGE"
+  ],
   "NATRIUMKLORID": [
     "SALT"
   ],
@@ -3421,6 +3430,9 @@
   ],
   "NEDBØR": [
     "SNE"
+  ],
+  "NEDSLAG": [
+    "RABAT"
   ],
   "NEGL": [
     "KLO"
@@ -4405,7 +4417,8 @@
     "SNOG"
   ],
   "SLANGER": [
-    "SNOGE"
+    "SNOGE",
+    "BOAER"
   ],
   "SLANK": [
     "TYND"
@@ -4551,6 +4564,9 @@
   ],
   "SOBER": [
     "ÆDRU"
+  ],
+  "SOKKEL": [
+    "FOD"
   ],
   "SOL": [
     "G"
@@ -4899,6 +4915,9 @@
   "SVARET": [
     "LØSNINGEN"
   ],
+  "SVENSKBAND": [
+    "ABBA"
+  ],
   "SVENSKKILDE": [
     "TT"
   ],
@@ -5074,6 +5093,9 @@
   ],
   "TEMMELIG": [
     "RET"
+  ],
+  "TENDENS": [
+    "TREND"
   ],
   "TERN": [
     "RUDE"
