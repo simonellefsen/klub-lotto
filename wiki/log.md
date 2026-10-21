@@ -1753,3 +1753,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-21 04:42 UTC] ingest | quiz | Hvad er den officielle højde på en basketballkurv i NBA, mål… | outcome=submitted
 
+## [2026-10-21 04:43 UTC] ingest | ordkløver | Category: `Dansk historie`; answer pattern `7 / 7 / 9` | outcome=submitted
+
