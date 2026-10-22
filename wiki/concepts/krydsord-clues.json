@@ -136,6 +136,9 @@
   "ANDEL": [
     "LOD"
   ],
+  "ANE": [
+    "TIPOLDEFAR"
+  ],
   "ANERKENDELSEN": [
     "ÆRESPRISEN"
   ],
@@ -622,6 +625,9 @@
   "BÅDBYGGER": [
     "NOA"
   ],
+  "BÅDE": [
+    "KANOER"
+  ],
   "BÅDUDSTYR": [
     "ÅREGAFLER"
   ],
@@ -858,6 +864,9 @@
   ],
   "DURKDREVNE": [
     "LUMSKE"
+  ],
+  "DYGTIG": [
+    "GOD"
   ],
   "DYR": [
     "KO",
@@ -1554,6 +1563,9 @@
   "FRYGTER": [
     "GRUER"
   ],
+  "FRYGTLØS": [
+    "DRISTIG"
+  ],
   "FRYSENDE": [
     "HUNDEKOLDT"
   ],
@@ -1765,6 +1777,9 @@
   "GLØD": [
     "GNIST"
   ],
+  "GNAVE": [
+    "BIDE"
+  ],
   "GNAVEDE": [
     "BED"
   ],
@@ -1861,6 +1876,9 @@
   "GRÆSMARK": [
     "ENG"
   ],
+  "GRÆSMARKEN": [
+    "ENGEN"
+  ],
   "GRÆSMARKER": [
     "ENGE"
   ],
@@ -1872,7 +1890,8 @@
   ],
   "GRØNTSAG": [
     "AGURK",
-    "SALAT"
+    "SALAT",
+    "PORRE"
   ],
   "GRØNTSAGER": [
     "AGURKER"
@@ -2902,6 +2921,9 @@
     "NORGE",
     "PERU"
   ],
+  "LANDLIGT": [
+    "RURALT"
+  ],
   "LANGS": [
     "AD"
   ],
@@ -2916,6 +2938,9 @@
   ],
   "LARMENDE": [
     "HØJRØSTET"
+  ],
+  "LATTER": [
+    "GRIN"
   ],
   "LAVER": [
     "GØR"
@@ -3289,6 +3314,9 @@
   ],
   "MONETER": [
     "PENGE"
+  ],
+  "MONOLOGER": [
+    "ENETALER"
   ],
   "MONOPOL": [
     "ENERET"
@@ -4714,6 +4742,9 @@
   "STAD": [
     "BY"
   ],
+  "STADIG": [
+    "ENDNU"
+  ],
   "STAKKELS": [
     "ARME"
   ],
@@ -5297,7 +5328,8 @@
     "ELM",
     "ASK",
     "RØN",
-    "BØG"
+    "BØG",
+    "PIL"
   ],
   "TRÆER": [
     "ASPE",
