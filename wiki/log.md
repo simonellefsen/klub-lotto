@@ -1767,3 +1767,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-22 04:44 UTC] ingest | ordkløver | Category: `Sport og fritid`; answer pattern `7 / 8` | outcome=submitted
 
+## [2026-10-22 04:46 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
