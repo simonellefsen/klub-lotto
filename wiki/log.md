@@ -1765,3 +1765,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-22 04:43 UTC] ingest | quiz | Hvilken egyptisk farao er kendt for at have flyttet hovedsta… | outcome=submitted
 
+## [2026-10-22 04:44 UTC] ingest | ordkløver | Category: `Sport og fritid`; answer pattern `7 / 8` | outcome=submitted
+
