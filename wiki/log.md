@@ -1783,3 +1783,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-23 04:49 UTC] ingest | krydsord | Danish clues-in-squares crossword | outcome=submitted
 
+## [2026-10-23 04:59 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
+
