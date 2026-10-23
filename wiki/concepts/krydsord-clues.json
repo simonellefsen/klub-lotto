@@ -71,6 +71,9 @@
   "56": [
     "LVI"
   ],
+  "57": [
+    "LVII"
+  ],
   "ABBAHIT": [
     "SOS"
   ],
@@ -919,7 +922,8 @@
     "ANTILOPER",
     "KATTE",
     "KAT",
-    "OKSER"
+    "OKSER",
+    "HEST"
   ],
   "DYRELIV": [
     "FAUNA"
@@ -1807,6 +1811,9 @@
   "GOLFUDSTYR": [
     "TEE"
   ],
+  "GOLFUDTRYK": [
+    "EAGLE"
+  ],
   "GRACIØS": [
     "YNDEFULDT"
   ],
@@ -1847,6 +1854,9 @@
   ],
   "GRINET": [
     "LEET"
+  ],
+  "GROV": [
+    "UBEHØVLET"
   ],
   "GRUNDE": [
     "ÅRSAGER"
@@ -2079,6 +2089,9 @@
   ],
   "HJÆLPEMIDDEL": [
     "LUP"
+  ],
+  "HOLD": [
+    "SJAK"
   ],
   "HOLDE": [
     "VARE"
@@ -2339,6 +2352,9 @@
     "ÆDE",
     "E",
     "EROBRE"
+  ],
+  "INDTAGES": [
+    "EROBRES"
   ],
   "INDTAGET": [
     "ÆDT",
@@ -3738,6 +3754,9 @@
   "PARTIKEL": [
     "ION"
   ],
+  "PARTIKLER": [
+    "IONER"
+  ],
   "PASNINGAFUNGER": [
     "YNGELPLEJE"
   ],
@@ -3891,6 +3910,9 @@
   ],
   "PROFET": [
     "SEER"
+  ],
+  "PROGRAM": [
+    "UDSENDELSE"
   ],
   "PRONOMEN": [
     "DE"
@@ -5301,6 +5323,9 @@
   "TRISTHED": [
     "SORG"
   ],
+  "TRIUMF": [
+    "SEJR"
+  ],
   "TROLDMANDSUDSTYR": [
     "TRYLLESTAV"
   ],
@@ -5799,7 +5824,8 @@
   ],
   "VÆKST": [
     "TRÆ",
-    "GRÆS"
+    "GRÆS",
+    "EGETRÆ"
   ],
   "VÆLGE": [
     "UDSE"
@@ -6126,6 +6152,9 @@
   "[IMG]GLOBE": [
     "GLOBUS"
   ],
+  "[IMG]GOAT": [
+    "LAM"
+  ],
   "[IMG]GRAPES": [
     "DRUER"
   ],
@@ -6236,6 +6265,9 @@
   ],
   "[IMG]NESTWITHEGGS": [
     "REDE"
+  ],
+  "[IMG]NEWSPAPER": [
+    "AVIS"
   ],
   "[IMG]NIGHTSKYWITHSTARS": [
     "SNE"
