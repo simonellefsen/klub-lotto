@@ -151,6 +151,9 @@
   "ANGREB": [
     "RAID"
   ],
+  "ANGÅENDE": [
+    "VEDRØRENDE"
+  ],
   "ANKERPLADS": [
     "RED"
   ],
@@ -711,7 +714,8 @@
     "SADEL"
   ],
   "CYKELUDSTYR": [
-    "GEAR"
+    "GEAR",
+    "LÅS"
   ],
   "DA": [
     "IDET"
@@ -1371,6 +1375,9 @@
   "FORDÆRVE": [
     "ORE"
   ],
+  "FORDÆRVEDE": [
+    "RÅDNE"
+  ],
   "FOREDRAG": [
     "TALE"
   ],
@@ -1769,6 +1776,9 @@
   "GLIDE": [
     "RUTSJE"
   ],
+  "GLKARAKTER": [
+    "UG"
+  ],
   "GLKARAKTR": [
     "UG"
   ],
@@ -2045,7 +2055,8 @@
   "HILSEN": [
     "DAV",
     "HONNØR",
-    "DAVS"
+    "DAVS",
+    "VELKOMMEN"
   ],
   "HILSTE": [
     "NEJEDE"
@@ -2394,6 +2405,9 @@
   "INSPEKTION": [
     "SYN"
   ],
+  "INSTITUTION": [
+    "SFO"
+  ],
   "INSTRUMENT": [
     "BAS",
     "LUT",
@@ -2621,6 +2635,9 @@
   ],
   "KLOG": [
     "FORSTANDIG"
+  ],
+  "KLOGT": [
+    "VIST"
   ],
   "KLUB": [
     "LIGA"
@@ -2928,6 +2945,9 @@
   "LAMPEMAGER": [
     "PH"
   ],
+  "LAMSLÅET": [
+    "PAF"
+  ],
   "LAND": [
     "KINA",
     "USA",
@@ -3070,6 +3090,9 @@
   "LINE": [
     "SNOR"
   ],
+  "LIRER": [
+    "REMSER"
+  ],
   "LISTIG": [
     "SNU"
   ],
@@ -3177,6 +3200,9 @@
   ],
   "LØBSDELE": [
     "HEATS"
+  ],
+  "LØBSDELEN": [
+    "ETAPEN"
   ],
   "LØFTE": [
     "ED"
@@ -3737,6 +3763,9 @@
     "ARA",
     "KEA"
   ],
+  "PAR": [
+    "DUO"
+  ],
   "PARADIS": [
     "EDEN"
   ],
@@ -3761,7 +3790,8 @@
     "YNGELPLEJE"
   ],
   "PASSE": [
-    "ANSTÅ"
+    "ANSTÅ",
+    "STÅ"
   ],
   "PASSERPÅ": [
     "VOGTER"
@@ -5354,7 +5384,8 @@
     "ASK",
     "RØN",
     "BØG",
-    "PIL"
+    "PIL",
+    "ASP"
   ],
   "TRÆER": [
     "ASPE",
@@ -5869,6 +5900,9 @@
   "[IMG]ACEOFDIAMONDS": [
     "ES"
   ],
+  "[IMG]ACEOFDIAMONDSPLAYINGCARD": [
+    "ES"
+  ],
   "[IMG]ACORN": [
     "AGERN"
   ],
@@ -6065,6 +6099,9 @@
   ],
   "[IMG]CUPCAKES": [
     "KAGER"
+  ],
+  "[IMG]CUPOFCOFFEE": [
+    "KAFFE"
   ],
   "[IMG]CUPOFTEA": [
     "TEKOP",
