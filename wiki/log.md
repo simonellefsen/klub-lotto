@@ -1789,3 +1789,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-24 04:53 UTC] ingest | quiz | Hvilken cocktail består af vodka, tomatjuice og krydrede sau… | outcome=submitted
 
+## [2026-10-24 04:54 UTC] ingest | ordkløver | Category: `Hvad mere kan man forlange`; answer pattern `10 /… | outcome=submitted
+
