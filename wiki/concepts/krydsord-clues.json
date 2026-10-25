@@ -1346,7 +1346,8 @@
     "ITALIENERE"
   ],
   "FOR": [
-    "THI"
+    "THI",
+    "PRO"
   ],
   "FORBEDRER": [
     "OPPER"
@@ -1770,6 +1771,9 @@
   "GIVE": [
     "YDE"
   ],
+  "GIVES": [
+    "YDES"
+  ],
   "GIVET": [
     "YDET"
   ],
@@ -1826,6 +1830,9 @@
   ],
   "GRACIØS": [
     "YNDEFULDT"
+  ],
+  "GRACIØSE": [
+    "YNDEFULDE"
   ],
   "GRACIØST": [
     "YNDEFULDT"
@@ -1996,7 +2003,8 @@
   ],
   "HAVDYR": [
     "SØSTJERNE",
-    "HVAL"
+    "HVAL",
+    "SØKO"
   ],
   "HAVE": [
     "EJE"
@@ -2624,6 +2632,9 @@
   "KLASSE": [
     "KL"
   ],
+  "KLASSETRIN": [
+    "FEMTE"
+  ],
   "KLIMA": [
     "VEJR"
   ],
@@ -2926,6 +2937,9 @@
     "ELBIL",
     "VOGN",
     "JEEP"
+  ],
+  "KØRETØJER": [
+    "ELBILER"
   ],
   "KØRETØJET": [
     "LASTVOGNEN"
@@ -3740,6 +3754,9 @@
   ],
   "OVERTAGET": [
     "ARVET"
+  ],
+  "OVERTØJ": [
+    "JAKKER"
   ],
   "OVERVEJENDE": [
     "MEST"
@@ -6060,6 +6077,9 @@
   ],
   "[IMG]CLOCK": [
     "UR"
+  ],
+  "[IMG]CLOCKS": [
+    "URE"
   ],
   "[IMG]CLOTHESPIN": [
     "KLEMME"
