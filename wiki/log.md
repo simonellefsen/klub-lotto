@@ -1799,3 +1799,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-25 05:52 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-10-25 05:52 UTC] ingest | quiz | Hvilket reptil kan skifte farve for at kamuflere sig? | outcome=submitted
+
