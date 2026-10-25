@@ -1801,3 +1801,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-25 05:52 UTC] ingest | quiz | Hvilket reptil kan skifte farve for at kamuflere sig? | outcome=submitted
 
+## [2026-10-25 05:53 UTC] ingest | ordkløver | Category: `Person/Job`; answer pattern `7 / 7` | outcome=submitted
+
