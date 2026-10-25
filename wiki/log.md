@@ -1803,3 +1803,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-25 05:53 UTC] ingest | ordkløver | Category: `Person/Job`; answer pattern `7 / 7` | outcome=submitted
 
+## [2026-10-25 05:55 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
