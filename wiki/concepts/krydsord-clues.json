@@ -102,6 +102,9 @@
     "ROER",
     "RUG"
   ],
+  "AFGØRELSE": [
+    "DOM"
+  ],
   "AFSLAG": [
     "NEJ"
   ],
@@ -927,7 +930,8 @@
     "KATTE",
     "KAT",
     "OKSER",
-    "HEST"
+    "HEST",
+    "TAPIR"
   ],
   "DYRELIV": [
     "FAUNA"
@@ -1644,6 +1648,9 @@
   "FYRSTE": [
     "EMIR"
   ],
+  "FÆRDIG": [
+    "YT"
+  ],
   "FÆSTNING": [
     "BORG"
   ],
@@ -2030,6 +2037,9 @@
   "HEGN": [
     "GÆRDE",
     "STAKIT"
+  ],
+  "HEJSE": [
+    "GI"
   ],
   "HEJSEVÆRK": [
     "KRAN"
@@ -2891,6 +2901,9 @@
   "KÆMPESTOR": [
     "ENORM"
   ],
+  "KÆP": [
+    "STOK"
+  ],
   "KÆPHØJ": [
     "KRY"
   ],
@@ -2912,6 +2925,9 @@
   "KØKKENREDSKAB": [
     "DEJSKRABER",
     "SLEV"
+  ],
+  "KØKKENREDSKABER": [
+    "ÆGGEDELERE"
   ],
   "KØKKENUDSTYR": [
     "OVN",
@@ -3515,6 +3531,9 @@
   "NEDBØR": [
     "SNE"
   ],
+  "NEDGANG": [
+    "DYK"
+  ],
   "NEDSLAG": [
     "RABAT"
   ],
@@ -3529,6 +3548,9 @@
   ],
   "NEMT": [
     "LET"
+  ],
+  "NERVØS": [
+    "ÆNGSTELIG"
   ],
   "NET": [
     "GARN"
@@ -3682,6 +3704,9 @@
   ],
   "OPREGNET": [
     "TALT"
+  ],
+  "OPSLAGSVÆRK": [
+    "ORDBOG"
   ],
   "OPSÆTNING": [
     "REDT",
@@ -6212,6 +6237,9 @@
   "[IMG]GOAT": [
     "LAM"
   ],
+  "[IMG]GOLDRINGWITHGEMSTONE": [
+    "RING"
+  ],
   "[IMG]GRAPES": [
     "DRUER"
   ],
@@ -6454,6 +6482,9 @@
   "[IMG]REDHANDBAG": [
     "TASKE"
   ],
+  "[IMG]REDROSE": [
+    "ROER"
+  ],
   "[IMG]REDSHOPPINGBASKET": [
     "KURV"
   ],
@@ -6599,6 +6630,9 @@
   "[IMG]TREE": [
     "TRÆ"
   ],
+  "[IMG]TREESTUMPWITHROOTS": [
+    "ROD"
+  ],
   "[IMG]TUBA": [
     "TUBA"
   ],
@@ -6683,6 +6717,9 @@
   ],
   "ÆDELSTEN": [
     "JUVEL"
+  ],
+  "ÆG": [
+    "ROGN"
   ],
   "ÆGFORMEDE": [
     "OVALE"
