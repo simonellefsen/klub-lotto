@@ -1811,3 +1811,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-26 05:31 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-10-26 05:31 UTC] ingest | quiz | Hvilken britisk forfatter skabte detektiven Hercule Poirot? | outcome=submitted
+
