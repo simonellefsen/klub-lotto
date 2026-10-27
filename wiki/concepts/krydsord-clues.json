@@ -1,4 +1,7 @@
 {
+  "0": [
+    "ILT"
+  ],
   "100": [
     "C"
   ],
@@ -420,6 +423,9 @@
   "BIORD": [
     "AN"
   ],
+  "BISSER": [
+    "RØDDER"
+  ],
   "BJERGMASSE": [
     "LAVA"
   ],
@@ -672,6 +678,9 @@
   ],
   "CAMPINGUDSTYR": [
     "TELTE"
+  ],
+  "CARDIGAN": [
+    "TRØJE"
   ],
   "CARDIGANEN": [
     "TRØJEN"
@@ -1138,7 +1147,8 @@
     "DALEDE"
   ],
   "FALSK": [
-    "UREEL"
+    "UREEL",
+    "UTRO"
   ],
   "FANDT": [
     "OPSPOREDE"
@@ -1153,7 +1163,8 @@
     "DAGDRØMMER"
   ],
   "FANTASI": [
-    "DRØM"
+    "DRØM",
+    "ØNSKEDRØM"
   ],
   "FARE": [
     "RISIKO"
@@ -2187,7 +2198,8 @@
   "HUGGE": [
     "NEME",
     "NOLE",
-    "NEGLE"
+    "NEGLE",
+    "RANE"
   ],
   "HUGGET": [
     "RANET"
@@ -3252,6 +3264,9 @@
   "MAGASIN": [
     "BLAD"
   ],
+  "MAKKEDERET": [
+    "ADLØD"
+  ],
   "MALM": [
     "ERTS"
   ],
@@ -3456,7 +3471,8 @@
     "TSK"
   ],
   "MÅNED": [
-    "MARTS"
+    "MARTS",
+    "APRIL"
   ],
   "MÅNEDSFORK": [
     "AUG"
@@ -3727,6 +3743,9 @@
   ],
   "ORD": [
     "GLOSE"
+  ],
+  "ORDFLOM": [
+    "SVADA"
   ],
   "ORGAN": [
     "NYRE"
@@ -4897,6 +4916,9 @@
   "STILART": [
     "ROKOKO"
   ],
+  "STILHED": [
+    "FRED"
+  ],
   "STILLE": [
     "TAVS"
   ],
@@ -5288,6 +5310,9 @@
   ],
   "TINDE": [
     "TOP"
+  ],
+  "TINGESTER": [
+    "DIMSER"
   ],
   "TIP": [
     "RÅD"
@@ -6379,6 +6404,9 @@
     "ÅRE"
   ],
   "[IMG]PADLOCK": [
+    "LÅS"
+  ],
+  "[IMG]PADLOCKS": [
     "LÅS"
   ],
   "[IMG]PAINTBRUSH": [
