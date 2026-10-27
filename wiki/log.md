@@ -1823,3 +1823,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-27 05:39 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-10-27 05:39 UTC] ingest | quiz | Hvilket krydderi regnes for verdens dyreste målt på vægt og … | outcome=submitted
+
