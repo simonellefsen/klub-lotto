@@ -1835,3 +1835,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-28 05:11 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-10-28 05:11 UTC] ingest | quiz | I hvilken videnskabelig disciplin modtog Marie Curie sin før… | outcome=submitted
+
