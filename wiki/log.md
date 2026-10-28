@@ -1837,3 +1837,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-28 05:11 UTC] ingest | quiz | I hvilken videnskabelig disciplin modtog Marie Curie sin før… | outcome=submitted
 
+## [2026-10-28 05:13 UTC] ingest | ordkløver | Category: `Danmarks historie`; answer pattern `6 / 6` | outcome=submitted
+
