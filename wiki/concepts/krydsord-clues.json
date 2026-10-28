@@ -117,6 +117,9 @@
   "AFSLØRER": [
     "ÅBENBARER"
   ],
+  "AFSLØRES": [
+    "RØBES"
+  ],
   "AFSNIT": [
     "AKT",
     "EPISODE"
@@ -189,6 +192,9 @@
   ],
   "ARBEJDER": [
     "VIRKER"
+  ],
+  "ARME": [
+    "HÆR"
   ],
   "ARRANGEMENT": [
     "KLASSEFEST"
@@ -376,6 +382,9 @@
   ],
   "BEVÆGELIGE": [
     "AGILE"
+  ],
+  "BEVÆGES": [
+    "RØRES"
   ],
   "BIBELFORK": [
     "NT",
@@ -1565,7 +1574,8 @@
     "OASE"
   ],
   "FRISTEDER": [
-    "OASER"
+    "OASER",
+    "ÅNDEHULLER"
   ],
   "FRISTER": [
     "DEADLINES"
@@ -1585,7 +1595,8 @@
     "ABRIKOSER",
     "NEKTARINER",
     "DRUER",
-    "APPELSINER"
+    "APPELSINER",
+    "NETMELONER"
   ],
   "FRYGTER": [
     "GRUER"
@@ -2406,6 +2417,9 @@
   ],
   "INDTRÆK": [
     "FOR"
+  ],
+  "INDØVE": [
+    "TERPE"
   ],
   "INGENTING": [
     "NUL"
@@ -3333,6 +3347,9 @@
   "MEDIUM": [
     "M"
   ],
+  "MEGATON": [
+    "MT"
+  ],
   "MEJERIPRODUKT": [
     "SKYR",
     "PISKEFLØDE"
@@ -3606,6 +3623,9 @@
   ],
   "NORSKAFSLAG": [
     "NEI"
+  ],
+  "NOTAT": [
+    "MEMO"
   ],
   "NOTEREDE": [
     "SKREV"
@@ -6385,6 +6405,9 @@
   "[IMG]NINEOFDIAMONDSPLAYINGCARD": [
     "NIER"
   ],
+  "[IMG]NOSE": [
+    "NÆSE"
+  ],
   "[IMG]OAR": [
     "ÅRE"
   ],
@@ -6591,6 +6614,9 @@
   ],
   "[IMG]SNEAKERS": [
     "SKO"
+  ],
+  "[IMG]SNOW": [
+    "SNE"
   ],
   "[IMG]SNOWGLOBE": [
     "ÆGGEUR"
