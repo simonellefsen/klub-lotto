@@ -433,7 +433,8 @@
     "AN"
   ],
   "BISSER": [
-    "RØDDER"
+    "RØDDER",
+    "TÆNDER"
   ],
   "BJERGMASSE": [
     "LAVA"
@@ -871,6 +872,9 @@
   ],
   "DRONNING": [
     "MARY"
+  ],
+  "DROPPE": [
+    "KASSERE"
   ],
   "DRÅBER": [
     "TÅRER"
@@ -2474,6 +2478,9 @@
   "INTAKT": [
     "HEL"
   ],
+  "INTET": [
+    "NUL"
+  ],
   "IORDEN": [
     "OKAY",
     "OK"
@@ -2590,8 +2597,14 @@
   "KAOS": [
     "ROD"
   ],
+  "KAPPE": [
+    "SLAG"
+  ],
   "KARAT": [
     "K"
+  ],
+  "KASTESKYTS": [
+    "SNEBOLD"
   ],
   "KAT": [
     "MIS"
@@ -3329,6 +3342,9 @@
     "NYLON",
     "ULD"
   ],
+  "MATROS": [
+    "GAST"
+  ],
   "MAVE": [
     "VOM"
   ],
@@ -3684,6 +3700,9 @@
   "OFTE": [
     "TIT"
   ],
+  "OGSÅVIDERE": [
+    "OSV"
+  ],
   "OKSE": [
     "YAK"
   ],
@@ -4000,6 +4019,9 @@
   "POTE": [
     "LAB"
   ],
+  "PRESENT": [
+    "GAVE"
+  ],
   "PRESSEDE": [
     "NØDTE"
   ],
@@ -4088,7 +4110,8 @@
     "IGEN"
   ],
   "PÅVIDGAB": [
-    "ÅBENT"
+    "ÅBENT",
+    "ÅBEN"
   ],
   "PÅVIRKE": [
     "MANIPULERE"
@@ -4482,7 +4505,8 @@
   ],
   "SKIVE": [
     "DVD",
-    "CD"
+    "CD",
+    "PLADE"
   ],
   "SKJULE": [
     "GEMME"
@@ -4921,6 +4945,9 @@
   "STERIL": [
     "REN"
   ],
+  "STERILE": [
+    "GOLDE"
+  ],
   "STERILT": [
     "RENT"
   ],
@@ -5295,6 +5322,9 @@
     "SOJA",
     "CHILISAUCE"
   ],
+  "TILBEREDE": [
+    "PANERE"
+  ],
   "TILBEREDT": [
     "STEGT"
   ],
@@ -5492,6 +5522,9 @@
   ],
   "TRÆNER": [
     "INSTRUKTØR"
+  ],
+  "TRÆSORT": [
+    "TEAK"
   ],
   "TRÆT": [
     "DØSIG"
@@ -5982,6 +6015,9 @@
     "TI"
   ],
   "[IMG]ACEOFCLUBS": [
+    "ES"
+  ],
+  "[IMG]ACEOFCLUBSPLAYINGCARD": [
     "ES"
   ],
   "[IMG]ACEOFDIAMONDS": [
