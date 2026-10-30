@@ -1416,6 +1416,9 @@
   "FORESTILLING": [
     "REVY"
   ],
+  "FORFADEREN": [
+    "ANEN"
+  ],
   "FORFÆDRE": [
     "ANER"
   ],
@@ -2100,7 +2103,8 @@
     "DAV",
     "HONNØR",
     "DAVS",
-    "VELKOMMEN"
+    "VELKOMMEN",
+    "SALUT"
   ],
   "HILSTE": [
     "NEJEDE"
@@ -3460,6 +3464,9 @@
   "MORETSIG": [
     "LEET"
   ],
+  "MOSEDE": [
+    "MASTE"
+  ],
   "MOTORSKIB": [
     "MS"
   ],
@@ -3954,7 +3961,8 @@
   ],
   "PLADE": [
     "LP",
-    "EP"
+    "EP",
+    "LAMEL"
   ],
   "PLADS": [
     "TORV"
@@ -4857,7 +4865,8 @@
     "IDRÆT"
   ],
   "SPORTSGREN": [
-    "TENNIS"
+    "TENNIS",
+    "BASKETBALL"
   ],
   "SPORTSSTÆVNE": [
     "OL"
@@ -5047,6 +5056,9 @@
   ],
   "STYRESYSTEM": [
     "IOS"
+  ],
+  "STYRET": [
+    "RATTET"
   ],
   "STYRKE": [
     "MAGT"
@@ -5485,6 +5497,9 @@
   "TROSSE": [
     "REB"
   ],
+  "TRYKMÅLER": [
+    "BAROMETER"
+  ],
   "TRÅD": [
     "SENE"
   ],
@@ -5833,6 +5848,9 @@
   ],
   "VELHAVENDE": [
     "RIG"
+  ],
+  "VELVILJE": [
+    "GUNST"
   ],
   "VENLIG": [
     "RAR"
@@ -6816,6 +6834,9 @@
   ],
   "ÆGTE": [
     "AUTENTISK"
+  ],
+  "ÆSKE": [
+    "BOKS"
   ],
   "ØBO": [
     "IRER"
