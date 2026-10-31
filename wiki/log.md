@@ -1869,3 +1869,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-31 05:15 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-10-31 05:15 UTC] ingest | quiz | Hvilken bro forbinder Danmark og Sverige? | outcome=submitted
+
