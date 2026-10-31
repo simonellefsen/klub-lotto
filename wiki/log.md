@@ -1873,3 +1873,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-31 05:17 UTC] ingest | ordkløver | Category: `Danmarkshistorie` | outcome=submitted
 
+## [2026-10-31 05:18 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
