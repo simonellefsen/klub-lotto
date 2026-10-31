@@ -193,6 +193,9 @@
   "ARBEJDER": [
     "VIRKER"
   ],
+  "ARKBYGGER": [
+    "NOA"
+  ],
   "ARME": [
     "HÆR"
   ],
@@ -252,6 +255,9 @@
   ],
   "BANDS": [
     "JAZZTRIOER"
+  ],
+  "BAR": [
+    "IDEL"
   ],
   "BARE": [
     "KUN",
@@ -859,7 +865,8 @@
     "ISTE",
     "TODDY",
     "KAMILLETE",
-    "SOLBÆRSAFT"
+    "SOLBÆRSAFT",
+    "CHAMPAGNE"
   ],
   "DRIKKE": [
     "DIE"
@@ -1711,6 +1718,9 @@
   "FØRSTEDAME": [
     "EVA"
   ],
+  "FØRTO": [
+    "ET"
+  ],
   "FØRÆ": [
     "Z"
   ],
@@ -2106,6 +2116,9 @@
     "VELKOMMEN",
     "SALUT"
   ],
+  "HILSER": [
+    "NEJER"
+  ],
   "HILSTE": [
     "NEJEDE"
   ],
@@ -2141,7 +2154,8 @@
     "ONDE"
   ],
   "HJULDEL": [
-    "EGER"
+    "EGER",
+    "NAV"
   ],
   "HJULPET": [
     "LETTET"
@@ -2228,6 +2242,9 @@
   ],
   "HUMLEBI": [
     "BRUMBASSE"
+  ],
+  "HUND": [
+    "PUDDEL"
   ],
   "HUNDSE": [
     "HERSE"
@@ -2565,6 +2582,9 @@
   "JÆVNT": [
     "EGALT"
   ],
+  "KAFFEDRIK": [
+    "CAPPUCCINO"
+  ],
   "KAGE": [
     "LINSE",
     "ROULADE"
@@ -2612,6 +2632,9 @@
   ],
   "KAT": [
     "MIS"
+  ],
+  "KATEGORI": [
+    "GENRE"
   ],
   "KEDELIG": [
     "TRIST"
@@ -3319,6 +3342,9 @@
   "MAS": [
     "BESVÆR"
   ],
+  "MASEDE": [
+    "SLED"
+  ],
   "MASKETYPE": [
     "VRANG"
   ],
@@ -3971,7 +3997,8 @@
     "GENERE"
   ],
   "PLANET": [
-    "URANUS"
+    "URANUS",
+    "MARS"
   ],
   "PLANTE": [
     "BLÅBÆRBUSK",
@@ -4483,6 +4510,9 @@
     "ROR",
     "STÆVN"
   ],
+  "SKIDISCIPLIN": [
+    "SLALOM"
+  ],
   "SKILLE": [
     "DELE"
   ],
@@ -4521,6 +4551,9 @@
   ],
   "SKODEL": [
     "SÅL"
+  ],
+  "SKOLEPLATFORM": [
+    "AULA"
   ],
   "SKOLEUDSTYR": [
     "TAVLE"
@@ -4998,7 +5031,8 @@
     "SATIN",
     "DENIM",
     "TYL",
-    "LIN"
+    "LIN",
+    "DAMASK"
   ],
   "STOLEDEL": [
     "ARMLÆN"
@@ -5199,6 +5233,9 @@
   ],
   "SØGTE": [
     "LEDTE"
+  ],
+  "SØLLE": [
+    "USSEL"
   ],
   "SØLV": [
     "AG"
@@ -6374,6 +6411,9 @@
   ],
   "[IMG]HOOK": [
     "KROG"
+  ],
+  "[IMG]HOUSE": [
+    "HUS"
   ],
   "[IMG]ICECREAMCONE": [
     "IS"
