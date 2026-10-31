@@ -1283,7 +1283,12 @@ const ordKloeverBoardJS = `(() => {
   // This gives us the exact column position regardless of background color,
   // size changes from CSS transitions, or "current input cursor" highlights.
   const gridTiles = [];
-  for (const el of document.querySelectorAll('[class*="tile"],[class*="cell"]')) {
+  // Select on the inline grid style, NOT class names: the game's classes are
+  // CSS-module output and changed from "_tile_1ejyc_38" to the fully minified
+  // "_cp-G" in the release that went live ~2026-10-30, which silently emptied
+  // this read. The inline gridColumnStart/gridRowStart are set by the game's own
+  // tile code and are what this strategy relies on anyway.
+  for (const el of document.querySelectorAll('[style*="grid-column-start"],[class*="tile"],[class*="cell"]')) {
     const col = parseInt(el.style.gridColumnStart || '0') || 0;
     if (col <= 0) continue; // no inline grid position — skip
     const row = parseInt(el.style.gridRowStart || '1') || 1;

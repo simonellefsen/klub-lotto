@@ -955,11 +955,10 @@ func runOrdKloeverProbe(ctx context.Context, cfg *config.Config, br *browser.Cli
 		// — no reason to burn a vision/DOM read here. All we need is win vs
 		// error-screen vs wrong, readable from the parent body text. The win
 		// banner can lag a few seconds, so poll briefly.
-		klublotto.LeaveFrame(br) // ensure top frame
-		body, _ := br.Eval(ctx, `document.body ? document.body.innerText : ""`)
+		body := ordKloeverVisibleText(ctx, br)
 		for i := 0; i < 3 && !wonAtSubmit && !klublotto.IsOrdKloeverWinText(body) && !klublotto.IsDanskeSpilErrorScreen(body); i++ {
 			time.Sleep(2 * time.Second)
-			body, _ = br.Eval(ctx, `document.body ? document.body.innerText : ""`)
+			body = ordKloeverVisibleText(ctx, br)
 		}
 		switch {
 		case wonAtSubmit || klublotto.IsOrdKloeverWinText(body):
@@ -1005,8 +1004,13 @@ func runOrdKloeverProbe(ctx context.Context, cfg *config.Config, br *browser.Cli
 		fmt.Printf("   After guess: Board=%s | Attempts=%d/12 | Solved=%v | Screenshot: %s\n",
 			st.Board, st.Attempts, st.Solved, shot)
 		if st.Solved || st.Attempts >= 12 || !strings.Contains(st.Board, "_") {
-			// Board empty + attempts exhausted = win animation replaced the board; treat as solved.
-			solved := st.Solved || (st.Board == "" && st.Attempts >= 12)
+			// Only a positively detected win counts. This used to also treat "board
+			// empty + attempts exhausted" as a win (a win animation can replace the
+			// board) — but a board that was never readable is empty too, and on
+			// 2026-10-31 that turned a blind, wrong 12th guess (JELLINGSTENENE for
+			// REFORMATIONEN) into "🎉 SOLVED!" and a registered win in the ledger.
+			// A missed win is recoverable by hand; a fabricated one is not noticed.
+			solved := st.Solved
 			// Notes: colour-coded letter-probe sequence + shape + how it finished.
 			// Colour hits against the answer when solved, else against the board.
 			revealSrc := prePhraseBoard
@@ -1088,6 +1092,16 @@ func runOrdKloeverProbe(ctx context.Context, cfg *config.Config, br *browser.Cli
 			st.GuessedLetters = allUsed()
 			fmt.Printf("   Board: %s | Guessed: %s | Attempts: %d/12\n",
 				st.Board, st.GuessedLetters, st.Attempts)
+
+			// A real board always has tiles (blank ones included), so an EMPTY board
+			// after a probe means the board reader is broken — not that the letters
+			// missed. Continuing burns every remaining attempt and ends in a guess
+			// with no pattern at all (2026-10-31: 11 probes, the keyboard showing 7
+			// correct letters, board never read). Stop with the attempts left so the
+			// puzzle can be finished by hand or by a fixed run.
+			if strings.TrimSpace(strings.ReplaceAll(st.Board, "/", "")) == "" {
+				return fmt.Errorf("ordkløver board unreadable after probing (%d/12 used, guessed %q) — stopping instead of guessing blind; check the board reader against the live game", st.Attempts, st.GuessedLetters)
+			}
 
 			// If no letters hit, keep probing 2 at a time until at least 1 reveals.
 			const maxMissRounds = 4
@@ -1651,8 +1665,14 @@ func submitOrdKloever(ctx context.Context, br *browser.Client, answer string) er
 		_ = br.Press(ctx, "Enter")
 	}
 	time.Sleep(2 * time.Second)
-	// Switch back to parent before reading result.
+	// Read the frame's own text BEFORE leaving it: until 2026-10-31 LeaveFrame was
+	// a silent no-op, so every win this game has ever recorded was detected from
+	// the frame body below. Keep that, and check the parent as well.
 	if inFrame {
+		if frameRaw, _ := br.Eval(ctx, `document.body ? document.body.innerText : ""`); klublotto.IsOrdKloeverWinText(frameRaw) {
+			klublotto.LeaveFrame(br)
+			return nil
+		}
 		klublotto.LeaveFrame(br)
 		inFrame = false
 	}
@@ -1770,4 +1790,20 @@ func ensureKloeverActive(ctx context.Context, br *browser.Client) error {
 	_ = focusIntoKloeverGame(ctx, br)
 	time.Sleep(300 * time.Millisecond)
 	return nil
+}
+
+// ordKloeverVisibleText returns the parent page's text followed by the game
+// iframe's text, ending back on the top document. The result banner has been
+// seen in both places, and until 2026-10-31 LeaveFrame silently failed, so the
+// post-guess checks were in practice reading the FRAME. Reading both keeps every
+// banner that used to be detected while also covering one rendered by the parent.
+func ordKloeverVisibleText(ctx context.Context, br *browser.Client) string {
+	klublotto.LeaveFrame(br)
+	parent, _ := br.Eval(ctx, `document.body ? document.body.innerText : ""`)
+	frame := ""
+	if klublotto.EnterGameFrame(ctx, br) == nil {
+		frame, _ = br.Eval(ctx, `document.body ? document.body.innerText : ""`)
+	}
+	klublotto.LeaveFrame(br)
+	return parent + "\n" + frame
 }

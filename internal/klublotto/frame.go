@@ -21,6 +21,13 @@ func EnterGameFrame(ctx context.Context, br *browser.Client) error {
 // LeaveFrame returns the browser context to the top document. It uses a
 // background context so it still runs during deferred cleanup even if the
 // caller's ctx was already cancelled.
+//
+// The target is "main". This used to pass "", which agent-browser rejects
+// ("DOM Error while querying") — and the error was discarded, so LeaveFrame was
+// silently a no-op and every caller stayed inside the game iframe. Code that
+// then measured the PARENT page (the Ordkløver vision crop) measured the frame
+// instead and cropped the board out of the picture, and a run that died in a
+// frame left the next one pointed at a frame that no longer existed.
 func LeaveFrame(br *browser.Client) {
-	_ = br.Frame(context.Background(), "")
+	_ = br.Frame(context.Background(), "main")
 }
