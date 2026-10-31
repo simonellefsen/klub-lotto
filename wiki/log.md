@@ -1871,3 +1871,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-10-31 05:15 UTC] ingest | quiz | Hvilken bro forbinder Danmark og Sverige? | outcome=submitted
 
+## [2026-10-31 05:17 UTC] ingest | ordkløver | Category: `Danmarkshistorie` | outcome=submitted
+
