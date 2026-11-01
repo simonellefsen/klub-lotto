@@ -821,6 +821,9 @@
   "DISKUSSION": [
     "DEBAT"
   ],
+  "DISTRIBUERET": [
+    "UDDELT"
+  ],
   "DITTO": [
     "DO"
   ],
@@ -2642,6 +2645,9 @@
   "KENDBOGST": [
     "EST"
   ],
+  "KERNER": [
+    "FRØ"
+  ],
   "KERNESYRE": [
     "RNA",
     "DNA"
@@ -3086,7 +3092,8 @@
   "LED": [
     "KNO",
     "ÆKEL",
-    "ALBUER"
+    "ALBUER",
+    "ANKEL"
   ],
   "LEDE": [
     "ÆKLE",
@@ -3454,7 +3461,8 @@
     "IN"
   ],
   "MODTAGER": [
-    "RADIO"
+    "RADIO",
+    "ANTENNE"
   ],
   "MODVILJE": [
     "TRODS"
@@ -4327,7 +4335,8 @@
   ],
   "RUM": [
     "LO",
-    "VINKELSTUE"
+    "VINKELSTUE",
+    "SALE"
   ],
   "RUMORGANISATION": [
     "ESA",
@@ -4489,6 +4498,9 @@
   "SKABER": [
     "TER"
   ],
+  "SKAKBRIKKER": [
+    "DRONNINGER"
+  ],
   "SKALDYR": [
     "KREBS",
     "REJE"
@@ -4540,6 +4552,9 @@
   ],
   "SKITSE": [
     "RIDS"
+  ],
+  "SKITSERER": [
+    "TEGNER"
   ],
   "SKIVE": [
     "DVD",
@@ -4891,6 +4906,9 @@
   "SPISTE": [
     "ÅD"
   ],
+  "SPOLE": [
+    "TEN"
+  ],
   "SPOLERER": [
     "ØDELÆGGER"
   ],
@@ -4951,7 +4969,8 @@
     "ODØR"
   ],
   "STARTET": [
-    "IGANGSAT"
+    "IGANGSAT",
+    "DEBUTERET"
   ],
   "STAT": [
     "EIRE"
@@ -6000,6 +6019,9 @@
   "VOVET": [
     "RISIKERET"
   ],
+  "VRAG": [
+    "RUIN"
+  ],
   "VREDE": [
     "RASERI"
   ],
@@ -6065,6 +6087,9 @@
   ],
   "VÆSNET": [
     "ENGLEN"
+  ],
+  "WEDGEOFCHEESE": [
+    "OST"
   ],
   "X": [
     "TI"
@@ -6803,6 +6828,9 @@
   "[IMG]TWOREDAPPLES": [
     "ÆBLER"
   ],
+  "[IMG]TWOREDHATS": [
+    "HATTE"
+  ],
   "[IMG]TWOREDROSES": [
     "ROSER"
   ],
@@ -6889,7 +6917,8 @@
     "KNUSE"
   ],
   "ØGLE": [
-    "LEGUAN"
+    "LEGUAN",
+    "GEKKO"
   ],
   "ØJEBLIKKET": [
     "NUET"
