@@ -1881,3 +1881,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-01 06:31 UTC] ingest | ordkløver | Category: `På danmarkskortet`; answer pattern `11 / 10` | outcome=submitted
 
+## [2026-11-01 06:42 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
