@@ -95,6 +95,12 @@ func main() {
 		usage(os.Stderr)
 		os.Exit(2)
 	}
+	if errors.Is(err, klublotto.ErrAlreadyPlayed) {
+		// A finished round is not a failure: exit 0 so a rerun of the morning
+		// chain carries on to the next game. Nothing was played or recorded.
+		fmt.Printf("%s: %v — nothing to play; ledger left as is.\n", cmd, err)
+		return
+	}
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s: %v\n", cmd, err)
 		if ctx.Err() != nil {
@@ -190,6 +196,9 @@ func runQuiz(ctx context.Context, args []string) error {
 		curURL, _ = br.URL(reopenCtx)
 		cancel()
 		fmt.Println("       after login:", curURL)
+	}
+	if msg, played := klublotto.AlreadyPlayed(ctx, br); played {
+		return fmt.Errorf("%w (%q)", klublotto.ErrAlreadyPlayed, msg)
 	}
 
 	// Wait for the quiz CONTENT (question + options, signalled by "AFGIV SVAR") to

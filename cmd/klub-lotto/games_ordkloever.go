@@ -136,13 +136,12 @@ func runOrdKloever(ctx context.Context, args []string) error {
 	enterCtx, enterCancel := context.WithTimeout(ctx, 80*time.Second)
 	err = klublotto.EnterWordGame(enterCtx, br, klublotto.OpenOrdKloever, "SPIL ORDKLØVER", "SPIL ORDKLOEVER")
 	enterCancel()
-	switch {
-	case errors.Is(err, klublotto.ErrGameAlreadyAnswered):
-		fmt.Println("       Ordkløver is already answered today — nothing to play; ledger left as is.")
-		return nil
-	case err != nil:
+	if err != nil {
 		if ctx.Err() != nil {
 			return ctx.Err() // interrupted (Ctrl-C) — do NOT zombie on with a dead context
+		}
+		if errors.Is(err, klublotto.ErrAlreadyPlayed) {
+			return err
 		}
 		return fmt.Errorf("ordkløver did not load: %w — stopped before any guess; rerun `make ordkloever`", err)
 	}

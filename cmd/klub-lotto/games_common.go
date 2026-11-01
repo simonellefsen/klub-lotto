@@ -36,6 +36,20 @@ func gameBrowser(cfg *config.Config, headlessFlag bool) *browser.Client {
 }
 
 func openGameWithLogin(ctx context.Context, br *browser.Client, cfg *config.Config, open func(context.Context, *browser.Client) error) error {
+	if err := openGameLoggedIn(ctx, br, cfg, open); err != nil {
+		return err
+	}
+	// A finished round replaces the game with "Du har allerede besvaret/løst/
+	// spillet …". Stop here: every game otherwise went on to fail 20-70s later
+	// on a missing board, and a misread finished page is how false wins got
+	// into the ledger.
+	if msg, played := klublotto.AlreadyPlayed(ctx, br); played {
+		return fmt.Errorf("%w (%q)", klublotto.ErrAlreadyPlayed, msg)
+	}
+	return nil
+}
+
+func openGameLoggedIn(ctx context.Context, br *browser.Client, cfg *config.Config, open func(context.Context, *browser.Client) error) error {
 	if err := open(ctx, br); err != nil {
 		return err
 	}

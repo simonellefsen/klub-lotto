@@ -2285,7 +2285,10 @@ func ExtractOrdknudeState(ctx context.Context, br *browser.Client, ac llm.Vision
 	// raw was already read at the top; re-read to refresh after game-start clicks.
 	raw, _ = br.Eval(ctx, `document.body ? document.body.innerText : ""`)
 	st.Raw = raw
-	if strings.Contains(strings.ToLower(raw), "vundet") {
+	// Only the real win banner counts. A bare "vundet" matched the permanent
+	// footer ("hvor meget du har vundet eller tabt?"), so on 2026-11-01, with
+	// vision down, an unplayed board was recorded as solved.
+	if IsOrdknudeWinText(raw) {
 		st.Solved = true
 	}
 	// Note: readOrdknudeRows may return no rows from parent due to cross-origin iframe.
@@ -2369,7 +2372,7 @@ func wordGameFrameState(ctx context.Context, br *browser.Client, welcomeNames []
 		// frame; the page itself says "Du har allerede besvaret Ordkløver i dag".
 		// Read <main> only, so nothing in the site chrome can match.
 		raw, _ := br.Eval(ctx, `(document.querySelector('main') || document.body || {}).innerText || ''`)
-		if strings.Contains(strings.ToLower(raw), "allerede besvaret") {
+		if IsAlreadyPlayedText(raw) {
 			return "answered"
 		}
 		return "loading"
@@ -2389,10 +2392,10 @@ func wordGameFrameState(ctx context.Context, br *browser.Client, welcomeNames []
 	if letterKeys, _ := strconv.Atoi(strings.TrimSpace(parts[0])); letterKeys >= 20 {
 		return "board"
 	}
-	low := strings.ToLower(parts[1])
-	if strings.Contains(low, "allerede besvaret") {
+	if IsAlreadyPlayedText(parts[1]) {
 		return "answered"
 	}
+	low := strings.ToLower(parts[1])
 	for _, n := range welcomeNames {
 		if n != "" && strings.Contains(low, strings.ToLower(n)) {
 			return "welcome"
@@ -2417,10 +2420,10 @@ func wordGameFrameState(ctx context.Context, br *browser.Client, welcomeNames []
 // wordGameRetryWait more; after that it returns an error, and callers stop the
 // run rather than type letters into a game that isn't there (2026-11-01: the
 // first open after an overnight game deploy sat on "Indlæser" for over 90s).
-// A round that's already been played returns ErrGameAlreadyAnswered at once.
+// A round that's already been played returns ErrAlreadyPlayed at once.
 func EnterWordGame(ctx context.Context, br *browser.Client, reopen func(context.Context, *browser.Client) error, welcomeNames ...string) error {
 	err := waitForWordGameBoard(ctx, br, wordGameFirstWait, welcomeNames)
-	if err == nil || errors.Is(err, ErrGameAlreadyAnswered) || ctx.Err() != nil {
+	if err == nil || errors.Is(err, ErrAlreadyPlayed) || ctx.Err() != nil {
 		return err
 	}
 	fmt.Printf("   [enter] %v — reloading the page\n", err)
@@ -2428,15 +2431,11 @@ func EnterWordGame(ctx context.Context, br *browser.Client, reopen func(context.
 		return fmt.Errorf("reload after slow load: %w", err)
 	}
 	err = waitForWordGameBoard(ctx, br, wordGameRetryWait, welcomeNames)
-	if err != nil && !errors.Is(err, ErrGameAlreadyAnswered) && ctx.Err() == nil {
+	if err != nil && !errors.Is(err, ErrAlreadyPlayed) && ctx.Err() == nil {
 		return fmt.Errorf("%w, after one reload", err)
 	}
 	return err
 }
-
-// ErrGameAlreadyAnswered is returned by EnterWordGame when the page says
-// today's round has already been played, so there is no board to wait for.
-var ErrGameAlreadyAnswered = errors.New("game already answered today")
 
 const (
 	wordGameFirstWait = 15 * time.Second
@@ -2461,7 +2460,7 @@ func waitForWordGameBoard(ctx context.Context, br *browser.Client, budget time.D
 		case "board":
 			return nil
 		case "answered":
-			return ErrGameAlreadyAnswered
+			return ErrAlreadyPlayed
 		case "welcome":
 			// Click the launcher (frames-inclusive + Ø-tolerant); re-poll for the
 			// board. Cap clicks so a stuck launcher doesn't spin forever.

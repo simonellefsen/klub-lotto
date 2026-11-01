@@ -2,10 +2,78 @@ package klublotto
 
 import (
 	"context"
+	"errors"
 	"strings"
+	"time"
 
 	"github.com/simonellefsen/klub-lotto/internal/browser"
 )
+
+// ErrAlreadyPlayed is returned when a game page shows the site's "you've
+// already played today" screen instead of the game. The round is over — won or
+// lost, the screen doesn't say — so there is nothing to play and nothing
+// trustworthy to record; the run that played it wrote the ledger. main exits 0
+// on it, so rerunning the morning chain doesn't stop at the first finished game.
+var ErrAlreadyPlayed = errors.New("already played today")
+
+// alreadyPlayedMessage finds that screen in a page's text and returns its key
+// sentence. Each game words it differently (seen 2026-11-01):
+//
+//	Quiz, Ordkløver, Ordknuden, Krydsord: "Du har allerede besvaret …"
+//	Sudoku:                               "Du har allerede løst denne sudoku."
+//	Blok for Blok:                        "Du har allerede spillet Blok for Blok – …"
+//
+// It must not match the quiz win screen's "(Du har allerede optjent dagens lod)".
+func alreadyPlayedMessage(text string) (string, bool) {
+	norm := strings.Join(strings.Fields(text), " ")
+	low := strings.ToLower(norm) // Danish letters keep their byte length, so indexes carry over
+	for _, p := range []string{"du har allerede besvaret", "du har allerede løst", "du har allerede spillet"} {
+		if i := strings.Index(low, p); i >= 0 {
+			msg := norm[i:]
+			if j := strings.IndexAny(msg, ".!–"); j > 0 {
+				msg = msg[:j]
+			}
+			return strings.TrimSpace(msg), true
+		}
+	}
+	return "", false
+}
+
+// IsAlreadyPlayedText reports whether a game page's text is the "you've
+// already played today" screen.
+func IsAlreadyPlayedText(text string) bool {
+	_, ok := alreadyPlayedMessage(text)
+	return ok
+}
+
+// AlreadyPlayed checks the open game page for the "you've already played
+// today" screen and returns its message. It polls for up to 3s, stopping as
+// soon as either that message or a live game (the game iframe, or the quiz's
+// "AFGIV SVAR" button) shows, and reads <main> only so the site chrome can't
+// match.
+func AlreadyPlayed(ctx context.Context, br *browser.Client) (string, bool) {
+	LeaveFrame(br)
+	deadline := time.Now().Add(3 * time.Second)
+	for {
+		raw, _ := br.Eval(ctx, `(() => {
+			const t = (document.querySelector('main') || document.body || {}).innerText || '';
+			const live = !!document.querySelector('iframe.kl-game__iframe') || /afgiv svar/i.test(t);
+			return (live ? '1' : '0') + '|' + t;
+		})()`)
+		live, text, _ := strings.Cut(raw, "|")
+		if msg, ok := alreadyPlayedMessage(text); ok {
+			return msg, true
+		}
+		if live == "1" || time.Now().After(deadline) {
+			return "", false
+		}
+		select {
+		case <-ctx.Done():
+			return "", false
+		case <-time.After(500 * time.Millisecond):
+		}
+	}
+}
 
 // End-of-game / interstitial screen detection for the Klub Lotto games. The
 // daily games replace the board with a banner (win), a result line (loss), or —

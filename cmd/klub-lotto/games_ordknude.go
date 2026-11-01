@@ -49,6 +49,15 @@ func runOrdknude(ctx context.Context, args []string) error {
 	} else {
 		fmt.Println("       WARNING: no vision API key (GEMINI_API_KEY or ANTHROPIC_API_KEY); colour marks will be absent.")
 	}
+	// Every board read depends on vision, so back the primary with a second
+	// provider (Gemini 2.5 Pro via OpenRouter when the primary is direct Gemini).
+	if ac != nil {
+		if fb := ordKloeverFallbackVision(cfg, ac); fb != nil {
+			fv := llm.FallbackVision{Primary: ac, Fallback: fb}
+			fmt.Println("       vision:", fv.Name())
+			ac = fv
+		}
+	}
 	br := gameBrowser(cfg, *headlessFlag)
 	restartHeadedSession(ctx, br)
 
@@ -67,14 +76,16 @@ func runOrdknude(ctx context.Context, args []string) error {
 	// on a slow danskespil day the game iframe is a spinner (~10s), then the welcome
 	// screen, then the board+keyboard. Extracting/typing before the keyboard renders
 	// is what produced "no board letters" / "keyboard not ready".
-	// A board that isn't ready after one reload stops the run. An already-played
-	// round goes on to extraction, which reads the result off the page.
+	// A board that isn't ready after one reload stops the run.
 	enterCtx, enterCancel := context.WithTimeout(ctx, 80*time.Second)
 	err = klublotto.EnterWordGame(enterCtx, br, klublotto.OpenOrdknude, "SPIL ORDKNUDEN", "Spil Ordknuden")
 	enterCancel()
-	if err != nil && !errors.Is(err, klublotto.ErrGameAlreadyAnswered) {
+	if err != nil {
 		if ctx.Err() != nil {
 			return ctx.Err() // interrupted (Ctrl-C) — do NOT zombie on with a dead context
+		}
+		if errors.Is(err, klublotto.ErrAlreadyPlayed) {
+			return err
 		}
 		return fmt.Errorf("ordknuden did not load: %w — stopped before any guess; rerun `make ordknude`", err)
 	}
@@ -953,6 +964,9 @@ func printOrdknudeState(st klublotto.OrdknudeState) {
 	// the guess/remaining digit counts. (Guess rows below are intentionally left
 	// open on the right — their emoji widths can't be column-aligned in a terminal.)
 	title := fmt.Sprintf("Ordknuden — %d guesses, %d remaining", len(st.History), st.Remaining)
+	if st.Solved {
+		title += ", page reads SOLVED"
+	}
 	inner := len([]rune(title)) + 4 // two-space margin on each side
 	bar := strings.Repeat("─", inner)
 	fmt.Printf("┌%s┐\n", bar)
