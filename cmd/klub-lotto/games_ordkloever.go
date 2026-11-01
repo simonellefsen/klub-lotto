@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -130,17 +131,21 @@ func runOrdKloever(ctx context.Context, args []string) error {
 
 	// Drive open→spinner→welcome→enter→board before interacting: on a slow
 	// danskespil day the game iframe is a spinner, then the launcher, then the
-	// board+keyboard. This waits past the spinner and clicks the launcher so the
-	// vision read below sees the real board, not an empty/loading page.
+	// board+keyboard. A board that isn't ready after one reload stops the run:
+	// every letter typed into a loader is a real attempt gone.
 	enterCtx, enterCancel := context.WithTimeout(ctx, 80*time.Second)
-	if err := klublotto.EnterWordGame(enterCtx, br, "SPIL ORDKLØVER", "SPIL ORDKLOEVER"); err != nil {
+	err = klublotto.EnterWordGame(enterCtx, br, klublotto.OpenOrdKloever, "SPIL ORDKLØVER", "SPIL ORDKLOEVER")
+	enterCancel()
+	switch {
+	case errors.Is(err, klublotto.ErrGameAlreadyAnswered):
+		fmt.Println("       Ordkløver is already answered today — nothing to play; ledger left as is.")
+		return nil
+	case err != nil:
 		if ctx.Err() != nil {
-			enterCancel()
 			return ctx.Err() // interrupted (Ctrl-C) — do NOT zombie on with a dead context
 		}
-		fmt.Printf("       (enter flow: %v; continuing anyway)\n", err)
+		return fmt.Errorf("ordkløver did not load: %w — stopped before any guess; rerun `make ordkloever`", err)
 	}
-	enterCancel()
 
 	// Click through the "SPIL ORDKLØVER" welcome screen up front (robust
 	// text-content click — handles the Ø and the child-text label) so the first
@@ -249,12 +254,14 @@ func runOrdKloever(ctx context.Context, args []string) error {
 		return nil
 	}
 
-	// Graceful handling for already-besvaret / finished (like Ordknuden).
+	// A round that's over with no win banner on screen — "allerede besvaret", or
+	// 12/12 used — doesn't say how it ended, so leave the ledger to the run that
+	// played it. This used to record it as SOLVED: a rerun after a loss became a
+	// false win, and a rerun after a win overwrote the real answer with "SOLVED".
 	lowRaw := strings.ToLower(st.Raw)
-	if st.Attempts >= 12 || st.Solved || strings.Contains(lowRaw, "besvaret") || strings.Contains(lowRaw, "allerede besvaret") || strings.Contains(lowRaw, "du har allerede besvaret") {
-		shot := filepath.Join(cfg.DataDir, "ordkloever-result-"+time.Now().UTC().Format("20060102-150405")+".png")
-		_ = br.Screenshot(ctx, shot)
-		return upsertDailyGame(ctx, cfg, "Ordkløver", klublotto.OrdKloeverPrompt(st), "SOLVED", true, true, "Already besvaret / finished on page. Screenshot: `"+shot+"`.")
+	if !st.Solved && (st.Attempts >= 12 || strings.Contains(lowRaw, "besvaret")) {
+		fmt.Println("[3/4] Ordkløver is already over for today — nothing to play; ledger left as is.")
+		return nil
 	}
 
 	// Final-attempt provider (11/12 mode) — resolved + validated up front.

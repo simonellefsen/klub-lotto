@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"image"
 	"image/png"
@@ -2345,6 +2346,7 @@ func isImmerspieleURL(u string) bool {
 //
 //	"board"   — the on-screen letter keyboard has rendered; ready to read/type
 //	"welcome" — the launcher/welcome screen is up; must click to enter the game
+//	"answered" — today's round is already played ("Du har allerede besvaret …")
 //	"loading" — spinner / the game iframe isn't attached or populated yet
 //
 // It keys the "board" state on the KEYBOARD's single-character letter keys (the
@@ -2363,6 +2365,13 @@ func wordGameFrameState(ctx context.Context, br *browser.Client, welcomeNames []
 		}
 	}
 	if !entered {
+		// On a round that's already been played the site never attaches the game
+		// frame; the page itself says "Du har allerede besvaret Ordkløver i dag".
+		// Read <main> only, so nothing in the site chrome can match.
+		raw, _ := br.Eval(ctx, `(document.querySelector('main') || document.body || {}).innerText || ''`)
+		if strings.Contains(strings.ToLower(raw), "allerede besvaret") {
+			return "answered"
+		}
 		return "loading"
 	}
 	defer LeaveFrame(br)
@@ -2381,6 +2390,9 @@ func wordGameFrameState(ctx context.Context, br *browser.Client, welcomeNames []
 		return "board"
 	}
 	low := strings.ToLower(parts[1])
+	if strings.Contains(low, "allerede besvaret") {
+		return "answered"
+	}
 	for _, n := range welcomeNames {
 		if n != "" && strings.Contains(low, strings.ToLower(n)) {
 			return "welcome"
@@ -2398,10 +2410,43 @@ func wordGameFrameState(ctx context.Context, br *browser.Client, welcomeNames []
 // returns nil only once the on-screen keyboard has rendered (board ready) — so
 // downstream state extraction and letter typing never race the spinner or the
 // welcome→board transition. On a fresh game the board is legitimately empty, so
-// readiness keys on the game UI, never on guessed letters. Returns an error if the
-// board never appears within the budget (caller may still try, best-effort).
-func EnterWordGame(ctx context.Context, br *browser.Client, welcomeNames ...string) error {
-	deadline := time.Now().Add(75 * time.Second)
+// readiness keys on the game UI, never on guessed letters.
+//
+// The board normally renders ~4s after the page opens. If it hasn't after
+// wordGameFirstWait, the page is reloaded once via reopen and gets
+// wordGameRetryWait more; after that it returns an error, and callers stop the
+// run rather than type letters into a game that isn't there (2026-11-01: the
+// first open after an overnight game deploy sat on "Indlæser" for over 90s).
+// A round that's already been played returns ErrGameAlreadyAnswered at once.
+func EnterWordGame(ctx context.Context, br *browser.Client, reopen func(context.Context, *browser.Client) error, welcomeNames ...string) error {
+	err := waitForWordGameBoard(ctx, br, wordGameFirstWait, welcomeNames)
+	if err == nil || errors.Is(err, ErrGameAlreadyAnswered) || ctx.Err() != nil {
+		return err
+	}
+	fmt.Printf("   [enter] %v — reloading the page\n", err)
+	if err := reopen(ctx, br); err != nil {
+		return fmt.Errorf("reload after slow load: %w", err)
+	}
+	err = waitForWordGameBoard(ctx, br, wordGameRetryWait, welcomeNames)
+	if err != nil && !errors.Is(err, ErrGameAlreadyAnswered) && ctx.Err() == nil {
+		return fmt.Errorf("%w, after one reload", err)
+	}
+	return err
+}
+
+// ErrGameAlreadyAnswered is returned by EnterWordGame when the page says
+// today's round has already been played, so there is no board to wait for.
+var ErrGameAlreadyAnswered = errors.New("game already answered today")
+
+const (
+	wordGameFirstWait = 15 * time.Second
+	wordGameRetryWait = 30 * time.Second
+)
+
+// waitForWordGameBoard polls the game frame for up to budget until the board is
+// ready, clicking the launcher whenever the welcome screen is up.
+func waitForWordGameBoard(ctx context.Context, br *browser.Client, budget time.Duration, welcomeNames []string) error {
+	deadline := time.Now().Add(budget)
 	lastState, clicks := "", 0
 	for {
 		if ctx.Err() != nil {
@@ -2415,6 +2460,8 @@ func EnterWordGame(ctx context.Context, br *browser.Client, welcomeNames ...stri
 		switch state {
 		case "board":
 			return nil
+		case "answered":
+			return ErrGameAlreadyAnswered
 		case "welcome":
 			// Click the launcher (frames-inclusive + Ø-tolerant); re-poll for the
 			// board. Cap clicks so a stuck launcher doesn't spin forever.
@@ -2424,7 +2471,7 @@ func EnterWordGame(ctx context.Context, br *browser.Client, welcomeNames ...stri
 			}
 		}
 		if time.Now().After(deadline) {
-			return fmt.Errorf("word game did not reach the board within budget (last state: %s)", state)
+			return fmt.Errorf("board not ready within %s (last state: %s)", budget, state)
 		}
 		select {
 		case <-ctx.Done():

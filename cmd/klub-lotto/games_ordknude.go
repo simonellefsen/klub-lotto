@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"math/rand"
@@ -66,15 +67,17 @@ func runOrdknude(ctx context.Context, args []string) error {
 	// on a slow danskespil day the game iframe is a spinner (~10s), then the welcome
 	// screen, then the board+keyboard. Extracting/typing before the keyboard renders
 	// is what produced "no board letters" / "keyboard not ready".
+	// A board that isn't ready after one reload stops the run. An already-played
+	// round goes on to extraction, which reads the result off the page.
 	enterCtx, enterCancel := context.WithTimeout(ctx, 80*time.Second)
-	if err := klublotto.EnterWordGame(enterCtx, br, "SPIL ORDKNUDEN", "Spil Ordknuden"); err != nil {
+	err = klublotto.EnterWordGame(enterCtx, br, klublotto.OpenOrdknude, "SPIL ORDKNUDEN", "Spil Ordknuden")
+	enterCancel()
+	if err != nil && !errors.Is(err, klublotto.ErrGameAlreadyAnswered) {
 		if ctx.Err() != nil {
-			enterCancel()
 			return ctx.Err() // interrupted (Ctrl-C) — do NOT zombie on with a dead context
 		}
-		fmt.Printf("       (enter flow: %v; extracting anyway)\n", err)
+		return fmt.Errorf("ordknuden did not load: %w — stopped before any guess; rerun `make ordknude`", err)
 	}
-	enterCancel()
 	extractCtx, cancel := context.WithTimeout(ctx, 45*time.Second)
 	st, err := klublotto.ExtractOrdknudeState(extractCtx, br, ac)
 	cancel()
