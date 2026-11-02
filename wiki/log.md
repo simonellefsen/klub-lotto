@@ -1895,3 +1895,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-02 05:15 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-11-02 05:15 UTC] ingest | quiz | I hvilket årti blev LEGO-klodsen med de karakteristiske knop… | outcome=submitted
+
