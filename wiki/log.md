@@ -1897,3 +1897,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-02 05:15 UTC] ingest | quiz | I hvilket årti blev LEGO-klodsen med de karakteristiske knop… | outcome=submitted
 
+## [2026-11-02 05:16 UTC] ingest | ordkløver | Category: `Person`; answer pattern `9` | outcome=submitted
+
