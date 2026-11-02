@@ -29,6 +29,9 @@
   "1501": [
     "MDI"
   ],
+  "2": [
+    "II"
+  ],
   "2000": [
     "MM"
   ],
@@ -94,6 +97,9 @@
   ],
   "AFBRYDER": [
     "RELÆ"
+  ],
+  "AFBRYDEREN": [
+    "RELÆET"
   ],
   "AFDRAG": [
     "RATE"
@@ -377,6 +383,9 @@
   "BETEGNELSER": [
     "NAVNE"
   ],
+  "BETJENE": [
+    "EKSPEDERE"
+  ],
   "BETRAGTE": [
     "ANSE"
   ],
@@ -417,7 +426,8 @@
     "SEAT"
   ],
   "BILUDSTYR": [
-    "PSKIVE"
+    "PSKIVE",
+    "SELE"
   ],
   "BILUDSTYRET": [
     "KOFANGEREN"
@@ -507,7 +517,8 @@
     "REDE"
   ],
   "BOBLE": [
-    "SYDE"
+    "SYDE",
+    "SOVE"
   ],
   "BOBLEDE": [
     "SOV"
@@ -739,7 +750,8 @@
   ],
   "CYKELDEL": [
     "PEDAL",
-    "SADEL"
+    "SADEL",
+    "DÆK"
   ],
   "CYKELUDSTYR": [
     "GEAR",
@@ -1588,7 +1600,8 @@
     "NYT"
   ],
   "FRISTED": [
-    "OASE"
+    "OASE",
+    "ASYL"
   ],
   "FRISTEDER": [
     "OASER",
@@ -1596,6 +1609,9 @@
   ],
   "FRISTER": [
     "DEADLINES"
+  ],
+  "FROM": [
+    "DYDIG"
   ],
   "FRUGT": [
     "DRUE",
@@ -4829,6 +4845,9 @@
   "SOVEDYR": [
     "BAMSE"
   ],
+  "SOVSETYPE": [
+    "HP"
+  ],
   "SPANIEN": [
     "E"
   ],
@@ -5061,6 +5080,9 @@
   ],
   "STOLTHED": [
     "ÆRE"
+  ],
+  "STOLTHEDEN": [
+    "ÆREN"
   ],
   "STORK": [
     "IBIS"
@@ -5937,6 +5959,9 @@
   "VIA": [
     "IGENNEM"
   ],
+  "VID": [
+    "BRED"
+  ],
   "VIDE": [
     "ANE"
   ],
@@ -6245,6 +6270,9 @@
   "[IMG]CHAIRS": [
     "STOLE"
   ],
+  "[IMG]CHEESEWEDGE": [
+    "PROP"
+  ],
   "[IMG]CHEESEWEDGES": [
     "OSTE"
   ],
@@ -6488,6 +6516,9 @@
   ],
   "[IMG]MASK": [
     "MASKE"
+  ],
+  "[IMG]MITTEN": [
+    "VANTE"
   ],
   "[IMG]MOONANDSTARS": [
     "NAT"
