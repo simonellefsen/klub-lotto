@@ -245,6 +245,51 @@ func TestExtractOrdknudeLettersFromSnap(t *testing.T) {
 	if got := extractOrdknudeLettersFromSnap(parent); !reflect.DeepEqual(got, []string{"ØRKEN"}) {
 		t.Fatalf("parent: got %v, want [ØRKEN]", got)
 	}
+
+	// Since 2026-11-03 the board sits inside a wrapper generic, in both the
+	// in-frame and the parent-page snapshot.
+	board := []string{
+		`- generic`,
+		`  - button [ref=e1]`,
+		`    - image`,
+		`  - StaticText "S"`,
+		`  - StaticText "T"`,
+		`  - StaticText "O"`,
+		`  - StaticText "R"`,
+		`  - StaticText "E"`,
+		`  - StaticText "K"`,
+		`  - StaticText "R"`,
+		`  - StaticText "A"`,
+		`  - StaticText "N"`,
+		`  - StaticText "S"`,
+		`  - generic`,
+		`    - button "Q" [ref=e2]`,
+		`      - StaticText "Q"`,
+		`    - button "W" [ref=e3]`,
+		`      - StaticText "W"`,
+	}
+	if got := extractOrdknudeLettersFromSnap(strings.Join(board, "\n")); !reflect.DeepEqual(got, []string{"STORE", "KRANS"}) {
+		t.Fatalf("wrapped in-frame: got %v, want [STORE KRANS]", got)
+	}
+	wrappedParent := []string{
+		`- main`,
+		`  - StaticText "Ordknuden"`,
+		`  - generic [ref=e1] clickable [onclick]`,
+		`    - Iframe [ref=e52]`,
+	}
+	for _, l := range board {
+		wrappedParent = append(wrappedParent, "      "+l)
+	}
+	wrappedParent = append(wrappedParent, `  - StaticText "X"`) // outside the Iframe
+	if got := extractOrdknudeLettersFromSnap(strings.Join(wrappedParent, "\n")); !reflect.DeepEqual(got, []string{"STORE", "KRANS"}) {
+		t.Fatalf("wrapped parent: got %v, want [STORE KRANS]", got)
+	}
+
+	// An empty board has only key labels, which must never read as guesses.
+	empty := append(append([]string{}, board[:3]...), board[13:]...)
+	if got := extractOrdknudeLettersFromSnap(strings.Join(empty, "\n")); got != nil {
+		t.Fatalf("empty board: got %v, want nil", got)
+	}
 }
 
 func TestSpaceOutBoardPositions(t *testing.T) {

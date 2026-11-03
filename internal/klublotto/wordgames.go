@@ -1578,24 +1578,21 @@ Otherwise, read the board:
 
 STEP 1 — Read the WORDS: Identify each completed row (rows with all 5 letters AND color feedback). Ignore blank rows and ignore any partial row with only 1–4 letters (no color on all 5 tiles). Read the 5 uppercase letters from each completed row top to bottom.
 
-STEP 2 — Read the KEYBOARD (at the bottom of the screen). The large keyboard keys show each letter's status clearly:
-- BRIGHT GREEN key → that letter is "correct" (right letter, right position)
-- BRIGHT YELLOW or AMBER key → that letter is "present" (right letter, wrong position)
-- VERY DARK MAROON key (much darker than unused keys) → that letter is "absent"
-- MEDIUM DARK (same as unused keys) → letter not yet used
+STEP 2 — Read the colour of EACH TILE on its own, row by row:
+- BRIGHT GREEN tile → "correct" (right letter, right position)
+- BRIGHT YELLOW or AMBER tile → "present" (right letter, wrong position)
+- VERY DARK MAROON tile → "absent"
 
-List which keys are GREEN and which are YELLOW. Then for each word from step 1, assign marks based on the keyboard:
-- Letter is GREEN on keyboard → "correct"
-- Letter is YELLOW on keyboard → "present"
-- Letter not highlighted → "absent"
+The same letter can have different colours in different rows: R can be amber in row 1 and green in row 2. Never copy a colour from another row or from the keyboard. The keyboard only shows each letter's best colour across all rows, so a green key does NOT make every tile of that letter green. Use the keyboard only as a check: a letter whose key is very dark maroon is "absent" in every row.
 
 Output format — ONLY these lines (no markdown, no explanation, no numbering):
 WORD absent,absent,present,absent,absent
 
 One line per completed guess row (top to bottom). Uppercase word, then a space, then 5 comma-separated marks.
 
-Example: board has SPROG (R is present in 3rd position), keyboard shows R=yellow:
-SPROG absent,absent,present,absent,absent`
+Example: R is amber in STORE and green in KRANS (so the R key is green):
+STORE present,absent,absent,present,absent
+KRANS present,correct,absent,absent,present`
 	text, err := ac.ExtractFromImage(ctx, imgBytes, "image/png", prompt)
 	if text != "" {
 		_ = os.WriteFile(filepath.Join(os.TempDir(), "ordknude-vision-raw.txt"), []byte(text), 0o644)
@@ -1880,70 +1877,60 @@ func parseWordsFromSnapTextNode(snap string) []string {
 	return extractOrdknudeLettersFromSnap(snap)
 }
 
-// extractOrdknudeLettersFromSnap reads board letters from the parent-page
-// accessibility snapshot. The Ordknude iframe exposes each tile letter as an
-// individual StaticText node at the direct-child depth of the Iframe element,
-// before the keyboard generic container.
-//
-// The caller should pass the output of br.Snapshot(ctx) (the full, non-interactive
-// snapshot from the parent page) — no frame-switching required.
+// extractOrdknudeLettersFromSnap reads board letters from an accessibility
+// snapshot: the parent page's (letters inside the Iframe element) or one taken
+// inside the game frame. Each tile letter is a single-letter StaticText node; the
+// keyboard's are too, but each sits under its key's button, so tile letters are
+// the single-letter StaticText nodes whose parent is not a button. Keying on that
+// rather than on a fixed depth survives wrapper changes: on 2026-11-03 the game
+// wrapped its board in a "- generic" node, a fixed-depth reader stopped there
+// as if at the keyboard, and every board read fell back to vision.
 func extractOrdknudeLettersFromSnap(snap string) []string {
 	lines := strings.Split(snap, "\n")
 
-	// Find the Iframe element (parent-page snapshot): its direct-child StaticText
-	// nodes hold the letters. When we snapshot from INSIDE the frame (br.Frame
-	// now succeeds for OOPIFs), there is NO Iframe element and the letters sit at
-	// the TOP level instead — handle both.
-	iframeIdx := -1
-	iframeIndent := 0
+	// In a parent-page snapshot only the Iframe's subtree is the game.
+	iframeIndent := -1
+	startIdx := 0
 	for i, line := range lines {
 		trimmed := strings.TrimLeft(line, " \t")
 		if strings.HasPrefix(trimmed, "- Iframe") {
-			iframeIdx = i
 			iframeIndent = len(line) - len(trimmed)
+			startIdx = i + 1
 			break
 		}
 	}
 
-	// startIdx/childIndent select the depth at which the per-tile StaticText
-	// letters appear: under the Iframe (parent snapshot) or at the top level
-	// (in-frame snapshot).
-	startIdx := 0
-	childIndent := 0
-	if iframeIdx >= 0 {
-		startIdx = iframeIdx + 1
-		childIndent = iframeIndent + 2 // agent-browser uses 2 spaces per level
+	type node struct {
+		indent int
+		text   string
 	}
-
+	var ancestors []node
 	var letters []string
 	for _, line := range lines[startIdx:] {
-		if line == "" {
+		trimmed := strings.TrimLeft(line, " ")
+		if trimmed == "" {
 			continue
 		}
-		trimmed := strings.TrimLeft(line, " ")
-		lineIndent := len(line) - len(trimmed)
-
-		if iframeIdx >= 0 && lineIndent <= iframeIndent {
+		indent := len(line) - len(trimmed)
+		if iframeIndent >= 0 && indent <= iframeIndent {
 			break // left the Iframe section
 		}
-		if lineIndent != childIndent {
-			continue // skip deeper-nested nodes (e.g. button contents)
+		for len(ancestors) > 0 && ancestors[len(ancestors)-1].indent >= indent {
+			ancestors = ancestors[:len(ancestors)-1]
 		}
+		underButton := len(ancestors) > 0 && strings.HasPrefix(ancestors[len(ancestors)-1].text, "- button")
+		ancestors = append(ancestors, node{indent, trimmed})
 
-		// At the direct-child level: stop at the keyboard container.
-		if strings.HasPrefix(trimmed, "- generic") {
-			break
-		}
 		// Collect single-letter StaticText nodes: - StaticText "Ø"
-		if strings.HasPrefix(trimmed, "- StaticText \"") && strings.HasSuffix(trimmed, "\"") {
-			inner := trimmed[len("- StaticText \"") : len(trimmed)-1]
-			runes := []rune(inner)
-			if len(runes) == 1 {
-				ch := NormalizeDanishLetters(string(unicode.ToUpper(runes[0])))
-				if len([]rune(ch)) == 1 {
-					letters = append(letters, ch)
-				}
-			}
+		if underButton || !strings.HasPrefix(trimmed, "- StaticText \"") || !strings.HasSuffix(trimmed, "\"") {
+			continue
+		}
+		runes := []rune(trimmed[len("- StaticText \"") : len(trimmed)-1])
+		if len(runes) != 1 {
+			continue
+		}
+		if ch := NormalizeDanishLetters(string(unicode.ToUpper(runes[0]))); len([]rune(ch)) == 1 {
+			letters = append(letters, ch)
 		}
 	}
 
