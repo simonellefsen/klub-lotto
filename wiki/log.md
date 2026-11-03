@@ -1909,3 +1909,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-03 05:19 UTC] ingest | quiz | Hvad hedder skurken i den første “Die Hard”-film? | outcome=submitted
 
+## [2026-11-03 05:20 UTC] ingest | ordkløver | Category: `Sted`; answer pattern `12` | outcome=submitted
+
