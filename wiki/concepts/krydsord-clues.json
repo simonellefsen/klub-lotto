@@ -244,7 +244,8 @@
     "ÅSEN"
   ],
   "BALANCE": [
-    "RO"
+    "RO",
+    "SALDO"
   ],
   "BALJE": [
     "KAR"
@@ -1023,6 +1024,9 @@
   "EFTERSKRIFT": [
     "PS"
   ],
+  "EJEDE": [
+    "BESAD"
+  ],
   "EJENDOM": [
     "GODS"
   ],
@@ -1161,7 +1165,8 @@
   "FAG": [
     "MATEMATIK",
     "FYSIK",
-    "KEMI"
+    "KEMI",
+    "JURA"
   ],
   "FAGPERSON": [
     "CYKELSMED",
@@ -1483,7 +1488,8 @@
     "JAN",
     "KIM",
     "TOM",
-    "ÅSE"
+    "ÅSE",
+    "PUK"
   ],
   "FORNEM": [
     "ADELIG"
@@ -1857,6 +1863,9 @@
   "GLOSER": [
     "ORD"
   ],
+  "GLÆDE": [
+    "FORNØJELSE"
+  ],
   "GLØD": [
     "GNIST"
   ],
@@ -1983,7 +1992,8 @@
   "GRØNTSAG": [
     "AGURK",
     "SALAT",
-    "PORRE"
+    "PORRE",
+    "KÅL"
   ],
   "GRØNTSAGER": [
     "AGURKER"
@@ -2302,7 +2312,8 @@
     "TUDET"
   ],
   "HYLSTER": [
-    "ETUI"
+    "ETUI",
+    "SKAL"
   ],
   "HYRE": [
     "MÅNEDSLØN",
@@ -3343,6 +3354,9 @@
   ],
   "MAKKEDERET": [
     "ADLØD"
+  ],
+  "MALE": [
+    "LAKERE"
   ],
   "MALM": [
     "ERTS"
@@ -4541,6 +4555,9 @@
   "SKIDISCIPLIN": [
     "SLALOM"
   ],
+  "SKIDTSAMLER": [
+    "FEJEBAKKE"
+  ],
   "SKILLE": [
     "DELE"
   ],
@@ -4751,6 +4768,9 @@
   ],
   "SMELTE": [
     "TØ"
+  ],
+  "SMERTE": [
+    "ØMHED"
   ],
   "SMINKE": [
     "ØJENSKYGGE"
@@ -5030,6 +5050,9 @@
   ],
   "STERILT": [
     "RENT"
+  ],
+  "STIFTER": [
+    "SØM"
   ],
   "STIKKEAF": [
     "DESERTERE"
@@ -5463,6 +5486,9 @@
     "ZAR",
     "JARL",
     "NAVN"
+  ],
+  "TITELFORK": [
+    "HR"
   ],
   "TJAVS": [
     "LOK"
