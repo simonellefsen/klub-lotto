@@ -282,6 +282,9 @@
   "BEARBEJDET": [
     "ÆLTET"
   ],
+  "BEATLE": [
+    "LENNON"
+  ],
   "BEDE": [
     "ROE",
     "FÅR",
@@ -2667,7 +2670,8 @@
     "GENRE"
   ],
   "KEDELIG": [
-    "TRIST"
+    "TRIST",
+    "FERSK"
   ],
   "KENDBOGST": [
     "EST"
@@ -3051,7 +3055,8 @@
   "KØRETØJ": [
     "ELBIL",
     "VOGN",
-    "JEEP"
+    "JEEP",
+    "BUS"
   ],
   "KØRETØJER": [
     "ELBILER"
@@ -3557,6 +3562,9 @@
   ],
   "MUSIKSTYKKE": [
     "RONDO"
+  ],
+  "MYSTISKE": [
+    "GÅDEFULDE"
   ],
   "MÅLER": [
     "UR"
@@ -4154,7 +4162,8 @@
     "MOSET"
   ],
   "PYNT": [
-    "NÆS"
+    "NÆS",
+    "GUIRLANDER"
   ],
   "PYNTET": [
     "NETTET"
@@ -4525,6 +4534,9 @@
   "SJÆLDENHEDER": [
     "RARITETER"
   ],
+  "SKABE": [
+    "KREERE"
+  ],
   "SKABER": [
     "TER"
   ],
@@ -4723,7 +4735,8 @@
   ],
   "SLUDDER": [
     "VRØVL",
-    "VÅS"
+    "VÅS",
+    "ÆVL"
   ],
   "SLUDDERET": [
     "VÅSET"
@@ -5207,6 +5220,9 @@
   ],
   "SURE": [
     "TVÆRE"
+  ],
+  "SVAG": [
+    "VEG"
   ],
   "SVAMP": [
     "ØSTERSHAT"
@@ -5811,6 +5827,9 @@
   "UNDERLIG": [
     "SÆR"
   ],
+  "UNDERLIGT": [
+    "SÆRT"
+  ],
   "UNDERORDNET": [
     "IRRELEVANT"
   ],
@@ -6239,6 +6258,9 @@
     "BØGER"
   ],
   "[IMG]BOOKSHELF": [
+    "REOL"
+  ],
+  "[IMG]BOOKSHELVES": [
     "REOL"
   ],
   "[IMG]BOOMERANG": [
@@ -6850,6 +6872,9 @@
   ],
   "[IMG]TELEVISION": [
     "TV"
+  ],
+  "[IMG]TENNISRACKET": [
+    "KETSJER"
   ],
   "[IMG]TENT": [
     "TELT"
