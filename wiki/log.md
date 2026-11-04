@@ -1921,3 +1921,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-04 05:34 UTC] ingest | quiz | Hvilken skuespiller spillede James Bond i filmen 'Casino Roy… | outcome=submitted
 
+## [2026-11-04 05:35 UTC] ingest | ordkløver | Category: `Film og tv`; answer pattern `8 / 5` | outcome=submitted
+
