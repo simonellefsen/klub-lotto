@@ -1931,3 +1931,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-05 05:22 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-11-05 05:22 UTC] ingest | quiz | Hvem spillede Han Solo i den originale Star Wars-trilogi? | outcome=submitted
+
