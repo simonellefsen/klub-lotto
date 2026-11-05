@@ -366,7 +366,8 @@
     "MMS"
   ],
   "BESKIDT": [
-    "NUSSET"
+    "NUSSET",
+    "UREN"
   ],
   "BESKYTTES": [
     "FREDES"
@@ -549,7 +550,8 @@
   ],
   "BOLIG": [
     "TELT",
-    "HJEM"
+    "HJEM",
+    "HUS"
   ],
   "BOMULD": [
     "VAT"
@@ -1549,6 +1551,9 @@
   "FORTÆRET": [
     "ÆDT"
   ],
+  "FORUDSE": [
+    "SPÅ"
+  ],
   "FOTOUDSTYR": [
     "ZOOM"
   ],
@@ -1618,6 +1623,9 @@
   ],
   "FRISTER": [
     "DEADLINES"
+  ],
+  "FRISURE": [
+    "HESTEHALE"
   ],
   "FROM": [
     "DYDIG"
@@ -1775,7 +1783,8 @@
     "YT"
   ],
   "GANG": [
-    "STI"
+    "STI",
+    "ENTRE"
   ],
   "GANGE": [
     "ENTREER"
@@ -3001,6 +3010,9 @@
   "KÆMPEDE": [
     "STRED"
   ],
+  "KÆMPER": [
+    "SLÅS"
+  ],
   "KÆMPESTOR": [
     "ENORM"
   ],
@@ -3452,6 +3464,9 @@
     "YDERLIGERE",
     "EKSTRA"
   ],
+  "MERESIMPELT": [
+    "NEMMERE"
+  ],
   "MESTERKOK": [
     "GASTRONOM"
   ],
@@ -3693,7 +3708,8 @@
     "N"
   ],
   "NIVEAU": [
-    "LAG"
+    "LAG",
+    "TRIN"
   ],
   "NOBLE": [
     "ÆDLE"
@@ -4129,7 +4145,8 @@
     "UDSENDELSE"
   ],
   "PRONOMEN": [
-    "DE"
+    "DE",
+    "DEM"
   ],
   "PROPPET": [
     "FYLDT"
@@ -4609,6 +4626,9 @@
   "SKJULE": [
     "GEMME"
   ],
+  "SKJULT": [
+    "GEMT"
+  ],
   "SKODEL": [
     "SÅL"
   ],
@@ -4699,6 +4719,9 @@
   "SLAGERE": [
     "HITS"
   ],
+  "SLAGORD": [
+    "SLOGAN"
+  ],
   "SLANGE": [
     "SNOG"
   ],
@@ -4749,6 +4772,9 @@
   ],
   "SLUTTEDE": [
     "ENDTE"
+  ],
+  "SLUTTER": [
+    "ENDER"
   ],
   "SLUTTET": [
     "ENDT"
@@ -4931,6 +4957,9 @@
   ],
   "SPINDEREDSKABER": [
     "TENE"
+  ],
+  "SPINDEREDSKABET": [
+    "TENEN"
   ],
   "SPIRE": [
     "GRO"
@@ -5582,7 +5611,8 @@
   ],
   "TRANSPORTMIDDEL": [
     "TURISTBUS",
-    "ELTOG"
+    "ELTOG",
+    "HUNDESLÆDE"
   ],
   "TRAVLHED": [
     "JAG"
@@ -6317,6 +6347,9 @@
   ],
   "[IMG]CHAIRS": [
     "STOLE"
+  ],
+  "[IMG]CHECKERSBOARD": [
+    "DAM"
   ],
   "[IMG]CHEESEWEDGE": [
     "PROP"
