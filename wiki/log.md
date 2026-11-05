@@ -1935,3 +1935,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-05 05:23 UTC] ingest | ordkløver | Category: `Dansk litteratur`; answer pattern `3 / 8 / 5` | outcome=submitted
 
+## [2026-11-05 05:25 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
