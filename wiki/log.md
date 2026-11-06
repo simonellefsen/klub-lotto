@@ -1943,3 +1943,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-06 05:01 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-11-06 05:02 UTC] ingest | quiz | Hvad betyder det spanske ord 'playa' på dansk? | outcome=submitted
+
