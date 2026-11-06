@@ -504,6 +504,9 @@
   "BLUSSET": [
     "ILDEN"
   ],
+  "BLÅØJET": [
+    "NAIV"
+  ],
   "BLÆNDENDE": [
     "GENIAL"
   ],
@@ -1049,6 +1052,9 @@
   ],
   "EMBALLAGE": [
     "TARA"
+  ],
+  "EN": [
+    "I"
   ],
   "ENDEN": [
     "AFSLUTNING"
@@ -2041,6 +2047,9 @@
   "GÅEFTER": [
     "HENTE"
   ],
+  "GÆRE": [
+    "ULME"
+  ],
   "GÆRER": [
     "ULMER"
   ],
@@ -2095,6 +2104,9 @@
   ],
   "HAVE": [
     "EJE"
+  ],
+  "HAVEISINDE": [
+    "AGTE"
   ],
   "HAVEMØBLER": [
     "LIGGESTOLE"
@@ -2203,6 +2215,9 @@
   ],
   "HJÆLPEMIDDEL": [
     "LUP"
+  ],
+  "HJØRNE": [
+    "FLIG"
   ],
   "HOLD": [
     "SJAK"
@@ -3060,6 +3075,9 @@
   ],
   "KØLEELEMENTER": [
     "ISKLUMPER"
+  ],
+  "KØLIGT": [
+    "SVALT"
   ],
   "KØRE": [
     "AGE"
@@ -4472,6 +4490,9 @@
   "SCENE": [
     "ARENA"
   ],
+  "SCORING": [
+    "MÅL"
+  ],
   "SEDDEL": [
     "LAP"
   ],
@@ -4739,7 +4760,8 @@
     "ASEDE"
   ],
   "SLEMT": [
-    "ARGT"
+    "ARGT",
+    "GRELT"
   ],
   "SLET": [
     "ILDE"
@@ -5014,6 +5036,9 @@
   "SPORTSUDØVER": [
     "ROER"
   ],
+  "SPORTSUDØVERE": [
+    "IDRÆTSFOLK"
+  ],
   "SPORTSUDØVEREN": [
     "ROEREN"
   ],
@@ -5023,7 +5048,8 @@
   "SPROG": [
     "IRSK",
     "TYSK",
-    "URDU"
+    "URDU",
+    "ITALIENSK"
   ],
   "SPRÆNGSTOF": [
     "TNT"
@@ -6100,6 +6126,9 @@
     "C",
     "D",
     "E"
+  ],
+  "VOLD": [
+    "DIGE"
   ],
   "VOLT": [
     "V"
