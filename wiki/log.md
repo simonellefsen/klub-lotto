@@ -1959,3 +1959,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-07 05:54 UTC] ingest | ordkløver | Category: `Sundhed`; answer pattern `7 / 9` | outcome=submitted
 
+## [2026-11-07 05:55 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
