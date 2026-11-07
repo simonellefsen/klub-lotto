@@ -172,6 +172,9 @@
   "ANKERPLADS": [
     "RED"
   ],
+  "ANMODEDE": [
+    "BAD"
+  ],
   "ANNO": [
     "A"
   ],
@@ -654,7 +657,8 @@
   ],
   "BYGNING": [
     "PALADS",
-    "HUS"
+    "HUS",
+    "LADE"
   ],
   "BYGNINGER": [
     "HUSE"
@@ -1013,6 +1017,9 @@
   ],
   "DØRSLAG": [
     "SI"
+  ],
+  "DØRÅBNER": [
+    "NØGLE"
   ],
   "EFTER": [
     "BAG"
@@ -1689,7 +1696,8 @@
     "KALKUN",
     "SVALE",
     "AND",
-    "RÅGE"
+    "RÅGE",
+    "SKADE"
   ],
   "FUGLE": [
     "ØRNE",
@@ -4037,6 +4045,9 @@
   "PERFEKTBEGYNDELSE": [
     "ØNSKESTART"
   ],
+  "PERFEKTE": [
+    "IDEALE"
+  ],
   "PERIODE": [
     "ÅRTI",
     "ÅR",
@@ -4152,6 +4163,9 @@
   ],
   "PRIVATE": [
     "EGNE"
+  ],
+  "PRODUKTION": [
+    "AVL"
   ],
   "PRODUKTIVE": [
     "YDEDYGTIGE"
@@ -4272,6 +4286,9 @@
   ],
   "REALITET": [
     "SANDHED"
+  ],
+  "REB": [
+    "TOV"
   ],
   "REDHANDBAG": [
     "TASKE"
@@ -4569,6 +4586,9 @@
   "SJUSKER": [
     "SLØSER"
   ],
+  "SJÆLDENHED": [
+    "SÆRSYN"
+  ],
   "SJÆLDENHEDER": [
     "RARITETER"
   ],
@@ -4752,6 +4772,9 @@
   ],
   "SLANK": [
     "TYND"
+  ],
+  "SLAPPEAF": [
+    "DASE"
   ],
   "SLAPPERAF": [
     "DASER"
@@ -5044,6 +5067,9 @@
   ],
   "SPREDER": [
     "STRØR"
+  ],
+  "SPREDT": [
+    "SÅET"
   ],
   "SPROG": [
     "IRSK",
@@ -5370,7 +5396,8 @@
     "LEDTE"
   ],
   "SØLLE": [
-    "USSEL"
+    "USSEL",
+    "USLE"
   ],
   "SØLV": [
     "AG"
@@ -5494,7 +5521,8 @@
     "A"
   ],
   "TILATREGULERE": [
-    "JUSTERBARE"
+    "JUSTERBARE",
+    "JUSTERBAR"
   ],
   "TILBAGESLAG": [
     "REKYL"
@@ -6853,6 +6881,9 @@
   ],
   "[IMG]SHOVEL": [
     "SPADE"
+  ],
+  "[IMG]SHRIMP": [
+    "REJE"
   ],
   "[IMG]SKELETON": [
     "SKELET"
