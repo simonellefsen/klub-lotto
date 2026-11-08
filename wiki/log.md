@@ -1969,3 +1969,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-08 06:42 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-11-08 06:42 UTC] ingest | quiz | Hvilket bilmærke har en løve som logo? | outcome=submitted
+
