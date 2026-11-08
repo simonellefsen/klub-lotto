@@ -456,6 +456,9 @@
   "BIORD": [
     "AN"
   ],
+  "BIRDNESTWITHEGGS": [
+    "REDE"
+  ],
   "BISSER": [
     "RØDDER",
     "TÆNDER"
@@ -988,7 +991,8 @@
     "KAT",
     "OKSER",
     "HEST",
-    "TAPIR"
+    "TAPIR",
+    "LØVER"
   ],
   "DYRELIV": [
     "FAUNA"
@@ -2313,6 +2317,9 @@
   "HUNDSE": [
     "HERSE"
   ],
+  "HURRARÅB": [
+    "LEVE"
+  ],
   "HURTIGT": [
     "TJEPT"
   ],
@@ -3163,7 +3170,8 @@
     "KNO",
     "ÆKEL",
     "ALBUER",
-    "ANKEL"
+    "ANKEL",
+    "ALBUE"
   ],
   "LEDE": [
     "ÆKLE",
@@ -3400,6 +3408,9 @@
   ],
   "MALE": [
     "LAKERE"
+  ],
+  "MALERI": [
+    "AKVAREL"
   ],
   "MALM": [
     "ERTS"
@@ -3684,6 +3695,9 @@
   ],
   "NARRESTREG": [
     "UNODE"
+  ],
+  "NARRET": [
+    "LURET"
   ],
   "NATION": [
     "RIGE"
@@ -3985,7 +3999,8 @@
     "KEA"
   ],
   "PAR": [
-    "DUO"
+    "DUO",
+    "DUOER"
   ],
   "PARADIS": [
     "EDEN"
@@ -4034,6 +4049,9 @@
   ],
   "PCUDSTYR": [
     "MUS"
+  ],
+  "PENGE": [
+    "KONTANTER"
   ],
   "PEP": [
     "GO"
@@ -4772,6 +4790,9 @@
   ],
   "SLANK": [
     "TYND"
+  ],
+  "SLAPPE": [
+    "VEGE"
   ],
   "SLAPPEAF": [
     "DASE"
@@ -5584,7 +5605,8 @@
     "PRINS",
     "ZAR",
     "JARL",
-    "NAVN"
+    "NAVN",
+    "REKTOR"
   ],
   "TITELFORK": [
     "HR"
@@ -6220,6 +6242,9 @@
   ],
   "VÆREPÅBENENE": [
     "STÅ"
+  ],
+  "VÆRETPÅBENENE": [
+    "STÅET"
   ],
   "VÆRK": [
     "EPOS"
@@ -7027,6 +7052,9 @@
   "[IMG]WATCHES": [
     "URE"
   ],
+  "[IMG]WATERDROP": [
+    "VAND"
+  ],
   "[IMG]WATERMELON": [
     "MELON"
   ],
@@ -7094,6 +7122,9 @@
   "ØGLE": [
     "LEGUAN",
     "GEKKO"
+  ],
+  "ØGLER": [
+    "KAMÆLEONER"
   ],
   "ØJEBLIKKET": [
     "NUET"
