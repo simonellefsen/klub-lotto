@@ -1971,3 +1971,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-08 06:42 UTC] ingest | quiz | Hvilket bilmærke har en løve som logo? | outcome=submitted
 
+## [2026-11-08 06:43 UTC] ingest | ordkløver | Category: `Tv og Radio`; answer pattern `4 / 2 / 9`; visual … | outcome=submitted
+
