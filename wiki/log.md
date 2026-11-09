@@ -1981,3 +1981,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-09 05:27 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-11-09 05:28 UTC] ingest | quiz | Hvilken flod løber gennem Bagdad? | outcome=submitted
+
