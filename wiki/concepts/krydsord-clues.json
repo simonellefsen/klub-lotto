@@ -992,7 +992,8 @@
     "OKSER",
     "HEST",
     "TAPIR",
-    "LØVER"
+    "LØVER",
+    "INSEKT"
   ],
   "DYRELIV": [
     "FAUNA"
@@ -1243,6 +1244,9 @@
   "FARTØJER": [
     "UBÅDE"
   ],
+  "FARVAND": [
+    "LIMFJORDEN"
+  ],
   "FARVE": [
     "PINK",
     "ROSA",
@@ -1322,7 +1326,8 @@
     "TESI"
   ],
   "FINDE": [
-    "LOKALISERE"
+    "LOKALISERE",
+    "HITTE"
   ],
   "FINDES": [
     "ER"
@@ -1723,6 +1728,9 @@
   ],
   "FURE": [
     "KEL"
+  ],
+  "FUREN": [
+    "KELEN"
   ],
   "FURER": [
     "RILLER"
@@ -2407,6 +2415,9 @@
   "HÆRGET": [
     "RAMPONERET"
   ],
+  "HÆVELSE": [
+    "ØDEM"
+  ],
   "HÆVELSER": [
     "ØDEMER"
   ],
@@ -2456,6 +2467,9 @@
   ],
   "IKKENOGET": [
     "INTET"
+  ],
+  "ILDKUGLE": [
+    "METEOR"
   ],
   "ILDSTED": [
     "ESSE",
@@ -3159,6 +3173,12 @@
   ],
   "LAVER": [
     "GØR"
+  ],
+  "LAVESOM": [
+    "ÆNDRES"
+  ],
+  "LAVLANDET": [
+    "DALEN"
   ],
   "LAVNING": [
     "DAL"
@@ -4893,7 +4913,8 @@
     "PERLEKRANS"
   ],
   "SMYKKESTEN": [
-    "OPAL"
+    "OPAL",
+    "AGAT"
   ],
   "SMYKKET": [
     "HALSKÆDEN"
@@ -5118,6 +5139,9 @@
   ],
   "STAKKELS": [
     "ARME"
+  ],
+  "STAND": [
+    "ETAT"
   ],
   "STANK": [
     "ODØR"
@@ -5611,6 +5635,9 @@
   "TITELFORK": [
     "HR"
   ],
+  "TITELFORKORTELSE": [
+    "FR"
+  ],
   "TJAVS": [
     "LOK"
   ],
@@ -5839,6 +5866,9 @@
   ],
   "TØNDE": [
     "TD"
+  ],
+  "TØRSTSLUKKER": [
+    "LÆSKEDRIK"
   ],
   "TØVE": [
     "NØLE"
@@ -6587,7 +6617,8 @@
     "GLOBUS"
   ],
   "[IMG]GOAT": [
-    "LAM"
+    "LAM",
+    "GED"
   ],
   "[IMG]GOLDRINGWITHGEMSTONE": [
     "RING"
@@ -6603,6 +6634,9 @@
   ],
   "[IMG]GREENCIRCLE": [
     "RING"
+  ],
+  "[IMG]GREENFABRICPATCH": [
+    "LAP"
   ],
   "[IMG]GREENGRASS": [
     "GRÆS"
