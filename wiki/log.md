@@ -1995,3 +1995,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-10 05:14 UTC] ingest | quiz | Hvilken dansk ø i Kattegat er kendt for hedelandskabet Ørken… | outcome=submitted
 
+## [2026-11-10 05:15 UTC] ingest | ordkløver | Category: `Kunst og kultur`; answer pattern `2 / 5 / 11 / 4`… | outcome=submitted
+
