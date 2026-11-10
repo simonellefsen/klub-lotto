@@ -1997,3 +1997,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-10 05:15 UTC] ingest | ordkløver | Category: `Kunst og kultur`; answer pattern `2 / 5 / 11 / 4`… | outcome=submitted
 
+## [2026-11-10 05:17 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
