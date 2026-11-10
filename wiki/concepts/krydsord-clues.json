@@ -1179,6 +1179,9 @@
   "EVIGHEDSBLOMST": [
     "ETERNEL"
   ],
+  "EVNE": [
+    "TALENT"
+  ],
   "EXIT": [
     "UD"
   ],
@@ -1387,6 +1390,9 @@
   "FLEKSIBEL": [
     "ELASTISK"
   ],
+  "FLERTAL": [
+    "MAJORITET"
+  ],
   "FLOD": [
     "PO"
   ],
@@ -1497,6 +1503,9 @@
   ],
   "FORLIGE": [
     "MÆGLE"
+  ],
+  "FORLIGES": [
+    "ENES"
   ],
   "FORLYSTELSE": [
     "RUTSJEBANE"
@@ -2879,6 +2888,9 @@
   "KOPIERE": [
     "KLONE"
   ],
+  "KORALREV": [
+    "ATOL"
+  ],
   "KORN": [
     "BYG",
     "RUG"
@@ -2946,6 +2958,9 @@
     "FED",
     "TYK",
     "STÆRK"
+  ],
+  "KRAFTIGE": [
+    "FEDE"
   ],
   "KREBS": [
     "RUR"
@@ -4153,6 +4168,9 @@
   "PLET": [
     "NIST"
   ],
+  "PLUDSELIG": [
+    "AKUT"
+  ],
   "PLUDSELIGT": [
     "BRAT"
   ],
@@ -4393,6 +4411,9 @@
   "REST": [
     "LEVN"
   ],
+  "RESTANCE": [
+    "GÆLD"
+  ],
   "RET": [
     "NUDELSUPPE",
     "SUPPE",
@@ -4473,6 +4494,9 @@
   ],
   "RYGE": [
     "OSE"
+  ],
+  "RYGER": [
+    "OSER"
   ],
   "RYK": [
     "NØK"
@@ -5193,6 +5217,9 @@
   "STIFTER": [
     "SØM"
   ],
+  "STIK": [
+    "PRIK"
+  ],
   "STIKKEAF": [
     "DESERTERE"
   ],
@@ -5419,6 +5446,9 @@
   ],
   "SÆR": [
     "APARTE"
+  ],
+  "SÆT": [
+    "GIB"
   ],
   "SÆTTEOP": [
     "ØGE"
@@ -6098,6 +6128,9 @@
   "VEJRMELDER": [
     "DMI"
   ],
+  "VEJRPROFET": [
+    "METEOROLOG"
+  ],
   "VEJVISER": [
     "GPS",
     "PIL"
@@ -6549,6 +6582,9 @@
   ],
   "[IMG]DOMINOTILE": [
     "ENER"
+  ],
+  "[IMG]DOWNARROW": [
+    "PIL"
   ],
   "[IMG]DRUM": [
     "TROMME"
