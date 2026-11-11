@@ -2005,3 +2005,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-11 05:08 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-11-11 05:08 UTC] ingest | quiz | Hvilket reptil er kendt for at kunne kaste halen som forsvar… | outcome=submitted
+
