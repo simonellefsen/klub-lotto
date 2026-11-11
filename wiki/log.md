@@ -2009,3 +2009,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-11 05:10 UTC] ingest | ordkløver | Category: `Begreb`; answer pattern `9` | outcome=submitted
 
+## [2026-11-11 05:11 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
