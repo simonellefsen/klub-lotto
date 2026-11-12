@@ -2019,3 +2019,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-12 05:18 UTC] ingest | quiz | Hvilken flod løber gennem Budapest? | outcome=submitted
 
+## [2026-11-12 05:20 UTC] ingest | ordkløver | Category: `Hus og have`; answer pattern `10` | outcome=submitted
+
