@@ -30,7 +30,8 @@
     "MDI"
   ],
   "2": [
-    "II"
+    "II",
+    "TO"
   ],
   "2000": [
     "MM"
@@ -1539,6 +1540,9 @@
   ],
   "FORNEMMET": [
     "ANET"
+  ],
+  "FORRETNING": [
+    "BUTIK"
   ],
   "FORRÅDTE": [
     "SVEG"
