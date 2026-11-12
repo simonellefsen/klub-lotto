@@ -192,7 +192,8 @@
     "TV",
     "RADAR",
     "BRØDRISTER",
-    "NODER"
+    "NODER",
+    "KVÆRN"
   ],
   "APPEL": [
     "BØN"
@@ -253,6 +254,9 @@
   ],
   "BALJE": [
     "KAR"
+  ],
+  "BALKON": [
+    "ALTAN"
   ],
   "BALLADE": [
     "URO"
@@ -637,6 +641,9 @@
   ],
   "BUGT": [
     "NOR"
+  ],
+  "BUGTER": [
+    "SNOR"
   ],
   "BULDER": [
     "TORDEN"
@@ -1243,7 +1250,8 @@
     "LUFTBALLON",
     "UBÅD",
     "ARK",
-    "SKIB"
+    "SKIB",
+    "PRAM"
   ],
   "FARTØJER": [
     "UBÅDE"
@@ -1891,7 +1899,8 @@
     "RIST"
   ],
   "GIVE": [
-    "YDE"
+    "YDE",
+    "OVERRÆKKE"
   ],
   "GIVES": [
     "YDES"
@@ -2646,6 +2655,9 @@
     "SKOLELÆRER",
     "JAGERPILOT"
   ],
+  "JOKKE": [
+    "VADE"
+  ],
   "JOKKEDE": [
     "TRÅDTE"
   ],
@@ -2753,7 +2765,8 @@
     "LYS"
   ],
   "KIGGE": [
-    "SE"
+    "SE",
+    "OSE"
   ],
   "KIGGEDE": [
     "SÅ"
@@ -3116,7 +3129,8 @@
     "BRØDRISTER",
     "OVNE",
     "KAGERULLER",
-    "ELOVN"
+    "ELOVN",
+    "TRAGTE"
   ],
   "KØKKENUDSTYRET": [
     "OVNEN"
@@ -4024,6 +4038,9 @@
   "PADDEL": [
     "ÅRE"
   ],
+  "PAF": [
+    "OVERRASKET"
+  ],
   "PAGAJ": [
     "ÅRE"
   ],
@@ -4687,6 +4704,9 @@
     "KØL",
     "ROR",
     "STÆVN"
+  ],
+  "SKIBSVÆG": [
+    "SKOT"
   ],
   "SKIDISCIPLIN": [
     "SLALOM"
@@ -5625,6 +5645,9 @@
   "TILHÆNGER": [
     "FAN"
   ],
+  "TILLADELSE": [
+    "LICENS"
+  ],
   "TILLØB": [
     "RUN"
   ],
@@ -5804,7 +5827,8 @@
     "RØN",
     "BØG",
     "PIL",
-    "ASP"
+    "ASP",
+    "GRAN"
   ],
   "TRÆER": [
     "ASPE",
@@ -6487,6 +6511,9 @@
   ],
   "[IMG]CD": [
     "CD"
+  ],
+  "[IMG]CHAIN": [
+    "KÆDE"
   ],
   "[IMG]CHAINLINKS": [
     "KÆDE"
