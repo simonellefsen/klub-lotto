@@ -193,7 +193,8 @@
     "RADAR",
     "BRØDRISTER",
     "NODER",
-    "KVÆRN"
+    "KVÆRN",
+    "LOG"
   ],
   "APPEL": [
     "BØN"
@@ -1001,7 +1002,8 @@
     "HEST",
     "TAPIR",
     "LØVER",
-    "INSEKT"
+    "INSEKT",
+    "ORNE"
   ],
   "DYRELIV": [
     "FAUNA"
@@ -1739,7 +1741,8 @@
     "RAVNE",
     "GØGE",
     "NATTERGALE",
-    "UGLER"
+    "UGLER",
+    "PELIKANER"
   ],
   "FUGLEN": [
     "UGLEN"
@@ -3483,6 +3486,9 @@
   "MARKER": [
     "AGRE"
   ],
+  "MARKERE": [
+    "OPTEGNE"
+  ],
   "MAS": [
     "BESVÆR"
   ],
@@ -3670,6 +3676,9 @@
   ],
   "MYSTISKE": [
     "GÅDEFULDE"
+  ],
+  "MÅLEENHED": [
+    "NIT"
   ],
   "MÅLER": [
     "UR"
@@ -4509,6 +4518,9 @@
     "VINKELSTUE",
     "SALE"
   ],
+  "RUMMET": [
+    "PEJSESTUEN"
+  ],
   "RUMORGANISATION": [
     "ESA",
     "NASA"
@@ -4532,6 +4544,9 @@
   "RÅ": [
     "UBEHANDLET",
     "BARSK"
+  ],
+  "RÅBE": [
+    "GALE"
   ],
   "RÆKKE": [
     "KØ",
@@ -4749,6 +4764,9 @@
     "DVD",
     "CD",
     "PLADE"
+  ],
+  "SKJOLD": [
+    "PLET"
   ],
   "SKJULE": [
     "GEMME"
@@ -5032,6 +5050,9 @@
   ],
   "SOMMERUDSTYR": [
     "SOLBRILLER"
+  ],
+  "SORBET": [
+    "IS"
   ],
   "SOVE": [
     "SNUE"
@@ -5606,6 +5627,9 @@
   ],
   "TEST": [
     "PRØVE"
+  ],
+  "TIDLIG": [
+    "ÅRLE"
   ],
   "TIDLIGERE": [
     "EKS",
@@ -6246,6 +6270,9 @@
   "VIRKELIGE": [
     "REALE"
   ],
+  "VIRKELYST": [
+    "IVER"
+  ],
   "VIRKNINGSFULDT": [
     "EFFEKTIVT"
   ],
@@ -6609,6 +6636,9 @@
     "ENER"
   ],
   "[IMG]DIE": [
+    "ENER"
+  ],
+  "[IMG]DIESHOWINGONE": [
     "ENER"
   ],
   "[IMG]DOMINOTILE": [
