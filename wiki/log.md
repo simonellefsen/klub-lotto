@@ -2045,3 +2045,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-14 05:49 UTC] ingest | ordkløver | Category: `Tidsperiode`; answer pattern `3 / 4 / 8`; visual … | outcome=submitted
 
+## [2026-11-14 05:50 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
