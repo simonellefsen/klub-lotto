@@ -2043,3 +2043,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-14 05:48 UTC] ingest | quiz | Hvilket land har den længste grænse til Rusland? | outcome=submitted
 
+## [2026-11-14 05:49 UTC] ingest | ordkløver | Category: `Tidsperiode`; answer pattern `3 / 4 / 8`; visual … | outcome=submitted
+
