@@ -571,6 +571,9 @@
   "BOMULD": [
     "VAT"
   ],
+  "BON": [
+    "NOTA"
+  ],
   "BOPLADS": [
     "BYGD"
   ],
@@ -591,6 +594,9 @@
   ],
   "BRAG": [
     "DRØN"
+  ],
+  "BRAGTE": [
+    "LEVEREDE"
   ],
   "BRANCHE": [
     "IT",
@@ -1012,7 +1018,8 @@
     "DÅEN",
     "RENEN",
     "ELGEN",
-    "RÅEN"
+    "RÅEN",
+    "RÆVEN"
   ],
   "DYRKER": [
     "AVLER"
@@ -1589,6 +1596,9 @@
   ],
   "FORTÆLLER": [
     "BETROR"
+  ],
+  "FORTÆLLING": [
+    "SAGA"
   ],
   "FORTÆRE": [
     "ÆDE"
@@ -3999,6 +4009,9 @@
   "ORKEDE": [
     "GAD"
   ],
+  "ORKESTER": [
+    "BAND"
+  ],
   "OST": [
     "BRIE",
     "GORGONZOLA",
@@ -5029,7 +5042,8 @@
     "NASSE"
   ],
   "SNYLTER": [
-    "IGLE"
+    "IGLE",
+    "IKTE"
   ],
   "SOBER": [
     "ÆDRU"
@@ -5550,6 +5564,9 @@
     "GI",
     "LIV"
   ],
+  "TALLERKEN": [
+    "ASIET"
+  ],
   "TALORD": [
     "EN",
     "TO",
@@ -5957,6 +5974,9 @@
   ],
   "UBEREGNELIGT": [
     "LUNEFULDT"
+  ],
+  "UBESAT": [
+    "LEDIG"
   ],
   "UDBRUD": [
     "AV",
@@ -6807,6 +6827,9 @@
   ],
   "[IMG]LLAMA": [
     "LAMA"
+  ],
+  "[IMG]MAGPIE": [
+    "SKADE"
   ],
   "[IMG]MASK": [
     "MASKE"
