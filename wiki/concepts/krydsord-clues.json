@@ -42,6 +42,9 @@
   "2050": [
     "MML"
   ],
+  "2500": [
+    "MMD"
+  ],
   "4": [
     "IV"
   ],
@@ -1149,6 +1152,9 @@
   "ERHVERVEDESIG": [
     "KØBTE"
   ],
+  "ESPRIT": [
+    "ÅND"
+  ],
   "ETAGE": [
     "SAL"
   ],
@@ -1370,7 +1376,8 @@
   ],
   "FIRMA": [
     "VIRKSOMHED",
-    "DSB"
+    "DSB",
+    "SAS"
   ],
   "FISK": [
     "ÅL",
@@ -2412,7 +2419,8 @@
     "ENGAGERET"
   ],
   "HÅNDARBEJDE": [
-    "SYTØJ"
+    "SYTØJ",
+    "STRIKKETØJ"
   ],
   "HÅNDEN": [
     "NÆVEN"
@@ -2425,6 +2433,9 @@
   ],
   "HÅRPRODUKT": [
     "GEL"
+  ],
+  "HÆDRET": [
+    "ÆRET"
   ],
   "HÆLDE": [
     "ØSE"
@@ -2524,6 +2535,9 @@
   ],
   "IMAGET": [
     "RYET"
+  ],
+  "IMOD": [
+    "ANTI"
   ],
   "INDEN": [
     "FØR"
@@ -5996,6 +6010,9 @@
   "UDENINDHOLD": [
     "TOM"
   ],
+  "UDFLUGT": [
+    "TUR"
+  ],
   "UDFLUGTER": [
     "TURE"
   ],
@@ -6133,7 +6150,8 @@
   "VANDLØB": [
     "ÅER",
     "Å",
-    "ELV"
+    "ELV",
+    "ELVE"
   ],
   "VANDLØBET": [
     "ÅEN"
@@ -6271,6 +6289,9 @@
   ],
   "VINEN": [
     "ROSEEN"
+  ],
+  "VINK": [
+    "TIP"
   ],
   "VINTERFÆNOMEN": [
     "ISTAP"
@@ -7232,6 +7253,9 @@
   ],
   "[IMG]YELLOWSUBMARINE": [
     "UBÅD"
+  ],
+  "[IMG]ZIPPER": [
+    "LYNLÅS"
   ],
   "ÅRE": [
     "AORTA"
