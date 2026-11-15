@@ -2055,3 +2055,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-15 06:24 UTC] ingest | quiz | Hvilken by blev delt af en mur under den kolde krig? | outcome=submitted
 
+## [2026-11-15 06:25 UTC] ingest | ordkløver | Category: `Begreb`; answer pattern `5 / 8 / 8` | outcome=submitted
+
