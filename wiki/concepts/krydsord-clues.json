@@ -23,6 +23,9 @@
   "11": [
     "XI"
   ],
+  "12STK": [
+    "DUSIN"
+  ],
   "1500": [
     "MD"
   ],
@@ -440,7 +443,8 @@
   ],
   "BILMÆRKE": [
     "MG",
-    "SEAT"
+    "SEAT",
+    "AUDI"
   ],
   "BILUDSTYR": [
     "PSKIVE",
@@ -1405,6 +1409,9 @@
   ],
   "FLAGRE": [
     "VIFTE"
+  ],
+  "FLAMME": [
+    "LUE"
   ],
   "FLAMMER": [
     "ILD"
@@ -2521,6 +2528,9 @@
     "ESSE",
     "ARNE"
   ],
+  "ILDSTEDET": [
+    "ESSEN"
+  ],
   "ILINGEN": [
     "GYSET"
   ],
@@ -2680,7 +2690,8 @@
     "TJENER",
     "JOURNALIST",
     "SKOLELÆRER",
-    "JAGERPILOT"
+    "JAGERPILOT",
+    "TANKPASSER"
   ],
   "JOKKE": [
     "VADE"
@@ -2719,6 +2730,9 @@
   ],
   "JÆVNT": [
     "EGALT"
+  ],
+  "KABEL": [
+    "LEDNING"
   ],
   "KAFFEDRIK": [
     "CAPPUCCINO"
@@ -3286,6 +3300,9 @@
   "LEGITIMATION": [
     "ID"
   ],
+  "LEJE": [
+    "LEASE"
+  ],
   "LEJER": [
     "LEASER"
   ],
@@ -3700,6 +3717,9 @@
   ],
   "MYSTISKE": [
     "GÅDEFULDE"
+  ],
+  "MYTE": [
+    "SAGN"
   ],
   "MÅLEENHED": [
     "NIT"
@@ -4987,6 +5007,9 @@
   "SMELTE": [
     "TØ"
   ],
+  "SMELTET": [
+    "TØET"
+  ],
   "SMERTE": [
     "ØMHED"
   ],
@@ -5520,6 +5543,9 @@
   "SÆR": [
     "APARTE"
   ],
+  "SÆRPRÆGET": [
+    "EGENT"
+  ],
   "SÆT": [
     "GIB"
   ],
@@ -5827,7 +5853,8 @@
   "TRANSPORTMIDDEL": [
     "TURISTBUS",
     "ELTOG",
-    "HUNDESLÆDE"
+    "HUNDESLÆDE",
+    "TRILLEBØR"
   ],
   "TRAVLHED": [
     "JAG"
@@ -6480,6 +6507,9 @@
   "[IMG]BALLOFGREENYARN": [
     "GARN"
   ],
+  "[IMG]BALLOFYARN": [
+    "GARN"
+  ],
   "[IMG]BARREL": [
     "TØNDE"
   ],
@@ -6524,6 +6554,12 @@
   ],
   "[IMG]BLUERADIO": [
     "RADIO"
+  ],
+  "[IMG]BOOK": [
+    "BOG"
+  ],
+  "[IMG]BOOKCASE": [
+    "REOL"
   ],
   "[IMG]BOOKS": [
     "BØGER"
@@ -7111,6 +7147,9 @@
   ],
   "[IMG]SNOWGLOBE": [
     "ÆGGEUR"
+  ],
+  "[IMG]SNOWING": [
+    "SNE"
   ],
   "[IMG]SOCKS": [
     "SOKKER"
