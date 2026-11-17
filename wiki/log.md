@@ -2081,3 +2081,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-17 06:00 UTC] ingest | ordkløver | Category: `Fast udtryk`; answer pattern `6 / 2 / 2 / 7 / 2 /… | outcome=submitted
 
+## [2026-11-17 06:01 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
