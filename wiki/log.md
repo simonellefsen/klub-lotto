@@ -2079,3 +2079,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-17 05:59 UTC] ingest | quiz | Hvad hed den sovjetiske leder, der indførte glasnost og pere… | outcome=submitted
 
+## [2026-11-17 06:00 UTC] ingest | ordkløver | Category: `Fast udtryk`; answer pattern `6 / 2 / 2 / 7 / 2 /… | outcome=submitted
+
