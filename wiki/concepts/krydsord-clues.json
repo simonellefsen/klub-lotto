@@ -786,6 +786,9 @@
   "COWBOYSTÆVNE": [
     "RODEO"
   ],
+  "CUPOFTEA": [
+    "TEKOP"
+  ],
   "CYKELDEL": [
     "PEDAL",
     "SADEL",
@@ -1678,6 +1681,9 @@
     "NY",
     "RASK",
     "VELOPLAGT"
+  ],
+  "FRISKE": [
+    "KÆKKE"
   ],
   "FRISKT": [
     "NYT"
@@ -2827,6 +2833,9 @@
   "KILOMETER": [
     "KM"
   ],
+  "KILOVOLT": [
+    "KV"
+  ],
   "KIME": [
     "RINGE"
   ],
@@ -2933,6 +2942,9 @@
   ],
   "KOLORERE": [
     "MALE"
+  ],
+  "KOMFORTABEL": [
+    "BEKVEM"
   ],
   "KONGEDØMME": [
     "UK"
@@ -3171,7 +3183,8 @@
     "OVNE",
     "KAGERULLER",
     "ELOVN",
-    "TRAGTE"
+    "TRAGTE",
+    "ELKEDEL"
   ],
   "KØKKENUDSTYRET": [
     "OVNEN"
@@ -3693,6 +3706,9 @@
   ],
   "MULD": [
     "JORD"
+  ],
+  "MUNTER": [
+    "UBEKYMRET"
   ],
   "MUSEUM": [
     "LOUVRE",
@@ -5712,7 +5728,8 @@
     "PESTO",
     "ASIER",
     "SOJA",
-    "CHILISAUCE"
+    "CHILISAUCE",
+    "ASIE"
   ],
   "TILBEREDE": [
     "PANERE"
@@ -6095,7 +6112,8 @@
     "NN"
   ],
   "UKLAR": [
-    "MAT"
+    "MAT",
+    "GRUMSET"
   ],
   "ULEMPE": [
     "GENE"
@@ -6454,7 +6472,8 @@
     "ENGLE"
   ],
   "VÆSNET": [
-    "ENGLEN"
+    "ENGLEN",
+    "FEEN"
   ],
   "WEDGEOFCHEESE": [
     "OST"
@@ -6707,6 +6726,9 @@
   ],
   "[IMG]DESKLAMP": [
     "LAMPE"
+  ],
+  "[IMG]DIAMONDRING": [
+    "RING"
   ],
   "[IMG]DICE": [
     "ENERE",
