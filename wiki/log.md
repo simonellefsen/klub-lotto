@@ -2075,3 +2075,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-16 06:04 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
 
+## [2026-11-17 05:59 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
