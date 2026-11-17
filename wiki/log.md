@@ -2077,3 +2077,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-17 05:59 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-11-17 05:59 UTC] ingest | quiz | Hvad hed den sovjetiske leder, der indførte glasnost og pere… | outcome=submitted
+
