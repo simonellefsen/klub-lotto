@@ -2089,3 +2089,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-18 05:22 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-11-18 05:22 UTC] ingest | quiz | Hvad betyder 'panna cotta' direkte oversat fra italiensk? | outcome=submitted
+
