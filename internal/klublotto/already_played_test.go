@@ -18,6 +18,9 @@ func TestAlreadyPlayedMessage(t *testing.T) {
 			"Du har allerede besvaret dagens krydsord"},
 		{"blok", "Intet nyt her!\nDu har allerede spillet Blok for Blok – men der kommer en ny igen i morgen. TILBAGE TIL SPIL & QUIZ",
 			"Du har allerede spillet Blok for Blok"},
+		// As served on 2026-11-18.
+		{"kaedeord", "Intet nyt her! Du har allerede spillet Kædeord – men der kommer en ny igen i morgen. TILBAGE TIL SPIL & QUIZ",
+			"Du har allerede spillet Kædeord"},
 	}
 	for _, c := range played {
 		got, ok := alreadyPlayedMessage(c.text)

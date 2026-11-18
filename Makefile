@@ -53,7 +53,7 @@ ORDKLOEVER_REASON := $(or $(FINAL_PROVIDER),$(final_provider),$(ORDKLOEVER_FINAL
 ORDKNUDE_MODEL := $(or $(PROVIDER),$(provider),$(WORD_PROVIDER),$(ORDKNUDE_PROVIDER),~google/gemini-flash-latest)
 ORDKNUDE_PROVIDER_FLAG := --provider "$(ORDKNUDE_MODEL)"
 
-.PHONY: help build vet test check doctor login quiz quiz-dry sudoku sudoku-dry ordkloever ordkloever-dry ordkloever-extract ordkloever-probe ordknude ordknude-dry ordknude-extract krydsord krydsord-dry krydsord-graph krydsord-solve krydsord-solve-dry blok wiki-query wiki-lint sync clean reset \
+.PHONY: help build vet test check doctor login quiz quiz-dry sudoku sudoku-dry ordkloever ordkloever-dry ordkloever-extract ordkloever-probe ordknude ordknude-dry ordknude-extract krydsord krydsord-dry krydsord-graph krydsord-solve krydsord-solve-dry blok kaedeord kaedeord-dry wiki-query wiki-lint sync clean reset \
         image deploy k8s-up k8s-down k8s-logs port-forward db-shell ui-url tidy \
         db-up db-down db-import db-port-forward
 
@@ -80,6 +80,8 @@ help:
 	@echo "make krydsord-solve— stage 2/3: solve from a validated graph (GRAPH_FILE=, SOLVE_MODEL=); SUBMIT=true fills + submits the board"
 	@echo "make krydsord-solve-dry — build the board + CSP prompt only (no LLM call), for inspecting/iterating"
 	@echo "make blok        — play today's Blok for Blok to game-over, maximising score (native Go: pixel perception + lookahead solver). GOAL=<n> to stop early at a score (e.g. GOAL=200 to just earn the lod)"
+	@echo "make kaedeord    — play today's Kædeord (native Go: beam search over the game's own word list, real clicks, board checked after every word; clears the board for +100 when it can)"
+	@echo "make kaedeord-dry — read today's Kædeord board and print the plan; plays nothing"
 	@echo "make wiki-query Q='...'  — search the wiki via qmd (or grep)"
 	@echo "make sync        — commit wiki/doc changes and push to origin"
 	@echo "make park        — unload the danskespil tab (→ about:blank) when done for the day, keeping the session; stops the heavy page wedging Chrome overnight"
@@ -246,6 +248,19 @@ krydsord: $(BIN)
 BLOK_GOAL := $(or $(GOAL),$(goal),0)
 blok: $(BIN)
 	$(LOCAL_BROWSER_ENV) $(BIN) blok --goal $(BLOK_GOAL)
+	@bash scripts/sync.sh
+
+# Kædeord: trace words through a letter grid whose edges wrap; each word is
+# removed and the tiles above it fall. Native Go (internal/klublotto/kaedeord.go):
+# a beam search over the game's own word list plans the whole game, then every
+# word is traced with real clicks and the live board is checked against the
+# simulated one, re-planning if they differ. It clears the board for the +100
+# bonus when it can; 50 points earns the lod. kaedeord-dry prints the plan only.
+kaedeord-dry: $(BIN)
+	$(LOCAL_BROWSER_ENV) $(BIN) kaedeord --dry-run
+
+kaedeord: $(BIN)
+	$(LOCAL_BROWSER_ENV) $(BIN) kaedeord
 	@bash scripts/sync.sh
 
 wiki-query: $(BIN)

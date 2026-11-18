@@ -39,6 +39,10 @@ const (
 	// BlokURL is the parent Danske Spil page for Blok for Blok.
 	BlokURL = "https://danskespil.dk/klublotto/dagens-blok-for-blok"
 
+	// KaedeordURL is the parent Danske Spil page for Kædeord. The site really
+	// does use "dagens kædeord" with a space; this is the overview's own link.
+	KaedeordURL = "https://danskespil.dk/klublotto/dagens%20k%C3%A6deord"
+
 	// GameIframe is the CSS selector for the embedded immerspiele game iframe —
 	// the cross-origin OOPIF every Klub Lotto game runs inside. Centralised here
 	// so a class rename is a one-line change. See EnterGameFrame / LeaveFrame.

@@ -13,6 +13,7 @@ _Auto-regenerated. Hand edits in this file will be overwritten._
 - [games/ordknuden.md](games/ordknuden.md)
 - [games/krydsord.md](games/krydsord.md)
 - [games/blok-for-blok.md](games/blok-for-blok.md)
+- [games/kaedeord.md](games/kaedeord.md)
 - [games/quiz.md](games/quiz.md)
 - [games/sudoku.md](games/sudoku.md)
 

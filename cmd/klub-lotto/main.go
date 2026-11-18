@@ -83,6 +83,8 @@ func main() {
 		err = runKrydsord(ctx, args)
 	case "blok":
 		err = runBlok(ctx, args)
+	case "kaedeord":
+		err = runKaedeord(ctx, args)
 	case "wiki":
 		err = runWiki(ctx, args)
 	case "ledger":
@@ -123,6 +125,7 @@ Usage:
   klub-lotto krydsord  [--headless] [--dry-run] [--submit] [--provider ...] [--grid <file>]
                    (note: bare krydsord does real solve+submit by design per spec; --dry-run guards submit; differs from sudoku siblings)
   klub-lotto blok      [--headless] [--goal N] [--max-steps N]  play Dagens Blok for Blok (pixel perception + lookahead solver; plays to game-over by default)
+  klub-lotto kaedeord  [--headless] [--dry-run] [--beam N] [--budget D]  play Dagens Kædeord (beam search over the game's own word list; clears the board when it can)
   klub-lotto wiki ingest --file <path>
   klub-lotto wiki import-db --dsn <postgres-url> [--wiki <dir>]
   klub-lotto wiki query "<question>"
