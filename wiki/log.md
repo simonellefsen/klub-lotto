@@ -2093,3 +2093,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-18 05:23 UTC] ingest | ordkløver | Category: `"Obligatorisk" del af manges opvækst`; answer pat… | outcome=submitted
 
+## [2026-11-18 05:24 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
