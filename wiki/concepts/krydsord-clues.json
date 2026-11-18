@@ -188,6 +188,9 @@
   "ANONYM": [
     "NN"
   ],
+  "ANSIGTSKULØR": [
+    "TEINT"
+  ],
   "ANSPORE": [
     "ILDNE"
   ],
@@ -412,6 +415,9 @@
   "BETRAGTET": [
     "ANSET"
   ],
+  "BETYDNINGSFULDT": [
+    "VÆSENTLIGT"
+  ],
   "BEVIS": [
     "ATTEST"
   ],
@@ -448,7 +454,8 @@
   ],
   "BILUDSTYR": [
     "PSKIVE",
-    "SELE"
+    "SELE",
+    "ELRUDE"
   ],
   "BILUDSTYRET": [
     "KOFANGEREN"
@@ -520,6 +527,9 @@
     "BÅL",
     "ILD"
   ],
+  "BLUSSE": [
+    "GLØDE"
+  ],
   "BLUSSET": [
     "ILDEN"
   ],
@@ -551,7 +561,8 @@
     "SOV"
   ],
   "BOBLER": [
-    "BRUSER"
+    "BRUSER",
+    "BRUS"
   ],
   "BOET": [
     "REDEN"
@@ -825,6 +836,9 @@
   "DANS": [
     "JITTERBUG",
     "TANGO"
+  ],
+  "DECIBEL": [
+    "DB"
   ],
   "DECILITER": [
     "DL"
@@ -1759,7 +1773,8 @@
     "SVALE",
     "AND",
     "RÅGE",
-    "SKADE"
+    "SKADE",
+    "ISLOM"
   ],
   "FUGLE": [
     "ØRNE",
@@ -2447,6 +2462,9 @@
   "HÅRPRODUKT": [
     "GEL"
   ],
+  "HÆDRER": [
+    "ÆRER"
+  ],
   "HÆDRET": [
     "ÆRET"
   ],
@@ -2626,7 +2644,8 @@
     "SYN"
   ],
   "INSTITUTION": [
-    "SFO"
+    "SFO",
+    "VUGGESTUE"
   ],
   "INSTRUMENT": [
     "BAS",
@@ -6962,6 +6981,9 @@
   ],
   "[IMG]OMEGASYMBOL": [
     "OMEGA"
+  ],
+  "[IMG]ONION": [
+    "LØG"
   ],
   "[IMG]OSTRICH": [
     "EMU"
