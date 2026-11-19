@@ -2109,3 +2109,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-19 05:48 UTC] ingest | ordkløver | Category: `Begivenhed`; answer pattern `4 / 10` | outcome=submitted
 
+## [2026-11-19 05:50 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
