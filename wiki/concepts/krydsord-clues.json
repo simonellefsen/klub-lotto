@@ -143,6 +143,9 @@
   "AFSTEMNING": [
     "VALG"
   ],
+  "AFTALE": [
+    "DEAL"
+  ],
   "AFTRYK": [
     "SPOR"
   ],
@@ -287,6 +290,9 @@
   "BARE": [
     "KUN",
     "BLOT"
+  ],
+  "BARN": [
+    "UNGE"
   ],
   "BARSKT": [
     "RÅT"
@@ -774,7 +780,8 @@
     "TAL"
   ],
   "CIRKA": [
-    "OMTRENT"
+    "OMTRENT",
+    "CA"
   ],
   "CIRKUSARTIST": [
     "KLOVN"
@@ -1241,7 +1248,8 @@
   "FAGPERSON": [
     "CYKELSMED",
     "SMED",
-    "BAGER"
+    "BAGER",
+    "MURER"
   ],
   "FAGUDTRYK": [
     "TERM"
@@ -1910,6 +1918,9 @@
   ],
   "GENNEDE": [
     "DREV"
+  ],
+  "GENNEMSKUE": [
+    "LURE"
   ],
   "GENPART": [
     "KOPI"
@@ -2815,7 +2826,8 @@
   ],
   "KEDELIG": [
     "TRIST",
-    "FERSK"
+    "FERSK",
+    "TAM"
   ],
   "KENDBOGST": [
     "EST"
@@ -2912,7 +2924,8 @@
     "VIST"
   ],
   "KLUB": [
-    "LIGA"
+    "LIGA",
+    "OB"
   ],
   "KLUDE": [
     "LASER"
@@ -3607,6 +3620,9 @@
   "MEDET": [
     "PLUDSELIG"
   ],
+  "MEDFØRTE": [
+    "INDEBAR"
+  ],
   "MEDIEHUS": [
     "DR"
   ],
@@ -3716,6 +3732,9 @@
   ],
   "MORETSIG": [
     "LEET"
+  ],
+  "MORFAR": [
+    "LUR"
   ],
   "MOSEDE": [
     "MASTE"
@@ -3985,6 +4004,9 @@
   "OM": [
     "VEDRØRENDE"
   ],
+  "OMDØMME": [
+    "IMAGE"
+  ],
   "OMRÅDE": [
     "SOGN",
     "EGN",
@@ -4099,6 +4121,9 @@
     "BRO",
     "TRÆBRO"
   ],
+  "OVERGANGEN": [
+    "BROEN"
+  ],
   "OVERLEGEN": [
     "NONCHALANT"
   ],
@@ -4128,6 +4153,9 @@
   ],
   "PADDEL": [
     "ÅRE"
+  ],
+  "PADLE": [
+    "RO"
   ],
   "PAF": [
     "OVERRASKET"
@@ -4263,7 +4291,8 @@
     "ALOE",
     "EFEU",
     "URT",
-    "ANIS"
+    "ANIS",
+    "YUCCAPALME"
   ],
   "PLANTEDEL": [
     "AKS",
@@ -4335,6 +4364,9 @@
   "PRODUKTION": [
     "AVL"
   ],
+  "PRODUKTIV": [
+    "YDEDYGTIG"
+  ],
   "PRODUKTIVE": [
     "YDEDYGTIGE"
   ],
@@ -4374,6 +4406,9 @@
   ],
   "PULVER": [
     "MEL"
+  ],
+  "PURERE": [
+    "MOSE"
   ],
   "PURERET": [
     "MOSET"
@@ -4988,7 +5023,8 @@
     "LAL"
   ],
   "SLOT": [
-    "ROSENBORG"
+    "ROSENBORG",
+    "PALÆ"
   ],
   "SLUDDER": [
     "VRØVL",
@@ -5049,7 +5085,8 @@
     "ØMHED"
   ],
   "SMINKE": [
-    "ØJENSKYGGE"
+    "ØJENSKYGGE",
+    "MAKEUP"
   ],
   "SMULE": [
     "KLAT"
@@ -5925,6 +5962,9 @@
   "TROSSE": [
     "REB"
   ],
+  "TRUFFET": [
+    "RAMT"
+  ],
   "TRYKMÅLER": [
     "BAROMETER"
   ],
@@ -6400,6 +6440,9 @@
     "D",
     "E"
   ],
+  "VOGN": [
+    "BIL"
+  ],
   "VOLD": [
     "DIGE"
   ],
@@ -6423,6 +6466,9 @@
   ],
   "VRAG": [
     "RUIN"
+  ],
+  "VRED": [
+    "OLM"
   ],
   "VREDE": [
     "RASERI"
@@ -7273,6 +7319,9 @@
   ],
   "[IMG]TURNIPS": [
     "ROER"
+  ],
+  "[IMG]TWOACESPLAYINGCARDS": [
+    "ESSER"
   ],
   "[IMG]TWOBEANIES": [
     "HUER"
