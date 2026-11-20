@@ -2121,3 +2121,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-20 05:22 UTC] ingest | quiz | Hvilket grundstof gemmer sig bag det kemiske symbol 'W'? | outcome=submitted
 
+## [2026-11-20 05:23 UTC] ingest | ordkløver | Category: `Kunst og kultur`; answer pattern `6 / 7` | outcome=submitted
+
