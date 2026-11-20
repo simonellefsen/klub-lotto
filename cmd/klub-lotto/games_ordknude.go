@@ -132,7 +132,7 @@ func runOrdknude(ctx context.Context, args []string) error {
 		attemptsThisRun := 0
 		lastSubmittedAnswer := ""  // tracks the most recent word submitted (for end-of-game recording)
 		triedThisRun := []string{} // words submitted in this run (guards against re-suggest when re-extract fails)
-		// pool holds DDO-valid candidates from the most recent LLM call that we
+		// pool holds dictionary-valid candidates from the most recent LLM call that we
 		// haven't tried yet. We reuse it across wrong guesses — picking another at
 		// random and re-querying the LLM only when the pool is empty — so a tightly
 		// constrained board (e.g. only one letter unknown) doesn't pay for a fresh
@@ -142,13 +142,13 @@ func runOrdknude(ctx context.Context, args []string) error {
 		// word respecting the known green pattern. We re-ask rather than submit a
 		// pattern-violating guess; after a few rounds we fall back to a local word.
 		noConsistentRounds := 0
-		// ddoDropRounds counts consecutive LLM batches where EVERY candidate was
-		// rejected by the DDO dictionary check. Seen live 2026-07-18 on the __KEL
+		// dictDropRounds counts consecutive LLM batches where EVERY candidate was
+		// outside the dictionary (then DDO). Seen live 2026-07-18 on the __KEL
 		// pattern: gpt-5.6-luna fabricated 8 straight non-words (HÆKEL, ÆKKEL,
 		// JÆKEL, GÆKEL, EKKEL, KÆKEL, HØKEL, PØKEL) before landing CYKEL — the
-		// DDO gate caught all 8 without burning a real guess, but the retry loop
+		// dictionary gate caught all 8 without burning a real guess, but the retry loop
 		// had NO bound, so a model that never converges would loop forever.
-		ddoDropRounds := 0
+		dictDropRounds := 0
 		// lastGoodHistory keeps the most recent non-empty board history: the win/
 		// loss overlay re-extract returns "0 guesses", wiping st.History, so we
 		// snapshot it here to reconstruct the guess sequence for the ledger.
@@ -200,10 +200,10 @@ func runOrdknude(ctx context.Context, args []string) error {
 			} else {
 				fmt.Printf("[3/4] asking provider for candidates (attempt %d/6)...\n", currentAttempt)
 				prompt := klublotto.BuildOrdknudePrompt(st, rejected)
-				if ddoDropRounds > 0 {
+				if dictDropRounds > 0 {
 					// The model's whole previous batch was fabricated non-words —
 					// spell out the dictionary requirement explicitly.
-					prompt += "\nVIGTIGT: Dine seneste forslag findes IKKE i Den Danske Ordbog (ordnet.dk/ddo) og blev afvist. Foreslå KUN almindelige danske ord du er HELT sikker på står i ordbogen — ingen opfundne, dialektale eller sammensatte former."
+					prompt += "\nVIGTIGT: Dine seneste forslag findes IKKE i Retskrivningsordbogen og blev afvist. Foreslå KUN almindelige danske ord du er HELT sikker på står i ordbogen — ingen opfundne, dialektale eller sammensatte former."
 				}
 				cands, err := wordCandidates(ctx, cfg, *providerFlag, prompt)
 				if err != nil {
@@ -219,20 +219,18 @@ func runOrdknude(ctx context.Context, args []string) error {
 					}
 				} else {
 					// Filter: remove non-5-letter, already-tried, rejected, and duplicates within the batch.
-					beforeDDO := klublotto.FilterOrdknudeCandidates(cands, st, rejected)
-					// Validate remaining candidates against ordnet.dk/ddo (drop non-Danish words).
-					validated := beforeDDO
-					if len(validated) > 0 {
-						ddoCtx, ddoCancel := context.WithTimeout(ctx, 30*time.Second)
-						validated = klublotto.FilterDDOWords(ddoCtx, validated)
-						ddoCancel()
-					}
+					beforeDict := klublotto.FilterOrdknudeCandidates(cands, st, rejected)
+					// Keep only words the game accepts: the 5-letter words of
+					// Retskrivningsordbogen. This used to ask ordnet.dk/ddo, which
+					// now answers 401/410; it kept words it couldn't look up, and
+					// on 2026-11-20 that let FOMLE onto the board.
+					validated := klublotto.FilterOrdknudeWords(beforeDict)
 					if len(validated) == 0 {
 						if ctx.Err() != nil {
-							return ctx.Err() // interrupted mid-DDO-validation — don't fall back to a local submit
+							return ctx.Err() // interrupted — don't fall back to a local submit
 						}
-						// Add DDO-dropped words to rejected so the LLM doesn't re-suggest them.
-						for _, c := range beforeDDO {
+						// Add dropped words to rejected so the LLM doesn't re-suggest them.
+						for _, c := range beforeDict {
 							w := klublotto.NormalizeDanishLetters(c.Answer)
 							if !containsWord(rejected, w) {
 								rejected = append(rejected, w)
@@ -243,15 +241,15 @@ func runOrdknude(ctx context.Context, args []string) error {
 							currentAnswer = fb
 							fmt.Printf("   -> trying fallback %s\n", currentAnswer)
 						} else {
-							ddoDropRounds++
-							if ddoDropRounds >= 10 {
-								return fmt.Errorf("model proposed only non-DDO words for %d straight rounds (last batch rejected: see [ddo] lines) — stopping instead of looping; try a different WORD_PROVIDER", ddoDropRounds)
+							dictDropRounds++
+							if dictDropRounds >= 10 {
+								return fmt.Errorf("model proposed only words outside Retskrivningsordbogen for %d straight rounds (see [ordliste] lines) — stopping instead of looping; try a different WORD_PROVIDER", dictDropRounds)
 							}
-							fmt.Printf("   all candidates dropped by DDO — retrying LLM for new suggestions (%d/10)...\n", ddoDropRounds)
+							fmt.Printf("   all candidates are outside Retskrivningsordbogen — retrying LLM for new suggestions (%d/10)...\n", dictDropRounds)
 							continue
 						}
 					} else {
-						ddoDropRounds = 0
+						dictDropRounds = 0
 						// Keep only fully Wordle-consistent words (green positions,
 						// present letters AND their forbidden positions, absent letters,
 						// with correct duplicate handling) as the reusable pool. Board
@@ -315,6 +313,15 @@ func runOrdknude(ctx context.Context, args []string) error {
 				fmt.Printf("   %s already submitted this run (re-extract may have missed it), asking again...\n", currentAnswer)
 				continue
 			}
+			// Never type a word the game would turn down, whichever path chose it:
+			// a turned-down word stays on the board and costs a round of cleanup.
+			if !klublotto.IsOrdknudeWord(currentAnswer) {
+				fmt.Printf("   %s is not in Retskrivningsordbogen — asking for another word...\n", currentAnswer)
+				if w := klublotto.NormalizeDanishLetters(currentAnswer); !containsWord(rejected, w) {
+					rejected = append(rejected, w)
+				}
+				continue
+			}
 			// Final hard guard: never submit a word that contradicts a confirmed green
 			// position or reuses a confirmed-absent (gray/banned) letter, regardless of
 			// which path produced it. Reject it and ask again.
@@ -341,8 +348,14 @@ func runOrdknude(ctx context.Context, args []string) error {
 			cancel()
 			lastSubmittedAnswer = currentAnswer
 			if strings.Contains(strings.ToLower(outcome), "ordet findes ikke") {
+				fmt.Printf("   the game turned %s down (Ordet findes ikke i vores ordbog)\n", currentAnswer)
 				_ = klublotto.RecordRejectedWord(cfg.DataDir, currentAnswer)
 				rejected = append(rejected, currentAnswer)
+				// The word stays typed on the board; until it's deleted the next
+				// guess can't be typed.
+				if err := klublotto.DeleteOrdknudeTyped(ctx, br, currentAnswer); err != nil {
+					fmt.Printf("   warning: could not delete it: %v\n", err)
+				}
 				// re-extract (the bad guess usually isn't recorded in history)
 				extractCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
 				if newSt, e := klublotto.ExtractOrdknudeState(extractCtx, br, ac); e == nil {
@@ -615,6 +628,7 @@ func runOrdknude(ctx context.Context, args []string) error {
 	cancel()
 	if strings.Contains(strings.ToLower(outcome), "ordet findes ikke") {
 		_ = klublotto.RecordRejectedWord(cfg.DataDir, answer)
+		_ = klublotto.DeleteOrdknudeTyped(ctx, br, klublotto.NormalizeDanishLetters(answer))
 	}
 	if err != nil {
 		return err

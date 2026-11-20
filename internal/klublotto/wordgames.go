@@ -1740,6 +1740,7 @@ func buildOrdknudeStateFromWords(ctx context.Context, br *browser.Client, ac llm
 			fmt.Println("   [vision] read tile colours via screenshot (DOM unavailable)")
 		}
 	}
+	words, allMarks = dropTypedOrdknudeRow(words, allMarks)
 	for i, w := range words {
 		st.History = append(st.History, OrdknudeGuess{Word: w, Marks: allMarks[i]})
 	}
@@ -1996,30 +1997,129 @@ func getColorMarksViaDOM(ctx context.Context, br *browser.Client, words []string
 		}
 		var w strings.Builder
 		marks := make([]string, 5)
-		ok := true
+		pending := 0
 		for j, t := range row {
 			letter := NormalizeDanishLetters(t.Letter)
-			mark := classifyOrdknudeTile(t)
-			if letter == "" || mark == "pending" {
-				ok = false
+			if letter == "" {
+				pending = -1
 				break
 			}
 			w.WriteString(letter)
-			marks[j] = mark
+			marks[j] = classifyOrdknudeTile(t)
+			if marks[j] == "pending" {
+				pending++
+			}
 		}
-		if ok {
+		switch pending {
+		case 0:
+			byWord[w.String()] = marks
+		case 5: // typed but never taken: the game turned it down
 			byWord[w.String()] = marks
 		}
 	}
 	allMarks := make([][]string, len(words))
 	for i, word := range words {
 		m, found := byWord[NormalizeDanishLetters(word)]
-		if !found {
+		if !found || (ordknudeRowTyped(m) && i != len(words)-1) {
 			return nil // board didn't line up with the known words — let vision try
 		}
 		allMarks[i] = m
 	}
 	return allMarks
+}
+
+// ordknudeRowTyped reports whether a row's marks say its letters were typed
+// but never taken as a guess (no tile coloured).
+func ordknudeRowTyped(marks []string) bool {
+	if len(marks) == 0 {
+		return false
+	}
+	for _, m := range marks {
+		if m != "pending" {
+			return false
+		}
+	}
+	return true
+}
+
+// dropTypedOrdknudeRow removes a last row that was typed but never taken. When
+// the game turns a word down ("Ordet findes ikke i vores ordbog") its letters
+// stay on the board uncoloured. Read as a guess, that row once marked FOMLE's
+// letters absent, contradicting the greens, and no word could follow.
+func dropTypedOrdknudeRow(words []string, marks [][]string) ([]string, [][]string) {
+	if n := len(words); n > 0 && n == len(marks) && ordknudeRowTyped(marks[n-1]) {
+		fmt.Printf("   [board] %s is typed but was not taken — not a guess\n", words[n-1])
+		return words[:n-1], marks[:n-1]
+	}
+	return words, marks
+}
+
+// DeleteOrdknudeTyped clears a word the game turned down off the board, so the
+// next guess can be typed. It clicks the on-screen ⌫ key (the unlabelled key
+// right of RETUR) once per letter with real mouse events, checks the row is
+// empty, and falls back to Backspace key presses if it isn't.
+func DeleteOrdknudeTyped(ctx context.Context, br *browser.Client, word string) error {
+	LeaveFrame(br)
+	raw, err := br.Eval(ctx, `JSON.stringify((()=>{const f=document.querySelector("iframe.kl-game__iframe");if(!f)return null;const r=f.getBoundingClientRect();return {x:r.x,y:r.y};})())`)
+	if err != nil {
+		return err
+	}
+	var origin *struct{ X, Y float64 }
+	if json.Unmarshal([]byte(raw), &origin) != nil || origin == nil {
+		return fmt.Errorf("game iframe not found on the page")
+	}
+	if err := EnterGameFrame(ctx, br); err != nil {
+		return err
+	}
+	defer LeaveFrame(br)
+	before := ordknudeFrameWords(ctx, br)
+	if len(before) == 0 || before[len(before)-1] != word {
+		return nil // nothing typed to clear
+	}
+	raw, err = br.Eval(ctx, `JSON.stringify((()=>{
+	  const bs = [...document.querySelectorAll("button")];
+	  const ret = bs.find(b => (b.innerText || "").trim().toUpperCase() === "RETUR");
+	  if (!ret) return null;
+	  const rr = ret.getBoundingClientRect();
+	  const back = bs.find(b => { const r = b.getBoundingClientRect(); return !(b.innerText || "").trim() && r.left > rr.left && Math.abs(r.top - rr.top) < 10; });
+	  if (!back) return null;
+	  const r = back.getBoundingClientRect();
+	  return {x: r.x + r.width / 2, y: r.y + r.height / 2};
+	})())`)
+	var key *struct{ X, Y float64 }
+	if err == nil && json.Unmarshal([]byte(raw), &key) == nil && key != nil {
+		for range []rune(word) {
+			_ = br.MouseClick(ctx, int(origin.X+key.X+0.5), int(origin.Y+key.Y+0.5))
+			time.Sleep(150 * time.Millisecond)
+		}
+	}
+	cleared := func() bool {
+		after := ordknudeFrameWords(ctx, br)
+		return len(after) < len(before)
+	}
+	if cleared() {
+		fmt.Printf("   [board] deleted the turned-down %s\n", word)
+		return nil
+	}
+	for range []rune(word) {
+		_ = br.Press(ctx, "Backspace")
+		time.Sleep(80 * time.Millisecond)
+	}
+	if cleared() {
+		fmt.Printf("   [board] deleted the turned-down %s (Backspace)\n", word)
+		return nil
+	}
+	return fmt.Errorf("%s is still typed on the board", word)
+}
+
+// ordknudeFrameWords reads the board's letters, typed row included, from inside
+// the game frame.
+func ordknudeFrameWords(ctx context.Context, br *browser.Client) []string {
+	snap, err := br.Snapshot(ctx)
+	if err != nil {
+		return nil
+	}
+	return parseWordsFromSnapTextNode(snap)
 }
 
 // vision model to classify the tile colors for the known guessed words.
@@ -2062,8 +2162,10 @@ The three tile colors are:
   A = VERY DARK BROWN / DARK MAROON tile  →  "absent"
   B = BRIGHT ORANGE or AMBER (golden-yellow, like amber stone)  →  "present"
   C = BRIGHT GREEN (pure grass-green, like a green traffic light)  →  "correct"
+  D = WHITE tile with a dark letter (typed, never taken as a guess)  →  "pending"
 
 Do NOT confuse B (orange/amber) with C (green). They are completely different hues.
+A white row is not a guess: mark all five of its tiles "pending", never "absent".
 
 Step 1 — count: scan ALL visible tiles and count how many are bright GREEN (color C).
 Step 2 — locate: for each green tile, note which row (1=top) and column (1=left).
@@ -2079,7 +2181,7 @@ Output ONLY these lines (no markdown, no explanation, no json):
 	for _, w := range words {
 		sb.WriteString(fmt.Sprintf("%s: absent,absent,absent,absent,absent\n", w))
 	}
-	sb.WriteString("\nReplace each 'absent' with correct/present/absent.")
+	sb.WriteString("\nReplace each 'absent' with correct/present/absent/pending.")
 
 	text, err := ac.ExtractFromImage(ctx, imgBytes, "image/png", sb.String())
 	if err != nil {
@@ -2117,6 +2219,8 @@ Output ONLY these lines (no markdown, no explanation, no json):
 				marks[j] = "correct"
 			case strings.Contains(m, "present"):
 				marks[j] = "present"
+			case strings.Contains(m, "pending"):
+				marks[j] = "pending"
 			default:
 				marks[j] = "absent"
 			}
@@ -3062,10 +3166,28 @@ func ExtractJSONObject(s string) string {
 // --- Ordknude fallback logic (ported from ignored ordknude.go for resilience in auto-play) ---
 
 func FallbackOrdknudeGuess(history []OrdknudeGuess, rejected []string) string {
-	candidates := append([]string(nil), ordknudeCandidates...)
-	sort.SliceStable(candidates, func(i, j int) bool {
-		return ordknudeScore(candidates[i]) > ordknudeScore(candidates[j])
-	})
+	// The hand-picked common words come first, then the rest of the word list,
+	// so a fallback can always find a word the board allows. Only words the
+	// game accepts are offered.
+	var common, rest []string
+	isCommon := map[string]bool{}
+	for _, c := range ordknudeCandidates {
+		if w := NormalizeDanishLetters(c); IsOrdknudeWord(w) && !isCommon[w] {
+			isCommon[w] = true
+			common = append(common, w)
+		}
+	}
+	for _, w := range ordknudeAllWords() {
+		if !isCommon[w] {
+			rest = append(rest, w)
+		}
+	}
+	for _, list := range [][]string{common, rest} {
+		sort.SliceStable(list, func(i, j int) bool {
+			return ordknudeScore(list[i]) > ordknudeScore(list[j])
+		})
+	}
+	candidates := append(common, rest...)
 	// Strict pass: honour all Wordle constraints (green position + present must-include + absent exclusion).
 	for _, c := range candidates {
 		word := NormalizeDanishLetters(c)
