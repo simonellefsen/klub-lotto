@@ -2115,3 +2115,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-19 06:03 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
 
+## [2026-11-20 05:21 UTC] ingest | kædeord | Chain words: trace words through a letter grid (50 points fo… | outcome=submitted
+
