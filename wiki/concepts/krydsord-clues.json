@@ -5,6 +5,9 @@
   "100": [
     "C"
   ],
+  "1000": [
+    "M"
+  ],
   "1002": [
     "MII"
   ],
@@ -1795,10 +1798,12 @@
     "GØGE",
     "NATTERGALE",
     "UGLER",
-    "PELIKANER"
+    "PELIKANER",
+    "DUER"
   ],
   "FUGLEN": [
-    "UGLEN"
+    "UGLEN",
+    "ALKEN"
   ],
   "FUPPE": [
     "NARRE"
@@ -2605,6 +2610,9 @@
   "INDSPILLE": [
     "OPTAGE"
   ],
+  "INDSTILLE": [
+    "NOMINERE"
+  ],
   "INDTAGE": [
     "ÆDE",
     "E",
@@ -2801,7 +2809,8 @@
   "KANT": [
     "BORT",
     "RIB",
-    "RAND"
+    "RAND",
+    "LED"
   ],
   "KANTER": [
     "RANDE"
@@ -2885,6 +2894,9 @@
   ],
   "KIRKEUDSTYR": [
     "ALTER"
+  ],
+  "KLAGE": [
+    "ANKE"
   ],
   "KLAGESANG": [
     "ELEGI"
@@ -3723,6 +3735,9 @@
   "MORAL": [
     "ETIK"
   ],
+  "MORALSK": [
+    "ETISK"
+  ],
   "MOREDESIG": [
     "FNES",
     "LO"
@@ -3958,7 +3973,8 @@
     "NEO"
   ],
   "NYDELIG": [
-    "FIN"
+    "FIN",
+    "KØN"
   ],
   "NYDELIGE": [
     "NETTE"
@@ -4000,6 +4016,9 @@
   ],
   "OKSE": [
     "YAK"
+  ],
+  "OLDNORDISK": [
+    "ÆLDGAMMEL"
   ],
   "OM": [
     "VEDRØRENDE"
@@ -5217,7 +5236,8 @@
     "DART",
     "SKAK",
     "UNO",
-    "DAM"
+    "DAM",
+    "LUDO"
   ],
   "SPILDES": [
     "ØDES"
@@ -5259,6 +5279,9 @@
   "SPISESTED": [
     "RESTAURANT",
     "CAFETERIA"
+  ],
+  "SPISESTEDET": [
+    "MESSEN"
   ],
   "SPIST": [
     "ÆDT"
@@ -6233,6 +6256,9 @@
   "VADER": [
     "GÅR"
   ],
+  "VAKKER": [
+    "SMUK"
+  ],
   "VAKLE": [
     "NØLE"
   ],
@@ -7195,6 +7221,9 @@
   ],
   "[IMG]SCISSORS": [
     "SAKS"
+  ],
+  "[IMG]SCREWS": [
+    "SKRUER"
   ],
   "[IMG]SCYTHE": [
     "LE"
