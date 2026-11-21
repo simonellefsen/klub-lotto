@@ -2137,3 +2137,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-21 07:00 UTC] ingest | ordkløver | Category: `Moderne bekvemmelighed`; answer pattern `7` | outcome=submitted
 
+## [2026-11-21 07:02 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
