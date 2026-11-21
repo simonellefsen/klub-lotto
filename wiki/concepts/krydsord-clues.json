@@ -75,6 +75,9 @@
   "506": [
     "DVI"
   ],
+  "52": [
+    "LII"
+  ],
   "55": [
     "LV"
   ],
@@ -349,7 +352,8 @@
     "DUNK",
     "TØNDE",
     "URTEPOTTE",
-    "KEDEL"
+    "KEDEL",
+    "EGEFAD"
   ],
   "BEHOLDERE": [
     "TØNDER",
@@ -1101,6 +1105,9 @@
   "EJENDOM": [
     "GODS"
   ],
+  "EJENDOMMEN": [
+    "ØDEGÅRDEN"
+  ],
   "EJER": [
     "HAR"
   ],
@@ -1109,6 +1116,9 @@
   ],
   "ELENDIGHED": [
     "YNK"
+  ],
+  "ELLIPSE": [
+    "OVAL"
   ],
   "ELLIPTISKE": [
     "OVALE"
@@ -1158,6 +1168,9 @@
   ],
   "ENS": [
     "IDENTISKE"
+  ],
+  "ENSFARVET": [
+    "UNI"
   ],
   "ENSMULE": [
     "LIDT"
@@ -1431,6 +1444,9 @@
   ],
   "FJENDE": [
     "ÆRKERIVAL"
+  ],
+  "FJOLLET": [
+    "DUM"
   ],
   "FJOLS": [
     "FÆ"
@@ -2128,6 +2144,9 @@
     "EROS",
     "THOR",
     "ODIN"
+  ],
+  "GUDER": [
+    "ASER"
   ],
   "GUDINDE": [
     "ATE",
@@ -3411,7 +3430,8 @@
     "JÆVNBYRDIG"
   ],
   "LILLE": [
-    "LL"
+    "LL",
+    "LAV"
   ],
   "LILLEBID": [
     "NIP"
@@ -3680,6 +3700,9 @@
     "E",
     "EROBRE"
   ],
+  "MIDDAGSPAUSE": [
+    "SIESTA"
+  ],
   "MIDTERLINJE": [
     "AKSE"
   ],
@@ -3690,7 +3713,8 @@
     "ERINDRING"
   ],
   "MINUS": [
-    "UDEN"
+    "UDEN",
+    "TAB"
   ],
   "MISTE": [
     "TABE"
@@ -4530,7 +4554,10 @@
     "LINEAL",
     "KAM",
     "TANG",
-    "SAV"
+    "SAV",
+    "SPADE",
+    "ØLOPLUKKER",
+    "TESKE"
   ],
   "REDSKABER": [
     "ØKSER",
@@ -5105,7 +5132,8 @@
   ],
   "SMINKE": [
     "ØJENSKYGGE",
-    "MAKEUP"
+    "MAKEUP",
+    "ROUGE"
   ],
   "SMULE": [
     "KLAT"
