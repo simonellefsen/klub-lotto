@@ -2133,3 +2133,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-21 06:59 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-11-21 06:59 UTC] ingest | quiz | Hvilken spiller scorede det afgørende mål i VM-finalen i 201… | outcome=submitted
+
