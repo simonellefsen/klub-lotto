@@ -2149,3 +2149,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-22 06:56 UTC] ingest | quiz | Hvilken ost bruges traditionelt i tiramisu? | outcome=submitted
 
+## [2026-11-22 06:57 UTC] ingest | ordkløver | Category: `"Person"`; answer pattern `3 / 10 / 7` | outcome=submitted
+
