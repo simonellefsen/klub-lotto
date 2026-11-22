@@ -164,6 +164,9 @@
   "ALENE": [
     "SOLO"
   ],
+  "ALMINDELIGE": [
+    "GÆNGSE"
+  ],
   "ALTSÅ": [
     "ERGO"
   ],
@@ -1057,7 +1060,8 @@
     "RENEN",
     "ELGEN",
     "RÅEN",
-    "RÆVEN"
+    "RÆVEN",
+    "ÆSLET"
   ],
   "DYRKER": [
     "AVLER"
@@ -1343,6 +1347,9 @@
   ],
   "FEDTE": [
     "LEFLE"
+  ],
+  "FEDTERI": [
+    "NAS"
   ],
   "FEDTET": [
     "GERRIG"
@@ -2451,6 +2458,9 @@
   "HVIL": [
     "PAUSE"
   ],
+  "HVILE": [
+    "RO"
+  ],
   "HVILEDE": [
     "LÅ"
   ],
@@ -2630,7 +2640,8 @@
     "OPTAGE"
   ],
   "INDSTILLE": [
-    "NOMINERE"
+    "NOMINERE",
+    "TUNE"
   ],
   "INDTAGE": [
     "ÆDE",
@@ -2949,7 +2960,8 @@
     "NEGL"
   ],
   "KLOG": [
-    "FORSTANDIG"
+    "FORSTANDIG",
+    "VIS"
   ],
   "KLOGT": [
     "VIST"
@@ -3341,7 +3353,8 @@
     "ÆKEL",
     "ALBUER",
     "ANKEL",
-    "ALBUE"
+    "ALBUE",
+    "KNÆ"
   ],
   "LEDE": [
     "ÆKLE",
@@ -6228,6 +6241,9 @@
   "ULEMPE": [
     "GENE"
   ],
+  "ULME": [
+    "GÆRE"
+  ],
   "ULMET": [
     "GÆRET"
   ],
@@ -6541,6 +6557,9 @@
   ],
   "VÅGEN": [
     "KVIK"
+  ],
+  "VÆDE": [
+    "REGN"
   ],
   "VÆG": [
     "MUR"
@@ -7129,6 +7148,9 @@
   ],
   "[IMG]PINEAPPLE": [
     "ANANAS"
+  ],
+  "[IMG]PINGPONGPADDLE": [
+    "BAT"
   ],
   "[IMG]PISYMBOL": [
     "PI"
