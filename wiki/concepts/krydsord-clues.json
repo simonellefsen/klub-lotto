@@ -42,6 +42,9 @@
   "2000": [
     "MM"
   ],
+  "2001": [
+    "MMI"
+  ],
   "2005": [
     "MMV"
   ],
@@ -376,6 +379,9 @@
   ],
   "BERØMTE": [
     "KENDTE"
+  ],
+  "BERØMTHED": [
+    "KENDIS"
   ],
   "BERØMTLADY": [
     "GAGA"
@@ -1808,7 +1814,8 @@
     "AND",
     "RÅGE",
     "SKADE",
-    "ISLOM"
+    "ISLOM",
+    "LÆRKE"
   ],
   "FUGLE": [
     "ØRNE",
@@ -1994,6 +2001,9 @@
   ],
   "GIVET": [
     "YDET"
+  ],
+  "GIVETGENLYD": [
+    "EKKOET"
   ],
   "GLIDE": [
     "RUTSJE"
@@ -2408,7 +2418,8 @@
   ],
   "HOVEDSTAD": [
     "OSLO",
-    "NUUK"
+    "NUUK",
+    "AMSTERDAM"
   ],
   "HOVEDTØJ": [
     "TURBAN"
@@ -3677,6 +3688,9 @@
   "MEDIUM": [
     "M"
   ],
+  "MEGABYTE": [
+    "MB"
+  ],
   "MEGATON": [
     "MT"
   ],
@@ -4145,7 +4159,8 @@
   ],
   "ORGANISATION": [
     "NASA",
-    "ESA"
+    "ESA",
+    "NGO"
   ],
   "ORIGINALER": [
     "ENERE"
@@ -4391,6 +4406,9 @@
   ],
   "POPGRUPPE": [
     "ABBA"
+  ],
+  "POSE": [
+    "AFFALDSSÆK"
   ],
   "POSTYR": [
     "RØRE"
@@ -7125,6 +7143,9 @@
   "[IMG]PAINTBUCKET": [
     "MALING"
   ],
+  "[IMG]PAINTCAN": [
+    "MALING"
+  ],
   "[IMG]PALMTREE": [
     "PALME"
   ],
@@ -7434,6 +7455,9 @@
   ],
   "[IMG]VEST": [
     "VEST"
+  ],
+  "[IMG]WARDROBE": [
+    "SKAB"
   ],
   "[IMG]WATCHES": [
     "URE"
