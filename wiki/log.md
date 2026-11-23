@@ -2171,3 +2171,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-23 05:57 UTC] ingest | blok for blok | Reach 200 points (1010!-style block puzzle) | outcome=submitted
 
+## [2026-11-23 06:07 UTC] ingest | quiz | Hvilket oldtidsfolk var ophavsmænd til det alfabet, som det … | outcome=submitted
+
