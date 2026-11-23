@@ -1194,56 +1194,131 @@ func submitKrydsord(ctx context.Context, br *browser.Client, dataDir string, dat
 		}
 	}
 
-	// Open the Danske Spil *parent* so the game iframe is embedded; the parent
-	// receives gameCompleted etc and awards the daily lod. We deliberately do NOT
-	// navigate to the standalone iframe URL — that URL carries a single-use launcher
-	// token and, loaded directly, hangs forever on the red loading spinner.
+	reused, err := fillAndCheckKrydsord(ctx, br, dataDir, letters, true)
+	// The board we reuse has sat idle while the LLM solved. If it took the letters
+	// but never answered Tjek løsning, try once more on a freshly loaded page
+	// before calling the submit failed. A rejection is a real answer, not this.
+	if reused && err != nil && !errors.Is(err, errKrydsordNotSolved) && ctx.Err() == nil {
+		fmt.Printf("       the open board did not answer (%v) — reloading it and submitting again\n", err)
+		_, err = fillAndCheckKrydsord(ctx, br, dataDir, letters, false)
+	}
+	return err
+}
+
+// krydsordGameFrameRectJS reads the game iframe's viewport rect from the parent
+// page (a cross-origin iframe's rect is only visible from the parent), plus its
+// src so a stray iframe from another game is not mistaken for the board.
+const krydsordGameFrameRectJS = `JSON.stringify((()=>{const f=document.querySelector("iframe.kl-game__iframe");if(!f)return{x:-1,y:-1,w:0,h:0,src:""};const r=f.getBoundingClientRect();return{x:r.x,y:r.y,w:r.width,h:r.height,src:f.src||""};})())`
+
+type krydsordFrameRect struct {
+	X, Y, W, H float64
+	Src        string
+}
+
+func readKrydsordFrameRect(ctx context.Context, br *browser.Client) (krydsordFrameRect, string, bool) {
+	raw, _ := br.Eval(ctx, krydsordGameFrameRectJS)
+	var r krydsordFrameRect
+	ok := json.Unmarshal([]byte(raw), &r) == nil && r.X >= 0 && r.W > 0 && r.H > 0
+	return r, raw, ok
+}
+
+// reuseKrydsordBoard checks whether the browser still shows the board the run
+// opened at step 1, ready to type into: the Krydsord game iframe laid out on the
+// parent page, its cells rendered, Tjek løsning on screen and no result overlay.
+// On success the daemon is left inside the game frame. Extraction reads the API
+// from inside the frame and goes back to the parent, so this is the normal case
+// on a `make krydsord` run.
+func reuseKrydsordBoard(ctx context.Context, br *browser.Client) (krydsordFrameRect, bool) {
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+	rect, _, ok := readKrydsordFrameRect(ctx, br)
+	if !ok || !strings.Contains(strings.ToLower(rect.Src), "krydsord") {
+		return rect, false
+	}
+	if br.Frame(ctx, klublotto.GameIframe) != nil {
+		return rect, false
+	}
+	raw, _ := br.Eval(ctx, `JSON.stringify({cells:document.querySelectorAll('.cell').length,text:String(document.body?(document.body.innerText||''):'').toLowerCase()})`)
+	var st struct {
+		Cells int    `json:"cells"`
+		Text  string `json:"text"`
+	}
+	live := json.Unmarshal([]byte(raw), &st) == nil && st.Cells > 0
+	for _, m := range append(append([]string{}, krydsordSuccessMarkers...), krydsordFailureMarkers...) {
+		if live && strings.Contains(st.Text, m) {
+			live = false
+		}
+	}
+	if live {
+		_, _, live = krydsordButtonCenter(ctx, br, "tjek løsning", "tjek losning")
+	}
+	if !live {
+		klublotto.LeaveFrame(br)
+	}
+	return rect, live
+}
+
+// fillAndCheckKrydsord types the letters into the board and clicks Tjek løsning.
+// With allowReuse it fills the board already on screen when that board is live
+// (reuseKrydsordBoard), and otherwise reloads the parent page first. It reports
+// whether it reused the board.
+func fillAndCheckKrydsord(ctx context.Context, br *browser.Client, dataDir string, letters []string, allowReuse bool) (reused bool, err error) {
 	// A previous run that died inside the game frame can leave the daemon pointed
 	// at a frame that no longer exists: eval then silently falls back to the main
 	// page while snapshot fails or hangs on the dead frame id. Start from main.
 	klublotto.LeaveFrame(br)
-	fmt.Println("       opening parent page (iframe embedded for registration)...")
-	if err := br.Open(ctx, klublotto.KrydsordURL); err != nil {
-		return fmt.Errorf("open parent for krydsord submit: %w", err)
-	}
-	br.WaitSettled(ctx)
+	boardStart := time.Now()
 
 	// The board is a cross-origin OOPIF whose answer cells are bare clickable divs
 	// with no accessibility role — they never appear in the snapshot (interactive
 	// OR cursor), so there are no refs to click. But they DO take real input: a
 	// genuine mouse click at the cell's screen position selects it, after which the
 	// game's document-level keydown handler accepts the typed letter. So we fill by
-	// coordinate. Read the iframe's viewport offset from the PARENT first (a
-	// cross-origin iframe's rect is only visible from the parent).
-	//
-	// On a slow danskespil day the iframe isn't attached/laid out within a fixed
-	// delay — reading its rect then returned {x:-1} and aborted the submit. Poll for
-	// a valid, laid-out rect (mirrors the extraction-side iframe readiness).
-	var ifr struct {
-		X float64 `json:"x"`
-		Y float64 `json:"y"`
+	// coordinate, offset by the iframe's position on the parent.
+	var ifr krydsordFrameRect
+	if allowReuse {
+		ifr, reused = reuseKrydsordBoard(ctx, br)
 	}
-	rectDeadline := time.Now().Add(30 * time.Second)
-	for {
-		ifrRaw, _ := br.Eval(ctx, `JSON.stringify((()=>{const f=document.querySelector("iframe.kl-game__iframe");if(!f)return{x:-1,y:-1,w:0,h:0};const r=f.getBoundingClientRect();return{x:r.x,y:r.y,w:r.width,h:r.height};})())`)
-		var probe struct {
-			X, Y, W, H float64
+	if reused {
+		fmt.Println("       board still open — filling it without reloading the page")
+	} else {
+		// Open the Danske Spil *parent* so the game iframe is embedded; the parent
+		// receives gameCompleted etc and awards the daily lod. We deliberately do NOT
+		// navigate to the standalone iframe URL — that URL carries a single-use
+		// launcher token and, loaded directly, hangs forever on the red loading
+		// spinner.
+		//
+		// OpenSettled, not Open: a plain Open waits for danskespil's trackers to go
+		// quiet, which held the run for ~30s between "Solved Grid" and the first
+		// typed letter. The polls below wait for what the fill actually needs.
+		fmt.Println("       opening parent page (iframe embedded for registration)...")
+		if err := br.OpenSettled(ctx, klublotto.KrydsordURL); err != nil {
+			return false, fmt.Errorf("open parent for krydsord submit: %w", err)
 		}
-		if json.Unmarshal([]byte(ifrRaw), &probe) == nil && probe.X >= 0 && probe.W > 0 && probe.H > 0 {
-			ifr.X, ifr.Y = probe.X, probe.Y
-			break
-		}
-		if time.Now().After(rectDeadline) || ctx.Err() != nil {
-			return fmt.Errorf("krydsord game iframe not found on parent page within budget (last raw=%s)", ifrRaw)
-		}
-		time.Sleep(800 * time.Millisecond)
-	}
 
-	// Switch into the OOPIF and confirm the grid rendered.
-	if err := enterKrydsordGameFrame(ctx, br); err != nil {
-		return fmt.Errorf("enter krydsord game iframe: %w", err)
+		// On a slow danskespil day the iframe isn't attached/laid out within a fixed
+		// delay — reading its rect then returned {x:-1} and aborted the submit. Poll
+		// for a valid, laid-out rect (mirrors the extraction-side iframe readiness).
+		rectDeadline := time.Now().Add(30 * time.Second)
+		for {
+			rect, raw, ok := readKrydsordFrameRect(ctx, br)
+			if ok {
+				ifr = rect
+				break
+			}
+			if time.Now().After(rectDeadline) || ctx.Err() != nil {
+				return false, fmt.Errorf("krydsord game iframe not found on parent page within budget (last raw=%s)", raw)
+			}
+			time.Sleep(800 * time.Millisecond)
+		}
+
+		// Switch into the OOPIF and confirm the grid rendered.
+		if err := enterKrydsordGameFrame(ctx, br); err != nil {
+			return false, fmt.Errorf("enter krydsord game iframe: %w", err)
+		}
 	}
 	defer klublotto.LeaveFrame(br)
+	fmt.Printf("       board ready in %.1fs\n", time.Since(boardStart).Seconds())
 
 	// Collect every answer cell's center (frame-viewport coords), sorted row-major.
 	cellsRaw, _ := br.Eval(ctx, `JSON.stringify((()=>{const cs=Array.from(document.querySelectorAll(".cell"));const p=cs.map(c=>{const r=c.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2,t:parseFloat(c.style.top)||r.y,l:parseFloat(c.style.left)||r.x};});p.sort((a,b)=>Math.abs(a.t-b.t)>5?a.t-b.t:a.l-b.l);return p.map(o=>({x:Math.round(o.x),y:Math.round(o.y)}));})())`)
@@ -1252,7 +1327,7 @@ func submitKrydsord(ctx context.Context, br *browser.Client, dataDir string, dat
 		Y int `json:"y"`
 	}
 	if err := json.Unmarshal([]byte(cellsRaw), &cells); err != nil {
-		return fmt.Errorf("read krydsord cell positions: %w (raw=%s)", err, cellsRaw)
+		return reused, fmt.Errorf("read krydsord cell positions: %w (raw=%s)", err, cellsRaw)
 	}
 	if len(cells) != len(letters) {
 		fmt.Printf("       [warn] cell count %d != answer letters %d — filling min(...)\n", len(cells), len(letters))
@@ -1316,7 +1391,7 @@ func submitKrydsord(ctx context.Context, br *browser.Client, dataDir string, dat
 	fmt.Println("       clicking Tjek løsning...")
 	if bx, by, ok := krydsordButtonCenter(ctx, br, "tjek løsning", "tjek losning"); ok {
 		if err := br.MouseClick(ctx, int(ifr.X)+bx, int(ifr.Y)+by); err != nil {
-			return fmt.Errorf("click Tjek løsning: %w", err)
+			return reused, fmt.Errorf("click Tjek løsning: %w", err)
 		}
 	} else {
 		// Fallback: the snapshot route, but bounded so it cannot eat the budget.
@@ -1325,10 +1400,10 @@ func submitKrydsord(ctx context.Context, br *browser.Client, dataDir string, dat
 		cancel()
 		tjekRef := klublotto.FindRefByName(snap, []string{"TJEK LØSNING", "TJEK LOSNING"})
 		if tjekRef == "" {
-			return fmt.Errorf("click Tjek løsning: button not found in game frame")
+			return reused, fmt.Errorf("click Tjek løsning: button not found in game frame")
 		}
 		if err := br.Click(ctx, tjekRef); err != nil {
-			return fmt.Errorf("click Tjek løsning: %w", err)
+			return reused, fmt.Errorf("click Tjek løsning: %w", err)
 		}
 	}
 	time.Sleep(300 * time.Millisecond) // waitForKrydsordSuccess polls from here
@@ -1337,36 +1412,40 @@ func submitKrydsord(ctx context.Context, br *browser.Client, dataDir string, dat
 	// reads the game iframe's body — where "hvor er du vild"/"ordmester" render.
 	if ok, detail := waitForKrydsordSuccess(ctx, br); ok {
 		fmt.Println("       success detected (in game frame):", detail)
-		return nil
+		return reused, nil
 	} else if strings.Contains(detail, "ikke løst korrekt") {
 		// The game's own rejection overlay — definitively a wrong solution.
-		return fmt.Errorf("%w: %s", errKrydsordNotSolved, detail)
+		return reused, fmt.Errorf("%w: %s", errKrydsordNotSolved, detail)
 	}
 	// Fallback: some confirmations ("løste dagens krydsord") surface on the parent
 	// page, so switch back to main and check there before declaring failure.
 	klublotto.LeaveFrame(br)
 	if ok, detail := waitForKrydsordSuccess(ctx, br); ok {
 		fmt.Println("       success detected (on parent page):", detail)
-		return nil
+		return reused, nil
 	} else if strings.Contains(detail, "ikke løst korrekt") {
-		return fmt.Errorf("%w: %s", errKrydsordNotSolved, detail)
+		return reused, fmt.Errorf("%w: %s", errKrydsordNotSolved, detail)
 	} else {
-		return fmt.Errorf("Krydsord not confirmed solved: %s", detail)
+		return reused, fmt.Errorf("Krydsord not confirmed solved: %s", detail)
 	}
 }
 
+// krydsordSuccessMarkers are Krydsord-SPECIFIC success banners only. NOTE: do
+// NOT match "vundet" — the page's permanent footer/nav contains "vundet eller
+// tabt", which previously produced a FALSE success on an unsolved board.
+// "tillykke"/"dagens lod" are likewise too generic.
+// Observed win banners: "Hvor er du vild…", "…Ordmester…", and
+// "Rigtig godt arbejde! Du klarede krydsordet med bravur! Det var virkelig
+// imponerende, og du får et lod." (2026-06-19).
+var krydsordSuccessMarkers = []string{"hvor er du vild", "ordmester", "løste dagens krydsord",
+	"rigtig godt arbejde", "klarede krydsordet", "med bravur"}
+
+// krydsordFailureMarkers is the overlay the game shows on a wrong/incomplete
+// solution.
+var krydsordFailureMarkers = []string{"ikke løst korrekt", "prøv igen", "opgaven er ikke løst"}
+
 func waitForKrydsordSuccess(ctx context.Context, br *browser.Client) (bool, string) {
-	// Krydsord-SPECIFIC success banners only. NOTE: do NOT match "vundet" — the
-	// page's permanent footer/nav contains "vundet eller tabt", which previously
-	// produced a FALSE success on an unsolved board. "tillykke"/"dagens lod" are
-	// likewise too generic.
-	// Observed win banners: "Hvor er du vild…", "…Ordmester…", and
-	// "Rigtig godt arbejde! Du klarede krydsordet med bravur! Det var virkelig
-	// imponerende, og du får et lod." (2026-06-19).
-	success := []string{"hvor er du vild", "ordmester", "løste dagens krydsord",
-		"rigtig godt arbejde", "klarede krydsordet", "med bravur"}
-	// Explicit failure overlay the game shows on a wrong/incomplete solution.
-	failure := []string{"ikke løst korrekt", "prøv igen", "opgaven er ikke løst"}
+	success, failure := krydsordSuccessMarkers, krydsordFailureMarkers
 	deadline := time.Now().Add(20 * time.Second)
 	for time.Now().Before(deadline) {
 		raw, err := br.Eval(ctx, `(() => { const t = String(document.body ? (document.body.innerText || document.body.textContent || '') : ''); return JSON.stringify({text:t}); })()`)
