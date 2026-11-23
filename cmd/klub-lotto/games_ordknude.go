@@ -35,12 +35,25 @@ func runOrdknude(ctx context.Context, args []string) error {
 	if err != nil {
 		return err
 	}
-	// Vision provider for reading board tile colours from screenshots.
-	// Prefer Gemini 2.5 Pro for Ordknude colour reading — it has better
-	// colour discrimination for the dark-maroon/orange/green tile shades.
-	// Fall back to Claude Haiku if only an Anthropic key is available.
+	// Vision provider for reading board tile colours from screenshots. The
+	// Makefile sets OPENROUTER_VISION_MODEL (~google/gemini-pro-latest via
+	// OpenRouter); it is routed by its slug like krydsord's and ordkløver's.
+	// Without it: Gemini 2.5 Pro direct, for its colour discrimination on the
+	// dark-maroon/orange/green tile shades, else Claude Haiku.
 	var ac llm.VisionProvider
-	if cfg.GeminiKey != "" {
+	if m := strings.TrimSpace(cfg.OpenRouterVisionModel); m != "" {
+		vp, verr := llm.ResolveVision(m, providerKeys(cfg))
+		if verr != nil {
+			return verr
+		}
+		// Cap the completion: uncapped, OpenRouter gates the request on the
+		// model's own output ceiling being affordable. A colour read is ~200
+		// tokens.
+		if orv, ok := vp.(*llm.OpenRouterVision); ok && orv.MaxTokens == 0 {
+			orv.MaxTokens = 8000
+		}
+		ac = vp
+	} else if cfg.GeminiKey != "" {
 		ac = llm.NewGemini(cfg.GeminiKey, "gemini-2.5-pro")
 		fmt.Println("       vision: gemini-2.5-pro")
 	} else if cfg.AnthropicKey != "" {
@@ -50,7 +63,7 @@ func runOrdknude(ctx context.Context, args []string) error {
 		fmt.Println("       WARNING: no vision API key (GEMINI_API_KEY or ANTHROPIC_API_KEY); colour marks will be absent.")
 	}
 	// Every board read depends on vision, so back the primary with a second
-	// provider (Gemini 2.5 Pro via OpenRouter when the primary is direct Gemini).
+	// provider (Gemini 2.5 Pro pinned via OpenRouter; see ordKloeverFallbackVision).
 	if ac != nil {
 		if fb := ordKloeverFallbackVision(cfg, ac); fb != nil {
 			fv := llm.FallbackVision{Primary: ac, Fallback: fb}

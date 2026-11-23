@@ -328,10 +328,12 @@ func runOrdKloever(ctx context.Context, args []string) error {
 }
 
 // ordKloeverFallbackVision builds an on-error fallback vision provider that is
-// distinct from the primary, preferring Gemini 2.5 Pro. The primary Ordkløver
-// reader is usually the OpenRouter floating alias (OPENROUTER_VISION_MODEL),
-// which intermittently times out on the board read; a direct Gemini 2.5 Pro
-// call avoids that routing entirely. Returns nil if no distinct provider is
+// distinct from the primary, preferring Gemini 2.5 Pro pinned via OpenRouter.
+// The primary reader is usually an OpenRouter model (OPENROUTER_VISION_MODEL),
+// and a floating alias intermittently times out on the board read; a pinned
+// model is a different route for that. Direct Gemini used to come first, but
+// its key has answered 402 since the prepay credits ran out on 2026-11-01, so
+// it now comes after OpenRouter. Returns nil if no distinct provider is
 // available (the caller then just has no fallback).
 func ordKloeverFallbackVision(cfg *config.Config, primary llm.VisionProvider) llm.VisionProvider {
 	name := func(vp llm.VisionProvider) string {
@@ -345,13 +347,15 @@ func ordKloeverFallbackVision(cfg *config.Config, primary llm.VisionProvider) ll
 		return fmt.Sprintf("%T", vp)
 	}
 	pn := name(primary)
-	// Direct Gemini 2.5 Pro is the most reliable fallback (skips OpenRouter).
+	// Gemini 2.5 Pro pinned via OpenRouter (not the floating alias).
+	if cfg.OpenRouterKey != "" && !strings.Contains(pn, "google/gemini-2.5-pro") {
+		fb := llm.NewOpenRouterVision(cfg.OpenRouterKey, "google/gemini-2.5-pro")
+		fb.MaxTokens = 8000 // see the cap on the Ordknuden primary
+		return fb
+	}
+	// Otherwise Gemini 2.5 Pro direct.
 	if cfg.GeminiKey != "" && !strings.Contains(pn, "gemini-2.5-pro") {
 		return llm.NewGemini(cfg.GeminiKey, "gemini-2.5-pro")
-	}
-	// Otherwise Gemini 2.5 Pro pinned via OpenRouter (not the floating alias).
-	if cfg.OpenRouterKey != "" && !strings.Contains(pn, "google/gemini-2.5-pro") {
-		return llm.NewOpenRouterVision(cfg.OpenRouterKey, "google/gemini-2.5-pro")
 	}
 	// Last resort: a different model family.
 	if cfg.AnthropicKey != "" && !strings.Contains(pn, "claude") {

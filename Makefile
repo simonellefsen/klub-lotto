@@ -52,6 +52,13 @@ ORDKLOEVER_REASON := $(or $(FINAL_PROVIDER),$(final_provider),$(ORDKLOEVER_FINAL
 # gpt-5.6-luna's 8 fabricated non-words before the same answer.
 ORDKNUDE_MODEL := $(or $(PROVIDER),$(provider),$(WORD_PROVIDER),$(ORDKNUDE_PROVIDER),~google/gemini-flash-latest)
 ORDKNUDE_PROVIDER_FLAG := --provider "$(ORDKNUDE_MODEL)"
+# Ordknuden board/colour reading. Direct Gemini (GEMINI_API_KEY) has answered
+# 402 since its prepay credits ran out on 2026-11-01, so every read paid for a
+# failed call before falling back. ~google/gemini-pro-latest via OpenRouter read
+# the 2026-11-21 board (SALAT/KRISE/BISON) right in ~6s, vs ~10s for
+# google/gemini-2.5-pro. Override with VISION_MODEL=.
+ORDKNUDE_VISION_MODEL := $(or $(VISION_MODEL),~google/gemini-pro-latest)
+ORDKNUDE_ENV := OPENROUTER_VISION_MODEL=$(ORDKNUDE_VISION_MODEL) $(LOCAL_BROWSER_ENV)
 
 .PHONY: help build vet test check doctor login quiz quiz-dry sudoku sudoku-dry ordkloever ordkloever-dry ordkloever-extract ordkloever-probe ordknude ordknude-dry ordknude-extract krydsord krydsord-dry krydsord-graph krydsord-solve krydsord-solve-dry blok kaedeord kaedeord-dry wiki-query wiki-lint sync clean reset \
         image deploy k8s-up k8s-down k8s-logs port-forward db-shell ui-url tidy \
@@ -178,17 +185,17 @@ ordkloever-probe: $(BIN)
 	$(LOCAL_BROWSER_ENV) $(BIN) ordkloever --submit --probe-letters --letter-rounds "$(or $(ROUNDS),3)" $(GAME_AUTO_ANSWER_FLAG) $(GAME_PROVIDER_FLAG)
 
 ordknude-dry: $(BIN)
-	$(LOCAL_BROWSER_ENV) $(BIN) ordknude --dry-run $(ORDKNUDE_PROVIDER_FLAG)
+	$(ORDKNUDE_ENV) $(BIN) ordknude --dry-run $(ORDKNUDE_PROVIDER_FLAG)
 
 ordknude-extract: $(BIN)
-	$(LOCAL_BROWSER_ENV) $(BIN) ordknude --dry-run --extract-only
+	$(ORDKNUDE_ENV) $(BIN) ordknude --dry-run --extract-only
 
 ordknude: $(BIN)
 	@if [ -z "$(GAME_ANSWER)" ]; then \
-		echo "No pre-supplied ANSWER; auto-playing Ordknuden (model: $(ORDKNUDE_MODEL); propose via LLM + submit real guesses one-by-one from blank sheet until solved; permanent, no do-overs)."; \
-		$(LOCAL_BROWSER_ENV) $(BIN) ordknude $(ORDKNUDE_PROVIDER_FLAG); \
+		echo "No pre-supplied ANSWER; auto-playing Ordknuden (model: $(ORDKNUDE_MODEL); vision: $(ORDKNUDE_VISION_MODEL); propose via LLM + submit real guesses one-by-one from blank sheet until solved; permanent, no do-overs)."; \
+		$(ORDKNUDE_ENV) $(BIN) ordknude $(ORDKNUDE_PROVIDER_FLAG); \
 	else \
-		$(LOCAL_BROWSER_ENV) $(BIN) ordknude --submit --answer "$(GAME_ANSWER)" $(ORDKNUDE_PROVIDER_FLAG); \
+		$(ORDKNUDE_ENV) $(BIN) ordknude --submit --answer "$(GAME_ANSWER)" $(ORDKNUDE_PROVIDER_FLAG); \
 	fi
 	@bash scripts/sync.sh
 
