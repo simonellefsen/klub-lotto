@@ -242,16 +242,27 @@ func runQuiz(ctx context.Context, args []string) error {
 	round, err := klublotto.ExtractRound(snap)
 	if err != nil && !errors.Is(err, klublotto.ErrLoginRequired) {
 		if ctx.Err() != nil {
-			return ctx.Err() // interrupted — skip the vision fallback
+			return ctx.Err() // interrupted — skip the fallbacks
 		}
-		fmt.Printf("       snapshot extraction failed (%v); falling back to screenshot OCR...\n", err)
-		visionCtx, visionCancel := context.WithTimeout(ctx, 60*time.Second)
-		round, err = klublotto.ExtractRoundFromScreenshot(visionCtx, br, cfg.DataDir, llm.NewAnthropic(cfg.AnthropicKey, "claude-haiku-4-5-20251001"))
-		visionCancel()
+		// The quiz DOM has the question and the options exactly as the page
+		// spells them; a screenshot read can misspell an option (Fønikerne →
+		// "Fenikerne", 2026-11-23), so it is the last resort.
+		if r, ok := klublotto.QuizRoundFromPage(ctx, br); ok {
+			fmt.Printf("       snapshot extraction failed (%v); read the quiz from the page instead\n", err)
+			round, err = r, nil
+		} else {
+			fmt.Printf("       snapshot extraction failed (%v); falling back to screenshot OCR...\n", err)
+			visionCtx, visionCancel := context.WithTimeout(ctx, 60*time.Second)
+			round, err = klublotto.ExtractRoundFromScreenshot(visionCtx, br, cfg.DataDir, llm.NewAnthropic(cfg.AnthropicKey, "claude-haiku-4-5-20251001"))
+			visionCancel()
+		}
 	}
 	if err != nil {
 		return fmt.Errorf("extract round: %w", err)
 	}
+	// agent-browser cuts names at 100 characters, so a long question comes out
+	// of the snapshot without its end; take the whole question from the page.
+	round.Prompt = klublotto.CompleteQuizPrompt(ctx, br, round.Prompt)
 	fmt.Println()
 	fmt.Println("== Question ==")
 	fmt.Println(round.Prompt)
@@ -303,9 +314,14 @@ func runQuiz(ctx context.Context, args []string) error {
 	result := "" // "correct" | "wrong" | "unknown" (submit only)
 	if submit {
 		fmt.Println("[6/6] submitting answer...")
-		if err := klublotto.SubmitQuizOption(ctx, br, chosenText); err != nil {
+		label, err := klublotto.SubmitQuizOption(ctx, br, chosenText)
+		if err != nil {
 			_, _ = writeQuizSource(cfg, round, votes, chosen, false, "error: submit failed", curURL)
 			return fmt.Errorf("submit choice: %w", err)
+		}
+		if label != "" && label != chosenText {
+			chosenText = label
+			round.Options[chosen] = label
 		}
 		// Wait for the result screen to CONFIRM the answer. It can be a spinner for
 		// several seconds on a slow day, so poll generously (don't just exit after a

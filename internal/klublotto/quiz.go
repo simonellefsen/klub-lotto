@@ -94,7 +94,7 @@ func ExtractRound(snap string) (QuizRound, error) {
 		quizRadio   bool
 	)
 
-	for _, m := range matches {
+	for i, m := range matches {
 		role, name, ref := strings.ToLower(m[1]), strings.TrimSpace(m[2]), m[3]
 		switch role {
 		case "heading", "paragraph", "text", "generic":
@@ -106,12 +106,23 @@ func ExtractRound(snap string) (QuizRound, error) {
 				round.Prompt = name
 			}
 		case "radio":
-			if q := strings.Index(name, "?"); q >= 0 {
-				round.Prompt = name[:q+1]
-				seenButtons = nil
-				inQuizRadio = true
-				quizRadio = true
+			// The quiz radio's name is "question?Option1Option2…", cut at 100
+			// characters by agent-browser. A question that long loses its "?"
+			// (2026-11-23, 106 characters), so the options under it identify
+			// the quiz radio too. Callers complete a cut prompt with
+			// CompleteQuizPrompt.
+			q := strings.Index(name, "?")
+			if q < 0 && !radioHasOptionLabels(matches, i) {
+				continue
 			}
+			if q >= 0 {
+				round.Prompt = name[:q+1]
+			} else {
+				round.Prompt = name
+			}
+			seenButtons = nil
+			inQuizRadio = true
+			quizRadio = true
 		case "labeltext":
 			if !inQuizRadio || isControlLabel(name) {
 				continue
@@ -359,13 +370,55 @@ func isControlLabel(s string) bool {
 // Submit clicks the option ref. It does NOT also click "Indsend" — many
 // quiz UIs auto-advance on answer; callers can chase a Submit afterwards
 // if the snapshot still shows one.
+// radioHasOptionLabels reports whether the radio at matches[i] is followed by
+// at least two answer LabelTexts, the shape of the quiz's radio group.
+func radioHasOptionLabels(matches [][]string, i int) bool {
+	n := 0
+	for _, m := range matches[i+1:] {
+		if !strings.EqualFold(m[1], "labeltext") {
+			break
+		}
+		if !isControlLabel(strings.TrimSpace(m[2])) {
+			n++
+		}
+	}
+	return n >= 2
+}
+
 func Submit(ctx context.Context, br *browser.Client, optionRef string) error {
 	return br.Click(ctx, optionRef)
 }
 
-// SubmitQuizOption selects the chosen answer using the cursor-interactive
+// SubmitQuizOption selects the chosen answer, confirms the page took it, and
+// clicks "Afgiv svar". It returns the answer as the page spells it, which can
+// differ from optionText when the options came from a screenshot read.
+//
+// The quiz DOM (quiz_dom.go) is the first route: it maps the answer onto the
+// page's own options and checks the radio is checked and AFGIV SVAR enabled
+// before submitting. On 2026-11-23 nothing was selected — the answer was
+// misspelt, the JS fallback clicked the page body — and the run clicked the
+// still-disabled button and recorded an answer it never gave.
+func SubmitQuizOption(ctx context.Context, br *browser.Client, optionText string) (string, error) {
+	label, handled, err := selectQuizOptionDOM(ctx, br, optionText)
+	if err != nil {
+		return label, err
+	}
+	if !handled {
+		label = optionText
+		if err := selectQuizOptionLegacy(ctx, br, optionText); err != nil {
+			return label, err
+		}
+	}
+	if err := clickAfgivSvar(ctx, br); err != nil {
+		return label, fmt.Errorf("click Afgiv svar: %w", err)
+	}
+	return label, nil
+}
+
+// selectQuizOptionLegacy selects the chosen answer using the cursor-interactive
 // elements exposed by `agent-browser snapshot -i -C` (the "clickable "Japan"
-// [ref=e90] [cursor:pointer]" targets), then clicks "Afgiv svar".
+// [ref=e90] [cursor:pointer]" targets). It is the route for a page without the
+// quiz DOM that selectQuizOptionDOM knows, and cannot confirm the selection.
 //
 // We stay on the current page (parent with embedded quiz). The -i -C snapshot
 // already surfaces the direct clickable refs for the options and the submit
@@ -416,7 +469,7 @@ func stripOptionPrefix(s string) string {
 	}
 	return s
 }
-func SubmitQuizOption(ctx context.Context, br *browser.Client, optionText string) error {
+func selectQuizOptionLegacy(ctx context.Context, br *browser.Client, optionText string) error {
 	// Do not navigate to the raw iframe src. The parent page snapshot (with -i -C)
 	// already exposes the direct cursor-interactive click targets for the options
 	// (the "clickable "Japan" [ref=e90] [cursor:pointer]" elements).
@@ -471,32 +524,33 @@ func SubmitQuizOption(ctx context.Context, br *browser.Client, optionText string
   for (var i = 0; i < cards.length; i++) {
     var card = cards[i];
     var t = (card.textContent || card.innerText || '').trim();
-    if (norm(t).indexOf(want) >= 0 || want.indexOf(norm(t)) >= 0) {
+    if (norm(t) && (norm(t).indexOf(want) >= 0 || want.indexOf(norm(t)) >= 0)) {
       card.click();
       return JSON.stringify({ok: true, via: 'card'});
     }
   }
 
+  // The smallest visible element whose whole text is the option. (This used
+  // to take the LARGEST element merely containing it — the page body — and an
+  // element with no text matched every option.)
   var all = Array.from(document.querySelectorAll('*'));
   var best = null;
-  var bestArea = 0;
+  var bestArea = Infinity;
   for (var i = 0; i < all.length; i++) {
     var el = all[i];
     var t = (el.innerText || el.textContent || '').trim();
     var r = el.getBoundingClientRect();
-    if (r.width > 0 && r.height > 0) {
-      if (norm(t) === want || norm(t).indexOf(want) >= 0 || want.indexOf(norm(t)) >= 0) {
-        var area = r.width * r.height;
-        if (area > bestArea) {
-          bestArea = area;
-          best = el;
-        }
+    if (r.width > 0 && r.height > 0 && want && norm(t) === want) {
+      var area = r.width * r.height;
+      if (area < bestArea) {
+        bestArea = area;
+        best = el;
       }
     }
   }
   if (best) {
     best.click();
-    return JSON.stringify({ok: true, via: 'largest'});
+    return JSON.stringify({ok: true, via: 'smallest'});
   }
   return JSON.stringify({ok: false});
 })(` + string(optJSON) + `)`
@@ -514,11 +568,6 @@ func SubmitQuizOption(ctx context.Context, br *browser.Client, optionText string
 			}
 			time.Sleep(500 * time.Millisecond)
 		}
-	}
-
-	// Now click "Afgiv svar". Use cursor snapshot + ref for reliability.
-	if err := clickAfgivSvar(ctx, br); err != nil {
-		return fmt.Errorf("click Afgiv svar: %w", err)
 	}
 
 	return nil
