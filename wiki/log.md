@@ -2163,3 +2163,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-23 05:39 UTC] ingest | quiz | Hvilket oldtidsfolk var ophavsmænd til det alfabet, som det … | outcome=submitted
 
+## [2026-11-23 05:40 UTC] ingest | ordkløver | Category: `Mad og drikke`; answer pattern `9 / 9` | outcome=submitted
+
