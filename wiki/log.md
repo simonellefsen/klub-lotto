@@ -2173,3 +2173,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-23 06:07 UTC] ingest | quiz | Hvilket oldtidsfolk var ophavsmænd til det alfabet, som det … | outcome=submitted
 
+## [2026-11-24 04:29 UTC] ingest | kædeord | Chain words: trace words through a letter grid (50 points fo… | outcome=submitted
+
