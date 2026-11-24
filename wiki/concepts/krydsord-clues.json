@@ -179,6 +179,9 @@
   "ANE": [
     "TIPOLDEFAR"
   ],
+  "ANER": [
+    "VED"
+  ],
   "ANERKENDELSEN": [
     "ÆRESPRISEN"
   ],
@@ -1485,6 +1488,9 @@
   "FLOD": [
     "PO"
   ],
+  "FLYSELSKAB": [
+    "SAS"
+  ],
   "FLYTTER": [
     "ROKKER"
   ],
@@ -2260,7 +2266,8 @@
     "MARINA"
   ],
   "HAVNEANLÆG": [
-    "MOLE"
+    "MOLE",
+    "DOK"
   ],
   "HEDEN": [
     "VARMEN"
@@ -2977,6 +2984,9 @@
   "KLOGT": [
     "VIST"
   ],
+  "KLOSTERBO": [
+    "MUNK"
+  ],
   "KLUB": [
     "LIGA",
     "OB"
@@ -3503,6 +3513,9 @@
     "OZON",
     "ILT"
   ],
+  "LUFTKASTEL": [
+    "UTOPI"
+  ],
   "LUGE": [
     "LEM"
   ],
@@ -3722,6 +3735,9 @@
   ],
   "METER": [
     "M"
+  ],
+  "MEXICANSKRET": [
+    "TACO"
   ],
   "MI": [
     "E",
@@ -4404,6 +4420,9 @@
   "POLITIAFDELING": [
     "PET"
   ],
+  "POOL": [
+    "BADEBASSIN"
+  ],
   "POPGRUPPE": [
     "ABBA"
   ],
@@ -4895,7 +4914,8 @@
   ],
   "SKALDYR": [
     "KREBS",
-    "REJE"
+    "REJE",
+    "ØSTERS"
   ],
   "SKIB": [
     "MF",
@@ -5212,6 +5232,9 @@
   ],
   "SNEDIG": [
     "SNU"
+  ],
+  "SNEGL": [
+    "KONK"
   ],
   "SNILDE": [
     "LIST"
@@ -5847,6 +5870,9 @@
     "FØR",
     "SEN"
   ],
+  "TIDSAFSNIT": [
+    "EPOKE"
+  ],
   "TIDSRUM": [
     "EPOKE",
     "EPOKER"
@@ -5969,7 +5995,8 @@
     "MI",
     "DO",
     "LA",
-    "EIS"
+    "EIS",
+    "AIS"
   ],
   "TONEART": [
     "EDUR",
@@ -6004,6 +6031,9 @@
   ],
   "TRADEMARK": [
     "TM"
+  ],
+  "TRANSPORT": [
+    "BUSKØRSEL"
   ],
   "TRANSPORTMIDDEL": [
     "TURISTBUS",
@@ -6305,6 +6335,9 @@
   ],
   "URO": [
     "RØRE"
+  ],
+  "USIKKERHED": [
+    "TVIVL"
   ],
   "UVEJR": [
     "ORKANER"
@@ -6919,6 +6952,9 @@
   ],
   "[IMG]EGGTIMER": [
     "ÆGGEUR"
+  ],
+  "[IMG]ELECTRICPLUG": [
+    "STIK"
   ],
   "[IMG]ENVELOPE": [
     "BREV"
