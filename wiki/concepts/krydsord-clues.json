@@ -336,6 +336,9 @@
   "BEGÆRE": [
     "ATTRÅ"
   ],
+  "BEGÆRER": [
+    "ATTRÅR"
+  ],
   "BEGÆRET": [
     "ATTRÅET"
   ],
@@ -1538,6 +1541,9 @@
   "FORBI": [
     "OMME"
   ],
+  "FORBILLEDE": [
+    "IDEAL"
+  ],
   "FORBLØFFE": [
     "UNDRE"
   ],
@@ -2440,6 +2446,9 @@
     "NEGLE",
     "RANE"
   ],
+  "HUGGER": [
+    "NOLER"
+  ],
   "HUGGET": [
     "RANET"
   ],
@@ -3165,7 +3174,8 @@
     "BUEDE"
   ],
   "KRYBDYR": [
-    "SKILDPADDE"
+    "SKILDPADDE",
+    "ØGLE"
   ],
   "KRYDDERDEL": [
     "OVER",
@@ -3532,6 +3542,9 @@
   "LUTTER": [
     "BAR"
   ],
+  "LYD": [
+    "DYT"
+  ],
   "LYS": [
     "KERTE"
   ],
@@ -3833,6 +3846,9 @@
   "MUSEUM": [
     "LOUVRE",
     "AROS"
+  ],
+  "MUSICAL": [
+    "CHESS"
   ],
   "MUSICALNOTES": [
     "NODER"
@@ -4737,6 +4753,9 @@
   "RUMORGANISATION": [
     "ESA",
     "NASA"
+  ],
+  "RUSER": [
+    "GARN"
   ],
   "RYGE": [
     "OSE"
@@ -5824,6 +5843,9 @@
   "TAVLEVASKER": [
     "DUKS"
   ],
+  "TEAM": [
+    "HOLD"
+  ],
   "TEATERFIGUR": [
     "ROMEO"
   ],
@@ -6342,6 +6364,9 @@
   "UVEJR": [
     "ORKANER"
   ],
+  "V": [
+    "FEM"
+  ],
   "VADE": [
     "GÅ"
   ],
@@ -6502,6 +6527,9 @@
   ],
   "VIKLE": [
     "SNO"
+  ],
+  "VIKLER": [
+    "SNOR"
   ],
   "VINDERE": [
     "ETTERE"
@@ -7433,6 +7461,9 @@
   ],
   "[IMG]TENNISRACKET": [
     "KETSJER"
+  ],
+  "[IMG]TENOFCLUBSPLAYINGCARD": [
+    "TIER"
   ],
   "[IMG]TENT": [
     "TELT"
