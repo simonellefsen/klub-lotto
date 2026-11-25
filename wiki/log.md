@@ -2193,3 +2193,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-25 05:36 UTC] ingest | quiz | I hvilket årti blev den franske revolution udløst? | outcome=submitted
 
+## [2026-11-25 05:37 UTC] ingest | ordkløver | Category: `Begreb`; answer pattern `4 / 3 / 6`; visual layou… | outcome=submitted
+
