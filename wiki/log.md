@@ -2205,3 +2205,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-26 05:41 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-11-26 05:41 UTC] ingest | quiz | Hvad kaldes vandets kemiske formel? | outcome=submitted
+
