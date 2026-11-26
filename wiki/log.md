@@ -2203,3 +2203,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-26 05:40 UTC] ingest | kædeord | Chain words: trace words through a letter grid (50 points fo… | outcome=submitted
 
+## [2026-11-26 05:41 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
+
