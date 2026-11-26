@@ -2207,3 +2207,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-26 05:41 UTC] ingest | quiz | Hvad kaldes vandets kemiske formel? | outcome=submitted
 
+## [2026-11-26 05:42 UTC] ingest | ordkløver | Category: `Forfatter`; answer pattern `7 / 7` | outcome=submitted
+
