@@ -895,6 +895,9 @@
     "EPOS",
     "VERS"
   ],
+  "DIGTEKUNST": [
+    "POESI"
+  ],
   "DIGTER": [
     "POET"
   ],
@@ -984,6 +987,9 @@
   ],
   "DRÅBER": [
     "TÅRER"
+  ],
+  "DRØFTER": [
+    "DISKUTERER"
   ],
   "DRØM": [
     "UTOPI"
@@ -1827,7 +1833,8 @@
     "RÅGE",
     "SKADE",
     "ISLOM",
-    "LÆRKE"
+    "LÆRKE",
+    "RYPE"
   ],
   "FUGLE": [
     "ØRNE",
@@ -2742,6 +2749,9 @@
     "TROMPETER",
     "TUBAER"
   ],
+  "INSTRUMENTET": [
+    "OBOEN"
+  ],
   "INTAKT": [
     "HEL"
   ],
@@ -3415,7 +3425,8 @@
     "RANGLE",
     "LEGO",
     "GYNGEHEST",
-    "PUSLESPIL"
+    "PUSLESPIL",
+    "DUKKEHUSE"
   ],
   "LEGITIMATION": [
     "ID"
@@ -3950,6 +3961,9 @@
   ],
   "NABOLAG": [
     "OMEGN"
+  ],
+  "NABOLAGET": [
+    "OMEGNEN"
   ],
   "NARRESTREG": [
     "UNODE"
@@ -4600,7 +4614,8 @@
     "SANDHED"
   ],
   "REB": [
-    "TOV"
+    "TOV",
+    "TOVE"
   ],
   "REDHANDBAG": [
     "TASKE"
@@ -5132,6 +5147,9 @@
   "SLEV": [
     "SKE"
   ],
+  "SLIBE": [
+    "HVÆSSE"
+  ],
   "SLIK": [
     "GUF"
   ],
@@ -5339,6 +5357,9 @@
     "UNO",
     "DAM",
     "LUDO"
+  ],
+  "SPILDER": [
+    "ØDER"
   ],
   "SPILDES": [
     "ØDES"
@@ -6152,6 +6173,9 @@
   ],
   "TVEKAMP": [
     "DUEL"
+  ],
+  "TVTYPE": [
+    "HD"
   ],
   "TWOREDROSES": [
     "ROSER"
