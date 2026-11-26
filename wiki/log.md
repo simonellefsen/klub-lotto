@@ -2209,3 +2209,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-26 05:42 UTC] ingest | ordkløver | Category: `Forfatter`; answer pattern `7 / 7` | outcome=submitted
 
+## [2026-11-26 05:43 UTC] ingest | ordknuden | 5-letter Danish word puzzle | outcome=submitted
+
