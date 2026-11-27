@@ -2219,3 +2219,5 @@ Browse with `grep '^## \[' wiki/log.md | tail -10`.
 
 ## [2026-11-27 05:25 UTC] ingest | sudoku | 9x9 Sudoku | outcome=submitted
 
+## [2026-11-27 05:25 UTC] ingest | quiz | Hvem stod bag de 95 teser, der blev offentliggjort i Wittenb… | outcome=submitted
+
