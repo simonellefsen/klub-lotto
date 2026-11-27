@@ -209,6 +209,9 @@
   "ANSIGTSKULØR": [
     "TEINT"
   ],
+  "ANSLOG": [
+    "ESTIMEREDE"
+  ],
   "ANSPORE": [
     "ILDNE"
   ],
@@ -866,6 +869,9 @@
     "JITTERBUG",
     "TANGO"
   ],
+  "DASKE": [
+    "SLÅ"
+  ],
   "DECIBEL": [
     "DB"
   ],
@@ -971,7 +977,8 @@
     "CHAMPAGNE"
   ],
   "DRIKKE": [
-    "DIE"
+    "DIE",
+    "VINE"
   ],
   "DRIKKEN": [
     "ÆBLEMOSTEN"
@@ -1877,6 +1884,9 @@
   "FYRSTE": [
     "EMIR"
   ],
+  "FÅ": [
+    "ENKELTE"
+  ],
   "FÆRDIG": [
     "YT"
   ],
@@ -2216,6 +2226,9 @@
   ],
   "GÆTTE": [
     "GISNE"
+  ],
+  "GØS": [
+    "ISNEDE"
   ],
   "HADER": [
     "AFSKYR"
@@ -2652,6 +2665,9 @@
   "IMOD": [
     "ANTI"
   ],
+  "IMPONERENDE": [
+    "FLOT"
+  ],
   "INDEN": [
     "FØR"
   ],
@@ -2767,6 +2783,9 @@
   ],
   "IRRITERE": [
     "ÆRGRE"
+  ],
+  "IRRITERET": [
+    "ÆRGRET"
   ],
   "ISOLATION": [
     "ENRUM"
@@ -3479,7 +3498,8 @@
     "NETOP"
   ],
   "LIGETIL": [
-    "NEMT"
+    "NEMT",
+    "ENKEL"
   ],
   "LIGEVÆRDIG": [
     "JÆVNBYRDIG"
@@ -4386,6 +4406,9 @@
   "PINT": [
     "NAGET"
   ],
+  "PIRRER": [
+    "ÆGGER"
+  ],
   "PLADE": [
     "LP",
     "EP",
@@ -4457,7 +4480,8 @@
     "ABBA"
   ],
   "POSE": [
-    "AFFALDSSÆK"
+    "AFFALDSSÆK",
+    "SÆK"
   ],
   "POSTYR": [
     "RØRE"
@@ -4836,6 +4860,9 @@
   ],
   "SAMT": [
     "OG"
+  ],
+  "SANDELIG": [
+    "SKAM"
   ],
   "SANG": [
     "ARIE"
@@ -6591,6 +6618,9 @@
   "VIRKELYST": [
     "IVER"
   ],
+  "VIRKNINGSFULDE": [
+    "EFFEKTIVE"
+  ],
   "VIRKNINGSFULDT": [
     "EFFEKTIVT"
   ],
@@ -6707,7 +6737,8 @@
     "ENGEL"
   ],
   "VÆSKE": [
-    "ÆTER"
+    "ÆTER",
+    "VAND"
   ],
   "VÆSNER": [
     "ENGLE"
