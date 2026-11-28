@@ -476,7 +476,8 @@
   ],
   "BILLEDE": [
     "FOTO",
-    "IKON"
+    "IKON",
+    "FOTOGRAFI"
   ],
   "BILMÆRKE": [
     "MG",
@@ -1343,7 +1344,8 @@
     "PRAM"
   ],
   "FARTØJER": [
-    "UBÅDE"
+    "UBÅDE",
+    "FISKERBÅDE"
   ],
   "FARVAND": [
     "LIMFJORDEN"
@@ -4256,7 +4258,8 @@
   ],
   "OVERGANG": [
     "BRO",
-    "TRÆBRO"
+    "TRÆBRO",
+    "FASE"
   ],
   "OVERGANGEN": [
     "BROEN"
@@ -4383,7 +4386,8 @@
     "ÅR",
     "NAT",
     "UGE",
-    "ÆRA"
+    "ÆRA",
+    "TID"
   ],
   "PERIODEN": [
     "UGEN"
@@ -5291,6 +5295,9 @@
   "SNAKKESALIG": [
     "ÅBENMUNDET"
   ],
+  "SNAVS": [
+    "SOD"
+  ],
   "SNAVSET": [
     "UREN"
   ],
@@ -5356,6 +5363,9 @@
   ],
   "SPANSKTITEL": [
     "DON"
+  ],
+  "SPANSKØ": [
+    "IBIZA"
   ],
   "SPARK": [
     "LOS"
@@ -5617,7 +5627,8 @@
     "IBIS"
   ],
   "STRAKS": [
-    "NU"
+    "NU",
+    "FLUKS"
   ],
   "STRANDFUND": [
     "RAV"
@@ -6193,7 +6204,8 @@
     "TEAK"
   ],
   "TRÆT": [
-    "DØSIG"
+    "DØSIG",
+    "UDKØRT"
   ],
   "TURDE": [
     "VOVE"
@@ -6923,7 +6935,8 @@
     "DAM"
   ],
   "[IMG]CHEESEWEDGE": [
-    "PROP"
+    "PROP",
+    "OST"
   ],
   "[IMG]CHEESEWEDGES": [
     "OSTE"
